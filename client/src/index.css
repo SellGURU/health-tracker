@@ -77,16 +77,36 @@
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     letter-spacing: -0.025em;
+    text-rendering: optimizeLegibility;
   }
 
   p, span, div, label {
     font-weight: 400;
     letter-spacing: 0;
+    text-rendering: optimizeLegibility;
   }
 
   input, textarea, button {
     font-family: inherit;
     font-feature-settings: inherit;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: inherit;
+    -moz-osx-font-smoothing: inherit;
+  }
+
+  /* Additional font smoothing for UI components */
+  .font-medium {
+    font-weight: 500;
+  }
+
+  .font-semibold {
+    font-weight: 600;
+  }
+
+  /* Ensure crisp text on all devices */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
