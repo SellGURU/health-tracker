@@ -1,4 +1,5 @@
 import { apiRequest } from "./queryClient";
+import { mockAuth } from "./mock-auth";
 
 export interface AuthUser {
   id: number;
@@ -92,6 +93,21 @@ class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthUser> {
+    // Check if mock mode is enabled for UI testing
+    if (mockAuth.isMockModeEnabled()) {
+      try {
+        const user = await mockAuth.mockLogin(credentials.email, credentials.password);
+        this.currentUser = user;
+        this.sessionId = 'mock-session-123';
+        // Store mock session
+        localStorage.setItem('health_user', JSON.stringify(user));
+        localStorage.setItem('health_session', 'mock-session-123');
+        return user;
+      } catch (error) {
+        throw new Error('Invalid credentials');
+      }
+    }
+
     const response = await apiRequest('POST', '/api/auth/login', credentials);
     const data: AuthResponse = await response.json();
     

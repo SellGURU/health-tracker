@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { validateEmail, validatePassword } from "@/lib/utils";
-import { Heart, Upload, TrendingUp, Brain, UserPlus, LogIn } from "lucide-react";
+import { Heart, Upload, TrendingUp, Brain, UserPlus, LogIn, TestTube } from "lucide-react";
+import { mockAuth } from "@/lib/mock-auth";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
@@ -21,6 +23,13 @@ export default function AuthPage() {
     email: "",
     password: "",
   });
+
+  const fillTestCredentials = () => {
+    setLoginData({
+      email: "test@healthtracker.com",
+      password: "password123"
+    });
+  };
   
   // Register form state
   const [registerData, setRegisterData] = useState({
@@ -157,6 +166,28 @@ export default function AuthPage() {
               </TabsList>
               
               <TabsContent value="login" className="space-y-4">
+                {mockAuth.isMockModeEnabled() && (
+                  <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <TestTube className="w-4 h-4 text-blue-600" />
+                        <Badge variant="secondary" className="text-xs">UI Testing Mode</Badge>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={fillTestCredentials}
+                        className="text-xs"
+                      >
+                        Use Test Login
+                      </Button>
+                    </div>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                      Backend bypassed - use test@healthtracker.com / password123
+                    </p>
+                  </div>
+                )}
+                
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
                     <Label htmlFor="login-email">Email Address</Label>
