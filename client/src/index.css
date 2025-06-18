@@ -62,15 +62,22 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-variant-ligatures: none;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    font-feature-settings: "kern" 1;
     font-optical-sizing: auto;
     font-synthesis: none;
     text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    font-variant-ligatures: none;
+    font-smooth: always;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-display: swap;
+    image-rendering: -webkit-optimize-contrast;
   }
 
   /* Improve text clarity */
@@ -104,9 +111,34 @@
   }
 
   /* Ensure crisp text on all devices */
-  * {
+  *, *::before, *::after {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-variant-ligatures: none;
+    text-rendering: geometricPrecision;
+    font-kerning: auto;
+  }
+  
+  /* Force sharp text rendering */
+  input, button, select, textarea, label, span, div, p, h1, h2, h3, h4, h5, h6 {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: geometricPrecision !important;
+    font-smooth: never !important;
+    font-variant-ligatures: none !important;
+  }
+  
+  /* Override for better text rendering */
+  .text-sm, .text-xs {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+  }
+  
+  .text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
   }
 }
 

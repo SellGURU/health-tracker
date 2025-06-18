@@ -116,10 +116,24 @@ HealthTracker is a comprehensive web application designed to help users track an
 ```
 Changelog:
 - June 18, 2025. Initial setup
+- June 18, 2025. Enhanced font clarity with Inter font family and optimized text rendering
+- June 18, 2025. Created test account with sample health data for UI testing
 ```
 
 ## User Preferences
 
 ```
 Preferred communication style: Simple, everyday language.
+Font clarity: Requires sharp, clear text rendering across all UI elements.
+Testing approach: Prefers test accounts with realistic data for UI validation.
+```
+
+## Test Credentials
+
+```
+Test Account:
+Email: test@healthtracker.com
+Password: password123
+
+Includes: Lab results, health scores, action plans, and AI insights
 ```
