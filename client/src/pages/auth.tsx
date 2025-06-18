@@ -61,6 +61,11 @@ export default function AuthPage() {
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
+      
+      // Force a small delay to ensure auth state updates
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
       toast({
         title: "Sign in failed",

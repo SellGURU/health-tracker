@@ -136,6 +136,16 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<AuthUser | null> {
+    // Check mock mode first
+    if (mockAuth.isMockModeEnabled()) {
+      const user = mockAuth.getCurrentUser();
+      if (user) {
+        this.currentUser = user;
+        this.sessionId = 'mock-session-123';
+        return user;
+      }
+    }
+
     if (!this.sessionId) {
       return null;
     }
@@ -171,6 +181,11 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
+    // Check mock mode
+    if (mockAuth.isMockModeEnabled()) {
+      return mockAuth.getCurrentUser() !== null;
+    }
+    
     return this.currentUser !== null && this.sessionId !== null;
   }
 
