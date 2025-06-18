@@ -1,0 +1,369 @@
+Health App Role-Based Business Analysis (Based on Ornament Health) is a Swiss-based digital health platform designed to empower individuals to monitor and improve their health through personalized insights, actionable plans, and comprehensive data management. It supports lab result digitization, manual data entry, historical data tracking, Apple Health integration pregnancy mode, and business solutions for healthcare providers. The app operates on a freemium model, with advanced features available via a premium subscription (Plus Plan). B2B services, clinics, and corporations. The user interface is intuitive, with clear tabs, pages, and buttons to ensure accessibility for all users. 
+
+User Roles and Responsibilities
+
+Patients / End Users Responsibilities:
+
+Upload and manage personal health data, including lab results, lifestyle information, symptoms, and survey responses. Monitor health metrics, act on personalized insights, follow action plans, and participate in wellness challenges. Share health profiles or action plans with healthcare providers, family, or a designated editor based on subscription limits. Set and track health goals via a dedicated dashboard. For premium users, follow personalized meal plans, weight loss guides, intermittent fasting programs, or wellness challenges.
+
+Key Features:
+
+Lab Result Integration: Upload lab reports in multiple formats (PDF, JPG, PNG, email). 
+
+Manual Data Entry: Enter lab results manually with fields for test name, value, unit, date, and notes, ensuring accessibility for users without digital reports. 
+
+Historical Data Tracking: View and compare historical lab results (e.g., cholesterol over years) with visual timelines and alerts for significant changes (e.g., >10% shift in glucose).
+
+Health Monitoring: Track over 4,100 biomarkers (e.g., Vitamin D, cholesterol, hemoglobin, glucose) with graphical trends and comparisons to reference ranges or similar users. 
+
+Apple Health Integration: Sync data like weight, heart rate, steps, and sleep for holistic assessments. 
+
+Explainer Tool: AI-driven interpretations of lab results, lifestyle recommendations, and unique features like personalized motivational raps. 
+
+Health Scores: Generate personalized health scores based on biomarkers, lifestyle data, and survey responses, with recommendations for checkups or preventive measures. 
+
+Checkup Plans: Receive tailored suggestions for lab tests or screenings based on health data and goals. 
+
+Health Profile Report: Generate AI-driven or doctor-validated reports summarizing health status, biomarkers, trends, and recommendations. 
+
+Holistic Plan Generation: Create comprehensive holistic health plans that integrate multiple health aspects (nutrition, exercise, mental wellness, preventive care) based on complete health profile analysis. 
+
+Action Plan Creation: Create specific, targeted action plans (e.g., low-cholesterol diet, 30-minute daily exercise, monthly follow-up tests) based on health profiles or holistic plans, with AI or doctor validation. 
+
+Sharing Options: Share health profiles with up to 2 (free tier) or 10 (Plus Plan) individuals; assign one person editing rights for action plans. 
+
+Health Goal Dashboard: Set and track user-defined health goals (e.g., lower cholesterol by 10%) with milestone notifications and visualizations. 
+
+Multi-Language Support: Interface and content available in multiple languages, though some articles remain English-only. 
+
+Custom Alerts: Receive notifications for abnormal results (e.g., possible anemia) or upcoming checkups. 
+
+Data Export: Export health data or reports in PDF or CSV formats for sharing or personal records. Health Summary Page: Centralized overview of health metrics, scores, and recommendations on the "You" screen in the "Health" section.
+
+Limitations (Based on User Feedback):
+
+Limited Apple Health syncing (e.g., no blood pressure or weight pulling). Free tier restricts uploads (e.g., 1-2 lab tests). Some features (e.g., workouts, advanced analytics) require additional purchases or are English-only. Gender options (trans/intersex) lack full feature support (e.g., checkup plans). Interface can feel unintuitive, with subscription prompts after data entry.
+
+Healthcare Professionals (Doctors, Nutritionists, Coaches) Responsibilities:
+
+Add patients to the app and manage their health profiles. Review patients' uploaded health data, lab results, historical trends, symptoms, action plans, and goal progress for informed consultations. Provide AI or doctor-validated insights, health profile reports, holistic plans, and action plans, adjusting care as needed. Monitor patient progress in real-time and co-create action plans with editing rights (if assigned). Collaborate with patients via the Professional Plan to enhance engagement. Create or validate holistic health plans for patients invited through clinic partnerships.
+
+Key Features:
+
+Professional Plan: A dedicated interface to access patients' lab results, health scores, survey responses, historical data, symptoms, action plans, and goal progress in an organized dashboard. 
+
+Patient Onboarding: Add up to 20 patients under a Standard Professional Plan ($99/year) or 50 under a Premium Professional Plan ($150/year) without requiring patient subscriptions. 
+Non-subscribed professionals can invite 1-2 patients with restricted features unless patients subscribe. 
+
+Data Access: Securely view patients' medical history, biomarker trends, lifestyle data, historical comparisons, symptoms, and action plans. 
+
+Real-Time Monitoring: Track treatment progress, action plan adherence, challenge participation, and goal achievement with real-time updates. 
+
+Custom Recommendations: Provide tailored advice, including AI or doctor-validated insights, reports, holistic plans, and action plans. 
+
+Patient Engagement Tools: Invite patients to share data or assign editing rights for collaborative action plan creation. 
+
+Historical Data Analysis: Analyze past lab results to inform treatment plans (e.g., tracking HbA1c trends for diabetes management). 
+
+Holistic Plan Creation: For clinic-invited patients, healthcare professionals can directly create or validate comprehensive holistic health plans without additional charges.
+
+Limitations:
+
+Limited integration with external EHR systems, requiring manual data review. Some professionals report slow support response times.
+
+Administrators / Platform Managers Responsibilities:
+
+Ensure compliance with data privacy regulations (e.g., GDPR, HIPAA). Manage user access, permissions, and subscription tiers, including professional and patient limits. Oversee platform functionality, updates, and user support services. Handle integrations with B2B partners, such as labs or clinics.
+
+Key Features:
+
+Data Security: Implement encryption and depersonalized data transmission to comply with regulations. 
+
+User Management: Control access for patients, professionals, and B2B partners, including subscription-based limits (e.g., patient caps for professionals). 
+
+Support Services: Provide chat-based support (response times ~1 hour) and manage refund requests. B2B Integration Tools: Offer APIs and a JavaScript library for integration with patient portals, labs, or telehealth platforms. Analytics Dashboard: Monitor platform usage, subscription metrics, and engagement (e.g., challenge participation).
+
+Limitations:
+
+Slow support response times impact user satisfaction. Strict refund policies cause dissatisfaction.
+
+
+Business Rules and Interactions Data Privacy and Security
+
+User Control: Users choose who accesses their health data via granular settings, including sharing profiles with 2 (free) or 10 (Plus) individuals, or assigning one editor for action plans. 
+
+Secure Transmission: Data is depersonalized and encrypted to comply with GDPR and HIPAA. 
+
+Compliance: Regular audits ensure data security. Data Deletion: Users can request deletion via support with a User ID.
+
+Subscription Model
+
+Freemium Model: Basic features (e.g., 1-2 lab uploads, basic tracking) are free; advanced features (e.g., unlimited uploads, action plans, wellness challenges, symptom tracking) require a Plus Plan ($6.99-$99/year). One-time payment option for document digitization. Healthcare Professional Onboarding:
+
+Standard Professional Plan ($99/year): Add up to 20 patients without patient subscriptions. Premium Professional Plan ($150/year): Add up to 50 patients. Non-subscribed professionals: Invite 1-2 patients with restricted features (e.g., no action plans) unless patients subscribe.
+
+Individual Onboarding: Users signing up independently must purchase a Plus Plan for full access. AI vs. Doctor Validation:
+
+AI-generated insights, reports, holistic plans, and action plans are included in the Plus Plan. Doctor-validated insights, reports, holistic plans, and action plans cost $10-$20 per validation (tentative), charged separately. Clinic-Invited Patients: For patients invited through clinic partnerships, healthcare professionals can create or validate holistic plans and action plans without additional charges as part of their Professional Plan benefits.
+
+Pricing Concerns: Users report unexpected charges (e.g., $63 renewals after $20 promotions) or unclear terms (e.g., guidebook purchases). Refund Policy: Refunds limited to website purchases, with strict conditions (e.g., weight loss program completion). Trial Limitations: Free trials allow 1-2 uploads, pushing upgrades. B2B Subscriptions: Labs and clinics resell subscriptions or integrate them into wellness programs
+
+
+Integration with External Platforms
+
+Apple Health: Syncs heart rate, steps, and sleep, but cannot pull blood pressure or weight due to API restrictions. Planned enhancements in Q1 2026. 
+Lab Integration: Supports results from LabCorp, My Quest, etc., via uploads or APIs. Patient Portals: B2B partners integrate via a JavaScript library.
+
+
+B2B Interactions
+
+Partnerships: Labs, clinics, and corporations integrate services for client engagement. Affiliate Revenue: Partners earn commissions via subscriptions. Custom Branding: White-labeled apps align with partner branding.
+
+User Journey Mapping
+
+Onboarding
+
+Route 1: Healthcare Professional-Initiated:
+
+Professionals add patients via the Professional Plan (up to 20 for Standard, 50 for Premium; non-subscribed professionals limited to 1-2 patients). Patients complete account setup (email, health info: age, sex, height) and preferences (e.g., language). 
+Clinic-Invited Benefits: Patients invited through clinic partnerships gain access to professional oversight for holistic plan creation without additional validation fees.
+
+Route 2: Individual Signup:
+
+Users sign up via email or social login, input health info, and purchase a Plus Plan for full access.
+
+Common Steps:
+
+Connect Apple Health for data import (e.g., steps, heart rate). Guided tour of features (lab uploads, health scores, holistic plans, action plans, challenges, forums). 
+Subscription prompt for premium features; trials allow 1-2 uploads. X button in top-left corner closes subscription prompt for free version.
+
+Data Input
+
+Lab Uploads: Upload results (PDF, photo, email) or manually enter data (test name, value, unit, date, notes) with automatic unit detection and multi-language support. 
+Surveys: Complete lifestyle surveys (e.g., diet, exercise) for personalized insights. 
+Symptom Tracking: Log symptoms (e.g., fatigue, headaches) with severity and duration. Organized Data: Results categorized by organ/system (e.g., liver, heart). 
+Professional Assistance: For clinic-invited patients, healthcare professionals can assist with data interpretation and input guidance.
+
+Health Monitoring
+
+Biomarker Tracking: View trends for 4,100+ biomarkers with graphs and comparisons. 
+Historical Data Comparison: Analyze past results with visual timelines and alerts for significant changes. 
+Health Scores: AI-generated scores and recommendations for checkups. 
+Alerts: Notifications for abnormal results or upcoming checkups. 
+Health Goal Dashboard: Track progress toward user-defined goals with visualizations. Professional Oversight: For clinic-invited patients, healthcare professionals can monitor data in real-time and provide immediate guidance on concerning trends.
+
+Insight Generation and Health Profile Report
+
+Option 1: AI-Generated:
+
+Included in Plus Plan. AI analyzes lab results, surveys, symptoms, and Apple Health data to generate insights and a health profile report (health status, biomarkers, trends, recommendations).
+
+Option 2: Doctor-Validated:
+
+Costs $10-$20 per validation (tentative). Doctors review AI insights and finalize the health profile report for accuracy.
+
+Option 3: Clinic Professional-Generated (for clinic-invited patients):
+
+Healthcare professionals associated with the inviting clinic can generate and validate health profile reports as part of their Professional Plan benefits, without additional charges to the patient.
+
+Holistic Plan Generation
+
+Feature: Create comprehensive holistic health plans that integrate nutrition, exercise, mental wellness, preventive care, and lifestyle modifications based on complete health profile analysis. 
+
+AI-Generated Holistic Plans:
+
+Included in Plus Plan. AI creates integrated plans considering all health aspects, biomarkers, lifestyle factors, and goals.
+
+Doctor-Validated Holistic Plans:
+
+Costs $15-$25 per validation (tentative). Healthcare professionals review and customize AI-generated holistic plans for clinical accuracy and personalization.
+
+Clinic Professional-Generated (for clinic-invited patients):
+
+Healthcare professionals from the inviting clinic can create, modify, and validate holistic plans directly as part of their Professional Plan benefits, without additional charges to the patient.
+
+Plan Components: May include dietary guidelines, exercise regimens, stress management techniques, sleep optimization, supplement recommendations, preventive screening schedules, and mental wellness strategies. 
+Integration: Holistic plans serve as the foundation for more specific action plans and wellness challenges.
+
+Action Plan Creation
+
+Feature: Create specific, targeted action plans (e.g., low-cholesterol diet, 30-minute walks, monthly glucose tests) based on health profiles or holistic plans. AI-Generated: Included in Plus Plan. Doctor-Validated: Costs $10-$20 per validation (tentative). Clinic Professional-Generated (for clinic-invited patients): Healthcare professionals from the inviting clinic can create and validate action plans as part of their Professional Plan benefits, without additional charges to the patient. Editing Rights: Assign one person (e.g., professional, family) editing rights to co-create plans. Holistic Plan Integration: Action plans can be derived from broader holistic plans, focusing on specific health goals or conditions.
+
+Sharing Options
+
+Share Health Profile:
+
+Free tier: Share with 2 individuals. Plus Plan: Share with 10 individuals.
+
+Share and Edit: Assign one person editing rights for action plans (separate from sharing limit). Professional Sharing: For clinic-invited patients, automatic sharing permissions with associated healthcare professionals for ongoing monitoring and plan adjustments.
+
+Personalized Wellness Challenges
+
+Feature: Engage in gamified challenges (e.g., "30-day heart health challenge," yoga, Pilates) with goals (e.g., reduce glucose) and rewards (e.g., badges). Tracking: Monitor progress via the app, integrated with health scores and action plans. Professional Guidance: For clinic-invited patients, healthcare professionals can recommend specific challenges aligned with holistic plans and monitor participation.
+
+Professional Consultation
+
+Data Sharing: Share profiles, holistic plans, or action plans with professionals via the Professional Plan. Consultations: Professionals review data, provide validated insights, and co-create holistic plans and action plans. Follow-Ups: Real-time updates for monitoring adherence. Enhanced Consultation (for clinic-invited patients): Direct access to inviting clinic professionals for comprehensive care coordination and plan management.
+
+Continuous Improvement
+
+Data Updates: Upload new results, sync Apple Health data, or log symptoms. Goal Adjustment: Revise goals based on insights, holistic plans, action plans, or challenges. Premium Features: Access meal planning, holistic plans, action plans, challenges, and symptom tracking. Professional Oversight: For clinic-invited patients, ongoing professional monitoring and plan adjustments based on progress and new data.
+
+User Interface Details The app's interface is designed for accessibility and ease of use, with clear navigation via tabs, pages, and buttons. Below is a detailed breakdown of each visible element, based on Ornament's known structure (e.g., "You" screen, "Health" section) and standard health app conventions, enhanced with new features. Main Tabs (Bottom Navigation Bar)
+
+Home Tab:
+
+Purpose: Centralized hub for quick access to key features and notifications. Buttons:
+
+Upload Lab Results: Opens file picker or camera for PDF/photo uploads, or manual entry form (test name, value, unit, date, notes). View Health Summary: Navigates to health summary page with health scores and recommendations. Create Holistic Plan: Displays option to generate AI or doctor-validated comprehensive health plans. Start Challenge: Displays available wellness challenges (e.g., "30-day heart health") with "Enroll" button. Log Symptom: Opens form to log symptoms (e.g., fatigue, severity: 1-10, duration: hours/days). Set Goal: Navigates to health goal dashboard to define goals (e.g., lower cholesterol).
+
+Sub-Pages:
+
+Notifications: Lists alerts for abnormal results, checkups, or challenge progress. Quick Insights: Displays AI-generated insights or prompts for doctor validation ($10-$20).
+
+Health Tab:
+
+Purpose: Monitor biomarkers, health scores, and historical data. Buttons:
+
+View Biomarkers: Shows list of 4,100+ biomarkers with graphs and reference ranges. Compare Historical Data: Opens timeline view with change alerts (e.g., >10% glucose shift). Health Score: Displays AI-generated score with recommendations. Generate Report: Triggers AI or doctor-validated health profile report.
+
+Sub-Pages:
+
+You Screen: Health summary page with scores, trends, and recommendations. Organ/System View: Categorizes biomarkers by liver, heart, etc. Historical Comparison: Visual timelines for past results.
+
+Holistic Plans Tab:
+
+Purpose: Create and manage comprehensive holistic health plans. Buttons:
+
+Create Holistic Plan: Opens comprehensive plan creation with nutrition, exercise, mental wellness components. Request Professional Validation: Submits plan for doctor validation ($15-$25) or clinic professional review (free for clinic-invited patients). View Plans: Lists active holistic plans with progress tracking. Integrate with Action Plans: Links holistic plans to specific action plans.
+
+Sub-Pages:
+
+Plan Overview: Shows comprehensive plan components and validation status. Progress Tracking: Monitors adherence across all plan aspects.
+
+Action Plans Tab:
+
+Purpose: Create and manage specific, targeted action plans. Buttons:
+
+Create Plan: Opens form to define components (diet, exercise, follow-up tests). Create from Holistic Plan: Derives specific action plans from broader holistic plans. Request Validation: Submits plan for doctor validation ($10-$20) or clinic professional review (free for clinic-invited patients). Assign Editor: Selects one user (e.g., professional) for editing rights. View Plans: Lists active plans with progress tracking.
+
+Sub-Pages:
+
+Plan Details: Shows components, validation status, and progress.
+
+
+Profile Tab:
+
+Purpose: Manage account, family profiles, subscriptions, and settings. Buttons:
+
+Add Family Member: Creates new profile for spouse/kid. Manage Subscription: Shows Plus Plan ($6.99-$99/year) or one-time digitization options. Connect Apple Health: Initiates sync for heart rate, steps, sleep. Export Data: Downloads results/reports in PDF/CSV. Edit Profile: Updates age, sex, height, language preferences. Sharing Settings: Configures profile sharing (2/10 individuals) or editor rights. Clinic Connection Status: Shows clinic partnership status and associated professionals (for clinic-invited patients).
+
+Sub-Pages:
+
+Family Profiles: Lists managed profiles with switch option. Subscription Status: Details plan and renewal info. Privacy Settings: Granular data access controls. Professional Connections: Manages connections with healthcare professionals.
+
+Additional Pages
+
+Sub-Pages: Weekly updates, test tracker.
+
+Insights + Wiki Page (accessed via Home or Health):
+
+Purpose: Explore biomarker database and health articles. Buttons:
+
+Search Biomarkers: Queries 4,100+ biomarkers (e.g., cholesterol). Read Articles: Displays personalized health articles. Explainer Tool: Shows AI-driven interpretations or raps.
+
+Sub-Pages: Biomarker details, article library.
+
+Meal Planning Page (premium, accessed via Home or Profile):
+
+
+Health Goal Dashboard Page (accessed via Home or Profile):
+
+Purpose: Set and track user-defined health goals. Buttons:
+
+Set Goal: Defines goal (e.g., lower cholesterol by 10%). Track Progress: Shows milestones and visualizations. Receive Notifications: Toggles milestone alerts.
+
+Sub-Pages: Goal progress, milestone history.
+
+Smart Reminders Page (accessed via Profile or Home):
+
+Purpose: Manage context-aware reminders. Buttons:
+
+Add Reminder: Sets medication, checkup, or challenge reminders. Prioritize: Adjusts reminder priority based on AI analysis.
+
+Sub-Pages: Reminder list, priority settings.
+
+Professional Dashboard (for professionals, accessed post-login):
+
+Purpose: Manage patient data and consultations. Buttons:
+
+Add Patient: Invites up to 20/50 patients (Standard/Premium). View Patient Data: Accesses lab results, profiles, symptoms, plans. Create Holistic Plan: Generates comprehensive plans for clinic-invited patients without additional charges. Monitor Progress: Tracks action plan/challenge adherence. Provide Recommendations: Submits validated insights or plans.
+
+Sub-Pages: Patient list, data overview, progress tracker, plan management.
+
+Backend API Documentation and Data Model API Documentation The backend API supports all app functionalities, including lab result management, health profile generation, holistic plan creation, action plan creation, sharing, wellness challenges, symptom tracking, and goal management. It uses RESTful endpoints, JSON payloads, and OAuth 2.0 authentication to ensure security and scalability. All endpoints require an access token, and rate limits (e.g., 100 requests/hour for free tier, 500 for Plus Plan) prevent abuse. Below are key endpoints with their purposes, inputs, and outputs.
+
+POST /users/register
+
+Purpose: Register a new user (patient or professional) via individual signup or professional invitation. Input: { email, password, role (patient/professional), basic_info (age, sex, height), subscription_id (optional), clinic_id (optional) } Output: { user_id, access_token, role, subscription_status, clinic_association } Notes: Professional-initiated onboarding links to Professional Plan; individual signup prompts Plus Plan purchase; clinic_id enables professional oversight benefits.
+
+POST /lab-results/upload
+
+Purpose: Upload lab results (PDF, JPG, PNG, email) or manually enter data. Input: { user_id, file (optional), manual_data (test_name, value, unit, date, notes), family_member_id (optional) } Output: { result_id, status, parsed_data (test_name, value, unit, date) } Notes: Supports multi-language parsing and unit detection; free tier limited to 1-2 uploads.
+
+GET /lab-results/history
+
+Purpose: Retrieve historical lab results with comparison data. Input: { user_id, biomarker_type (e.g., cholesterol), date_range, family_member_id (optional) } Output: { results: [{ result_id, test_name, value, unit, date, change_percentage }], timeline_data } Notes: Includes alerts for significant changes (>10%).
+
+POST /health-profile/generate
+
+Purpose: Generate AI or doctor-validated health profile report. Input: { user_id, validation_type (AI/doctor/clinic_professional), lab_result_ids, survey_ids, apple_health_data, symptom_ids } Output: { profile_id, report: { health_status, biomarkers, trends, recommendations }, validation_status } Notes: Doctor validation ($10-$20) triggers queue for professional review; clinic_professional validation free for clinic-invited patients.
+
+POST /holistic-plans/create
+
+Purpose: Create comprehensive holistic health plans integrating multiple health aspects. Input: { user_id, profile_id, validation_type (AI/doctor/clinic_professional), plan_components (nutrition, exercise, mental_wellness, preventive_care) } Output: { holistic_plan_id, components: { nutrition, exercise, mental_wellness, preventive_care }, validation_status, integration_options } Notes: Doctor validation ($15-$25) ensures comprehensive clinical review; clinic_professional validation free for clinic-invited patients.
+
+POST /action-plans/create
+
+Purpose: Create AI or doctor-validated action plan. Input: { user_id, profile_id, holistic_plan_id (optional), validation_type (AI/doctor/clinic_professional), components (diet, exercise, follow_up_tests) } Output: { plan_id, components: { diet, exercise, follow_up_tests }, validation_status, holistic_plan_link } Notes: Doctor validation ($10-$20) ensures clinical accuracy; clinic_professional validation free for clinic-invited patients; can be derived from holistic plans.
+
+POST /sharing/configure
+
+Purpose: Configure sharing settings for health profiles or action plans. Input: { user_id, profile_id/plan_id, share_with (user_ids, max 2/10), editor_id (optional, single user), clinic_professional_access (boolean) } Output: { sharing_id, share_with, editor_id, clinic_access_status, status } Notes: Free tier (2 shares), Plus Plan (10 shares); editor separate; clinic professionals have automatic access for clinic-invited patients.
+
+POST /wellness-challenges/enroll
+
+Purpose: Enroll in personalized wellness challenges. Input: { user_id, challenge_type (e.g., heart_health), goal (e.g., reduce_glucose), duration, holistic_plan_integration (optional) } Output: { challenge_id, goal, progress_tracker, rewards, plan_alignment } Notes: Integrated with health scores, action plans, and holistic plans.
+
+POST /symptoms/log
+
+Purpose: Log symptoms for correlation with health data. Input: { user_id, symptom_type (e.g., fatigue), severity (1-10), duration (hours/days), timestamp } Output: { symptom_id, status } Notes: Enhances insights, holistic plans, and action plans.
+
+POST /goals/set
+
+Purpose: Set and track user-defined health goals. Input: { user_id, goal_type (e.g., lower_cholesterol), target (e.g., 10%), timeline, holistic_plan_alignment (optional) } Output: { goal_id, progress_tracker, milestone_notifications, plan_integration } Notes: Integrated with health goal dashboard and holistic plans.
+
+POST /reminders/configure
+
+Purpose: Set context-aware reminders.
+Input: { user_id, reminder_type (medication/checkup/challenge), priority, schedule }
+Output: { reminder_id, status }
+Notes: AI prioritizes based on health data.
+
+
+POST /b2b/integrate
+
+Purpose: Enable B2B partners to integrate lab results or patient data.
+Input: { partner_id, data_type (lab_results, profiles), data_payload }
+Output: { integration_id, status, processed_data }
+Notes: Requires API key and JavaScript library.
+
+Schematic Overview of Backend Interactions User Interaction: Users (patients, professionals, or clinic-invited patients) interact via the frontend (mobile/web app). Authentication: Frontend sends OAuth 2.0 token to API gateway for user verification. API Request: Frontend calls endpoints (e.g., /lab-results/upload, /holistic-plans/create) with JSON payloads. Processing: API gateway routes requests to backend services (e.g., lab parsing, AI analysis, doctor or clinic professional validation queue). Data Storage: Data stored in a relational database (e.g., PostgreSQL) with encrypted fields for sensitive information. External Integration: Apple Health or lab APIs feed data via secure channels. Response: Backend returns JSON data (e.g., health profile, holistic plan, action plan) to frontend for display. Real-Time Updates: WebSocket connections push alerts (e.g., abnormal results, challenge progress, or holistic plan updates). B2B Workflow: Partners use /b2b/integrate to sync data, with branded apps leveraging the same endpoints. Analytics: Administrators access usage metrics via internal API endpoints. Clinic-Initiated Workflow: For clinic-invited patients, healthcare professionals from the inviting clinic can access, generate, or validate holistic plans and action plans directly, bypassing additional validation fees. Suggested Data Model The pseudo data model supports all app features, including holistic plan generation and clinic-invited workflows, ensuring scalability and relational integrity. Entities are defined with attributes and relationships, stored in a relational database (e.g., PostgreSQL).
+
+User Attributes: user_id (UUID, primary key), email (string, unique), password_hash (string), role (enum: patient, professional, admin), subscription_id (foreign key), basic_info (JSON: age, sex, height), clinic_id (foreign key, nullable), created_at (timestamp) Relationships: 1-to-many with LabResult, HealthProfile, HolisticPlan, ActionPlan, WellnessChallenge, Symptom, Goal; many-to-many with Sharing (via SharingConfig) LabResult Attributes: result_id (UUID, primary key), user_id (foreign key), family_member_id (foreign key, nullable), test_name (string), value (float), unit (string), date (date), notes (text), source (enum: upload, manual), parsed_data (JSON), created_at (timestamp) Relationships: 1-to-many with HealthProfile, HolisticPlan HealthProfile Attributes: profile_id (UUID, primary key), user_id (foreign key), report (JSON: health_status, biomarkers, trends, recommendations), validation_type (enum: AI, doctor, clinic_professional), validation_status (enum: pending, completed), created_at (timestamp) Relationships: 1-to-many with HolisticPlan, ActionPlan; many-to-many with Sharing HolisticPlan Attributes: holistic_plan_id (UUID, primary key), user_id (foreign key), profile_id (foreign key), components (JSON: nutrition, exercise, mental_wellness, preventive_care), validation_type (enum: AI, doctor, clinic_professional), validation_status (enum: pending, completed), editor_id (foreign key, nullable), created_at (timestamp) Relationships: 1-to-many with ActionPlan; 1-to-1 with editor (User); many-to-many with Sharing ActionPlan Attributes: plan_id (UUID, primary key), user_id (foreign key), profile_id (foreign key), holistic_plan_id (foreign key, nullable), components (JSON: diet, exercise, follow_up_tests), validation_type (enum: AI, doctor, clinic_professional), validation_status (enum: pending, completed), editor_id (foreign key, nullable), created_at (timestamp) Relationships: 1-to-1 with editor (User); many-to-many with Sharing WellnessChallenge Attributes: challenge_id (UUID, primary key), user_id (foreign key), challenge_type (string, e.g., heart_health), goal (JSON: target, metrics), progress_tracker (JSON: completion_percentage), rewards (JSON: badges), duration (integer, days), holistic_plan_id (foreign key, nullable), created_at (timestamp) Relationships: 1-to-1 with User, HolisticPlan Symptom Attributes: symptom_id (UUID, primary key), user_id (foreign key), symptom_type (string, e.g., fatigue), severity (integer, 1-10), duration (string, e.g., hours/days), timestamp (datetime) Relationships: 1-to-many with HealthProfile, HolisticPlan Goal Attributes: goal_id (UUID, primary key), user_id (foreign key), goal_type (string, e.g., lower_cholesterol), target (JSON: value, percentage), timeline (date), progress_tracker (JSON), holistic_plan_id (foreign key, nullable), created_at (timestamp) Relationships: 1-to-1 with User, HolisticPlan Reminder Attributes: reminder_id (UUID, primary key), user_id (foreign key), reminder_type (enum: medication, checkup, challenge), priority (integer), schedule (JSON), created_at (timestamp) Relationships: 1-to-1 with User SharingConfig Attributes: sharing_id (UUID, primary key), user_id (foreign key), profile_id/holistic_plan_id/plan_id (foreign key), share_with (array: user_ids, max 2/10), editor_id (foreign key, nullable), clinic_professional_access (boolean), created_at (timestamp) Relationships: Many-to-many between User and HealthProfile/HolisticPlan/ActionPlan Survey Attributes: survey_id (UUID, primary key), user_id (foreign key), responses (JSON: diet, exercise), created_at (timestamp) Relationships: 1-to-many with HealthProfile, HolisticPlan ForumPost Attributes: post_id (UUID, primary key), user_id (foreign key), forum_topic (string), content (text), created_at (timestamp) Relationships: 1-to-many with User B2BPartner Attributes: partner_id (UUID, primary key), name (string), api_key (string, unique), branding_config (JSON: logo, colors), created_at (timestamp) Relationships: 1-to-many with LabResult (via integration) Constraints:
+
+Unique constraints on email, api_key. Foreign key constraints ensure referential integrity (e.g., user_id in LabResult). JSON fields (e.g., basic_info, report, components) for flexible data storage. Indexes on user_id, date for fast queries on historical data and holistic plans. Challenges and Recommendations Challenges: Subscription Transparency: Unexpected charges (e.g., $63 renewals after $20 promotions) and unclear terms for holistic plan validations. Limited Apple Health Sync: No blood pressure or weight pulling, impacting holistic plan accuracy. Support Delays: Response times (~1 hour) frustrate users, especially for clinic-invited workflows. Language Barriers: Some content (e.g., holistic plan articles) English-only. Refund Issues: Strict policies for premium features like holistic plans cause dissatisfaction. Doctor Validation Pricing: Tentative pricing ($15-$25 for holistic plans, $10-$20 for action plans/reports) may confuse users. UI Intuitiveness: Subscription prompts post-data entry and complex holistic plan navigation. Recommendations: Disclose subscription terms, patient limits, and validation fees (AI vs. doctor vs. clinic professional) at signup. Plan Apple Health enhancements for Q1 2026 to support holistic plan data integration. Improve support with faster, multilingual responses, prioritizing clinic-invited patients. Simplify refunds with clearer criteria for premium features like holistic plans. Ensure full feature support for all gender options in holistic and action plans. Finalize validation pricing ($15-$25 for holistic plans, $10-$20 for action plans/reports) for transparency. Optimize API rate limits and database indexes for scalability, especially for holistic plan generation. Enhance UI with clearer prompts for holistic plan creation and intuitive navigation. Summary of Confirmed Details This section summarizes the details confirmed for the new health app, as requested for the presentation:
+
+Pricing: Doctor-validated insights, health profile reports, and action plans: $10-$20 per validation (tentative), charged separately from the Plus Plan. Doctor-validated holistic plans: $15-$25 per validation (tentative), charged separately. Professional subscription tiers: Standard Professional Plan: $99/year, supports up to 20 patients without requiring patient subscriptions. Premium Professional Plan: $150/year, supports up to 50 patients. Clinic-invited patients: Healthcare professionals from the inviting clinic can generate or validate holistic plans and action plans without additional charges as part of their Professional Plan benefits. New Features: Holistic Plan Generation: Create comprehensive health plans integrating nutrition, exercise, mental wellness, and preventive care. AI-generated (Plus Plan), doctor-validated ($15-$25), or clinic professional-generated (free for clinic-invited patients). Symptom Tracker: Log daily symptoms (e.g., fatigue, headaches) with severity and duration, correlating with biomarkers to enhance insights and holistic plans. Smart Reminders: Context-aware reminders for medication, checkups, or challenge tasks, prioritized by AI based on health data. Health Goal Dashboard: Set, track, and visualize progress toward user-defined health goals (e.g., lower cholesterol by 10%) with milestone notifications, integrated with holistic plans. These features are sufficient, with no additional features requested. User Interface Details: The detailed breakdown of tabs (Home, Health, Holistic Plans, Action Plans, Profile), buttons (e.g., Create Holistic Plan, Upload Lab Results), and pages (e.g., Holistic Plans, Health Goal Dashboard) is adequate and requires no further specifics. The UI structure ensures accessibility and addresses user feedback about intuitiveness, with clear navigation and feature integration for holistic plans and clinic-invited workflows. Conclusion The new health app, built on Ornament Health’s platform, offers robust features like manual lab entry, historical data tracking, holistic plan generation, action plans, wellness challenges, symptom tracking, smart reminders, and a health goal dashboard. The addition of holistic plan generation enhances personalized care, with AI, doctor, or clinic professional validation options, particularly benefiting clinic-invited patients with cost-free professional oversight. The detailed UI ensures accessibility, while the backend API and data model guarantee scalability and security. Addressing subscription transparency, integration limits, support delays, and UI intuitiveness will ensure user satisfaction. The app’s freemium model, B2B solutions, and enhanced features position it as a leader in preventive medicine.
+
+
