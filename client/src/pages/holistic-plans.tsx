@@ -193,19 +193,22 @@ export default function HolisticPlans() {
   return (
     <div className="container mx-auto p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Holistic Health Plans</h1>
-          <p className="text-muted-foreground">AI-generated and doctor-validated wellness plans</p>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Generate Plan
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
+      <div className="mb-8">
+        <div className="flex items-start justify-between mb-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Holistic Health Plans</h1>
+            <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+              AI-generated and doctor-validated wellness plans
+            </p>
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700 px-6 py-2.5">
+                <Plus className="w-4 h-4 mr-2" />
+                Generate Plan
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Generate AI Health Plan</DialogTitle>
               <DialogDescription>
@@ -268,22 +271,32 @@ export default function HolisticPlans() {
                 {generatePlanMutation.isPending ? 'Generating...' : 'Generate AI Plan'}
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="plans">
-            <Sparkles className="w-4 h-4 mr-2" />
+        <TabsList className="grid w-full grid-cols-3 h-12 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <TabsTrigger 
+            value="plans" 
+            className="flex items-center gap-2 font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <Sparkles className="w-4 h-4" />
             Plans
           </TabsTrigger>
-          <TabsTrigger value="goals">
-            <Target className="w-4 h-4 mr-2" />
+          <TabsTrigger 
+            value="goals"
+            className="flex items-center gap-2 font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <Target className="w-4 h-4" />
             Goals
           </TabsTrigger>
-          <TabsTrigger value="challenges">
-            <Trophy className="w-4 h-4 mr-2" />
+          <TabsTrigger 
+            value="challenges"
+            className="flex items-center gap-2 font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <Trophy className="w-4 h-4" />
             Challenges
           </TabsTrigger>
         </TabsList>
@@ -321,67 +334,73 @@ export default function HolisticPlans() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-6">
               {plans.map((plan: HolisticPlan) => (
-                <Card key={plan.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          <span>{getCategoryIcon(plan.category)}</span>
-                          {plan.title}
-                        </CardTitle>
-                        <CardDescription>{plan.description}</CardDescription>
+                <Card key={plan.id} className="overflow-hidden">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-semibold text-lg">
+                            {getCategoryIcon(plan.category)}
+                          </div>
+                          <div>
+                            <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                              {plan.title}
+                            </CardTitle>
+                            <div className="flex items-center gap-2 mt-1">
+                              {plan.aiGenerated && (
+                                <div className="flex items-center gap-1 text-blue-600">
+                                  <Brain className="w-3 h-3" />
+                                  <span className="text-xs font-medium">AI Generated</span>
+                                </div>
+                              )}
+                              {plan.doctorValidated ? (
+                                <div className="flex items-center gap-1 text-green-600">
+                                  <Stethoscope className="w-3 h-3" />
+                                  <span className="text-xs font-medium">Doctor Validated</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1 text-orange-600">
+                                  <Clock className="w-3 h-3" />
+                                  <span className="text-xs font-medium">Pending Validation</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <CardDescription className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {plan.description}
+                        </CardDescription>
                       </div>
-                      <Badge className={getStatusColor(plan.status)}>
-                        {plan.status}
-                      </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4 text-sm">
-                      {plan.aiGenerated && (
-                        <div className="flex items-center gap-1 text-blue-600">
-                          <Brain className="w-4 h-4" />
-                          AI Generated
-                        </div>
-                      )}
-                      {plan.doctorValidated ? (
-                        <div className="flex items-center gap-1 text-green-600">
-                          <Stethoscope className="w-4 h-4" />
-                          Doctor Validated
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1 text-orange-600">
-                          <Clock className="w-4 h-4" />
-                          Pending Validation
-                        </div>
-                      )}
-                    </div>
-
+                  
+                  <CardContent className="space-y-6">
                     {plan.duration && (
-                      <div className="text-sm text-muted-foreground">
-                        Duration: {plan.duration}
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Duration:</span>
+                        <span className="text-gray-600 dark:text-gray-400">{plan.duration}</span>
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Goals:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {plan.goals.slice(0, 3).map((goal, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {goal}
-                          </Badge>
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        Goals:
+                      </h4>
+                      <div className="space-y-2">
+                        {plan.goals.map((goal, index) => (
+                          <div key={index} className="flex items-center gap-2 text-sm">
+                            <div className="w-1.5 h-1.5 rounded-full bg-pink-500 flex-shrink-0" />
+                            <span className="text-gray-700 dark:text-gray-300">{goal}</span>
+                          </div>
                         ))}
-                        {plan.goals.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{plan.goals.length - 3} more
-                          </Badge>
-                        )}
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                       <Button variant="outline" size="sm" className="flex-1">
                         View Details
                       </Button>
@@ -391,9 +410,9 @@ export default function HolisticPlans() {
                             <Button 
                               size="sm" 
                               onClick={() => setSelectedPlan(plan)}
-                              className="flex items-center gap-1"
+                              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                             >
-                              <DollarSign className="w-3 h-3" />
+                              <DollarSign className="w-4 h-4" />
                               Validate ($15)
                             </Button>
                           </DialogTrigger>
@@ -437,64 +456,88 @@ export default function HolisticPlans() {
           )}
         </TabsContent>
 
-        <TabsContent value="goals" className="space-y-4">
+        <TabsContent value="goals" className="space-y-6">
           {goalsLoading ? (
-            <div className="grid gap-4">
+            <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <Card key={i} className="animate-pulse">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                       <div className="h-6 bg-gray-200 rounded w-16"></div>
                     </div>
-                    <div className="h-2 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-3 bg-gray-200 rounded w-full mb-3"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : goals.length === 0 ? (
             <Card>
-              <CardContent className="text-center py-8">
-                <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Goals Set</h3>
-                <p className="text-muted-foreground">
-                  Goals will be automatically created when you generate a holistic plan
+              <CardContent className="text-center py-12">
+                <Target className="w-16 h-16 mx-auto text-muted-foreground mb-6" />
+                <h3 className="text-xl font-semibold mb-3">No Goals Set</h3>
+                <p className="text-muted-foreground text-base leading-relaxed max-w-md mx-auto">
+                  Goals will be automatically created when you generate a holistic plan. Start by creating your first health plan!
                 </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4">
+            <div className="space-y-4">
               {goals.map((goal: HealthGoal) => (
-                <Card key={goal.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-medium">{goal.title}</h3>
-                      <Badge className={getStatusColor(goal.status)}>
+                <Card key={goal.id} className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          {goal.title}
+                        </h3>
+                        {goal.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            {goal.description}
+                          </p>
+                        )}
+                      </div>
+                      <Badge className={`${getStatusColor(goal.status)} ml-4`}>
                         {goal.status}
                       </Badge>
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>Progress</span>
-                        <span className="font-medium">{goal.progress}%</span>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Progress</span>
+                          <span className="font-bold text-lg text-gray-900 dark:text-gray-100">{goal.progress}%</span>
+                        </div>
+                        <Progress value={goal.progress} className="h-3" />
                       </div>
-                      <Progress value={goal.progress} className="h-2" />
+
+                      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        {goal.targetValue && (
+                          <div className="space-y-1">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Current Value</span>
+                            <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                              {goal.currentValue} {goal.unit}
+                            </div>
+                          </div>
+                        )}
+                        {goal.targetValue && (
+                          <div className="space-y-1">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Target Value</span>
+                            <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                              {goal.targetValue} {goal.unit}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {goal.targetDate && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 pt-2">
+                          <Clock className="w-4 h-4" />
+                          <span>Target Date: {new Date(goal.targetDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
                     </div>
-
-                    {goal.targetValue && (
-                      <div className="flex items-center justify-between text-sm mt-3 text-muted-foreground">
-                        <span>Current: {goal.currentValue} {goal.unit}</span>
-                        <span>Target: {goal.targetValue} {goal.unit}</span>
-                      </div>
-                    )}
-
-                    {goal.targetDate && (
-                      <div className="text-sm text-muted-foreground mt-2">
-                        Target Date: {new Date(goal.targetDate).toLocaleDateString()}
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -502,19 +545,19 @@ export default function HolisticPlans() {
           )}
         </TabsContent>
 
-        <TabsContent value="challenges" className="space-y-4">
+        <TabsContent value="challenges" className="space-y-6">
           {challengesLoading ? (
-            <div className="grid gap-4">
+            <div className="space-y-4">
               {[1, 2].map((i) => (
                 <Card key={i} className="animate-pulse">
-                  <CardContent className="p-4">
+                  <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="h-5 bg-gray-200 rounded w-1/3"></div>
-                      <div className="h-6 bg-gray-200 rounded w-20"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-8 bg-gray-200 rounded w-20"></div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="h-3 bg-gray-200 rounded w-full"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -522,71 +565,91 @@ export default function HolisticPlans() {
             </div>
           ) : challenges.length === 0 ? (
             <Card>
-              <CardContent className="text-center py-8">
-                <Trophy className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Active Challenges</h3>
-                <p className="text-muted-foreground">
-                  Challenges will be created as part of your holistic health plans
+              <CardContent className="text-center py-12">
+                <Trophy className="w-16 h-16 mx-auto text-muted-foreground mb-6" />
+                <h3 className="text-xl font-semibold mb-3">No Active Challenges</h3>
+                <p className="text-muted-foreground text-base leading-relaxed max-w-md mx-auto">
+                  Challenges will be created as part of your holistic health plans. Join a challenge to earn points and badges!
                 </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4">
+            <div className="space-y-6">
               {challenges.map((challenge: WellnessChallenge) => (
-                <Card key={challenge.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{challenge.title}</h3>
-                        {challenge.badge && (
-                          <Badge variant="outline" className="text-xs">
-                            <Award className="w-3 h-3 mr-1" />
-                            {challenge.badge}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <TrendingUp className="w-4 h-4 text-green-600" />
-                        {challenge.points} pts
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {challenge.description}
-                    </p>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>Completion</span>
-                        <span className="font-medium">{challenge.completionPercentage}%</span>
-                      </div>
-                      <Progress value={challenge.completionPercentage} className="h-2" />
-                    </div>
-
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-medium">Tasks:</h4>
-                      {challenge.tasks.slice(0, 3).map((task) => (
-                        <div key={task.id} className="flex items-center gap-2 text-sm">
-                          {task.completed ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Circle className="w-4 h-4 text-gray-400" />
+                <Card key={challenge.id} className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {challenge.title}
+                          </h3>
+                          {challenge.badge && (
+                            <Badge variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-800">
+                              <Award className="w-3 h-3 mr-1" />
+                              {challenge.badge}
+                            </Badge>
                           )}
-                          <span className={task.completed ? 'line-through text-muted-foreground' : ''}>
-                            {task.title}
-                          </span>
                         </div>
-                      ))}
-                      {challenge.tasks.length > 3 && (
-                        <div className="text-xs text-muted-foreground">
-                          +{challenge.tasks.length - 3} more tasks
-                        </div>
-                      )}
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+                          {challenge.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full ml-4">
+                        <TrendingUp className="w-4 h-4 text-green-600" />
+                        <span className="font-semibold text-green-700 dark:text-green-300">{challenge.points} pts</span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
-                      <span>{challenge.type} challenge</span>
-                      <span>{challenge.duration} days</span>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Completion</span>
+                          <span className="font-bold text-lg text-gray-900 dark:text-gray-100">{challenge.completionPercentage}%</span>
+                        </div>
+                        <Progress value={challenge.completionPercentage} className="h-3" />
+                      </div>
+
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Tasks Progress:
+                        </h4>
+                        <div className="space-y-2">
+                          {challenge.tasks.slice(0, 3).map((task) => (
+                            <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                              {task.completed ? (
+                                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                              ) : (
+                                <Circle className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                              )}
+                              <span className={`text-sm ${task.completed ? 'line-through text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
+                                {task.title}
+                              </span>
+                              {task.completed && task.completedDate && (
+                                <span className="text-xs text-green-600 ml-auto">
+                                  {new Date(task.completedDate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                          {challenge.tasks.length > 3 && (
+                            <div className="text-sm text-gray-500 text-center py-2">
+                              +{challenge.tasks.length - 3} more tasks
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span className="capitalize">{challenge.type}</span>
+                          </div>
+                          <div>{challenge.duration} days</div>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
