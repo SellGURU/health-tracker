@@ -36,12 +36,18 @@ export default function Profile() {
   const queryClient = useQueryClient();
   
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [editData, setEditData] = useState({
     fullName: user?.fullName || "",
     age: user?.age || "",
     gender: user?.gender || "",
     height: user?.height || "",
     weight: user?.weight || "",
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const { data: stats } = useQuery({
@@ -408,6 +414,64 @@ export default function Profile() {
                   Cancel
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Change Password Dialog */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Enter your current password and choose a new one
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                />
+              </div>
+              <Button 
+                onClick={() => {
+                  if (passwordData.newPassword !== passwordData.confirmPassword) {
+                    toast({
+                      title: "Passwords don't match",
+                      description: "Please ensure both password fields match.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  changePasswordMutation.mutate(passwordData);
+                }}
+                disabled={!passwordData.currentPassword || !passwordData.newPassword || changePasswordMutation.isPending}
+                className="w-full"
+              >
+                {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

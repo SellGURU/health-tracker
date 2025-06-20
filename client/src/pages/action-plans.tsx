@@ -38,6 +38,8 @@ export default function ActionPlans() {
   const queryClient = useQueryClient();
   
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<ActionPlan | null>(null);
   const [newPlan, setNewPlan] = useState({
     title: "",
     description: "",

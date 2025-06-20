@@ -90,6 +90,7 @@ export default function HolisticPlans() {
   const [activeTab, setActiveTab] = useState('plans');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRequestValidationOpen, setIsRequestValidationOpen] = useState(false);
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<HolisticPlan | null>(null);
 
   // Form states
@@ -401,7 +402,15 @@ export default function HolisticPlans() {
                     </div>
 
                     <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedPlan(plan);
+                          setIsViewDetailsOpen(true);
+                        }}
+                      >
                         View Details
                       </Button>
                       {!plan.doctorValidated && (
@@ -658,6 +667,192 @@ export default function HolisticPlans() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Plan Details Modal */}
+      <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              {selectedPlan && (
+                <>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-semibold">
+                    {getCategoryIcon(selectedPlan.category)}
+                  </div>
+                  {selectedPlan.title}
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedPlan?.description}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedPlan && (
+            <div className="space-y-6">
+              {/* Plan Status & Duration */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div>
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">Status</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    {selectedPlan.aiGenerated && (
+                      <div className="flex items-center gap-1 text-blue-600">
+                        <Brain className="w-4 h-4" />
+                        <span className="text-sm font-medium">AI Generated</span>
+                      </div>
+                    )}
+                    {selectedPlan.doctorValidated ? (
+                      <div className="flex items-center gap-1 text-green-600">
+                        <Stethoscope className="w-4 h-4" />
+                        <span className="text-sm font-medium">Doctor Validated</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 text-orange-600">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm font-medium">Pending Validation</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {selectedPlan.duration && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">Duration</label>
+                    <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">
+                      {selectedPlan.duration}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Goals Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Health Goals
+                </h3>
+                <div className="grid gap-3">
+                  {selectedPlan.goals.map((goal, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      <span className="text-gray-800 dark:text-gray-200">{goal}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recommendations Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Detailed Recommendations</h3>
+                
+                {/* Nutrition */}
+                {selectedPlan.recommendations.nutrition.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      🥗 Nutrition Guidelines
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedPlan.recommendations.nutrition.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Exercise */}
+                {selectedPlan.recommendations.exercise.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      💪 Exercise Plan
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedPlan.recommendations.exercise.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Lifestyle */}
+                {selectedPlan.recommendations.lifestyle.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      🌱 Lifestyle Changes
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedPlan.recommendations.lifestyle.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Supplements */}
+                {selectedPlan.recommendations.supplements && selectedPlan.recommendations.supplements.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      💊 Supplements
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedPlan.recommendations.supplements.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-2 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Monitoring */}
+                {selectedPlan.recommendations.monitoring.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      📊 Monitoring & Tracking
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedPlan.recommendations.monitoring.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <Button variant="outline" className="flex-1">
+                  Edit Plan
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  Export PDF
+                </Button>
+                {!selectedPlan.doctorValidated && (
+                  <Button 
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    onClick={() => {
+                      setIsViewDetailsOpen(false);
+                      setIsRequestValidationOpen(true);
+                    }}
+                  >
+                    Request Validation ($15)
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
