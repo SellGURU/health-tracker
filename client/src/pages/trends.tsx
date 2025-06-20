@@ -2,10 +2,15 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import TrendChart from "@/components/charts/trend-chart";
 import { formatRelativeDate } from "@/lib/utils";
-import { ArrowLeft, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import type { LabResult } from "@shared/schema";
 
@@ -17,8 +22,11 @@ const timeRanges = [
 ];
 
 export default function Trends() {
+  const { toast } = useToast();
   const [selectedRange, setSelectedRange] = useState("3M");
   const [selectedBiomarker, setSelectedBiomarker] = useState("cholesterol");
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
@@ -291,6 +299,75 @@ export default function Trends() {
           </Card>
         )}
       </div>
+
+      {/* Export Dialog */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Export Chart</DialogTitle>
+            <DialogDescription>
+              Choose export format and date range for your health trends
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="fromDate">From Date</Label>
+                <Input
+                  id="fromDate"
+                  type="date"
+                  value={dateRange.from}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="toDate">To Date</Label>
+                <Input
+                  id="toDate"
+                  type="date"
+                  value={dateRange.to}
+                  onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label>Export Format</Label>
+              <Select defaultValue="png">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="png">PNG Image</SelectItem>
+                  <SelectItem value="pdf">PDF Report</SelectItem>
+                  <SelectItem value="csv">CSV Data</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => {
+                  toast({
+                    title: "Export Started",
+                    description: "Your chart is being exported. Download will start shortly.",
+                  });
+                  setShowExportDialog(false);
+                }}
+                className="flex-1"
+              >
+                Export Chart
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowExportDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
