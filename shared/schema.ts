@@ -95,6 +95,76 @@ export const fileUploads = pgTable("file_uploads", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Holistic health plans with AI generation and doctor validation
+export const holisticPlans = pgTable("holistic_plans", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  aiGenerated: boolean("ai_generated").default(true),
+  doctorValidated: boolean("doctor_validated").default(false),
+  validatedBy: text("validated_by"),
+  validationDate: timestamp("validation_date"),
+  validationCost: decimal("validation_cost", { precision: 8, scale: 2 }).default("15.00"),
+  category: text("category").notNull(),
+  duration: text("duration"),
+  goals: jsonb("goals").$type<string[]>().notNull(),
+  recommendations: jsonb("recommendations").$type<{
+    nutrition: string[];
+    exercise: string[];
+    lifestyle: string[];
+    supplements?: string[];
+    monitoring: string[];
+  }>().notNull(),
+  status: text("status").default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Health goals with progress tracking
+export const healthGoals = pgTable("health_goals", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  holisticPlanId: integer("holistic_plan_id").references(() => holisticPlans.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(),
+  description: text("description"),
+  targetValue: decimal("target_value", { precision: 10, scale: 2 }),
+  currentValue: decimal("current_value", { precision: 10, scale: 2 }).default("0"),
+  unit: text("unit"),
+  targetDate: timestamp("target_date"),
+  category: text("category").notNull(),
+  status: text("status").default("active"),
+  progress: integer("progress").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Wellness challenges with gamification
+export const wellnessChallenges = pgTable("wellness_challenges", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  holisticPlanId: integer("holistic_plan_id").references(() => holisticPlans.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  type: text("type").notNull(),
+  duration: integer("duration").notNull(),
+  tasks: jsonb("tasks").$type<{
+    id: string;
+    title: string;
+    description: string;
+    completed: boolean;
+    completedDate?: string;
+  }[]>().notNull(),
+  completionPercentage: integer("completion_percentage").default(0),
+  points: integer("points").default(0),
+  badge: text("badge"),
+  status: text("status").default("active"),
+  startDate: timestamp("start_date").defaultNow(),
+  endDate: timestamp("end_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   labResults: many(labResults),
@@ -102,6 +172,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   actionPlans: many(actionPlans),
   aiInsights: many(aiInsights),
   fileUploads: many(fileUploads),
+  holisticPlans: many(holisticPlans),
+  healthGoals: many(healthGoals),
+  wellnessChallenges: many(wellnessChallenges),
 }));
 
 export const labResultsRelations = relations(labResults, ({ one }) => ({
@@ -129,6 +202,37 @@ export const aiInsightsRelations = relations(aiInsights, ({ one }) => ({
   user: one(users, {
     fields: [aiInsights.userId],
     references: [users.id],
+  }),
+}));
+
+export const holisticPlansRelations = relations(holisticPlans, ({ one, many }) => ({
+  user: one(users, {
+    fields: [holisticPlans.userId],
+    references: [users.id],
+  }),
+  goals: many(healthGoals),
+  challenges: many(wellnessChallenges),
+}));
+
+export const healthGoalsRelations = relations(healthGoals, ({ one }) => ({
+  user: one(users, {
+    fields: [healthGoals.userId],
+    references: [users.id],
+  }),
+  holisticPlan: one(holisticPlans, {
+    fields: [healthGoals.holisticPlanId],
+    references: [holisticPlans.id],
+  }),
+}));
+
+export const wellnessChallengesRelations = relations(wellnessChallenges, ({ one }) => ({
+  user: one(users, {
+    fields: [wellnessChallenges.userId],
+    references: [users.id],
+  }),
+  holisticPlan: one(holisticPlans, {
+    fields: [wellnessChallenges.holisticPlanId],
+    references: [holisticPlans.id],
   }),
 }));
 
@@ -172,6 +276,24 @@ export const insertFileUploadSchema = createInsertSchema(fileUploads).omit({
   createdAt: true,
 });
 
+export const insertHolisticPlanSchema = createInsertSchema(holisticPlans).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertHealthGoalSchema = createInsertSchema(healthGoals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWellnessChallengeSchema = createInsertSchema(wellnessChallenges).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -191,4 +313,10 @@ export type InsertAiInsight = z.infer<typeof insertAiInsightSchema>;
 export type FileUpload = typeof fileUploads.$inferSelect;
 export type InsertFileUpload = z.infer<typeof insertFileUploadSchema>;
 export type Biomarker = typeof biomarkers.$inferSelect;
+export type HolisticPlan = typeof holisticPlans.$inferSelect;
+export type InsertHolisticPlan = z.infer<typeof insertHolisticPlanSchema>;
+export type HealthGoal = typeof healthGoals.$inferSelect;
+export type InsertHealthGoal = z.infer<typeof insertHealthGoalSchema>;
+export type WellnessChallenge = typeof wellnessChallenges.$inferSelect;
+export type InsertWellnessChallenge = z.infer<typeof insertWellnessChallengeSchema>;
 export type LoginCredentials = z.infer<typeof loginSchema>;

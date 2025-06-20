@@ -10,6 +10,7 @@ import LabUpload from "@/pages/lab-upload";
 import ManualEntry from "@/pages/manual-entry";
 import Trends from "@/pages/trends";
 import ActionPlans from "@/pages/action-plans";
+import HolisticPlans from "@/pages/holistic-plans";
 import Profile from "@/pages/profile";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
@@ -29,6 +30,7 @@ function Router() {
         <Route path="/manual-entry" component={ManualEntry} />
         <Route path="/trends" component={Trends} />
         <Route path="/action-plans" component={ActionPlans} />
+        <Route path="/holistic-plans" component={HolisticPlans} />
         <Route path="/profile" component={Profile} />
         <Route component={NotFound} />
       </Switch>

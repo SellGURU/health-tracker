@@ -65,6 +65,30 @@ export function createMockApiInterceptor() {
       });
     }
 
+    if (url.includes('/api/holistic-plans')) {
+      const data = await mockAuth.getMockHolisticPlans();
+      return new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (url.includes('/api/health-goals')) {
+      const data = await mockAuth.getMockHealthGoals();
+      return new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (url.includes('/api/wellness-challenges')) {
+      const data = await mockAuth.getMockWellnessChallenges();
+      return new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // For other API calls, return success with empty data
     return new Response(JSON.stringify({}), {
       status: 200,

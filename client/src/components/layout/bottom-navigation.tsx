@@ -4,7 +4,7 @@ import {
   Home,
   TrendingUp,
   Plus,
-  CheckSquare,
+  Brain,
   User
 } from "lucide-react";
 
@@ -12,7 +12,7 @@ const navItems = [
   { path: "/", icon: Home, label: "Home" },
   { path: "/trends", icon: TrendingUp, label: "Trends" },
   { path: "/upload", icon: Plus, label: "Add Data", isSpecial: true },
-  { path: "/action-plans", icon: CheckSquare, label: "Plans" },
+  { path: "/holistic-plans", icon: Brain, label: "AI Plans" },
   { path: "/profile", icon: User, label: "Profile" },
 ];
 

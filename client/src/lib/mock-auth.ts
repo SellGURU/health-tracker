@@ -236,6 +236,144 @@ export class MockAuthService {
   getMockAiInsights() {
     return Promise.resolve(MOCK_AI_INSIGHTS);
   }
+
+  getMockHolisticPlans() {
+    return Promise.resolve([
+      {
+        id: 1,
+        userId: 1,
+        title: "Cardiovascular Health Optimization",
+        description: "AI-generated plan to improve heart health and reduce LDL cholesterol",
+        aiGenerated: true,
+        doctorValidated: false,
+        validationCost: "15.00",
+        category: "cardiovascular",
+        duration: "8 weeks",
+        goals: ["Lower LDL cholesterol", "Improve cardio fitness", "Reduce inflammation"],
+        recommendations: {
+          nutrition: ["Mediterranean diet", "Omega-3 supplements", "Reduce saturated fats"],
+          exercise: ["30min cardio daily", "Strength training 3x/week", "Yoga for stress"],
+          lifestyle: ["8 hours sleep", "Stress management", "Regular monitoring"],
+          supplements: ["Omega-3", "CoQ10", "Vitamin D"],
+          monitoring: ["Weekly BP checks", "Monthly lipid panel", "Daily weight tracking"]
+        },
+        status: "active",
+        createdAt: "2024-12-01T00:00:00Z",
+        updatedAt: "2024-12-01T00:00:00Z"
+      },
+      {
+        id: 2,
+        userId: 1,
+        title: "Metabolic Health Enhancement",
+        description: "Doctor-validated comprehensive plan for blood sugar optimization",
+        aiGenerated: true,
+        doctorValidated: true,
+        validatedBy: "Dr. Sarah Chen",
+        validationDate: "2024-11-28T00:00:00Z",
+        validationCost: "15.00",
+        category: "metabolic",
+        duration: "12 weeks",
+        goals: ["Optimize glucose levels", "Improve insulin sensitivity", "Weight management"],
+        recommendations: {
+          nutrition: ["Low glycemic diet", "Intermittent fasting", "Portion control"],
+          exercise: ["HIIT workouts", "Resistance training", "Post-meal walks"],
+          lifestyle: ["Consistent meal timing", "Sleep optimization", "Stress reduction"],
+          monitoring: ["Daily glucose checks", "Weekly HbA1c", "Body composition"]
+        },
+        status: "active",
+        createdAt: "2024-11-25T00:00:00Z",
+        updatedAt: "2024-11-28T00:00:00Z"
+      }
+    ]);
+  }
+
+  getMockHealthGoals() {
+    return Promise.resolve([
+      {
+        id: 1,
+        userId: 1,
+        holisticPlanId: 1,
+        title: "Reduce LDL Cholesterol",
+        description: "Lower LDL from 118 to under 100 mg/dL",
+        targetValue: 100,
+        currentValue: 118,
+        unit: "mg/dL",
+        targetDate: "2024-12-31T00:00:00Z",
+        category: "biomarker",
+        status: "active",
+        progress: 15,
+        createdAt: "2024-12-01T00:00:00Z",
+        updatedAt: "2024-12-01T00:00:00Z"
+      },
+      {
+        id: 2,
+        userId: 1,
+        holisticPlanId: 2,
+        title: "Improve Cardio Fitness",
+        description: "Increase VO2 max and endurance capacity",
+        targetValue: 45,
+        currentValue: 38,
+        unit: "ml/kg/min",
+        targetDate: "2024-12-31T00:00:00Z",
+        category: "fitness",
+        status: "active",
+        progress: 25,
+        createdAt: "2024-12-01T00:00:00Z",
+        updatedAt: "2024-12-01T00:00:00Z"
+      }
+    ]);
+  }
+
+  getMockWellnessChallenges() {
+    return Promise.resolve([
+      {
+        id: 1,
+        userId: 1,
+        holisticPlanId: 1,
+        title: "30-Day Heart Healthy Challenge",
+        description: "Daily activities to improve cardiovascular health",
+        type: "daily",
+        duration: 30,
+        tasks: [
+          { id: "1", title: "30 minutes cardio", description: "Any cardio activity", completed: true, completedDate: "2024-12-01" },
+          { id: "2", title: "Eat omega-3 rich food", description: "Fish, nuts, or supplements", completed: true, completedDate: "2024-12-01" },
+          { id: "3", title: "Track blood pressure", description: "Morning measurement", completed: false },
+          { id: "4", title: "Practice stress relief", description: "Meditation or deep breathing", completed: false },
+          { id: "5", title: "Get 8 hours sleep", description: "Quality rest for recovery", completed: true, completedDate: "2024-12-01" }
+        ],
+        completionPercentage: 60,
+        points: 180,
+        badge: "silver",
+        status: "active",
+        startDate: "2024-12-01T00:00:00Z",
+        endDate: "2024-12-31T00:00:00Z",
+        createdAt: "2024-12-01T00:00:00Z",
+        updatedAt: "2024-12-01T00:00:00Z"
+      },
+      {
+        id: 2,
+        userId: 1,
+        holisticPlanId: 2,
+        title: "Glucose Control Challenge",
+        description: "Weekly goals for blood sugar management",
+        type: "weekly",
+        duration: 84,
+        tasks: [
+          { id: "1", title: "Log all meals", description: "Track carbs and timing", completed: true, completedDate: "2024-11-28" },
+          { id: "2", title: "Post-meal walks", description: "15 min walk after meals", completed: true, completedDate: "2024-11-29" },
+          { id: "3", title: "Check morning glucose", description: "Fasting blood sugar", completed: true, completedDate: "2024-12-01" }
+        ],
+        completionPercentage: 100,
+        points: 250,
+        badge: "gold",
+        status: "active",
+        startDate: "2024-11-25T00:00:00Z",
+        endDate: "2024-02-17T00:00:00Z",
+        createdAt: "2024-11-25T00:00:00Z",
+        updatedAt: "2024-12-01T00:00:00Z"
+      }
+    ]);
+  }
 }
 
 export const mockAuth = MockAuthService.getInstance();
