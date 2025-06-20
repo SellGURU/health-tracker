@@ -1,0 +1,50 @@
+[vite] connecting...
+[vite] connected.
+🔧 Mock Auth Mode Enabled - UI Testing Mode
+🔧 Mock Auth Mode Enabled
+🔧 Mock API interceptor enabled
+🔧 Intercepting API call: /api/health-score
+🔧 Intercepting API call: /api/lab-results
+🔧 Intercepting API call: /api/insights
+🔧 Intercepting API call: /api/action-plans
+changePasswordMutation is not defined
+at Profile (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/src/pages/profile.tsx:962:25)
+at renderWithHooks (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:11548:26)
+at mountIndeterminateComponent (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:14926:21)
+at beginWork (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:15914:22)
+at HTMLUnknownElement.callCallback2 (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:3674:22)
+at Object.invokeGuardedCallbackDev (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:3699:24)
+at invokeGuardedCallback (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:3733:39)
+at beginWork$1 (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:19765:15)
+at performUnitOfWork (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:19198:20)
+at workLoopSync (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:19137:13)
+changePasswordMutation is not defined
+at Profile (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/src/pages/profile.tsx:962:25)
+at renderWithHooks (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:11548:26)
+at mountIndeterminateComponent (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:14926:21)
+at beginWork (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:15914:22)
+at HTMLUnknownElement.callCallback2 (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:3674:22)
+at Object.invokeGuardedCallbackDev (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:3699:24)
+at invokeGuardedCallback (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:3733:39)
+at beginWork$1 (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:19765:15)
+at performUnitOfWork (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:19198:20)
+at workLoopSync (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=c6876581:19137:13)
+The above error occurred in the <Profile> component:
+
+    at Profile (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/src/pages/profile.tsx:47:21)
+    at Route (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c6876581:323:16)
+    at Switch (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=c6876581:379:17)
+    at main
+    at div
+    at div
+    at MobileLayout (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/src/components/layout/mobile-layout.tsx:25:40)
+    at Router
+    at div
+    at Provider (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=c6876581:38:15)
+    at TooltipProvider (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=c6876581:65:5)
+    at QueryClientProvider (https://3ae15d91-9a60-4b0b-b72b-f9c8cd9c41cb-00-1sb3bs3hz3ll6.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=c6876581:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+changePasswordMutation is not defined

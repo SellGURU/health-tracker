@@ -101,6 +101,27 @@ export default function Profile() {
     },
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: typeof passwordData) => {
+      return await apiRequest("PUT", "/api/profile/password", data);
+    },
+    onSuccess: () => {
+      setShowPasswordDialog(false);
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      toast({
+        title: "Password changed",
+        description: "Your password has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Password change failed",
+        description: "Failed to change password. Please check your current password.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleLogout = async () => {
     try {
       await logout();
