@@ -439,7 +439,7 @@ export default function Onboarding() {
             <div className="space-y-4">
               <Button 
                 variant="outline" 
-                className="w-full p-6 h-auto"
+                className="w-full p-6 h-auto justify-start"
                 onClick={nextStep}
               >
                 <UserPlus className="w-6 h-6 mr-3" />
@@ -451,8 +451,11 @@ export default function Onboarding() {
               
               <Button 
                 variant="outline" 
-                className="w-full p-6 h-auto"
-                onClick={() => setLocation('/auth')}
+                className="w-full p-6 h-auto justify-start"
+                onClick={() => {
+                  localStorage.setItem('onboardingCompleted', 'true');
+                  setLocation('/auth');
+                }}
               >
                 <LogIn className="w-6 h-6 mr-3" />
                 <div className="text-left">
