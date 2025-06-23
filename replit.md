@@ -134,6 +134,7 @@ Dashboard design: Action plans should be prominently displayed on main page for 
 User behavior: Users need daily access to action plans for consistent health management.
 Onboarding preference: Comprehensive 26-step questionnaire covering health history, lifestyle, and goals.
 User flow: New users must complete onboarding before accessing main application features.
+Profile editing: Users can edit all onboarding responses in profile tab with simple, clear menu organization.
 ```
 
 ## Test Credentials
