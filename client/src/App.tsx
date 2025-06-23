@@ -12,29 +12,44 @@ import Trends from "@/pages/trends";
 import ActionPlans from "@/pages/action-plans";
 import HolisticPlans from "@/pages/holistic-plans";
 import Profile from "@/pages/profile";
+import Onboarding from "@/pages/onboarding";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <AuthPage />;
-  }
+  const isOnboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
 
   return (
-    <MobileLayout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/upload" component={LabUpload} />
-        <Route path="/manual-entry" component={ManualEntry} />
-        <Route path="/trends" component={Trends} />
-        <Route path="/action-plans" component={ActionPlans} />
-        <Route path="/holistic-plans" component={HolisticPlans} />
-        <Route path="/profile" component={Profile} />
-        <Route component={NotFound} />
-      </Switch>
-    </MobileLayout>
+    <Switch>
+      {/* Onboarding route - always accessible */}
+      <Route path="/onboarding" component={Onboarding} />
+      
+      {/* Auth route */}
+      <Route path="/auth" component={AuthPage} />
+      
+      {/* Protected routes */}
+      {isAuthenticated && isOnboardingCompleted ? (
+        <MobileLayout>
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/lab-upload" component={LabUpload} />
+            <Route path="/manual-entry" component={ManualEntry} />
+            <Route path="/trends" component={Trends} />
+            <Route path="/action-plans" component={ActionPlans} />
+            <Route path="/holistic-plans" component={HolisticPlans} />
+            <Route path="/profile" component={Profile} />
+            <Route component={NotFound} />
+          </Switch>
+        </MobileLayout>
+      ) : !isAuthenticated ? (
+        <Route path="/" component={AuthPage} />
+      ) : (
+        <Route path="/" component={() => { window.location.href = '/onboarding'; return null; }} />
+      )}
+      
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
