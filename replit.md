@@ -121,6 +121,7 @@ Changelog:
 - June 20, 2025. Enhanced dashboard with prominent action plans display for daily engagement
 - June 20, 2025. Implemented comprehensive interactive features across all pages
 - June 20, 2025. Added global header with search, dark mode toggle, and notifications
+- June 21, 2025. Created comprehensive 26-step user onboarding flow with health questionnaire
 ```
 
 ## User Preferences
@@ -131,6 +132,8 @@ Font clarity: Requires sharp, clear text rendering across all UI elements.
 Testing approach: Prefers test accounts with realistic data for UI validation.
 Dashboard design: Action plans should be prominently displayed on main page for daily engagement.
 User behavior: Users need daily access to action plans for consistent health management.
+Onboarding preference: Comprehensive 26-step questionnaire covering health history, lifestyle, and goals.
+User flow: New users must complete onboarding before accessing main application features.
 ```
 
 ## Test Credentials

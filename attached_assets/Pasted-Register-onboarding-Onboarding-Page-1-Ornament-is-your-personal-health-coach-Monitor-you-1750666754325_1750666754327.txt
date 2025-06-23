@@ -1,0 +1,348 @@
+Register (onboarding)
+Onboarding > Page 1
+
+
+Ornament is your personal health coach
+ Monitor your entire body and prevent problems before they happen
+[ Get Started ] (Primary button)
+
+
+Onboarding > Page 2
+
+Ask if we have an account, or we are new user
+1: I’m a new user
+2: I have an account
+
+Also, there is a QR code scan option to connect this device to your other accounts
+
+Onboarding > Page 3
+
+Header:
+Title: "Welcome!" – Friendly onboarding greeting.
+Subtitle: "Specify your name, age and sex" 
+Input Fields:
+Name/Nickname: Free-text field ("Enter your name or nickname").
+Age: "Specify" (selected, likely via dropdown or number picker).
+Sex: "Specify" (selected, with inclusive options).
+Profile Confirmation:
+Checkbox: "This is my profile .
+Then an avatar is created based on your selected gender.
+Legal & Action:
+CTA Button: "Accept" (finalizes setup).
+Disclaimer: Links to Terms of Use and Privacy Policy.
+Onboarding > Page 4
+
+
+Question: Choose your main goal
+I want to improve my health
+Store my labs and exams in one
+place
+Track my health post-COVID
+Track my pregnancy
+Track the balance of vitamins and
+minerals
+
+Onboarding >  Page 5 & 6
+
+
+Asks about weight (kg) and height (cm/ feet) with a CTA and Back icon for navigation
+
+Onboarding > Page 7 to 22
+A sample page for all the questionnaires:
+
+
+
+List of questions:
+1: What has your diet been like over the past 3 months?
+Standard (A blend of healthy and unhealthy foods)
+Mediterranean
+Vegetarian (No meat)
+Vegan (No animal-based products)
+Mostly processed and sugary foods (No restrictions)
+Keto / LCHF (Low-carb, high-fat foods)
+Paleo (Foods found during the Palaeolithic era)
+Carnivore (All meat-based products)
+Pescatarian (No meat except for fish)
+Diet for athletes in bulking phase (High protein diet)
+Autoimmune Protocols (Meat, seafood, non-starchy vegetables, mushrooms, fruits)
+Other
+
+2: Number of main meals a day Except for snacks
+1-2
+3-4
+5-6
+More than 6
+
+3: Do you have any food intolerances? We'll ask about allergens later
+Gluten
+Lactose
+Animal protein
+Other
+I have no intolerances
+
+4: How often do you workout? Workouts raise your heartbeat to at least 120-150 bpm
+Never
+1–2 hours per week
+3–5 hours per week
+6+ hours per week
+
+5: Select your activity level, Not including time spent working out
+Sedentary (Working at a desk, not walking much)
+Lightly active (1.5-3K steps per day)
+Moderately active (3-10K steps per day)
+Strenuous work (More than 10k steps per day)
+
+6: Duration of sleep How many hours of sleep do you get on average each night?
+Less than 6 hours
+6–7 hours
+7-8.5 hours
+8.5-10 hours
+more than 10 hours
+
+7: Quality of sleep have you had any problems sleeping over the past few months?
+I have trouble sleeping for a long
+I sleep lightly and don't feel well
+I often wake up at night
+I find it hard to wake up in the morning
+I stay awake at night and sleep during the day
+I'm having headaches while sleeping
+I wake up during the night because I'm hungry
+I wake up early and can't fall back asleep
+I want to sleep every time after I eat
+I don't get enough sleep
+I sleep well
+
+8: Do you smoke?
+No
+I used to smoke but no longer do
+Passive smoker
+Somebody is constantly smoking nearby
+Occasionally
+A couple of cigarettes a week
+A few cigarettes per day
+1 pack of cigarettes per day
+More than 1 pack of cigarettes per day
+
+9: Are you experiencing loss of focus and lack of attention? How often do you get distracted while reading a book, attending a meeting, or doing other activities?
+Never
+Seldomly
+Quite often
+Very often
+Always
+
+10: Number of snacks a day Including your morning coffee with cream
+0-1
+2-3
+4-6
+more than 6
+
+11: Emotional eating In a typical week, how often do you turn to food when stressed, unhappy, angry, or bored?
+Never
+Seldomly
+Quite often
+Very often
+Every time
+
+12: How regular is your menstrual cycle?
+Regular cycle
+Irregular cycle
+Paused due to breastfeeding
+I'm pregnant
+
+13: Nervousnes&panic In the last month, how often have you felt very nervous or anxious?
+Never
+Seldomly
+Quite often
+Very often
+Always
+
+14: How many caffeinated beverages do you have on average per day? Examples include coffee, strong teas, and energy drinks
+None
+Less than 1 cup or can per day
+1-2 cups or cans per day
+3-4 cups or cans per day
+More than 4 cups or cans per day
+
+15: Forgetfulness 
+How often do you forget where you put things like your keys, wallet, and glasses?
+Never
+Seldomly
+Quite often
+Very often
+Always
+
+16: Have you ever been diagnosed with any of the following conditions?
+Type 2 diabetes or prediabetes
+High cholesterol
+Anaemia
+Autoimmune disorder
+Major mental illness
+Cancer
+Digestive disorder (Crohn's disease, etc.)
+Type 1 diabetes
+Neurodegenerative diseases
+(Alzheimer's, Parkinson's, etc.)
+Arthritis
+Eating disorder
+Cardiovascular diseases / High blood
+Pressure
+None of the above
+
+17: Have any of your family members ever been diagnosed with the following conditions?
+Type 2 diabetes or prediabetes
+High cholesterol
+Anaemia
+Autoimmune disorder
+Major mental illness
+Cancer
+Digestive disorder (Crohn's disease, etc.)
+Type 1 diabetes
+Neurodegenerative diseases
+(Alzheimer's, Parkinson's, etc.)
+Arthritis
+Eating disorder
+Cardiovascular diseases / High blood
+
+18: Do you have any allergies?
+Food (Milk, peanuts, shellfish, etc.)
+Medications
+Dust mites
+Animal fur
+Mould and yeast
+Household chemicals
+Tree or plant pollen
+Insect bites
+Dust mites
+Animal fur
+Mould and yeast
+Tree or plant pollen
+Insect bites
+Other
+I Have no allergies
+
+19: Which drugs or supplements do you take consistently?
+Vitamins and supplements
+Hormones, including oral
+contraceptives
+Antibiotics
+Blood pressure normalizers
+Sugar-lowering therapy
+Chemotherapy
+Antidepressants
+Other
+I don't take anything
+
+20: Have any of your family members ever been diagnosed with the following conditions?
+Type 2 diabetes or prediabetes
+Type 1 diabetes
+Stroke
+Autoimmune disorder
+Major mental illness
+Cancer
+Digestive disorder (Crohn's disease, etc.)
+High cholesterol
+Neurodegenerative diseases
+(Alzheimer's, Parkinson's, etc.)
+Arthritis
+Cardiovascular diseases / High blood
+pressure
+None of the above
+
+21: Have you suffered from any of the following conditions in the past 3 months?
+Chronic fatigue
+Insomnia
+Increased excitability
+Drowsiness
+Excessive sweating
+Anxiety
+Recurrent thrush / herpes
+Severe dryness of the skin
+Decreased libido
+Frequent constipation
+Fussiness, sleep disorders
+A tendency for loose stools
+Swelling of the face, fingers, or legs
+Chronic headaches
+Worsening memory
+Persistent cough
+Trembling fingers or twitching muscles
+Excess weight gain that does not
+decrease even with physical activity
+and dieting
+Weakness
+Chilliness
+Increased heart rate
+Attention span issues
+Regular cramps in the calf muscles after physical activity
+Laziness or the desire to put things off for later
+Cravings for sweets
+Shedding hair or peeling nails
+Early gray hair
+A decrease in weight regardless of how much you eat
+Depression
+None of the above
+
+
+22: Do you drink alcohol?
+No
+I used to smoke but no longer do
+Passive smoker (Somebody is constantly smoking nearby)
+Occasionally (A couple of cigarettes a week)
+A few cigarettes per day
+1 pack of cigarettes per day
+More than 1 pack of cigarettes per day
+Onboarding >  Page 23
+
+Header Section: Displays the title "Analysing your profile..." indicating the current action or status.
+Main Content Area: Features the app's branding and a brief description of its functionality.
+Tagline/Value Proposition: "Everything in one place" highlights the app's core benefit.
+Feature Description: Explains the app's purpose—storing lab reports and medical documents from different clinics in one easy app.
+
+
+Onboarding > Page 24
+
+
+Header:
+Title: "Your digital profile to track your health is ready" – Confirms successful setup.
+Feature Highlights (Bullet Points):
+Personalized checkup created: Tailored health assessments.
+Health risks calculated: AI-driven risk analysis (e.g., chronic conditions).
+Storage for lab results is set up: Secure, centralized medical data hub.
+Access to helpful content and expert advice: Educational resources + clinician support.
+Implied Next Steps:
+A  "Continue" button
+
+
+Onboarding > Page 25
+
+
+Header:
+Title: "Try Ornament Plus" – Promotes premium subscription.
+Subscription Plans:
+POPULAR Tag: Highlights the best-value plan (likely the 12-month option).
+1 Month: $9.99 (flexible, no commitment).
+12 Months: $79.99 (Save 33% vs. monthly).
+Cost breakdown: *$2.30/week*.
+Forever (Lifetime): $275.14 (one-time payment).
+Cost breakdown: *$1.53/week* (long-term value).
+Key Benefit: "Lifetime access to all features".
+Free Trial Option:
+"Not sure yet? Enable free trial" – Lowers barrier to entry.
+Action Buttons:
+Continue: Proceeds with selected plan.
+Restore Purchases: For users with existing subscriptions.
+
+Onboarding > Page 26
+
+Header:
+Title: "Save your settings and data" – Emphasizes data security and continuity.
+Key Message:
+Explains the benefits of signing up:
+Prevents data loss when switching devices.
+Enables sharing with family members (multi-user support).
+Login/Signup Options:
+Continue with Google: Quick sign-in via Google account.
+Continue with Apple: Quick sign-in via Apple ID (with privacy note).
+Continue with email: Traditional email/password signup.
+Privacy Note:
+Advises against hiding Apple email if sharing with family 
