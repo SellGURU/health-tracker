@@ -20,36 +20,32 @@ function Router() {
   const { isAuthenticated } = useAuth();
   const isOnboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
 
-  return (
-    <Switch>
-      {/* Onboarding route - always accessible */}
-      <Route path="/onboarding" component={Onboarding} />
-      
-      {/* Auth route */}
-      <Route path="/auth" component={AuthPage} />
-      
-      {/* Protected routes */}
-      {isAuthenticated && isOnboardingCompleted ? (
-        <MobileLayout>
-          <Switch>
-            <Route path="/" component={Dashboard} />
-            <Route path="/lab-upload" component={LabUpload} />
-            <Route path="/manual-entry" component={ManualEntry} />
-            <Route path="/trends" component={Trends} />
-            <Route path="/action-plans" component={ActionPlans} />
-            <Route path="/holistic-plans" component={HolisticPlans} />
-            <Route path="/profile" component={Profile} />
-            <Route component={NotFound} />
-          </Switch>
-        </MobileLayout>
-      ) : !isAuthenticated ? (
+  if (!isAuthenticated) {
+    return (
+      <Switch>
+        <Route path="/onboarding" component={Onboarding} />
+        <Route path="/auth" component={AuthPage} />
         <Route path="/" component={AuthPage} />
-      ) : (
-        <Route path="/" component={() => { window.location.href = '/onboarding'; return null; }} />
-      )}
-      
-      <Route component={NotFound} />
-    </Switch>
+        <Route component={AuthPage} />
+      </Switch>
+    );
+  }
+
+  return (
+    <MobileLayout>
+      <Switch>
+        <Route path="/onboarding" component={Onboarding} />
+        <Route path="/" component={Dashboard} />
+        <Route path="/lab-upload" component={LabUpload} />
+        <Route path="/manual-entry" component={ManualEntry} />
+        <Route path="/trends" component={Trends} />
+        <Route path="/action-plans" component={ActionPlans} />
+        <Route path="/holistic-plans" component={HolisticPlans} />
+        <Route path="/profile" component={Profile} />
+        <Route path="/not-found" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </MobileLayout>
   );
 }
 
