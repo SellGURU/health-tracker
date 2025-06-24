@@ -1,8 +1,8 @@
-# HealthTracker - Lab Results & Health Analytics Platform
+# HolistiCare - Lab Results & Health Analytics Platform
 
 ## Overview
 
-HealthTracker is a comprehensive web application designed to help users track and analyze their laboratory test results and health biomarkers. The platform enables users to upload lab reports, manually enter test data, visualize health trends over time, and receive personalized health insights and action plans.
+HolistiCare is a comprehensive web application designed to help users track and analyze their laboratory test results and health biomarkers. The platform enables users to upload lab reports, manually enter test data, visualize health trends over time, and receive personalized health insights and action plans.
 
 ## System Architecture
 
@@ -141,7 +141,7 @@ Profile editing: Users can edit all onboarding responses in profile tab with sim
 
 ```
 Test Account:
-Email: test@healthtracker.com
+Email: test@holisticare.com
 Password: password123
 
 Includes: Lab results, health scores, action plans, and AI insights

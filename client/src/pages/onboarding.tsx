@@ -384,7 +384,7 @@ export default function Onboarding() {
     localStorage.setItem('onboardingCompleted', 'true');
     localStorage.setItem('onboardingData', JSON.stringify(data));
     toast({
-      title: "Welcome to HealthTracker!",
+      title: "Welcome to HolistiCare!",
       description: "Your profile has been created successfully.",
     });
     setLocation('/');
@@ -412,7 +412,7 @@ export default function Onboarding() {
             </div>
             <div className="space-y-3">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Ornament is your personal health coach
+                HolistiCare is your personal health coach
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400">
                 Monitor your entire body and prevent problems before they happen
@@ -684,7 +684,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div className="text-center space-y-3">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Try Ornament Plus
+                Try HolistiCare Plus
               </h2>
             </div>
 

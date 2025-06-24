@@ -3,7 +3,7 @@ import { AuthUser } from './auth';
 
 const MOCK_USER: AuthUser = {
   id: 1,
-  email: 'test@healthtracker.com',
+  email: 'test@holisticare.com',
   fullName: 'Test User',
   age: 30,
   gender: 'male',
@@ -193,7 +193,7 @@ export class MockAuthService {
 
   async mockLogin(email: string, password: string): Promise<AuthUser> {
     // Simple mock validation
-    if (email === 'test@healthtracker.com' && password === 'password123') {
+    if (email === 'test@holisticare.com' && password === 'password123') {
       this.currentUser = MOCK_USER;
       localStorage.setItem('mock_user', JSON.stringify(MOCK_USER));
       return MOCK_USER;

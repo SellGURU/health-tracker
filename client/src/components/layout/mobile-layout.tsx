@@ -45,7 +45,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       {/* Global Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-10">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">HealthTracker</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">HolistiCare</h1>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => setShowSearch(true)}>
               <Search className="w-4 h-4" />

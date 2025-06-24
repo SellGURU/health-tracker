@@ -26,7 +26,7 @@ export default function AuthPage() {
 
   const fillTestCredentials = () => {
     setLoginData({
-      email: "test@healthtracker.com",
+      email: "test@holisticare.com",
       password: "password123"
     });
   };
@@ -109,7 +109,7 @@ export default function AuthPage() {
       
       toast({
         title: "Account created!",
-        description: "Welcome to HealthTracker. Let's start monitoring your health.",
+        description: "Welcome to HolistiCare. Let's start monitoring your health.",
       });
     } catch (error) {
       toast({
@@ -130,7 +130,7 @@ export default function AuthPage() {
           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
             <Heart className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold mb-4">HealthTracker</h1>
+          <h1 className="text-3xl font-bold mb-4">HolistiCare</h1>
           <p className="text-lg opacity-90 mb-8">Your personal health companion for better wellness insights</p>
           
           {/* Key Features */}
@@ -188,7 +188,7 @@ export default function AuthPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                      Backend bypassed - use test@healthtracker.com / password123
+                      Backend bypassed - use test@holisticare.com / password123
                     </p>
                   </div>
                 )}
