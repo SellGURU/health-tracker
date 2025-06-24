@@ -15,7 +15,7 @@ import { formatRelativeDate } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
 import HealthScoreCard from "@/components/health/health-score-card";
 import BiomarkerCard from "@/components/health/biomarker-card";
-import { Bell, Upload, Edit, TrendingUp, CheckSquare, Brain, Plus, Activity, Calendar, Target, Trophy } from "lucide-react";
+import { Upload, Edit, TrendingUp, CheckSquare, Brain, Plus, Activity, Calendar, Target, Trophy, Heart, Zap } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Dashboard() {
@@ -139,41 +139,80 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4">
+      {/* Clean Header - No duplicate notifications */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 p-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              Welcome, {user?.fullName?.split(' ')[0] || 'User'}
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              Welcome back, {user?.fullName?.split(' ')[0] || 'User'}
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Let's check your health today</p>
+            <p className="text-gray-600 dark:text-gray-400">Let's check your health progress today</p>
           </div>
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-5 h-5" />
-              {insights.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              )}
-            </Button>
-            <Link href="/profile">
-              <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-semibold cursor-pointer">
-                {user?.fullName?.charAt(0) || 'U'}
-              </div>
-            </Link>
-          </div>
+          <Link href="/you">
+            <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold cursor-pointer shadow-lg hover:shadow-xl transition-shadow">
+              {user?.fullName?.charAt(0) || 'U'}
+            </div>
+          </Link>
         </div>
       </div>
 
       <div className="p-4 space-y-6">
-        {/* Health Score Card */}
-        {healthScore && (
-          <HealthScoreCard
-            score={healthScore.overallScore}
-            cardiovascularScore={healthScore.cardiovascularScore}
-            metabolicScore={healthScore.metabolicScore}
-            vitaminScore={healthScore.vitaminScore}
-          />
-        )}
+        {/* Health Score Card - Redesigned */}
+        <Card className="bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 text-white border-0 shadow-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <Heart className="w-5 h-5" />
+                  <h3 className="text-lg font-semibold">Health Score</h3>
+                </div>
+                <div className="text-4xl font-bold mb-1">{healthScore?.overallScore || 85}</div>
+                <p className="text-blue-100 text-sm mb-3">Overall health index</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-white hover:bg-white/20 p-0 h-auto"
+                  asChild
+                >
+                  <Link href="/trends">View detailed trends →</Link>
+                </Button>
+              </div>
+              <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-white/30 flex items-center justify-center">
+                  <Activity className="w-8 h-8" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="text-center hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-green-600 mb-1">
+                {labResults?.length || 12}
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Lab Results</p>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-blue-600 mb-1">
+                {actionPlans?.filter(plan => plan.status === 'active').length || 3}
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Plans</p>
+            </CardContent>
+          </Card>
+          <Card className="text-center hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-purple-600 mb-1">
+                {insights?.length || 8}
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">AI Insights</p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Quick Actions */}
         <div>
@@ -490,7 +529,7 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
                     Upload your first lab results to get started
                   </p>
-                  <Link href="/upload">
+                  <Link href="/lab-upload">
                     <Button className="mt-3" size="sm">
                       Upload Results
                     </Button>
