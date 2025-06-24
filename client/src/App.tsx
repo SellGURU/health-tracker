@@ -13,6 +13,7 @@ import ActionPlans from "@/pages/action-plans";
 import HolisticPlans from "@/pages/holistic-plans";
 import Profile from "@/pages/profile";
 import Onboarding from "@/pages/onboarding";
+import YouMenu from "@/pages/you-menu";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
 
@@ -42,6 +43,7 @@ function Router() {
         <Route path="/action-plans" component={ActionPlans} />
         <Route path="/holistic-plans" component={HolisticPlans} />
         <Route path="/profile" component={Profile} />
+        <Route path="/you" component={YouMenu} />
         <Route path="/not-found" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

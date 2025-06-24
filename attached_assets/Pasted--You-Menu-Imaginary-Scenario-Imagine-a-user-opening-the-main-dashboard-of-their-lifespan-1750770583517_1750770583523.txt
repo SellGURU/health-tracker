@@ -1,0 +1,3725 @@
+“You” Menu
+
+
+
+
+Imaginary Scenario:
+Imagine a user opening the main dashboard of their lifespan and health monitoring app to get an overview of their current health status and access important health-related features quickly.
+
+
+Bottom navigation bar with five icons and labels:
+"You"
+"Monitor"
+Central plus ("+") button
+"Assistant"
+"More"
+
+
+An icon or avatar edit icon that will take the user directly to the avatar edit screen we had during the onboarding process
+"Go Plus" button ( an upgrade or premium subscription)
+
+
+Labels of health modules:
+
+
+Checkups (implies medical test results or appointments)
+
+
+Health Profile (personal health info and history)
+
+
+Vitamins (supplement intake tracking)
+
+
+Sleep (sleep quality and duration)
+
+
+Fat Burning (metabolism or weight management tracking)
+
+"See All" button that shows all available health modules and details
+
+
+Health score or index: "Health 0" (numeric health status indicator)
+
+Avatar Edit
+
+Choose appearance page:
+Choose skin colour
+Choose body shape
+Done
+
+
+Go plus
+
+
+Header:
+Title: "Try Ornament Plus" – Promotional upsell for premium tier.
+Subscription Tiers:
+POPULAR tag highlights best-value plan.
+Four pricing options displayed vertically:
+1 month: $9.99 (short-term trial).
+12 months: $79.99 (33% savings vs. monthly).
+Breakdown: *$2.30/week*.
+Forever (Lifetime): $249.99 (one-time payment).
+Breakdown: *$1.53/week* (calculated over 3+ years).
+Cancel anytime: Flexibility emphasized for all plans.
+Value Proposition:
+"Lifetime access to all features" (key selling point for Forever plan).
+Secondary Options:
+*"Not sure yet? Enable 1-year intro offer"* – Alternative CTA for hesitant users.
+Buttons:
+"Continue" ( proceeds to payment).
+"Restore purchases" (for existing subscribers).
+
+
+See All
+
+
+obvious data in the screen:
+Health Profile progress: 20%
+
+
+Labels of each module indicating their health or wellness focus:
+
+
+Checkups (medical tests)
+
+
+Vitamins (supplement intake)
+
+
+Future Mom (pregnancy-related health)
+
+
+Meal Plan (nutrition guidance)
+
+
+Fat Burning (weight management)
+
+
+Sleep (rest and recovery)
+
+
+Fasting (dietary fasting protocols)
+
+
+Post-COVID (post-illness recovery)
+
+See All > Health profile
+
+
+
+
+
+
+
+
+Imaginary Scenario:
+The user taps into their "Health Profile" to understand the current completeness of their health data and get guidance on what steps to take next to improve their profile and get more accurate health insights.
+
+ Parts of the screen:
+Back arrow button (top left) to return to the previous screen
+
+
+User avatar at the top center
+
+
+Username: "rezi"
+
+
+Main heading: "Health Profile"
+
+
+Subheading: "Your profile is 20% complete"
+
+
+Informative text explaining that Apple Health data covers only basic risks and lab results upload is recommended for detailed health picture
+
+
+Two progress boxes showing:
+
+
+"Basic survey complete +10%"
+
+
+"Health app connected +10%"
+
+
+Section title: "What to do next?"
+
+
+"Take the body system surveys" section with description
+
+
+Checklist of body system surveys with percentage contributions and after pressing the button App displays a list of questions related to that section.("Complete"):
+
+
+Blood +3%
+
+
+Hormones +3%
+
+
+Liver +3%
+
+
+Cardiovascular system +4%
+
+
+Urogenital system +3%
+
+
+Immunity +2%
+
+
+Digestion +3%
+
+
+Nerves +2%
+
+
+Respiratory system +2%
+
+
+"Take a general blood test" card with description and a red "View in Checkup" button and progress percentage is +20%
+"Take a urinalysis test" card with description and "View in Checkup" button and progress percentage is +15%
+"Take specialized tests" card with description and "View in Checkup" button and progress percentage is +20%
+
+
+ Obvious data in the screen:
+Profile completion percentage: 20%
+
+
+Progress values associated with tasks:
+
+
+Basic survey completion: +10%
+
+
+Health app connected: +10%
+
+
+Completion status of all nine body system surveys marked "Complete" and when we press, it displays a list of questions. By completing this questionnaire and saving the changes, when you return to the main page, that item will be moved from the To-Do list to the Complete list (below the To Do list).
+
+
+Percentage contributions to profile completion for each body system survey (e.g., blood +3%, cardiovascular +4%)
+
+
+Profile improvement values from each test category:
+
+
+General blood test: +20%
+
+
+Urinalysis test: +15%
+
+
+Specialized tests: +20%
+
+
+
+ Specific details one by one:
+The profile progress ring around the avatar visually corresponds to the 20% profile completion
+
+
+The text explains that Apple Health data alone is not enough for a full health picture and suggests uploading lab results
+
+
+Each body system survey focuses on a different physiological area, contributing incremental percentages to the profile completion
+
+
+The checklist indicates all body system surveys are already completed
+
+
+The three test cards describe the purpose and benefits of each test:
+
+
+General blood test for infections, inflammation, anemia, blood diseases
+
+
+Urinalysis to screen kidney and urinary tract health
+
+
+Specialized tests customized based on health, genetics, and lifestyle
+
+
+Red buttons invite the user to view or book these tests within the "Checkup" section of the app
+View in Checkups
+
+Imaginary Scenario:
+The user selects to view the details of the general blood test included in their basic health checkup to understand its purpose, benefits, and how to proceed.
+
+Header: Title "Basic checkup for women 18-29 years old" specifying the target demographic and checkup type.
+Feature Highlight: Checkmark with text "Free test list based on WHO recommendations and helps identify major health risks."
+"Learn more" Link: Likely expands details about the WHO recommendations.
+Personalization Section: "You can account for 110 personal factors in your checkup >".
+Subheader: "Pick a test based on your body type" suggesting tailored options.
+"Personalize your checkup" Section: Likely leads to customization tools.
+"Missing tests" List: Displays three recommended tests:
+Clinical blood count without leukocyte formula (venous blood)
+Biochemical blood test, basic
+Urinalysis
+"Download list" Button: Allows users to save or export the test list.
+
+110 personal factors in your checkup
+
+Imaginary Scenario:
+The user views their personalized health checkup details to understand which factors are already accounted for and what further surveys or tests they can complete to improve their personalized profile.
+
+ Parts of the screen:
+Back arrow button (top left) to return to the previous screen
+
+
+Progress ring with human body icon at the top center
+
+
+Header text: "Your personalized checkup takes into account 30 of 110 factors"
+
+
+Progress box: "Basic survey complete +30"
+
+
+Section header: "How can I account for more factors?"
+
+
+Section: "Take the body system surveys" with description explaining their purpose in identifying hidden health risks and guiding personalized tests
+
+
+Checklist of body system surveys with their contribution percentages and a Button with opening a questionnaire ("Complete"):
+
+
+Blood +8
+
+
+Hormones +8
+
+
+Liver +10
+
+
+Cardiovascular system +10
+
+
+Urogenital system +10
+
+
+Immunity +8
+
+
+Digestion +10
+
+
+Nerves +9
+
+
+Respiratory system +7
+
+
+Bottom navigation bar with five icons and labels:
+
+
+"You"
+
+
+"Monitor"
+
+
+Central plus ("+") button
+
+
+"Assistant"
+
+
+"More"
+
+ Obvious data:
+Personalized checkup progress: 30 of 110 factors accounted
+
+
+Basic survey completion progress: +30
+
+
+Contribution points for each body system survey:
+
+
+Blood +8
+
+
+Hormones +8
+
+
+Liver +10
+
+
+Cardiovascular system +10
+
+
+Urogenital system +10
+
+
+Immunity +8
+
+
+Digestion +10
+
+
+Nerves +9
+
+
+Respiratory system +7
+
+
+All body system surveys Button "Complete"
+
+
+  Specific details:
+The progress ring visually indicates roughly 30 out of 110 factors completed in the personalized checkup
+
+
+The body system surveys collectively help identify hidden health risks and personalize the user’s health plan
+
+
+The completion button "Complete" suggests the user has filled out these surveys fully
+
+
+The bottom navigation bar stays consistent, ensuring easy navigation between main app sections
+When we answer all the surveys the page will be like this:
+
+
+This is the list of questions in “blood”
+Question 1:
+Do you have any of the following symptoms?
+Dizziness
+
+
+Heavy or very long periods
+
+
+Flickering in the eyes during physical activity
+
+
+Increased fatigue
+
+
+Weakness
+
+
+Bleeding gums
+
+
+Fine skin rash
+
+
+Easy bruising
+
+
+Frequent heavy nosebleeds
+
+
+Enlarged lymph nodes
+
+
+Rapid pulse
+
+
+Buttons: No
+
+
+
+Question 2:
+Do you have an enlarged liver or spleen?
+Enlarged spleen
+
+
+Enlarged liver
+
+
+Enlarged liver and spleen
+
+
+I don't know
+
+
+Buttons: No
+
+
+
+Question 3:
+Do you take any medication on a regular basis?
+Nonsteroidal anti-inflammatory drugs
+Antiaggregants
+
+
+Iron supplements
+
+
+Vitamin B12 supplements
+
+
+Anthemophilic drugs
+
+
+Antineoplastic drugs
+
+
+Combined oral contraceptives
+
+
+Buttons: None of the above
+
+
+
+Question 4:
+Have you had a blood disorder or have you ever had a blood disorder?
+I don't know
+
+
+Hemophilia
+
+
+Thrombocytopenia
+
+
+Thrombosis
+
+
+Immunodeficiency, including HIV
+
+
+Anemia
+
+
+Leukemia
+
+
+Buttons: None of the above
+
+
+
+Question 5:
+Have you had a blood transfusion or blood components?
+No
+
+
+I don't know
+
+
+Yes
+
+
+Yes, with transfused red blood cells
+
+
+Yes, with transfused plasma
+
+
+Other
+
+
+Buttons: No
+
+
+
+Question 6:
+Do you regularly experience pain in any part of your body?
+No, everything feels good
+Pain in the central upper part of the chest
+
+
+Abdominal pain on the right side
+
+
+Pain in the head
+
+
+Pain in the central upper part of the chest (repeated in image)
+
+
+Lower abdominal pain
+
+
+Buttons: No
+
+
+
+Question 7:
+Which of these best describes your natural skin color?
+My skin color is normal
+My skin has a yellow hue
+
+
+My skin is pale
+
+
+My skin has a bluish hue
+
+
+My skin has a green hue
+
+
+My skin is flushed
+
+
+
+Question 8:
+What do your nails look like?
+Good
+
+
+Vertical ridges
+
+
+Yellow-ish color
+
+
+White lines and/or dots
+
+
+Nail pitting
+
+
+Barely visible lunulae
+
+
+Breaking or splitting
+
+
+Horizontal ridges
+
+
+
+Question 9:
+What color is your stool?
+Brown
+
+
+Dark brown
+
+
+Light brown
+
+
+Orange-colored
+
+
+Reddish-colored
+
+
+Green-colored
+
+
+Light yellow
+
+
+Black-colored
+
+
+Greenish-black
+
+
+Greyish-white
+
+
+
+Question 10:
+Have you had any of the following exotic diseases?
+Malaria
+
+
+Yellow fever
+
+
+Lyme disease
+
+
+Typhus fever
+
+
+Other
+
+
+Buttons: No
+
+Questions in “hormones”
+1. Select all options that best describe you:
+Overweight
+
+
+Prone to swelling
+
+
+Low body temperature
+
+
+Heart palpitations
+
+
+Excess sweating
+
+
+Rapid weight gain or loss
+
+
+Shivering in the body, increased body temperature
+
+
+Constant thinness with increased appetite
+
+
+High blood pressure
+
+
+Stretch marks on the body
+
+
+None of these
+
+
+
+ 2. Have you noticed any unusual peculiarities or sensations?
+Ice water required to quench thirst
+
+
+Tingling and burning in the fingers and toes
+
+
+Frequent nightmares
+
+
+Waking up with headaches and hunger
+
+
+High collars cause a choking sensation
+
+
+Fidgetiness and extreme emotionality
+
+
+Frequent dry mouth even after drinking
+
+
+Sudden visual disturbances
+
+
+None of these
+
+
+
+ 3. What is your blood pressure?
+Within the normal range
+
+
+Sometimes low
+
+
+Always low
+
+
+Sometimes high
+
+
+Always high
+
+
+Sometimes extremely high (hypertensive crisis)
+
+
+
+4.  What do your nails look like?
+Good
+
+
+Vertical ridges
+
+
+Yellow-ish color
+
+
+White lines and/or dots
+
+
+Nail pitting
+
+
+Barely visible lunulae
+
+
+Breaking or splitting
+Horizontal ridges
+
+
+
+5. Are you experiencing any hair problems?
+No
+
+
+Broken, split ends
+Widespread hair loss at the back of the head
+Gray hair
+
+
+Widespread hair loss
+
+
+Nested baldness with full losses in some places
+
+
+Short locks of hair up to ½ inch in length
+
+
+Dull, lifeless hair and hair loss
+
+
+
+6. Do you have any plaque on your tongue?
+No or the plaque is transparent
+White plaque
+Yellow plaque
+
+
+Green plaque
+
+
+Orange plaque
+
+
+Blue plaque
+
+
+Green-black plaque
+
+
+Gray plaque
+
+
+
+7. Do you take any metabolic medications on a regular basis?
+Blood glucose tablets
+Sugar-lowering injectables
+Hypotensive
+Estrogen (androgen replacement therapy)
+Combined oral contraceptives
+
+
+Glucocorticosteroids
+
+
+Thyroid hormones
+
+
+Other
+
+
+No
+
+
+
+8. Are any of the following traceable among your close relatives?
+Multiple close relatives are overweight
+Multiple close relatives are hypertensive
+Both parents have type 2 diabetes
+Thyroid abnormalities are common among relatives
+None of the above
+
+
+
+9. Have you been diagnosed with any hormonal abnormalities?
+Somatotropic insufficiency
+Autoimmune thyroiditis
+
+
+Metabolic syndrome
+Type 1 diabetes
+Type 2 diabetes or prediabetes
+Non-sugar diabetes
+
+
+Osteoporosis
+
+
+Vitamin deficiency
+
+
+Vitamin overdose
+
+
+Scleropolycystic ovarian disease
+
+
+Primary ovarian failure
+
+
+Perimenopause
+
+
+Menopause
+
+
+None of the above
+
+
+
+10. Have you had any of the following surgeries?
+Thyroid removal
+
+
+Thyroid nodules removal
+
+
+Removal of the ovaries
+
+
+Removal of the uterus
+
+
+Removal of the fallopian tube or both tubes
+
+
+None of the above
+
+
+
+11. Are you taking any of these vitamins and minerals?
+Vitamin D in high doses
+Vitamin D in prophylactic doses
+Iron supplements
+Zinc
+Selenium
+Calcium
+None of the above
+
+
+Liver questions:
+
+1. Have you ever been diagnosed with viral hepatitis (jaundice?)
+No
+I had jaundice as a child
+I have hepatitis B
+I have hepatitis C
+I don't know
+
+
+
+2. Have you noticed any changes in your bodily waste?
+No change
+Dark urine and light stool
+Brown-tinged urine
+Pale yellow or green liquid stools
+Unstable stools, severe flatulence
+Black stools
+Whitish urine, like milk
+Other
+
+
+
+3. What color is your urine?
+Light yellow or almost transparent
+Blue color
+Pink color
+Brown color
+Orange color
+Dark color
+Red color
+
+
+
+4. Do you take any medication on a regular basis?
+Drugs for gout
+Drugs for tuberculosis
+Nonsteroidal anti-inflammatory drugs
+For example, paracetamol and ibuprofen.
+Tetracycline antibiotics
+Corticosteroid hormones
+Antifungal agents
+Valproic acid epilepsy medications
+None of the above
+
+5. Do you have any genetic conditions?
+Gilbert syndrome
+
+
+Wilson's disease
+
+
+Hemochromatosis
+
+
+Tyrosinemia
+
+
+Congenital liver and bile duct abnormalities
+
+
+
+None of the above
+
+
+
+6. How frequently do you eat fatty foods?
+Not at all
+Rarely
+Regularly
+Frequently
+Constantly
+
+
+
+7. Does your job involve toxic substances?
+Pesticides, insecticides, arsenic, aldehydes, phenols, etc.
+Yes
+No
+
+
+
+8. Have you ever suffered from poisoning?
+Poisoning by industrial toxins
+Pesticides, insecticides, arsenic, aldehydes, phenols, etc.
+Poisoning by mushrooms or plants
+Poisoning from canned food (botulism)
+Poisoning caused by salmonella
+No
+
+
+9. Select all symptoms you're currently experiencing:
+Burping rotten
+Heartburn
+Heaviness under the right side of the ribs
+Bruising
+Bright veins around navel
+A bitter taste in the mouth
+Constant thirst
+Nausea and vomiting
+Itchy skin
+Fever
+ Constant fatigue or weakness
+Yellowing eyeballs
+None of these
+
+
+10. Is there pain in your abdomen? If yes, describe it:
+No pain
+Occasionally, unrelated to anything
+Occasionally, related to eating
+Cramping on the right side
+Slightly dull or aching pain in right upper side
+Pain on the right side, radiating to clavicle and shoulder blade
+Other
+
+Cardiovascular questions:
+
+1. Do any of your close relatives have heart and vascular problems?
+Yes
+No
+I don't know
+  
+
+2. What heart and vascular problems do your close relatives have?
+High blood pressure
+Myocardial infarction (heart attack)
+Stroke
+Type 2 diabetes
+
+
+3. Are you experiencing any of these symptoms?
+
+Increased fatigue
+Shaking hands
+Pale face or earlobes, blue lips,
+
+Spinal pain
+
+Swelling in the lower extremities
+
+Changes in pulse frequency or rhythm
+
+Irregular heart rhythm, feelings of sudden heart movements
+
+Fainting for no reason
+
+None of the above
+
+4. What best describes your average blood pressure?
+Within the normal range
+Sometimes low
+Always low
+Sometimes high
+Always high
+Sometimes extremely high (hypertensive crisis)
+I don't know
+
+
+5. Do you take any medication on a regular basis?
+Nonsteroidal anti-inflammatories
+For example, paracetamol and ibuprofen.
+
+Sulfonylurea class antidiabetic pills
+Hypotensive
+Asthma medications
+Antiarrhythmic
+Antineoplastic
+Antiaggregants
+None of these
+
+
+6. What is your cholesterol level?
+I don't know
+Within the normal range
+Slightly above normal
+Twice the normal level
+
+
+7. Have you had any heart surgeries?
+Coronary artery bypass surgery
+Recurrent aorto-coronary bypass
+Valve replacement
+Donor heart transplantation
+Other
+No
+
+
+8. Do you have any chronic diseases?
+Arterial hypertension
+Type 2 diabetes
+Aortic aneurysm
+Rheumatism
+Asthma
+None of these
+Your height
+Your weight
+
+
+Urogenital questions
+
+1. Have you noticed any changes in urination?
+
+Pain when urinating
+Full-feeling bladder
+Blood when urinating
+Urination requires great difficulty or pressure on the lower abdomen
+Itching in the urethra
+Decreased urine output
+Other
+No
+
+2. Which best describes your urine?
+Normal
+A sharp, bad odor
+Foamy
+Cloudy with a foul odor
+Milk-white
+Other
+
+3. Do you commonly experience any of these symptoms?
+Swelling of the eyelids, face, arms, and legs
+
+Lower back pain
+Slightly elevated temperature
+Fatigue
+Headaches
+Unusual discharge from the urinary tract
+Discomfort and burning sensation in the urogenital organs
+High blood pressure
+None of the above
+
+4. Do you commonly experience pain? Choose the option that best describes it:
+Aching, heavy pain on both sides of the lower back
+Intense pain on one side of the lower back
+A pulling sensation in the lower abdomen
+Sharp pain radiating to the urethra and genitals
+Aching pain in the groin
+Renal colic
+Other
+No pain
+
+
+
+5. Have you ever been diagnosed with kidney disease?
+No
+I don't know
+Yes, with inflammation
+Yes, due to a chronic kidney problem
+Yes, due to congenital kidney changes
+Other
+
+6. Do you take any medication on a regular basis?
+Nonsteroidal anti-inflammatory drugs.
+Aminoglycosides
+Antifungal drugs
+Antineoplastic drugs
+ACE inhibitors
+Angiotensin-converting enzyme inhibitors
+Cyclosporines
+None of these
+
+7. Do you have any heriditary kidney diseases?
+No
+Vitamin D-dependent rickets
+Hereditary nephritis
+Renal dysgenesis
+Alport syndrome
+Other
+
+
+8. How much fluid do you drink per day?
+litres
+OZ
+600-800 ml
+1000-1200 ml
+1500-1700 ml
+2000 ml
+Over 2000 ml
+
+9. Have you had any of these injuries?
+Contusion of the lumbar region
+Burns over a large part of the body
+Crush syndrome
+None of the above
+
+10. Have you been diagnosed with any sexually transmitted diseases?
+Yes, treated
+Yes, untreated
+I have not, but my partner has
+No
+
+Immunity questions:
+
+1. Which of these best describe you?
+
+I get sick more than ten times a year
+Cold-related illnesses always last for a long time
+I always have to take antibiotics after a viral illness because of possible complications
+My throat, ears, and nose are constantly weak
+inflammatory diseases don't last long, but they're often bad with very high temperature
+I never catch colds
+None of the above
+
+
+2. Do any of these apply to your lifestyle?
+Unbalanced diet
+Low physical activity
+Stress
+Lack of sleep
+None of the above
+
+3. Do you have any chronic immune-related diseases?
+Cystic fibrosis
+Bronchial asthma
+Immunodeficiency
+Other
+None
+
+4. Do you maintain your gut microbiota in any way?
+I take a course of lactobacillus after antibiotic treatment.
+I regularly take fermented milk drinks and probiotics.
+I eat 14 ounces of vegetables and fruit every day, get the right fats, and have adequate protein
+I don't know what that is
+
+5. Do you take any immune-boosting medications?
+Vitamin D
+Vitamin C
+Zinc
+Selenium
+Iron
+Multivitamins for a stronger immune system.
+No
+
+6. Do you take any immune-boosting medications?
+Vitamin D
+Vitamin C
+Zinc
+Selenium
+Iron
+Multivitamins for a stronger immune system.
+No
+
+7. Do you have vaccinations?
+I vaccinate according to the calendar
+I vaccinate due to epidemiological conditions
+I vaccinate if I travel to specific countries
+Other
+I don't vaccinate
+
+8. Have any family members been diagnosed with autoimmune diseases?
+I don't know
+Rheumatoid arthritis
+Systemic lupus erythematosus
+Autoimmune thyroiditis
+Type 1 diabetes
+Other
+No
+
+Digestion questions:
+
+
+Which of these best describe you? Select all that apply.
+I have frequent indigestion
+I take enzymes and feel worse without them
+I like to eat a lot and often
+loften feel sick after eating
+I get heartburn
+If I don't eat, I get a headache
+Nothing tastes good to me
+I have to pee right after | eat
+I often vomit bile
+I eat too much
+None of the above
+
+
+Which of these best describe you? Select all that apply.
+
+I have frequent indigestion
+I take enzymes and feel worse without them
+I like to eat a lot and often
+loften feel sick after eating
+I get heartburn
+If I don't eat, I get a headache
+Nothing tastes good to me
+I have to pee right after | eat
+I often vomit bile
+I eat too much
+None of the above
+
+
+
+Do you have any outward signs of digestive distress?
+Bitter mouth after meals
+Constipation
+Bloody stools
+I often have sores or issues in my mouth
+Pain on the right side of the stomach after eating greasy foods
+None of the above
+
+
+Which of these best describes your bowel movements?
+Increased gas
+Frequently constipated
+Frequently liquid stools
+Stinky, persistent smelling stools
+Strange colored stools
+Stools with undigested food
+Thin, pencil-like stools
+Other
+None of the above
+
+
+
+How often do you use chemicals to clean your home?
+Never
+I only use natural products.
+I wash everything with chemical cleaners.
+From cleaning dishes to washing fruit
+Other
+
+
+What kind of pets do you have?
+Dog
+Cat
+Rabbit
+Other
+I don't have any pets
+
+
+Do you give your pets anti-parasitic medication?
+Such as heartworm or other internal parasite medicines.
+Never
+Yes, always
+Yes, and I use it myself every once in a while
+
+
+Do you eat raw meat, minced meat, or freshwater fish?
+Never
+Occasionally
+Often
+
+
+Are there any foods that you cannot eat?
+I don't eat meat
+I don't eat fish
+I cannot eat animal proteins
+I cannot eat spicy foods
+Other
+No, I eat everything
+
+
+Do you have any gastrointestinal diseases?
+Celiac Disease
+Crohn's disease
+Non-specific ulcerative colitis
+Diverticulitis
+Other
+No
+
+
+Do you regularly take any medication?
+Aspirin
+Nonsteroidal anti-inflammatory drugs
+Corticosteroid hormones
+Encapsulants
+Antacids
+No
+
+
+Earlier you mentioned that you are lactose intolerant. Which of these have you experienced when drinking milk?
+Abdominal pain
+Flatulence and diarrhea
+Abdominal cramps
+Feces with blood
+None of these
+
+Nerves questions:
+
+
+Have you experienced trauma to the brain or spinal cord?
+Yes, a head injury
+Yes, a spinal cord injury
+No
+
+
+
+Are you currently experiencing any of these symptoms?
+Sleep disturbance or insomnia
+Headaches or migraines
+Frequent changes in blood pressure
+Impaired sense of smell
+Impaired sense of taste
+Vision problems
+Memory problems
+Nervous tics
+Obsessive thoughts or phobias
+Impaired gait or coordination
+Weakness in the limbs
+Reduced capacity for work, sleepiness
+None of the above
+
+
+Have you been diagnosed with an infectious disease of the nervous system?
+Meningitis
+Polio
+Shingles herpes
+Other
+No
+
+
+Have you ever been diagnosed with genetic and hereditary diseases of the nervous system?
+Spinal muscular atrophy
+Hereditary spastic paraplegia
+Mucopolysaccharidosis
+Hereditary neuropathy
+Other
+None of the above
+
+
+Do any close relatives have any neurodegenerative diseases?
+I don't know
+Parkinson's disease
+Alzheimer's disease
+Multiple sclerosis
+Epilepsy
+Tumor
+Other
+No
+
+
+
+Have there been any surgical interventions on your brain or spinal cord?
+Cyst removal
+Tumor removal
+Vertebral surgery
+Other
+No
+
+
+Have there been any surgical interventions on your brain or spinal cord?
+Cyst removal
+Tumor removal
+Vertebral surgery
+Other
+No
+
+
+
+Have you noticed any peripheral nervous system disorders?
+
+Neuralgia
+Lower back pain
+Pain in the sacrum
+Sciatic nerve inflammation
+Parasthesias
+Impaired feeling of the extremities
+Other
+No
+
+
+
+10. Do you regularly take any of the following medications?
+Melatonin
+Migraine medication
+Nonsteroidal anti-inflammatory drugs For example, paracetamol and ibuprofen.
+Hypotensive
+Neuroleptics
+Sleeping pills
+Psychotropics
+Anti-herpetic drugs
+None of the above
+
+
+
+11. Have you ever experienced impaired circulation of the brain or spinal cord?
+Yes, due to a cerebral hemorrhage Stroke, aneurysm rupture, etc.
+Yes, due to dyscirculatory encephalopathy
+Other
+No
+
+
+12. Do you bite your nails?
+Yes
+No
+
+Respiratory questions:
+
+Do you have any chronic illnesses or breathing problems?
+Bronchial asthma
+Chronic bronchitis
+Lung inflammation several times a year
+Cystic fibrosis
+Other
+None of the above
+
+
+Do you have any of these symptoms?
+Common fevers
+Dry cough
+Cough with phlegm
+Sharp pain in the chest on deep inhalation
+Difficulty breathing while exercising
+Difficulty breathing while at rest
+Other
+No
+
+
+Do you work in a factory with asbestos dust, flour dust, or construction dust?
+No
+Yes
+I used to
+
+
+Do you have seasonal allergies?
+No
+When I was a kid
+Occasionally, but not every year
+Yes, every Spring
+Yes, all year round
+Other
+
+All Checkups page
+
+
+In this page we have:
+General Checkup
+Helps you identify major health risks. Compiled according to WHO recommendations, taking into account your gender, age, and personality.
+Post-covid checkup
+Identifies complications from coronavirus.
+Vitamins and minerals
+Helps identify vitamin and mineral deficiencies in the body.
+Weight loss checkup
+These tests will help you find out if you can lose weight easily and without health complications.
+Intermittent fasting
+It helps to know if there are contraindications to intermittent fasting.
+Healthy Sleep Checkup
+Take these tests if sleep disturbances occur for no apparent reason
+
+General Checkup
+
+Header Section
+Title: "Basic checkup for women 18-29 years old" 
+Checkmark (✔) + Text: "Free test list based on WHO recommendations and helps identify major health risks." (Builds trust via WHO authority.)
+"Learn more" Link: Likely expands into detailed WHO guidelines or risk explanations.
+Personalization Section
+Bold Text: "You can account for 110 personal factors in your checkup." 
+Subtext: "Pick a test based on your body type." (Encourages tailored selections.)
+"Personalize your checkup" button 
+"Missing tests" List (Identifies gaps in user’s health data with 3 key lab tests):
+Clinical blood count without leukocyte formula (venous blood)
+Biochemical blood test, basic
+Urinalysis
+Footer Action Button
+"Download list" action button:
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+We opened all the buttons in this page, above from the previous page.
+
+Post-covid checkup
+
+
+Header Section
+Title: "Post-covid checkup" 
+Description: "These tests will help determine your health status after experiencing coronavirus." 
+"Learn more about post-COVID" 
+"Missing tests" List (Prioritizes critical post-COVID biomarkers):
+Complete blood count with Leukocyte 5-Part Differential (Venous blood, lab-performed)
+D-Dimer (Key for detecting post-COVID clotting risks)
+C-reactive protein ultrasensitive (Inflammation marker)
+Biochemical blood test, basic (Metabolic/organ function)
+Coagulogram, screening (Blood clotting assessment)
+ECG screening (Heart health check)
+Footer Action Button
+"Download list" action button:
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+We opened all the buttons in this page, above from the previous page.
+
+Vitamins and minerals
+
+
+Header Section
+Title: "Vitamins and Minerals Checkup" 
+Checkbox + Description:
+ "Helps you identify vitamin and mineral deficiencies in your body." 
+"Learn more"
+
+"Missing tests" List :
+Clinical blood count (Baseline health metric)
+Vitamin B complex (B1, B2, B6, B9, B12) (Critical for energy, cognition, and methylation)
+25-OH Vitamin D (calciferol) (Bone/immune health)
+Footer Action Button
+"Download list" action button:
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+
+We opened all the buttons in this page, above from the previous page.
+
+
+
+Weight loss checkup
+
+
+
+Header Section:
+Title: "Weight loss checkup" - 
+Interactive Element:
+Checkbox with description: "Helps you find out if you can lose weight easily and without health complications"
+"Learn more" link (likely explains metabolic barriers to weight loss)
+Main Content:
+"Missing tests" section lists 3 key metabolic markers:
+Insulin resistance (Critical for understanding metabolic flexibility)
+Standard lipid profile (Cholesterol/triglyceride levels)
+Thyroid stimulating hormone (TSH) (Thyroid function impacts weight)
+Footer:
+"Download list" action button:
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+We opened all the buttons in this page, above from the previous page.
+
+Intermittent fasting
+
+
+Header Section:
+Title: "Intermittent fasting checkup" - 
+Interactive Element:
+ Unchecked checkbox with text: "Helps you find out if there are any contraindications to interval fasting"
+Bold "Learn more" link (likely explains fasting risks/benefits)
+Core Content:
+"Missing tests" lists 7 key biomarkers:
+Liver enzymes: ALT, AST
+Kidney markers: Creatinine, Urea
+Metabolic health: Insulin resistance, Lipid profile
+Thyroid function: TSH
+Footer:
+"Download list" action button:
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+We opened all the buttons in this page, above from the previous page.
+
+Healthy Sleep Checkup
+
+Header Section:
+Title: "Healthy Sleep Checkup" - 
+Checkbox Prompt:
+"Take these tests if sleep disturbances occur for no apparent reason"
+(Creates self-assessment opportunity)
+Biomarker Matrix:
+Inflammation: C-reactive protein
+Metabolic: Glucose
+Electrolytes: Magnesium
+Nutritional: Iron, Vitamin B6
+Hormonal:
+Prolactin
+Total testosterone
+Urinary cortisol (diurnal rhythm)
+Plasma melatonin (circadian marker)
+Footer:
+"Download list" action button:
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+We opened all the buttons in this page, above from the previous page.
+
+Personalize your checkup
+Needs pro
+Learn more
+
+
+
+There is a “back” button.
+There is a “download” button.
+
+This ia an article and below it its text:
+
+All of us agree on some things-for example, that cars should be regularly checked and maintained.
+However, the importance of regular medical checkups is sometimes questioned. Everyone knows that replacing a spare part on a car or buying a new vehicle is just a question of finances while replacing a malfunctioning bodily organ is a very complex task, and replacing your physical body for a new one is merely a science fiction concept.
+When developing a health checkup program, the experts of the Scientific and Medical Department of Ornament have applied the principles of evidence-based medicine, using the research of leading international medical centers and hospitals and recommendations of the World Health Organization.
+Factors considered during a proper medical checkup
+Age
+During the first year of life, we need medical examinations monthly. This is because it is difficult for humans to adapt to new living conditions, which are very different from the intrauterine conditions of the fetus.
+An additional challenge is the immaturity of bodily organs and systems early in life. If a disorder develops, the baby obviously cannot evaluate his or her state and describe it. As the baby becomes older, the frequency of regular checkups decreases compared to infancy.
+Young and middle-aged individuals without chronic illnesses who are not subjected to occupational hazards and are not living in extreme conditions can have a preventive checkup once per year.
+Seniors need a more careful approach, which calls for more frequent preventive checkups. This is attributed to age-related changes and chronic illnesses.
+Gender
+The scope of medical consultations, tests, and research is different for men and women. This is natural as gender requires different health approaches.
+Their endocrine systems function differently, reactions to stress vary, and age-related changes are also expressed differently.
+Special Circumstances
+One of the examples of circumstances that dictate a unique preventive approach is pregnancy in women. For this reason, future mothers should follow special medical checkup programs that address the needs of the mother and the baby.
+The presence of chronic conditions in the phase of stable remission calls for an expanded checkup and regular consultations of medical experts. Some conditions require special tests and research.
+For example, in case of heart disorders, it is necessary to visit a cardiologist, do EKG and/or echocardiogram, monitor the level of various cholesterol fractions, and measure the thickness of the internal layer of blood vessels most affected by atherosclerosis.
+In chronic liver disease, special attention should be paid to the biochemical blood test and ultrasound examination. Some disorders call for daily monitoring - for example, diabetes.
+Family History of Diseases
+When developing a medical checkup program, experts account for the family history of diseases and risks of developing hereditary pathology. In most countries, newborn babies have neonatal screening, which includes examination for most widespread hereditary disorders such as phenylketonuria, congenital hypothyroidism, galactosemia, adrenogenital syndrome, cystic fibrosis, etc.
+All of these present a serious threat to children's health, especially in the absence of timely treatment. Keep in mind that this examination doesn't include all hereditary disorders. For this reason, the doctor should know the history of disorders in your family. It can help medical professionals run a timely test to identify a disease at its earliest stage, spot minimal manifestations of progressing pathology and provide timely recommendations to prevent developing medical conditions.
+Bad Habits
+Bad habits negatively influence the human body in one way or another. Therefore, in the presence of bad habits, a checkup program should include physical tests that would help detect developing pathology.
+For example, in the case of excessive alcohol consumption, it is important to pay special attention to the state of the liver and the central nervous system, while smoking may affect soft parts of the face and respiratory organs.
+Unbalanced diet and irregular eating habits, tendency to overeat, excess weight, excessive consumption of sweet or fatty foods, and frequent consumption of processed products for special attention to the state of the gastrointestinal tract, endocrine, and cardiovascular system as well as for more frequent monitoring of the level of cholesterol, level of other hormones, and blood glucose level.
+Physical activity is essential for keeping good health. It is important to bear in mind that professional sports and overly intense physical activity can overstrain the musculoskeletal and cardiovascular systems.
+Having comprehensive information about occupational hazards, climate conditions, eating and living habits, physical activity, and travel history can help a medical professional create a specific checkup program for each patient.
+
+
+
+
+
+Footer, “Download list” button
+
+
+Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+
+“Future mom” page
+
+
+
+
+Header Section:
+Title: "Future Mom" with tagline "Prepare for being a mom!"
+Pregnancy Mode Description:
+Weekly pregnancy tracking
+Lifestyle/test recommendations
+Diet/vitamin guidance
+Content Sections:
+Vitamin B2 Article 
+Discusses prenatal nutrition needs
+Notes vitamin absorption limitations during pregnancy
+Fetal Development Updates:
+Week 21-22 progress
+Physical changes 
+Organ development 
+Miscellaneous Notes:
+Oral health section 
+
+“enroll” button
+
+
+
+Header:
+Primary Question: "What's your pregnancy term?"
+Instruction: "Please specify your gestational age"
+Input Fields:
+Week Selection:
+Numbered options (3, 4, 5 weeks)
+Likely scrollable for full 40-week range
+Day Selection:
+Numbered options (1, 2, 3 days)
+Probably adjusts based on week selection
+Radio Buttons:
+"First birth" 
+"I don't know the term" 
+Action Button:
+"Continue" button
+
+
+
+Continue to next page
+Now there is a questionnaire that I put a sample image below.
+
+
+1: Did you get pregnant on your own or did you use IVF?
+Naturally
+IVF
+Prefer not to answer
+
+2: Which option best represents your lifestyle while pregnant?
+I'm highly stressed
+I exercise a lot
+I'm a vegetarian and want to stay that way throughout my pregnancy
+I do yoga
+None of these
+
+3: Have you experienced any psychological problems during pregnancy?
+Problems sleeping
+Negative thoughts
+Crying
+Depression
+Irritability
+I think I am unhealthy
+I don't like how my body has changed
+None of the above
+
+4: Have you experienced any of the following?
+Kidney infection
+Sexually transmitted diseases
+Previous pelvic surgery
+None of these
+
+
+5: You have already answered questions about a previous pregnancy. Do you want to answer again?
+Yes
+No
+At the end of this page, when we answer the last question, we go to the “pro” page.
+
+
+To continue, we need to pay
+it analyzed the data in a process but required a paid plan to continue and displayed a message with this content to the user.
+
+When we reopen this page:
+
+
+Fetal Development Metrics:
+Size: <1 mm  with scale 
+Weight: <0.1g
+Week Selector: tabs (1-9 weeks)
+Trimester Marker: "I Trimester"
+Due Date Countdown: "Due Date 15 February 2026 | 266 days left"
+B. Biological Status Updates:
+Baby:
+"Conception has just occurred...develop from two tiny cells"
+Scientific emphasis on cellular beginnings
+When we open this page:
+Baby
+3 week
+Weight
+< 0.1 g
+Size
+< 1 mm
+Conception has just taken place, and a human being has started to develop from two tiny cells. By the end of the first week, the weight of the embryo is under one gram, and its length is under a millimeter.
+What is going on
+On days 5-6 after fertilization, the blastocyst attaches to the endometrium. The blastocyst is dozens or hundreds of cells from which your child will develop. It looks like a small bubble. Two days after the attachment, the blastocyst is completely embedded in the uterine mucosa.
+The implantation may take place only on days 19-22 of the menstrual cycle, as in this period the uterine mucosa (the endometrium) is most receptive and ready to accept the blastocyst.
+Terms and periods
+The first trimester of pregnancy is called "the period of blastogenesis, organogenesis, and placentation". It starts when an egg is fertilized and a zygote is formed and lasts for 12 weeks. The first trimester also includes the start of the early fetal period.
+
+Mom:
+"Your appearance hasn't changed"
+Notes early unawareness of pregnancy
+When we open this page:
+Mom
+3 week
+This is the first week of pregnancy after conception. You are likely to be unaware of your pregnancy.
+The size and weight of the embryo are so small that it is too early to speak about any weight gain.
+Pregnancy tests may not show anything either — they are based on the detection of the hormone beta-HCG (human chorionic gonadotropin) in urine. This hormone starts to produce only after the embryo is implanted - normally, 6 to 8 days after conception.
+What to expect
+Moderate bloody discharge. The discharge should last no longer than two days, with no unpleasant odors. The color may vary from pink to brown. Nagging lower abdominal pains. If you are generally sensitive, you may experience a dull pain above the pubis or in the small of the back. Increased basal, or resting, temperature. During this period, it may reach 98.6º-99.1 °F, quickly going back to normal.
+Don't be alarmed — this is not associated with any sickness.
+How to take your basal temperature
+Basal temperature is taken in the rectum. It should be done immediately after you wake up from a sleep lasting longer than 3 hours, at rest, before you leave the bed.
+What to do
+At this stage of the pregnancy, begin to be more careful about yourself and your health. It's essential to stop smoking and avoid stress and complications of chronic diseases. Any increased risk factors and health issues may affect the well-being of your future children.
+If you suspect you might be pregnant (you had unprotected sex during the third week of your cycle), take extra care of your health, nutrition, and lifestyle. Pay attention to household chemicals you use, the temperature in rooms, and workplace conditions - all of these are important for your well-being.
+Food
+Most specific food recommendations cannot be given yet. Do not consume alcohol and do not take certain medications.
+Which medicines may be dangerous:
+﻿﻿Antiviral products
+﻿﻿Some antibiotics (streptomycin, tetracycline)
+﻿﻿Hypotensive drugs (reserpine, hydrochlorothiazide)
+﻿﻿Antidepressants
+﻿﻿Immunosuppressive agents
+﻿﻿Hormonal medicines
+﻿﻿Vitamin A in doses over 10,000 IU/day
+If you have any chronic medical conditions, talk with your doctor to get prepared for pregnancy. They may help you reduce the number of medications you take or help you to stop taking them completely.
+Physical activity
+Watch your cycle and avoid heavy lifts and intensive workouts during its second half. Excessive physical activity may prevent the embryo from implanting in the uterus.
+Sexual activity
+An active sexual life (daily contacts, multiple partners) may interfere with your pregnancy, even at an early stage. It's important to make sure neither you nor your partner has any infectious diseases, as they may lead to miscarriages or congenital defects.
+Your partner and other friends and family
+During pregnancy your body will change; you will develop new needs and won't be able to do some things you normally could. It's helpful to have friends and family around you who can offer support, especially your partner. Think about who you can rely on and in what situations you may call on them.
+
+
+C. Nutritional Guidance:
+Key Paragraph:
+Increased need for Fe, Zn, Ca
+Warning about vitamins A/E excess
+Micronutrient Highlights:
+B9 (Folic acid)
+D (Calciferol)
+Iron (Fe)
+B12 (Cobalamin)
+
+Title: "Related Articles" 
+Article List:
+"Why Do People Have Genetic Testing Done?"
+Likely covers preconception carrier screening/prenatal diagnostics
+"Unexpected Links Between Ozempic and Pregnancy"
+Addresses GLP-1 medications' fertility/pregnancy implications
+"8 Reasons Why Some Women Can't Get Pregnant"
+Explains infertility causes 
+"What Does the Apgar Scale Measure?"
+Newborn health assessment education
+Footer Navigation:
+"Show more" (Expands article list)
+
+
+
+
+
+
+
+"All Vitamins and Minerals" expandable list (12 total):
+
+
+Header Section:
+Title: "Vitamins during pregnancy" 
+Key Paragraph:
+During pregnancy, the need for iron, zinc, calcium and many other minerals greatly increases. Conversely, for some vitamins (A, E, etc.) no supplements should be taken during pregnancy.
+B9
+D
+Fe
+B12
+Ca
+Zn
+Vitamin B9
+Folic acid
+Vitamin D
+Calciferol
+Iron
+Fe
+Vitamin B12
+Cobalamin
+Calcium
+Ca
+Zinc
+Zn
+600 mcg ›
+2000 เป >
+03
+Omega-3
+B2
+B6
+Mg
+Se
+Vitamin B2
+Riboflavin
+Vitamin B6
+Pyridoxine
+Vitamin A
+Retinol
+Magnesium
+Selenium
+
+ All of them have “add” button
+
+Why vitamins are important
+
+
+Goes to the article page
+
+This page has a “back” button and a “download” button
+
+The text of the article:
+
+What to Eat When You're Expecting?
+Proper nutrition during pregnancy is the key to the well-being of both the mother and the unborn baby. Even if you have never been a fan of a healthy lifestyle, getting pregnant should change your perspective. Proper nutrition and a healthy lifestyle will significantly increase your chances of a problem-free pregnancy, ensure a quick physical recovery, and, most importantly, ensure the birth of a healthy child.
+EXPERT
+Dr. Helene
+obstetrician-gynecologist
+What foods should you eat?
+Green and yellow vegetables and fruits, especially broccoli. Broccoli contains Folic acid, vitamin C, magnesium, potassium, phosphorus, calcium,zinc, beta Carotene, selenium, vitamins PP, K, E-this low-calorie vegetable is a storehouse of useful nutrients. If you don't like broccoli, eat more greens, spinach, and other green and yellow vegetables. For fruit, eat green apples.
+Eggs contain folic acid as well as selenium, choline, biotin, easily digestible proteins, and amino acids, potassium, magnesium, phosphorus, and calcium. Eggs are rich in vitamins A, E, D, B12, and B3.
+Fermented milk products, such as yogurt and kefir, contribute to harmonious digestion and favorable microflora in the stomach and intestines. Expectant mothers should include a variety of low-fat types of cheese and cottage cheese in their diet, as they contain a lot of calcium and phosphorus.
+Fish is not as "heavy" as meat, and it is better absorbed. Low-fat varieties of fish that are ideal for expecting mothers include cod and sea bass. They contain minerals, proteins, and Omega-3 fatty acids, which are necessary for the healthy development of the baby.
+Meats such as rabbit, turkey, and veal are useful during pregnancy as they are rich in protein and contain little fat.
+Whole grains and cereals such as wild rice, whole wheat bread, oatmeal, wheat germ, bran, and buckwheat are extremely important for digestion as they contain a lot of vegetable fiber and complex carbohydrates as well as calcium, iron, magnesium, phosphorus, and B vitamins.
+Butter, which contains fat-soluble vitamins A, D, E, and K. Vitamin A has regenerative properties and is important for sight as well as fetal growth.
+Vitamin D regulates the processes of cell division, promotes the absorption of calcium and phosphorus by the body (which is especially necessary during pregnancy), and participates in the synthesis of several hormones. Vitamin K affects metabolism and blood clotting, and Vitamin E is a versatile protector of cell membranes against oxidative damage.
+How much should you eat and how do you combine nutrients?
+Pregnant women are advised to eat often but in small portions. Be sure to supplement your diet with vitamins, as it is almost impossible to get your entire supply of vitamins and nutrients necessary for you and your baby solely from food. Getting all of these nutrients from food would require non-stop eating.
+Additionally, it is important to keep in mind how different nutrients combine and affect one another:
+﻿﻿Vitamins A and D neutralize each other
+﻿﻿Vitamins E and D must be taken separately since the first component is poorly absorbed under the influence of the second.
+﻿﻿Riboflavin and (cyanocobalamin) B12 cannot be absorbed together
+﻿﻿The combination B6 + B12 is ineffective since when they are combined, both components are destroyed
+﻿﻿Cyanocobalamin (B12) and thiamin, B1) can cause allergic reactions
+﻿﻿Iron absorption is impaired by zinc, calcium, and chromium intake
+There are many such examples, but memorizing them all is not necessary. Ornament's maternity regimen has a list of the most important vitamins with detailed recommendations regarding intake.
+What nutrients to combine, what foods and drinks contain certain nutrients, and what signs indicate a deficiency of a particular vitamin in the body-all of this information will be at your fingertips.
+
+
+
+
+The setting page:
+
+
+Header:
+Title: "Pregnancy preferences" 
+Editable Fields:
+"Change gestational age"
+links to week/day selector
+"First birth" toggle
+Binary option 
+"Sex" selector
+for baby's biological sex tracking
+Action Buttons:
+"Don't know >" (Fallback for uncertain gestational age)
+"I'm no longer pregnant" (Pregnancy conclusion option)
+"Delete pregnancy" (Data removal)
+
+
+Meal plan
+
+To continue, we need to pay
+
+
+
+Fat burning
+
+Header Section:
+Title: "Fat Burning" with tagline "Control your weight without dieting"
+Program Description:
+30-day challenge framework
+Combines activity, lab tests, nutrition, and habits
+Emphasizes personalization
+Data Modules:
+Weight Tracking:
+Current weight: 191 lbs
+Progress note: "You've almost reached your goal"
+Historical comparison: 216 lbs → 192 lbs (+24 lbs)
+Action Checklist:
+Weight loss checklist
+Post-exercise vitals monitoring
+Hunger management tips
+Meal suggestion (stewed vegetables)
+Biomarker Status:
+Overall: "Biomarkers are normal"
+Lipid profile: Normal (advises calorie deficit)
+Insulin resistance (HOMA-IR): Shows deviations
+Medical consultation recommendation
+
+And an “enroll” button that goes to the next page:
+
+To continue, we need to pay
+it required a paid plan to continue and displayed a message with this content to the user.
+
+
+sleeping
+
+We start with a questionnaire:
+
+1: Do you work out before bed?
+No
+Yes, 1-2 hours before
+Yes, 3-4 hours before
+
+2: Do you sleep during the day?
+No, I don't want to
+No, I don't have the opportunity
+Yes, I sleep 1-2 hours after lunch
+Yes, sometimes after lunch
+Other
+
+3. Have you noticed any sleeping problems?
+It's hard for me to fall asleep
+I sleep lightly and don't feel well rested
+l often wake up at night
+I find it hard to wake up in the morning
+I stay awake at night and sleep during the day
+I don't sleep well due to nightmares
+I having headaches while sleeping
+I wake up during the night because l'm hungry
+I wake up early and can't fall back asleep
+I want to sleep every time after l eat
+I don't get enough sleep
+No
+
+4: Can you think of any reasons why you experience sleeping problems?
+I have a baby
+My room is too bright
+l often work night shifts
+I'm afraid of sleeping
+I have obstructive sleep apnea (OSA)
+I stay up late playing games
+There are other reasons
+None of the above
+
+5: Do you take medication to enhance your sleep?
+I drink herbal tea
+I take some supplements
+I take sleeping pills
+I take melatonin
+Other
+I don't take anything
+
+6: Have you been diagnosed with any sleep disorders?
+Insomnia
+Sleep apnea
+Breathing repeatedly stops and starts during sleep
+Restless legs syndrome (Willis-Ekbom Disease)
+Neurological disease with very high limb activity
+Parasomnia
+Sleepwalking or other behavioral phenomena
+Hypersomnia
+Pathological daytime sleepiness
+Narcolepsy
+Sudden sleeping that happens throughout the day
+Sleep and wake cycle disorders
+Other
+No
+
+7: Select everything that you have in a day
+Coffee, tea, chocolate
+Energy drinks
+Ice cream
+Fries
+Red meat
+Spicy food
+Sweet cereal
+Alcohol
+I don't have any of these every day
+
+8: When do you stop eating before bed?
+It depends, I don't actually worry about it
+I don't eat 3-4 hours before bedtime
+I don't eat 1-2 hours before bedtime
+I can't fall asleep without eating right before bedtime
+Other
+
+9: What time do you want to go to bed?
+Ornament will set an alarm 10 minutes before this time
+Continue
+
+10: What time do you want to wake up?
+Ornament will wake you up
+Continue
+
+11: Have you tried falling asleep with background sounds before?
+For example, with music or relaxing sounds
+With nature sounds
+With white noise
+With classic music
+No, but I want to try
+
+After finishing the last question, we go to this page below:
+
+
+Sleep Timing Module:
+Current Time: 22:00 (10 PM) displayed prominently
+Wake Time: 07:00 (7 AM)
+Countdown: "Going to bed in: 8 hours 43 minutes" (likely dynamic)
+Sleep Aid Section:
+4 Sound Options:
+Soft rain and thunder (14 min)
+Cricket Dialogues (15 min)
+Soothing Rain (15 min)
+With every heartbeat (15 min)
+ Options: "All" | "Beyond minute" | "Good to know"
+
+
+“Sleep aid > All”
+
+
+Header Section:
+Title: "Sounds of nature"
+Tagline: "Enjoy the simplicity of nature's tunes and fall into a peaceful sleep"
+Categorized Sound Libraries:
+Nature Sounds
+Soft rain and thunder (14 min)
+Forest river (15 min)
+Dreams by the sea (15 min)
+Cricket Dialogues (15 min)
+Meditation & Relaxation
+Singing bowl (15 min)
+Beyond horizons (14 min)
+Soothing Rain (15 min)
+Consciousness cascade (15 min)
+For Kids
+With every heartbeat (15 min)
+Big wave of blue noise (15 min)
+Binaural sounds (15 min)
+"Pink Night"
+ASMR
+Midnight train (16 min)
+Crackling campfire (16 min)
+Among the radio waves (15 min)
+Washing machine whisper (16 min)
+"In favour minute"
+
+“Sleep quality > Show”
+
+
+Header Section:
+Title: "MAY" (Current month view)
+Date Grid:
+Current Day: Highlighted "25" (today)
+Week Layout: Mo (26) | Tu (27) | We (28) | Th (29) | Fr (30) | Sa (31)
+Status Notification:
+"Sleep was not tracked" (Primary callout)
+Instruction: "Enter your sleep information daily with our sleep tracker. click the 'Sleep' button."
+Action Option:
+"Add manually"
+
+
+Header Section:
+Date Range: "SĀ, 24 MAY - SU, 25 MAY" (Weekend dates)
+Instruction: "Specify your sleeping time"
+Time Input Fields:
+"Going to sleep"
+Pre-filled: 22:00 (10 PM)
+"Waking up"
+Pre-filled: 07:00 (7 AM)
+Navigation:
+"Next" button (progresses to next step)
+
+After we press “next”
+
+Header Section:
+Title: "Activities before sleep"
+Subtext: "These can affect sleep quality. Select everything that happened today:"
+Activity Checklist (Grouped by Category):
+Consumption Habits:
+☐ Drank coffee or tea
+☐ Ate dinner late
+☐ Drank alcohol
+Mental/Medical Factors:
+☐ Felt stressed
+☐ Took a nap
+☐ Took medication
+Evening Routines:
+☐ Took a cold shower
+☐ Took sleeping pills
+☐ Watched TV
+Physical Activities:
+☐ Had sex
+☐ Worked out
+☐ Traveled
+
+Navigation:
+Back button
+None of the above button
+
+Then we goes to the next step:
+
+
+Calendar Header:
+Date Row: 25-31 (Current week)
+Day Row: Today | Mo | Tu | We | Th | Fr | Sa
+Sleep Metrics:
+Sleep Quality: "> 100%" labeled "Good" 
+Duration: "9h 0m" (22:00-07:00) 
+Sleep Norm Comparison: "8h" 
+
+“Health Indicator > not enough data”
+
+Header Section:
+Title: "Health Indicators"
+Subheading: "These biomarkers are important to monitor and maintain to avoid sleep problems"
+Biomarker Status:
+Notification: "No test results found. The checkup isn't finished. Take additional tests for more accurate information."
+Biomarker List (10 Key Metrics):
+Electrolytes/Nutrients: Magnesium, Iron, Vitamin B6
+Hormones: Cortisol, Prolactin, Testosterone, Melatonin
+Metabolic: Glucose
+Inflammatory: CRP
+Thyroid: TSH
+Call-to-Action:
+"Get a special checkup"
+"Healthy Sleep Checkup" option
+
+Healthy Sleep Checkup
+
+
+
+
+Header Section:
+Title: "Healthy Sleep Checkup"
+Prompt: "Take these tests if sleep disturbances occur for no apparent reason" (Smart use of icon + conditional trigger)
+Biomarker List (9 Tests):
+Inflammation: C-reactive protein
+Metabolic: Glucose
+Electrolytes/Nutrients: Magnesium, Iron, Vitamin B6
+Hormones: Prolactin, Testosterone, Urinary cortisol, Plasma melatonin
+Action Button:
+"Download list" :
+ Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+“Health Indicator > Remember your checkup”
+
+
+Header:
+Title: "Healthy Sleep Checkup"
+Prompt:  "Take these tests if sleep disturbances occur for no apparent reason"
+Missing Tests List:
+Inflammation: C-reactive protein (CRP)
+Metabolic: Glucose
+Electrolytes/Nutrients: Magnesium, Iron, Vitamin B6
+Hormones: Prolactin, Testosterone, Urinary cortisol, Plasma melatonin
+Call-to-Action:
+"Download list" action button:
+
+                Export all tests or only those that are missing?
+All tests
+Only missing tests
+Cancel
+
+
+
+Fasting
+
+
+It shows how will the app be if the user has personalized the app
+
+And an “enroll” button that goes to the next page:
+
+
+ Header Section:
+Title: "Intermittent Fasting" 
+Subtext: Explains core benefits in 3 concise points
+B. Call-to-Action:
+"Get Started" Button : 
+It opens a questionnaire:
+
+1: Absolute contraindication for Intermittent Fasting:
+﻿﻿type 1 diabetes
+﻿﻿resection of part of the intestine, part of the stomach or the entire stomach
+﻿﻿inflammatory gastrointestinal diseases (gastritis, peptic ulcer, Crohn's disease, etc.)
+﻿﻿pregnant women, children under 16
+﻿﻿people with moderate to severe kidney disease (CKD, urolithiasis, glomerulonephritis)
+﻿﻿people with moderate to severe liver disease, anorexia, or bulimia.
+
+2: What is your main goal?
+Lose weight
+Sleep better
+Recovery
+Fix stomach issues
+Boost energy
+Improve focus
+Other
+
+3: Why do you want to try intermittent fasting?
+I am interested in something new
+I have been practicing it for a long time
+It was recommended to me
+Other
+
+4: Your hight
+
+5: Your weight
+
+Choose a fasting plan
+6: Which one best suits your lifestyle?
+12:12
+The easiest plan. 12 hours of fasting and 12 hours for eating.
+16:8
+Popular plan. 16 hours of fasting and 8 hours for eating.
+20:4
+One of the most rigorous plans. 20 hours of fasting during the day and a substantial dinner in the evening.
+
+7: Do you want to start fasting now?
+You can choose another time that's more convenient
+Start now
+Start later
+
+When we answer “start later”
+
+Choose the most convenient time to start fasting
+The best time to start is right after your last meal. We'll remind you.
+Clock and calendar to choose when to start fasting.
+However, if we choose to start now, the app will not show us this page and we will go straight to the main page of fasting.
+
+ When we press “Continue”
+
+
+ Header Section
+Motivational Trigger: "It's time to fast!"
+Protocol Display: "20:4" (visual shorthand for the fasting method)
+B. Scheduling Module
+Next Fast: Clearly displays scheduled start time (18:25)
+Time Adjustment: Dropdown selector for customization
+C. Primary CTA
+"Start fasting" Button: Prominent action initiation
+
+
+Assignments Section
+Header: "Assignments for today"
+Locked Feature: "Unlock personalized tasks in nutrition" with "+ Unlock" button
+
+Weight Tracking section
+Metric Display:
+Before: 57 kg (previous weight)
+Current: 57 kg → 55 kg (goal weight)
+Progress Note: "You're 2 kg away from your target weight"
+Action Button: "Set your current weight and Edit goal"
+1: Edit goal:
+
+2: Set your current weight
+
+
+
+
+
+
+Your Analysis Section
+Header: "Your analyses"
+Alert: "Not enough data" with recommendation to get a checkup
+B. Health Recommendations
+Checkup Reminder:
+"Tests to take when losing weight"
+1: Not enough data:
+
+
+Header Section
+Title: "Biomarkers"
+Subheader: "Biomarkers for weight loss"
+Context Statement: Explains importance of monitoring these markers during weight loss
+B. Biomarker Categories
+Lipid Profile: 
+Triglycerides
+Cholesteroll
+VLDL-Cholesterol|
+HDL-Cholesterol
+LDL-Cholesterol
+Insulin Resistance
+HOMA-IR
+Insulin, Fasting
+Glucose, Fasting
+Caro index
+Thyroid-Stimulating Hormone (TSH)
+TSH
+Kidney Function
+Creatinine, serum
+Urea
+Liver Enzymes
+ALT
+AST
+Each category shows:
+"No test results found"
+Identical CTA to get a checkup
+C. Checkup Recommendation
+
+2: Remember your checkup:
+
+Core Purpose
+Safety screening tool to identify potential health risks before starting intermittent fasting.
+2. Key Components
+Header:
+Title + checkbox prompt about contraindications
+"Learn more" link 
+Biomarker List (7 Tests):
+Liver: ALT, AST
+Kidneys: Creatinine, Urea
+Metabolic: Insulin resistance, Lipid profile
+Thyroid: TSH
+Action Button:
+"Download list" (to save/share test recommendations)
+
+
+
+Sync with apple health Section
+
+
+Header Section
+Branding: "Apple Health" logo + app name
+Status: "Synchronization with Apple Health..." 
+B. Permission Request
+Access Description:
+Explains what data will be shared
+Lists specific metrics (weight, HR, BP)
+Action Button:
+"Grant access to data" (clear CTA)
+
+Good to Know section:
+
+Meal suggestions:(Nutrition Tips)
+Salmon with quinoa & veggies
+Kiwi yogurt smoothie
+……..
+
+
+Notification Control
+
+Option: "Turn on notifications" with consent buttons ("NOT NOW"/"OK")
+If we press ok, it will remind me about the next time that I should come to the app and start fasting.
+
+
+
+
+Post covid
+
+
+Core Purpose
+Tracks long-term health impacts after COVID-19 recovery
+Identifies potential complications through biomarker monitoring
+2. Key Sections
+A. Header
+Title: "Post-COVID" with empowerment message
+Brief description of panel's purpose
+B. Biomarker Tracking
+Highlighted Metrics:
+HOMA-IR (insulin resistance)
+ALT (liver function)
+Inflammatory markers
+Data Presentation:
+Tabular format with year/age comparisons
+Trend indicators 
+C. Recommended Checkup
+Lists 6 essential tests:
+D-Dimer (blood clotting)
+Standard lipid profile
+C-reactive protein (inflammation)
+Complete blood count
+ECG screening
+
+
+When we press “enroll”
+
+
+
+Header Section
+Title: "Duration of the disease"
+Context Statement: Indicate the approximate dates of the disease in the past 10 months — from the day of the first symptoms to the day of a negative coronavirus test.
+Options:
+1: Symptoms appeared:
+ Choose a date
+
+
+2: Quarantine ended:  Choose a date
+
+
+3: The disease was difficult
+Turn on/off
+
+
+When we press “Continue”
+The questionnaire begins:
+
+1: Have you fully recovered?
+Select any residual symptoms you may have
+Cough remained
+Shortness of breath remained
+Pain in the chest remained
+Other
+Yes, I'm completely recove
+
+2: What medications did you take during your COVID 19 treatment?
+Corticosteroid hormones
+Antibiotics
+Other
+None
+
+3: Are you experiencing any symptoms after COVID 19 that you did not before?
+Yes, heartache
+Muscle pain
+Chronic fatigue
+Constant weakness
+Muscle weakness
+Numbness of the hands or feet
+Frequent or too infrequent urination
+Cloudy urine with a pungent odor
+Swelling of the face or upper eyelids
+Bloating or heaviness in the abdomen after eating
+Yellowing of the skin or whites of the eyes
+Bone pain
+No, everything is okay
+
+
+Next page: the list of biomarkers needed:
+
+Coagulation markers
+aPTT
+D-Dimer test
+Fibrinogen
+INR
+Prothrombin time
+Quick's value
+Thrombin Time
+Inflammation markers
+C-Reactive Protein High Sensitivity
+Complete Blood Count
+Hemoglobin, blood
+Lymphocytes %
+Monocytes %
+Neutrophils %
+Platelet Count
+Plateletcrit (PCT)
+WBC, blood
+Blood biochemistry
+ALT
+AST
+Bilirubin total, blood
+Cholesterol
+Creatinine, serum
+Glucose, Fasting
+Iron, serum
+Protein Total
+Urea
+Other markers
+Anti-Coronavirus (COVID-19), IgG
+Anti-Coronavirus (COVID-19), IgG positivity coefficient
+Anti-Coronavirus (COVID-19), IgG qualitative
+CRP
+
+
+Stop tracking covid
+
+
+“Monitor” Menu
+“Biomarker” Tab
+
+
+Buttons in the Screen:
+"Send to my doctor" Button: Allows the user to share their health data with their physician.
+Other metrics:
+Each metric (BMI, Height, Weight) may be clickable for detailed trends or logs.
+"FAVORITE" and "VITALS" could be expandable sections.
+ Obvious Data in the Screen:
+Body Mass Index (BMI):
+26.0 kg/m² (May 2025)
+Height:
+1.60 m (May 2025)
+Weight:
+58.8 kg (May 2025)
+Time Frame: "From May 01 2025" (indicating pregnancy tracking start date).
+ Specific Details:
+Pregnancy Tracking Focus: The header suggests this screen is tailored for prenatal health monitoring.
+Repeated Metrics: BMI, Height, and Weight appear in both "FAVORITE" and "VITALS," possibly emphasizing their importance during pregnancy.
+Data Timestamps: All metrics are labeled with "May 2025," indicating recent measurements.
+Doctor Integration: The "Send to my doctor" button reinforces the app’s clinician-connected features, aligning with CodieHealth’s real-time monitoring goal.
+Search box
+There is a search box above the page
+Send to my doctor
+First we select which option we want to share. 
+Then a modal opens from down and has two options:
+1: share link
+2: export PDF
+The more icon
+Opens this modal
+
+
+And we have 2 options:
+1: to turn up “group”
+2: to turn on/off “show abdominal only”
+Body Mass Index (BMI)
+
+
+Goal of this page: calculate the user’s BMI
+
+BMI Overview Section:
+Header: "Body Mass Index, averaged"
+Pregnancy timeframe: "Pregnancy 05/04/25 – 02/08/26"
+Note: "Calculated automatically from weight values"
+Current BMI status: "NORMAL MAY 2025 ● 26.0 kg/m²"
+Reference info: "System references for a female, 25 years old 💬" with a Configure button.
+BMI range definition: "Normal (18.5 — 29.99 kg/m²)"
+Diet Tracking Prompt:
+"Start tracking your diet" with an educational link ("Learn how").
+BMI Dynamics During Pregnancy (Graph/List View):
+Displays BMI values over time (e.g., "26.0 kg/m²", "16.3 kg/m²", "47 kg/m²").
+Statistics Section:
+Header: "Statistics"
+Demographic: "Biomarker for a female, 25-30 years old"
+Distribution breakdown (pie chart or stats):
+Below normal (9%)
+Normal (32%)
+Optimal (45%)
+Above normal (14%)
+Trend comparison: "Worse in <1% | Better in 85%"
+Explanation of user’s status: "Your biomarker is below normal..."
+Educational Content ("About" Section):
+Definition of BMI and its limitations.
+
+FAQs:
+[
+ "What do deviations mean?"
+High
+﻿﻿Excess consumption of caloric foods
+﻿﻿Hypothyroidism
+﻿﻿Icenko-Cushing's syndrome
+﻿﻿Injuries to the hypothalamic-pituitary system
+﻿﻿Prader-Willi syndrome
+﻿﻿Pickwick syndrome
+﻿﻿Insulinoma
+﻿﻿Polycystic ovarian syndrome
+﻿﻿Mental disorders (lack of satiety syndrome)
+
+Low
+﻿﻿Accelerated metabolism with excessive thyroid hormone production
+﻿﻿Kidney disease (related to protein loss)
+﻿﻿Deficiency of pituitary or hypothalamic hormones
+﻿﻿Parasites in the gastrointestinal organs
+﻿﻿Consumption of medications that affect weight (e.g., glucophage)
+
+"When is this test prescribed?"
+Body mass index is calculated at almost any visit to the doctor and is part of a standard medical history.
+
+“Standard values”
+Adults
+• 18.5-29.99
+
+“Optimal values” 
+Adults
+• 20-25
+
+“Testing methods”
+
+The index is calculated as the ratio of body weight in kilograms to the square of height in meters (kg/m2).
+
+“Which specialist is needed?”
+
+General practitioner, pediatrician, neonatologist, endocrinologist.
+]
+
+Recommendations Section:
+"High values" and "Low values" (likely expandable).
+
+Related Articles Section:
+Recipe suggestions (e.g., "Potato casserole with beef").
+Show more button.
+
+Aliases Section: "BMI" (additional terminology).
+
+Footer Section
+Disclaimer: App is for informational purposes only.
+The Ornament app is intended for informational purposes only and not intended as a medical device. It is not a substitute for professional medical advice, diagnosis or treatment.
+About our sources of information:
+Ornament bases its work on information from peer-reviewed studies, academic research institutions, and medical associations. Our team continually monitors new information on the healthcare landscape, and we update our articles when new information becomes available.
+Sources for Health Conditions
+Mayo Clinic Health Library
+https://www.mayoclinic.org/diseases-conditions
+Cleveland Clinic Health Library
+https://my.clevelandclinic.org/health
+WHO ICD 11 (International Classification of Diseases, 11th edition)
+https://icd.who.int/browse11/l-m/en
+CDC (Centers for Disease Control and Prevention, USA)
+https://www.cdc.gov/health-topics.html
+NHS (National Health Service, UK)
+https://www.nhs.uk/conditions/
+Sources for Biomarker Reference
+Mayo Clinic
+https://www.mayocliniclabs.com/test-catalog
+CDC (Centers for Disease Control and Prevention, USA)
+https://www.cdc.gov/laboratory/specimen-submission/list.html
+Cleveland Clinic Health Library
+https://clevelandcliniclabs.com/test-directory/
+
+
+Height
+
+Current Height: 1.60 m (160.31 cm).
+Pregnancy Timeline: 05/04/25 – 02/08/26.
+Historical Data:
+1.00 m (200.00 cm)
+1.22 m (121.92 cm)
+1.59 m (159.00 cm)
+Pregnancy Context: Height tracking during a defined prenatal period.
+Missing Benchmarks: No reference range provided (unlike BMI).
+Manual Input Option: "Add values" suggests flexibility for user-recorded data.
+Educational Focus: Articles and FAQs address growth science and health.
+Interactive Learning: Checkboxes in articles may track user progress.
+
+
+About section:
+A person's growth depends largely on external and internal factors. Internal factors are influenced by heredity, age, gender, hormonal regulation of growth, the presence of chronic diseases, and race. External factors include nutrition, physical activity, and environmental conditions. A growth disorder is considered to be a significant deviation of body length from the age-specific rate in a particular population.
+
+FAQs:
+[
+“What do deviations mean?”
+
+High
+﻿﻿Marfan syndrome
+﻿﻿Klinefelter syndrome
+﻿﻿Tumors of the pituitary gland
+﻿﻿Gigantism
+﻿﻿Acromegaly
+
+Low
+﻿﻿Hypogonadism
+﻿﻿Hypothyroidism
+﻿﻿Androgen-producing tumors of the sex glands
+﻿﻿Mucoviscidosis
+﻿﻿Diseases of the pituitary gland
+﻿﻿Shereshevsky-Turner syndrome
+﻿﻿Nonne syndrome
+
+
+“When is this test prescribed?”
+﻿﻿A person's height is measured during any initial report taken by a physician
+﻿﻿When abnormal growth changes are suspected (most often along with the examination of somatotropic hormone (STH), ACTH, TSH, thyroxine, triiodothyronine, and others)
+
+“ Testing methods”
+﻿﻿Adolescent and adult height are measured in an upright position with a stadiometer or any distance-reading device.
+﻿﻿It is recommended that the height measurement be taken in the morning to avoid strain on the spine during the day.
+﻿﻿Babies are measured while lying down.
+
+“ Which specialist is needed?”
+General practitioner, pediatrician, neonatologist, endocrinologist.
+]
+Related Articles Section:
+             Article Titles: e.g.:"How Do Hormones Work When We Sleep?”
+Footer Section
+Disclaimer: App is for informational purposes only.
+The Ornament app is intended for informational purposes only and not intended as a medical device. It is not a substitute for professional medical advice, diagnosis or treatment.
+About our sources of information
+
+Weight
+
+
+Title: "Weight"
+Pregnancy Timeline: "05/11/25 – 02/15/26"
+Current Weight: 58.8 kg 
+Note: "We have no reference range for this biomarker yet. "
+Dynamics Tracking:
+Displays "May 2025" (month) and "May 18" (date)
+Lists 58.8 kg four times (likely placeholder data)
+"Add values" button (for manual entry)
+Information Section ("About"):
+Explains the importance of weight for health
+Mentions risks of being underweight (sarcopenia, hormonal issues)
+Notes risks of being overweight (cardiovascular disease)
+
+About section: 
+             Ornament Wiki button
+Body mass (weight) is an important indicator of health. Low body mass, or being underweight, leads to the depletion of muscle mass (sarcopenia), proteins, fat-soluble vitamins, and fats. It also leads to hormonal disorders. High body mass, or being overweight, leads to cardiovascular disease, diabetes, musculoskeletal diseases, and an increased risk of some cancers.
+
+FAQ
+[
+“﻿﻿What do deviations mean?”
+﻿﻿High
+﻿﻿High intake of caloric foods and low physical activity
+﻿﻿Hypothyroidism
+﻿﻿Icenko-Cushing's syndrome
+﻿﻿Injuries to the hypothalamic-pituitary system
+﻿﻿Prader-Willi syndrome
+﻿﻿Pickwick syndrome
+﻿﻿Insulinoma
+﻿﻿Polycystic ovarian syndrome
+﻿﻿Mental disorders (lack of satiety syndrome)
+
+Low
+﻿﻿Accelerated metabolism with excessive thyroid hormone production
+﻿﻿Kidney disease (related to protein loss)
+﻿﻿Deficiency of pituitary or hypothalamic hormones
+﻿﻿Parasites in the gastrointestinal organs
+﻿﻿Consumption of medications that affect weight
+“ When is this test prescribed?”
+Weight is almost always checked at any visit to a physician for a routine checkup or weight trend.
+Standard values
+Adults
+
+“Body Mass Index kg/m?”
+﻿﻿Up to 18.5 - underweight
+﻿﻿Up to 24.9 - normal weight
+﻿﻿Up to 29.9 - overweight
+﻿﻿Over 30 - obesity
+
+“Testing methods”
+﻿﻿Weight is measured using a scale. Devices that measure body fat fractions may also be used.
+﻿﻿The most common method of assessing body weight is by calculating the body mass index (BMI).
+﻿﻿In some cases, the Lorenz formula and others are used to estimate weight.
+
+“Which specialist is needed?”
+General practitioner, pediatrician, neonatologist, endocrinologist.
+]
+
+Related Articles section:
+ Article Titles: e.g.:"ntermittent Fasting: How Does it Work?”
+
+Footer Section
+Disclaimer: App is for informational purposes only.
+The Ornament app is intended for informational purposes only and not intended as a medical device. It is not a substitute for professional medical advice, diagnosis or treatment.
+About our sources of information
+
+
+
+“Documents” Tab
+
+Buttons in the screen:
+"Take a photo": Opens device camera for test result capture.
+"Upload a picture or PDF": Accesses device gallery/files.
+"Enter manually": Opens a form for typing data.
+"Take a checkup": Initiates an in-app health assessment.
+Obvious Data in the Screen:
+No user data is displayed; this is an entry point for input methods.
+Instruction Clarity: Lists three input methods (photo, upload, manual) plus a checkup alternative.
+Specific Details:
+Flexible Data Entry: Caters to both digital (photo/PDF) and manual users.
+Checkup Fallback: Guides users without test results to an in-app solution.
+Minimalist Design: Focuses on actionable CTAs without clutter
+
+"Take a checkup” button goes to the last "Take a checkup” page.
+
+
+“Add” Menu
+
+
+Header
+Title: "FACT ENTRY" – Indicates this is a data input module for health metrics.
+Quick-Access Metrics Grid
+Displays 8 common health parameters in a 4x2 table format:
+Row 1: Weight | Glucose, blood | Heart rate | Temperature
+When we open them, we can enter data like below:
+
+Row 2: Height | Blood pressure | Resting heart rate | Blood oxygen
+Purpose: Allows users to select a specific metric for immediate entry.
+Lab Results Input Section
+Subheader: "ADD LAB RESULTS"
+Two primary input methods:
+Option 1: Take a Picture we go camera
+"Take a photo of the test or exam form" – Uses device camera. We open camera, take photo and can check it and edit iit and then save it
+"Choose from Photos" – Accesses device gallery. To choose the photo and save it
+Option 2: Enter Tests Manually
+"Results will appear in the app immediately" – Direct typing.
+"Import into App" – May sync with connected health devices/PDFs. We go to my files
+Additional Options ("MORE")
+"Check a past pregnancy" – Likely navigates to historical pregnancy data.
+
+
+
+
+
+“Insights “ Menu
+
+
+This page is all about articles and there is a search box at the top to search any related articles.
+
+There is a small plus on this article that helps us to read more like the screen below:
+
+
+
+There is also a “VS” option that can filter the article list.
+Filter is like below and we filter by comments and starts that we gave to articles
+
+
+
+“More” Menu
+
+Header:
+Title: "Register to save your data, or log in to access your account"
+CTA Button: "Continue" (primary action) and we go to sign in page, if we have not signed in
+Secondary Option: "Why bother?" go to the page below:
+Why register?
+You will not lose your data
+If you uninstall the app or change devices, all your data will be preserved. Simply install the Ornament app and log into your account.
+Use on multiple devices
+You may use the app on multiple smartphones or tablets - available on both iOS and Android.
+Family access
+Family members can use one account simultaneously, with everyone on their own device. If you use Ornament Plus, one subscription will work for the whole family.
+
+
+Premium Upgrade Section:
+Title: "Upgrade to Ornament Plus"
+Value Prop: "Unlock the full app experience and improve your health"
+Features Listed:
+Connected specialists: "Specialists monitoring your health"
+Guided challenges: "Daily tasks to achieve your goals"
+Health app: Toggle "On >"
+Ornament Wiki: "Biomarker and Disease Database"
+Checkups … we mentioned this page above
+Reference ranges: we can turn on “ use custom settings”
+User Profile:
+"MY PROFILES" section:
+rezi (Female, 25 years) with "It’s you >" (edit/select option) and we go to profile page like below that we mentioned in onboarding:
+
+Down the page we have the version info:
+Version 3.53.1
+                           User 3f084917-7262-482c-afce-54959f690fb8+
+
+Connected specialists
+
+Parts of the Screen
+Header/Top Section: Displays the title "Connected specialists."
+Description Section: Explains the purpose of connecting specialists (doctors, nutritionists, health coaches) to the account.
+How It Works Section: Provides a step-by-step guide on connecting a doctor.
+Data Safety Assurance: Informs users about data security and the ability to disconnect specialists.
+
+ Buttons in the Screen
+"Invite my doctor to Ornament Pro": A prominent button (likely in a contrasting color) to initiate the process of inviting a doctor.
+
+
+This will be sent through text:
+“rezi wants to invite you to Ornament Pro
+https://pro.ornament.health/?from=2828449e-be74-4b58-90df-9b266bb726d4”
+
+
+Guided challenges
+
+
+Parts of the Screen
+Header/Top Section: Displays the title "Guided Challenges".
+Challenge Cards: Vertical list of individual challenge cards, each containing:
+Challenge name (e.g., "21-Day Booty Boost Challenge").
+Participant count (e.g., "22K participants").
+Price (e.g., "$14.99").
+"Join now" button and an information icon (?).
+ 
+Buttons in the Screen
+"Join now": A button for each challenge to enroll
+              When we press “join now”, we need to pay.
+Information icon (?): Small icon (likely tappable) next to each challenge, possibly for details or FAQs.
+When we press Information icon
+
+Parts of the Screen
+Header: Challenge title ("21-Day Booty Boost Challenge"), participant count ("22K participants"), and price ("$14.99").
+Tags: Keywords like "firm buttocks" and "fitness".
+Challenge Goal: Description of the challenge’s purpose (e.g., "strengthen glutes, reduce cellulite").
+What You’ll Get: Bullet-point list of benefits (workouts, nutrition, recovery tips).
+CTA Button: "Join challenge $14.99" with payment security note ("Secured with App Store").
+
+Buttons in the Screen
+"Join challenge $14.99": Primary call-to-action to purchase/enroll.
+              To join to any of them, we need to pay
+
+Health app
+
+In this section we can connect to apple health( in Mc I can't get fully connected)
+
+Header: Displays "Apple Health" (system-level permissions dialog).
+Permission Request:
+Title: "Health Access" (bold).
+Description: Explains Ornament’s request to access/update health data.
+Toggle Option: "Turn All Categories On" (likely a master switch for permissions).
+Specific Data Category: "Active Energy" (example of one health metric requested).
+Detailed Explanation:
+"Ornament will be able to automatically receive and analyze data about your weight, heart rate, pressure, etc."
+Action Buttons:
+"Don’t Allow" (deny access).
+"Allow" (grant access).
+When we press gain access, we come back to the main page of the setting.
+
+Ornament Wiki
+
+There is a search box at top, to search each biomarker or document needed.
+There is a “ cancel” button that cancels the act of “search box”
+It has two tabs: biomarker and document.
+“Biomarkers” Tab
+There is a huge list of biomarkers that the app can handle:( the list above is not complete like the app is)
+
+When we open each biomarker, a page full of info opens about the biomarker and put a sample page:( because the number of biomarkers in the list is a lot)
+Basophils %
+
+
+
+
+Headers: Basophils %
+Text: Basophils are one of the major groups of white blood cells and are produced in the bones. Their primary role is to help the immune system protect against bacteria, viruses, and more by releasing different enzymes.
+FAQ
+[
+“What do deviations mean?”
+Normal ranges of basophils vary slightly depending on many factors, including location. Some causes for strong deviations in levels are:
+
+High
+﻿﻿Inflammatory diseases
+﻿﻿Various types of allergies
+﻿﻿Different infectious diseases
+﻿﻿High activity of thyroid gland
+﻿﻿Primary myelofibrosis
+﻿﻿Myelodysplastic syndrome
+﻿﻿Chronic myelogenous leukemia (CML)
+﻿﻿Essential thrombocythemia
+Low
+﻿﻿Various allergic reactions
+﻿﻿Autoimmune diseases
+﻿﻿Anaphylactic allergic reaction
+﻿﻿Massive bone marrow destruction
+
+
+“ When is this test prescribed?”
+﻿﻿This test is a part of the complete blood count (CBC) which is often taken as part of an annual general check-up.
+﻿﻿Due to any signs of severe and or recurrent allergic reactions.
+﻿﻿Due to signs of bacterial infection.
+﻿﻿To confirm any signs of the myeloproliferative syndrome.
+﻿﻿As an indirect sign of problems with bone marrow.
+
+“Standard values, absolute”
+Children
+﻿﻿Up to 3 years old - 0.01-0.06x10%/L
+﻿﻿Up to 17 years old - 0.00-0.10x10%L
+Adults
+0.01-0.08x10°/L
+Pregnant women
+ 0-0.1 x10%L
+
+“Standard values, %”
+Adults
+• 0.5-1×100%
+“Optimal values”
+Adults
+• 0.5-1×100%
+Pregnant women
+• 0-1x100%
+
+“Testing methods”
+﻿﻿The flow cytometry method is the most common method used to measure the level of basophils.
+﻿﻿A venous blood sample is required for this test.
+﻿﻿Avoid using heparin for 24 hours before the test.
+
+“﻿﻿Which specialist is needed?”
+Allergologist, general practitioner, oncologist, haemotologist, or endocrinologist.
+
+“Synonyms”
+Basophil level in serum, blood basophils, basophil level in blood.
+]
+
+Recommendations Section
+High values
+﻿﻿Work with your doctor to find out what's causing your high basophil percentage.
+﻿﻿Avoid cigarette smoke.
+﻿﻿Add vegetables.
+
+Footer Section
+Disclaimer: App is for informational purposes only.
+The Ornament app is intended for informational purposes only and not intended as a medical device. It is not a substitute for professional medical advice, diagnosis or treatment.
+About our sources of information
+
+Rest of the list:
+Blood glucose, averaged
+Blood oxygen, averaged
+Blood pressure Diastole, averaged
+Blood pressure Systole, averaged
+Body Mass Index, averaged
+Body temperature, averaged
+Eosinophils
+Eosinophils %
+ESR
+Glucose, urine
+Heart rate, averaged
+Height
+Ketones, urine
+Lymphocytes
+MCH
+MCV
+Mucus, urine qualitative
+Neutrophils
+Oxygen saturation (SO2), blood
+PDW, %
+pH, urine
+
+Platelet large cell count (P-LCC)
+
+
+Protein, urine qualitative
+
+
+RBC, urine
+
+
+RDW-SD
+
+
+Resting heart rate, averaged
+
+
+Reticulocytes
+
+
+Salts, urine
+
+
+Salts, urine qualitative
+
+
+Squamous epithelial cells, urine
+
+
+Steps
+
+
+Urine specific gravity
+
+
+Urobilinogen, urine
+
+
+WBC, blood
+
+
+WBC, urine
+
+
+Weight
+
+
+(2-OHE1+2-OHE2)/16a-OHE1, urine
+
+
+-2proPSA
+
+
+1-Methylhistidine
+
+
+1-Methylhistidine, urine
+
+
+1-Methylhistidine/Creat, urine
+
+
+11-Deoxycorticosterone
+
+
+11-Deoxycortisol, blood
+
+
+
+
+
+“Health Conditions” Tab:
+
+There is a huge list of health conditions.
+When we open each health condition, a page full of info opens about the health condition and put a sample page:( because the number of health condition in the list is a lot)
+
+Acidosis
+Header: Acidosis
+Text: Acidosis is used to describe the process of the buildup of acid in blood or tissue. Degrees of acidity or alkalinity are commonly expressed using the pH scale. On this scale, lower numbers represent acidity, while higher numbers identify alkalinity.
+Human blood is a slightly alkaline fluid, with a normal pH between 7.35-7.45 (the pH of pure water is exactly 7). When the pH of blood drops below 7.35, becoming more acidic, the person is said to have acidemia.
+Symptoms
+Symptoms of acidosis depend on the degree of change in acidity and include:
+﻿﻿Nausea
+﻿﻿Vomiting
+﻿﻿Headaches
+﻿﻿Rowsiness
+In severe cases, the heart may not be able to function normally, causing shock, coma, or even death.
+Doctors diagnose acidosis by taking blood tests to determine the blood pH as well as the concentration of carbon dioxide and other gases in the patient's blood.
+Possible Causes
+Physicians commonly classify acidosis as being one of two types-metabolic or respiratory. This distinction is important because it describes the root cause of the condition.
+The causes for metabolic acidosis include consuming acids or substances that can be converted to acid such as methanol, antifreeze, large amounts of aspirin, etc. It can also be caused by diabetes or kidney failure, as these cause acid to build up within the body.
+Respiratory acidosis is caused by diseases affecting the lungs or nervous system. If a person cannot breathe normally due to chronic obstructive disease, asthma, pneumonia, or muscle weakness caused by diseases of the nervous system, they will develop respiratory acidosis.
+Treatment
+Treatment of acidosis depends on the cause and may include using antidotes for toxic substances or controlling a patient's diabetes with insulin. A physician will try to fix the cause of the acidosis while giving the patient intravenous fluids and bicarbonate, an alkaline substance, to counteract the acids.
+The course and outcome of acidosis depends on how severe the condition causing the acidosis is, as well as if it reacts to treatment.
+
+Footer Section:
+The Ornament app is intended for informational purposes only and not intended as a medical device. It is not a substitute for professional medical advice, diagnosis or treatment.
+About our sources of information
+
+Rest of the list:
+Acne
+Acromegaly
+Acute thyroiditis
+Adrenal insufficiency
+Adrenal tumor
+Afibrinogenemia
+AIDS
+Alcoholic liver disease
+Alcoholism
+Alkalosis
+Allergies
+Alzheimer disease
+Amiloidosis
+Anal fissures
+Anemia
+Animal Protein intolerance
+Anorexia nervosa
+Arrhythmia
+Arterial atherosclerosis
+Arterial hypertension
+Ascites
+
+Checkups
+
+Details of this page is mentioned above
+
+Reference ranges
+
+
+The goal of the page is that we want to use the reference that the system has.
+
+Header:
+Title: "References" (indicating customizable health benchmarks).
+Instruction: "Use custom settings" (actionable prompt).
+BMI Reference Section:
+Metric: "Body Mass Index, averaged"
+Reference Ranges:
+Default range: *● 18.5 – 29.99 kg/m²* (standard clinical BMI classification).
+Optional ideal range: *● 20 – 25 kg/m²* (narrower "optimal" threshold).
+
+
+My profile
+
+Header/Navigation Bar:
+Left button: "Cancel" ( exits the profile editor without saving).
+Right button: "Done" (confirms/saves changes).
+Profile Section:
+Username: "rezi" (display name or identifier).
+Demographics:
+Age: "25 years."
+Sex: "Female."
+User-Generated Label: "This is my profile" .
+Footer Action: "Delete" button ( remove the profile or account).
+
+
+Add profile
+
+Header:
+Title: "New Profile" (indicating profile creation).
+Input Fields:
+Name/Nickname: Free-text field ("Enter your name or nickname ______").
+Age: "Specify" (likely a dropdown or number input).
+Sex: "Specify" (likely binary or inclusive options).
+Confirmation & Action:
+Checkbox: "This is my profile" (ownership confirmation).
+CTA Button: "Add" (completes profile creation).
+
+Settings
+
+Header:
+Title: "Settings" (indicating app configuration options).
+Settings List:
+Server storage: Likely toggles cloud/local data backup.
+Language: Adjusts app language (e.g., English, Spanish).
+Region: Sets geographic location (e.g., for localized health guidelines).
+
+Ask support team
+
+
+A modal open in order to text to the app team in app or in whatsapp
+
+How we protect your data
+
+
+The page is about their privacy to keep user data safe.
+Safety is important
+Thousands of people trust us with their data - and we take that responsibility seriously. We spend a lot of time and effort on data protection, but it's worth it.
+Data storage and transfer
+We carefully select data centers and cooperate only with the best. It is important for us that they use advanced technologies, store data in encrypted form, and constantly make backup copies so that nothing is lost.
+Data is transmitted only over a secure protocol. And personal data is also with a user access key.
+Data access
+To protect user accounts, we use single sign-on technology. This is an elegant, convenient and very reliable data protection system. It gives access to data only to their owner, and only from devices allowed by him.
+Sometimes the data is processed not only by algorithms, but also by Ornament employees for additional verification. They work only with individual pieces of data in an anonymized form.
+Anonymity
+Ornament does not need your name to find the best way to monitor your health. You can use Ornament with any name - even a fictional one. No documents or verification is required to use the application.
+We do not store payment data and do not even see it: payment takes place through the App Store or
+Google Play.
+Details on how data is used can be found in our Privacy Policy.
+What’s new
+
+The screen wants to show us what is new in the app.
+
+
+Rules and documents
+
+
+
+
+Digitizing rules
+Goes to this link: 
+https://ornament.health/en/help/digitizing-rules
+And the goal is to tell us about the supported formats in the app
+
+Privacy policy
+Goes to this link: 
+https://ornament.health/legals/privacy-policies
+ It talks about the company privacy policy
+
+Terms of service
+Goes to this link: 
+https://ornament.health/legals/terms-of-use
+It talks about the app’s terms for the users.
+
+
+Our sources of information
+
+In this page, the app tells us about the source of information and references that the app uses to analyse user’s data.
+
+
+Ornament bases its work on information from peer-reviewed studies, academic research institutions, and medical associations. Our team continually monitors new information on the healthcare landscape, and we update our articles when new information becomes available.
+Sources for Health Conditions
+Mayo Clinic Health Library
+https://www.mayoclinic.org/diseases-conditions
+Cleveland Clinic Health Library
+https://my.clevelandclinic.org/health
+WHO ICD 11 (International Classification of Diseases, 11th edition)
+https://icd.who.int/browse11/l-m/en
+CDC (Centers for Disease Control and Prevention, USA)
+https://www.cdc.gov/health-topics.html
+NHS (National Health Service, UK)
+https://www.nhs.uk/conditions/
+Sources for Biomarker Reference
+Mayo Clinic
+https://www.mayocliniclabs.com/test-catalog
+CDC (Centers for Disease Control and Prevention, USA)
+https://www.cdc.gov/laboratory/specimen-submission/list.html
+Cleveland Clinic Health Library
+https://clevelandcliniclabs.com/test-directory/
+Delete account
+
+
+Header Section
+Title: "Delete account"
+Subheader: "This action cannot be undone. This will permanently delete everything you have uploaded to Ornament."
+Context Statement: If you have an active Ornament Plus subscription, you may continue to be charged for an account. You might need to cancel the subscription using your Account Settings on the App Store.
+Options: “The app gives us a code and an empty field to enter the code in there and the we can delete our account:
+To confirm, please type in 6926
+
+
+
+
+
+
+Insidetracker
+
+1. How the Action Plan Works
+Data-Driven Creation:
+ After users receive their blood test and/or DNA results, InsideTracker’s app automatically generates a highly personalized Action Plan based on multiple inputs:
+Biomarkers that are outside optimized ranges (for example, high LDL cholesterol, low vitamin D levels, or elevated cortisol). InsideTracker’s Action Plan is your personalized list of recommendations, designed to make the biggest impact on helping you achieve your wellness goal and optimize your biomarkers. Once your results have been posted to your account, you can log in and select a wellness goal to generate your action plan.
+
+User health goals specified during onboarding or updated later (such as “Improve energy,” “Reduce inflammation,” “Lose weight,” or “Boost athletic performance”).
+
+Lifestyle data gathered from connected apps and devices like Apple Health, Fitbit, or Garmin, including activity levels and sleep patterns.
+
+
+
+Components of the Action Plan:
+Nutrition: Specific food recommendations tailored to your needs, such as “Increase leafy greens for better folate levels” or “Avoid processed meats to reduce inflammation.
+
+Supplements: Personalized supplement suggestions with exact dosages, e.g., “Take 2,000 IU vitamin D daily.”
+
+
+
+Exercise: Targeted workout recommendations like “Perform HIIT workouts to lower fasting glucose.”
+
+Lifestyle: Guidance on improving sleep hygiene, stress management techniques, and other habits to support overall wellness.
+
+Dynamic Updates:
+ The Action Plan is not static — it adjusts dynamically if you retest your biomarkers, update your goals, or change your lifestyle inputs, ensuring recommendations stay relevant and effective.
+
+2. How Each Program is Assigned to Users
+ Initial Data Collection & Onboarding
+When a user first signs up for InsideTracker, they provide key information including:
+
+
+Blood test results (either from an InsideTracker test kit or imported lab results).
+
+
+Optional DNA data, if the user chooses to add genetic insights.
+
+
+Lifestyle inputs such as diet, activity level, sleep habits, and personal health goals.
+
+
+Users explicitly select or prioritize health goals during onboarding, for example:
+
+
+“Improve energy levels”
+
+
+“Reduce inflammation”
+
+
+“Support heart health”
+
+
+“Boost athletic performance”
+
+
+“Live longer”
+
+ Biomarker Prioritization by Algorithm
+InsideTracker’s platform analyzes the user’s biomarker data against scientifically validated optimal ranges.
+
+
+The system identifies which biomarkers are outside their optimized range, either too high or too low (e.g., elevated LDL cholesterol, low vitamin D, high cortisol, etc.).
+
+
+Based on these biomarker deviations, the platform determines priority health concerns. For example:
+If cortisol is elevated, the system flags stress and may recommend a Stress Reduction Program.
+
+
+If inflammation markers are high, an Anti-Inflammation Program may be triggered.
+
+
+If vitamin or mineral deficiencies are detected, a Nutrient Optimization Program is assigned.
+The algorithm weighs both the severity of biomarker deviations and their relevance to user goals to tailor program assignments.
+
+Integration of User-Selected Goals
+User goals strongly influence which programs are assigned. For instance:
+
+
+Someone focused on longevity may receive programs aimed at reducing inflammation, improving metabolic health, and supporting cardiovascular function.
+
+
+An athlete wanting performance boosts may be assigned programs emphasizing muscle recovery, energy metabolism, and hydration.
+
+
+These goals help prioritize certain biomarker corrections over others, shaping the program content.
+
+
+Scientific Evidence and Research-Backed Matching
+Each program inside InsideTracker is built around the latest scientific evidence linking biomarkers, nutrition, supplements, and lifestyle interventions.
+
+
+The system cross-references:
+
+
+Biomarker status
+
+
+Genetic predispositions (if DNA data is available)
+
+
+User preferences and lifestyle inputs
+
+
+To select the most effective and personalized programs for each user.
+Automatic and Dynamic Program Assignment
+Based on the above factors, the app automatically assigns one or more programs tailored to your unique biology and goals.
+
+
+Programs are modular and can cover topics such as:
+
+
+Heart health
+
+
+Stress management
+
+
+Inflammation reduction
+
+
+Weight management
+
+
+Muscle recovery
+
+
+Sleep improvement
+
+
+As new test results arrive or goals change, the system can update or add new programs dynamically to keep recommendations current.
+
+Manual User Control and Flexibility
+Users can browse the full library of available programs within the app.
+
+
+They have the option to add or remove programs manually, providing flexibility beyond the automatic assignments. For example, a user might add a “Gut Health Program” even if their initial biomarkers did not trigger it.
+
+
+This empowers users to explore specific health interests or concerns proactively.
+
+3. How Users Check Their Assigned Tasks
+Dedicated “Action Plan” Dashboard
+Once programs are assigned, users access their tasks through a clearly defined “Action Plan” tab or section in the app.
+This dashboard presents all personalized tasks and recommendations in one place, making it easy to understand what actions to take daily or weekly.
+
+Prioritized and Categorized Task Lists
+Data-Driven Prioritization
+Tasks are not listed randomly or equally; they are carefully prioritized based on:
+Which biomarkers are most out-of-range or pose the greatest health risk.
+The user’s personal goals (e.g., a user focused on reducing inflammation will see inflammation-related tasks prioritized).
+The potential impact of each task on improving biomarker levels efficiently.
+This means users see the most important, high-impact actions first, ensuring they focus on what matters most.
+Categorization by Health Domain
+Tasks are grouped into intuitive categories such as:
+Nutrition: Specific foods to eat or avoid.
+Supplements: Dosage and timing recommendations.
+Exercise: Targeted workouts or movement goals.
+Lifestyle: Sleep, stress management, hydration, and other wellness habits.
+
+
+This clear separation helps users focus their attention and organize their daily routines better.
+Dynamic Task Adjustment Within Categories
+InsideTracker’s system dynamically adjusts task priority and categorization as users retest biomarkers or update goals.
+For example, if a vitamin deficiency resolves, nutrition tasks related to that vitamin may be de-prioritized or removed.
+This keeps the list relevant and avoids overwhelming users with outdated recommendations.
+Progress Tracking Within Categories
+Each category often has its own progress indicators or completion percentages, so users can see which health domains they are excelling in and which need more focus.
+This granular feedback helps users balance their efforts across nutrition, exercise, supplements, and lifestyle.
+Task Complexity Gradation
+Tasks within categories can range from simple micro-actions (e.g., “Drink one extra glass of water”) to more involved habits (e.g., “Complete a 30-minute strength training session”).
+This gradation helps users gradually build healthy habits without feeling overwhelmed.
+Visual Progress Indicators
+The app includes progress bars or completion percentages for each goal or biomarker, giving users visual feedback on how close they are to achieving optimal levels (e.g., “Vitamin D: 40% to target”).
+This helps users stay motivated by tracking their ongoing improvement.
+
+
+Task Details and Educational Content
+Each task usually has a brief explanation or rationale attached, educating the user on why this action is important and how it influences their health markers.
+This fosters a better understanding and encourages adherence.
+Notifications and Reminders
+The app sends push notifications or in-app reminders for tasks that are time-sensitive or daily, such as:
+
+
+“Take your magnesium supplement tonight.”
+“Log today’s workout.”
+
+
+These reminders help users stay consistent and avoid missing important steps.
+
+4. How Users Mark Tasks as Done
+. Manual Task Completion Logging
+For most tasks — including nutrition, exercise, supplements, and lifestyle habits — users can manually mark them as completed by tapping a “✔️ Log Completed” button or checkbox next to each task within the Action Plan section.
+
+
+Examples:
+
+
+“Ate spinach today” → Tap the checkmark to confirm.
+“Completed 30 minutes of cardio” → Mark as done after finishing the workout.
+“Took vitamin D supplement” → Check off the daily supplement.
+
+About the “Log Completed”
+Task-Level Granularity:
+
+
+The “Log Completed” button is typically available on a per-task basis—meaning each individual recommendation (like “Eat spinach today” or “Take magnesium supplement”) has its own separate log action.
+This lets users track exactly which tasks they completed rather than marking a whole category done at once.
+
+
+Immediate Visual Confirmation:
+
+
+Once tapped, the task immediately changes visually (usually turning green with a checkmark), giving clear instant feedback that the action has been recorded.
+This quick feedback loop helps reinforce positive behavior.
+
+
+Daily Reset / Recurrence:
+
+
+Many tasks are designed to be daily or periodic. The “Log Completed” state resets after each cycle (daily, weekly, etc.), allowing users to log the same task repeatedly over time.
+For example, a daily vitamin supplement can be logged every day to track consistent adherence.
+
+
+Impact on Progress Tracking:
+
+
+Each logged completion contributes to real-time updates of progress bars and goal completion percentages.
+This linkage between logging and progress visualization keeps motivation high.
+
+
+Optional Notes or Details:
+
+
+In some versions or depending on the task type, the app may allow users to add optional notes when logging completion—for instance, entering how much spinach they ate or how long their workout lasted.
+
+
+Sync with Health Data (When Available):
+
+
+For certain activities (like exercise), if the user has connected wearable devices or health apps, the app can auto-log task completion without manual tapping, reducing friction.
+
+
+Reminders Linked to Logging:
+
+
+The “Log Completed” action is often tied to reminder notifications, so when users receive a reminder (“Take your vitamin D now”), they can immediately open the app and tap “Log Completed” to confirm.
+Automatic Syncing with Connected Devices
+When users connect the app to fitness trackers or health apps such as Apple Health, Fitbit, or Garmin:
+
+
+Certain exercise tasks can be automatically logged based on synced workout or activity data.
+For example, completing a logged run or a strength session in your wearable app can reflect as task completion in InsideTracker without manual input.
+
+
+Visual Feedback and Progress Updates
+Completed tasks visually change — usually turning green with a checkmark — to give immediate confirmation of progress.
+The app’s progress bars and completion percentages update in real-time to reflect the user’s adherence.
+This visual reinforcement helps users stay motivated by showing tangible progress towards their health goals.
+
+5. Who Checks the Action Plans Before the Client Receives Them?
+Automated Algorithmic Generation and Review
+Data Input: When a user uploads their blood test results, DNA data, and lifestyle info, InsideTracker’s backend system immediately begins processing this data.
+Algorithm Role: The platform uses complex, proprietary algorithms built from thousands of scientific studies and clinical guidelines. These algorithms:
+
+
+Identify which biomarkers are out of optimized ranges.
+Match these biomarkers to evidence-based interventions (nutrition, supplements, exercise, lifestyle).
+Weigh user goals and lifestyle factors to prioritize recommendations.
+
+
+Speed and Consistency: This automated generation allows for near-instant personalized plan creation without human delay, ensuring consistency and reproducibility across all users.
+Quality Assurance: The algorithm includes numerous built-in validations and safety checks to prevent recommending unsafe dosages or conflicting advice.
+
+2. Scientific Oversight by Experts 
+Team Composition: InsideTracker employs a multidisciplinary team including:
+
+
+Clinical scientists with backgrounds in biochemistry, nutrition, and medicine.
+Registered dietitians and nutrition experts.
+Data scientists and software engineers who maintain and update the algorithms.
+
+
+Algorithm Development: These experts design the algorithms and continuously update them based on:
+
+
+New scientific publications.
+Emerging clinical guidelines.
+User feedback and real-world data.
+
+
+Validation Process: Before deployment, algorithm updates undergo rigorous internal validation including:
+
+
+Cross-checking recommendations against current clinical best practices.
+Testing on historical datasets to verify accuracy and safety.
+
+
+Ongoing Monitoring: The expert team monitors aggregate user outcomes and system performance to identify potential issues and improve recommendations over time.
+
+3. No Individual Manual Review per Client 
+Scale Consideration: InsideTracker serves thousands (or more) of users, making manual review of each individual’s Action Plan impractical and inefficient.
+Reliance on Automation: To deliver timely results, the system trusts its algorithmic engine and expert oversight rather than human review for each user.
+Exceptions: Only in rare cases, such as flagged results indicating serious health risks, might the system trigger alerts for human review or recommend users seek medical advice.
+User Responsibility: Users are encouraged to share their results and plans with their personal healthcare providers for further interpretation if needed.
+
+4. Optional Professional Consultations 
+InsideTracker Coaching Services:
+
+
+Some subscription tiers or add-on services offer access to health coaches, nutritionists, or clinical experts who review your results and Action Plan.
+These professionals can tailor advice further based on your full health history, preferences, or special conditions.
+
+
+Third-Party Consultation:
+
+
+Users can also independently share their InsideTracker reports with their own doctors or dietitians for expert review.
+
+
+Benefits of Consultation:
+
+
+Personalized interpretation beyond algorithmic recommendations.
+Adjustment of plans considering medications, allergies, or lifestyle constraints.
+Accountability and motivation through coaching support.
