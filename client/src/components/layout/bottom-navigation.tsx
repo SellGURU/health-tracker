@@ -10,17 +10,17 @@ import {
 
 const navItems = [
   { path: "/", icon: Home, label: "Home" },
-  { path: "/trends", icon: TrendingUp, label: "Trends" },
-  { path: "/upload", icon: Plus, label: "Add Data", isSpecial: true },
+  { path: "/trends", icon: TrendingUp, label: "Monitor" },
+  { path: "/lab-upload", icon: Plus, label: "Add Data", isSpecial: true },
   { path: "/holistic-plans", icon: Brain, label: "AI Plans" },
-  { path: "/profile", icon: User, label: "Profile" },
+  { path: "/you", icon: User, label: "You" },
 ];
 
 export default function BottomNavigation() {
   const [location] = useLocation();
 
   return (
-    <div className="bg-white border-t border-gray-200 px-4 py-2">
+    <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -30,7 +30,7 @@ export default function BottomNavigation() {
             <Link key={item.path} href={item.path}>
               <button
                 className={cn(
-                  "flex flex-col items-center py-2 text-gray-600 hover:text-primary transition-colors",
+                  "flex flex-col items-center py-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors",
                   isActive && "text-primary",
                   item.isSpecial && "transform scale-110"
                 )}
