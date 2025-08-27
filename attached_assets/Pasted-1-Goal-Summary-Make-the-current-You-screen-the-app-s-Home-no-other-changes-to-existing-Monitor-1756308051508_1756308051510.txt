@@ -1,0 +1,249 @@
+1 — Goal / Summary
+
+Make the current You screen the app’s Home (no other changes to existing Monitor menu). Hide Settings from primary nav. The Home/You screen must show high-value health signals (biological age, chronological age) and prompt users to complete missing profile data. Introduce subscription plans inside Health Profile, replace “Add Data” with a dual Chat (Coach + Copilot), rename “Generate Plan” to Request Deep Analysis, and create an Action Plan feature that displays daily tasks with interactive progress (UI should match the screenshot description). Add booking, reminders, invoice download, and an Educational tab.
+
+2 — Navigation & Visibility
+
+Primary nav (bottom or side):
+
+Home (You) — app opens here.
+
+Monitor — unchanged; remains immediately after Home and must keep current behavior/UI.
+
+Chat (replaces Add Data) — center prominent item.
+
+Educational
+
+Profile (or Progress/Action Plan as agreed)
+
+Important rules
+
+Do not change the Monitor menu or its placement other than ensuring it appears directly after Home.
+
+Remove Settings from primary nav; Settings stays accessible via Profile > Settings or deep link only.
+
+Replace the existing Add Data menu item with Chat; Chat becomes the central menu item.
+
+Acceptance criteria
+
+App opens to Home/You.
+
+Monitor menu is present, unchanged, and positioned directly after Home.
+
+Settings not visible in primary nav.
+
+3 — You (Home) screen — content & behavior
+
+Show header (user name + quick status).
+
+Prominent cards for Biological age and Chronological age:
+
+Numeric value, small icon, one-line interpretation.
+
+Tap opens modal with calculation details, last measurement, and contributing data.
+
+If required profile data missing, hide numeric age values and show CTA: “Complete your Health Profile to calculate your biological age” with Complete Profile button.
+
+Mini snapshot of today’s Action Plan progress (ring + “X / Y tasks completed”).
+
+Quick actions: Chat, Book Coaching, Request Deep Analysis, Educational.
+
+Acceptance criteria
+
+Age cards show only when minimal required fields present (DOB, height, weight, activity/lab data if used).
+
+CTA shown when data missing; tapping CTA opens Profile section.
+
+4 — Health Profile & Subscriptions
+
+Add Subscription section with two plans:
+
+3-month plan
+
+Includes: one Deep Analysis (detailed physiological/behavioral analysis).
+
+Description: One deep analysis + chat with Copilot & coach booking options during plan period.
+
+12-month plan
+
+Includes: Weekly coaching (bookable) + Deep Analysis every 3 months (quarterly).
+
+Description: Weekly coaching, quarterly deep analysis, priority booking.
+
+UI specifics:
+
+Plan cards: price, term, included items, CTA Purchase.
+
+Show included credits/sessions remaining.
+
+After purchase: active status, expires on, total paid, Download Invoice (PDF).
+
+Booking & coaching behavior:
+
+Booking consumes included session credit.
+
+Show remaining included sessions; booked sessions list supports cancel/rebook.
+
+12-month plan: allow recurring weekly slot or ad-hoc weekly bookings.
+
+Reminders: default 24h and 1h before; push + email (optional SMS).
+
+Acceptance criteria
+
+Plans purchasable; included credits decrement on booking.
+
+Invoices downloadable and show correct amount.
+
+5 — Chat (replaces Add Data)
+
+Central chat with two modes: Coach and Copilot.
+
+Top switcher, persistent history, support for attachments (images, short video, CSV).
+
+Coach chat shows coach availability and expected response mode (live vs asynchronous).
+
+In-chat booking quick link that consumes included coaching session if applicable.
+
+Acceptance criteria
+
+Chat replaces Add Data; two labeled tabs exist.
+
+Users can book coaching from chat and see booking impact on credits.
+
+6 — Request Deep Analysis (replaces Generate Plan)
+
+Button labeled Request Deep Analysis on Home and Health Profile.
+
+If included in subscription and credits available → request without extra payment.
+
+If paid → show price and require payment before analysis starts.
+
+On completion, create Action Plan and notify user.
+
+Acceptance criteria
+
+System checks subscription credits vs payment correctly and generates an Action Plan on success.
+
+7 — Action Plan — tasks & progress (UI spec)
+
+Use the screenshot-style layout described earlier (progress ring, tasks list, swipe actions, snooze/reschedule, sticky summary bar). Key points:
+
+Large circular progress ring (140–180 px), caption X / Y tasks completed.
+
+Task cards with checkbox, title, subtitle (duration, time window), tag (Mobility/Nutrition), micro progress, and timestamp.
+
+Swipe left: Snooze, Reschedule, More.
+
+Long-press to edit task details, attach notes/files, set reminders.
+
+Sticky bottom bar: summary + Done for today CTA.
+
+Animations: checking a task animates progress ring; completed tasks collapse to reduce clutter.
+
+Acceptance criteria
+
+Progress ring updates when tasks toggled.
+
+Task actions (snooze/reschedule/cancel) work and persist.
+
+Action Plan generated from Deep Analysis shows Created from Deep Analysis tag.
+
+8 — Booking, Reminders & Cancellation
+
+Booking modal: select coach, date/time, confirm (show whether it consumes included session).
+
+Cancellation policy visible; cancel restores included session per policy.
+
+Reminders: default 24h & 1h; configurable.
+
+Calendar integration: add to user calendar on confirmation.
+
+Acceptance criteria
+
+Bookings consume included sessions; cancellations restore per policy.
+
+Reminders respect user preferences.
+
+9 — Educational Tab
+
+New Educational tab in main nav.
+
+Curated content cards (title, reading time, tags).
+
+Content opens reader with Save, Share, Add to Plan.
+
+Add to Plan creates task in Action Plan.
+
+Acceptance criteria
+
+Educational tab allows adding content items to Action Plan.
+
+10 — Invoices, Billing & Receipts
+
+Subscription details show plan, price, next billing date, masked payment method.
+
+Transaction history and Download Invoice (PDF) for each charge.
+
+Invoice includes company details, invoice number, items, subtotal, tax, total, payment method last-4.
+
+Acceptance criteria
+
+Invoices downloadable and accurate.
+
+11 — Security, Privacy & Data handling
+
+Encrypt health data at rest, obtain clear consent for data used in age calculations.
+
+Allow users to delete profile data and cancel subscription with clear consequences.
+
+Coach notes shared only with explicit consent.
+
+12 — Edge cases & error states
+
+Deep Analysis failure → show “Analysis failed — Retry” with support link.
+
+Payment failure → inline error + retry option.
+
+Fully booked slots → offer waitlist.
+
+13 — Suggested API endpoints
+
+GET /user/profile
+
+GET /user/ages
+
+POST /subscription/purchase
+
+GET /subscription/{id}
+
+POST /bookings
+
+PATCH /bookings/{id}
+
+POST /deep-analysis/request
+
+GET /action-plan/today
+
+PATCH /action-plan/task/{id}/complete
+
+Webhooks: payment & analysis-ready
+
+14 — Acceptance criteria (summary)
+
+Home shows You view with age cards when data exists; otherwise CTA to complete profile.
+
+Monitor menu remains unchanged and is positioned directly after Home.
+
+Settings removed from primary nav.
+
+Add Data replaced by Chat (Coach & Copilot).
+
+Subscriptions present and purchasable; invoice download works.
+
+Booking uses included coaching slots and supports reminders, cancel/rebook and restores credits per policy.
+
+Request Deep Analysis respects subscription credits/payment and generates Action Plan.
+
+Action Plan UI matches the task/progress layout and supports task completion, snoozing, rescheduling, and real-time updates.
+
+Educational tab present and items addable to Action Plan.

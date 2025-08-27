@@ -30,7 +30,10 @@ import {
   Brain,
   Wind,
   Download,
-  CheckCircle
+  CheckCircle,
+  MessageCircle,
+  BookOpen,
+  Calendar
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -59,11 +62,14 @@ const surveyIcons = {
 };
 
 export default function YouMenu() {
-  const [currentView, setCurrentView] = useState<'main' | 'avatar-edit' | 'go-plus' | 'see-all' | 'health-profile' | 'checkups' | 'personalized-checkup' | 'survey'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'avatar-edit' | 'go-plus' | 'see-all' | 'health-profile' | 'checkups' | 'personalized-checkup' | 'survey' | 'subscriptions' | 'deep-analysis'>('main');
   const [selectedSurvey, setSelectedSurvey] = useState<string | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
   const [completedSurveys, setCompletedSurveys] = useState<string[]>([]);
+  const [hasRequiredData, setHasRequiredData] = useState(false);
+  const [biologicalAge, setBiologicalAge] = useState<number | null>(null);
+  const [chronologicalAge, setChronologicalAge] = useState(25);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -124,82 +130,301 @@ export default function YouMenu() {
 
   const renderMainView = () => (
     <div className="space-y-6">
-      {/* User Avatar Section */}
-      <div className="text-center space-y-4">
-        <div className="relative inline-block">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src="/placeholder-avatar.jpg" />
-            <AvatarFallback className="text-lg">RZ</AvatarFallback>
-          </Avatar>
-          <Button
-            size="sm"
-            variant="outline"
-            className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full p-0"
-            onClick={() => setCurrentView('avatar-edit')}
-          >
-            <Edit3 className="w-3 h-3" />
-          </Button>
-        </div>
-        
-        <Button 
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-          onClick={() => setCurrentView('go-plus')}
-        >
-          <Crown className="w-4 h-4 mr-2" />
-          Go Plus
-        </Button>
+      {/* Header with User Name */}
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Welcome, User</h1>
+        <p className="text-gray-600 dark:text-gray-400">Your health dashboard</p>
       </div>
 
-      {/* Health Score */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">Health 0</div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Your health index</p>
+      {/* Age Cards - Prominent Display */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => toast({ title: "Biological Age", description: "Calculation details coming soon" })}>
+          <CardContent className="p-4 text-center">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Activity className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              {hasRequiredData && biologicalAge ? biologicalAge : '?'}
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Biological Age</p>
+            {hasRequiredData && biologicalAge && (
+              <p className="text-xs text-green-600 mt-1">Optimal range</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => toast({ title: "Chronological Age", description: "Based on your date of birth" })}>
+          <CardContent className="p-4 text-center">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Calendar className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{chronologicalAge}</div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Chronological Age</p>
+            <p className="text-xs text-gray-500 mt-1">Years lived</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Complete Profile CTA if data missing */}
+      {!hasRequiredData && (
+        <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4 text-center">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+              Complete your Health Profile
+            </h3>
+            <p className="text-blue-700 dark:text-blue-300 text-sm mb-4">
+              We need your date of birth, height, weight, and some health data to calculate your biological age
+            </p>
+            <Button onClick={() => setCurrentView('health-profile')} className="bg-blue-600 hover:bg-blue-700">
+              Complete Profile
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Today's Action Plan Progress */}
+      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation('/action-plan')}>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Today's Action Plan</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">3 / 5 tasks completed</p>
+            </div>
+            <div className="w-16 h-16 relative">
+              <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-gray-200 dark:text-gray-700" />
+                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${60 * 0.6} ${60}`} className="text-blue-600" strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">60%</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Health Modules */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Health Modules</h2>
-          <Button variant="ghost" size="sm" onClick={() => setCurrentView('see-all')}>
-            See All
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
-        </div>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setLocation('/chat')}>
+          <MessageCircle className="w-5 h-5" />
+          <span className="text-sm">Chat</span>
+        </Button>
         
-        <div className="grid grid-cols-2 gap-3">
-          {healthModules.slice(0, 6).map((module) => {
-            const IconComponent = module.icon;
-            return (
-              <Card 
-                key={module.id} 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => {
-                  if (module.id === 'health-profile') {
-                    setCurrentView('health-profile');
-                  } else if (module.id === 'checkups') {
-                    setCurrentView('checkups');
-                  }
-                }}
-              >
-                <CardContent className="p-4 text-center">
-                  <IconComponent className={`w-8 h-8 mx-auto mb-2 ${module.color}`} />
-                  <h3 className="font-medium text-sm">{module.name}</h3>
-                  {module.progress && (
-                    <div className="mt-2">
-                      <Progress value={module.progress} className="h-2" />
-                      <p className="text-xs text-gray-500 mt-1">{module.progress}% complete</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => toast({ title: "Book Coaching", description: "Opening booking interface..." })}>
+          <Calendar className="w-5 h-5" />
+          <span className="text-sm">Book Coaching</span>
+        </Button>
+        
+        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setCurrentView('deep-analysis')}>
+          <Brain className="w-5 h-5" />
+          <span className="text-sm">Request Deep Analysis</span>
+        </Button>
+        
+        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setLocation('/educational')}>
+          <BookOpen className="w-5 h-5" />
+          <span className="text-sm">Educational</span>
+        </Button>
       </div>
+    </div>
+  );
+
+  const renderSubscriptionsView = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center mb-6">
+        <Button variant="ghost" size="sm" onClick={() => setCurrentView('health-profile')}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-xl font-bold ml-4">Subscription Plans</h1>
+      </div>
+
+      {/* Plans */}
+      <div className="space-y-4">
+        <Card className="border-2 border-blue-200 bg-blue-50 dark:bg-blue-900/20 relative">
+          <div className="absolute -top-3 left-4">
+            <Badge className="bg-orange-500 text-white">POPULAR</Badge>
+          </div>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">12-Month Plan</h3>
+                <p className="text-gray-600 dark:text-gray-400">Best value for committed users</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">$199</div>
+                <div className="text-sm text-gray-500">$16.58/month</div>
+              </div>
+            </div>
+            
+            <div className="space-y-2 mb-6">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Weekly coaching sessions (bookable)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Deep Analysis every 3 months (quarterly)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Priority booking and support</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Unlimited chat with AI copilot</span>
+              </div>
+            </div>
+
+            <Button className="w-full bg-blue-600 hover:bg-blue-700" size="lg">
+              Purchase Plan
+            </Button>
+            
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">12 weekly coaching sessions remaining</p>
+              <p className="text-xs text-gray-500">Next Deep Analysis: March 2025</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">3-Month Plan</h3>
+                <p className="text-gray-600 dark:text-gray-400">Perfect for getting started</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">$79</div>
+                <div className="text-sm text-gray-500">$26.33/month</div>
+              </div>
+            </div>
+            
+            <div className="space-y-2 mb-6">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">One comprehensive Deep Analysis</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Chat with Copilot & coach booking</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Full access to educational content</span>
+              </div>
+            </div>
+
+            <Button variant="outline" className="w-full" size="lg">
+              Purchase Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Current Subscription Status */}
+      <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-semibold text-green-900 dark:text-green-100">Active Subscription</h4>
+              <p className="text-sm text-green-700 dark:text-green-300">12-month plan • Expires Dec 15, 2025</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total paid: $199.00</p>
+            </div>
+            <Button variant="ghost" size="sm" className="text-green-700">
+              <Download className="w-4 h-4 mr-2" />
+              Download Invoice
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderDeepAnalysisView = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center mb-6">
+        <Button variant="ghost" size="sm" onClick={() => setCurrentView('main')}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-xl font-bold ml-4">Request Deep Analysis</h1>
+      </div>
+
+      {/* Analysis Info */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+              <Brain className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Comprehensive Health Analysis
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Get a detailed analysis of your physiological and behavioral patterns, 
+                with personalized recommendations and a custom action plan.
+              </p>
+              
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Analysis of all your health data</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Personalized action plan generation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Biological age calculation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Risk assessment and recommendations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Subscription Status */}
+      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-semibold text-blue-900 dark:text-blue-100">Subscription Status</h4>
+              <p className="text-sm text-blue-700 dark:text-blue-300">12-month plan • 2 deep analyses remaining</p>
+            </div>
+            <Badge className="bg-green-100 text-green-800">
+              Included in Plan
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Request Button */}
+      <Button 
+        className="w-full bg-purple-600 hover:bg-purple-700" 
+        size="lg"
+        onClick={() => {
+          toast({
+            title: "Deep Analysis Requested",
+            description: "Your analysis will be ready in 24-48 hours. We'll notify you when it's complete.",
+          });
+          setTimeout(() => {
+            setLocation('/action-plan');
+          }, 2000);
+        }}
+      >
+        Request Deep Analysis
+      </Button>
+
+      <p className="text-center text-sm text-gray-500">
+        Analysis typically takes 24-48 hours to complete. 
+        You'll receive a notification when your personalized action plan is ready.
+      </p>
     </div>
   );
 
@@ -293,6 +518,18 @@ export default function YouMenu() {
               );
             })}
           </CardContent>
+          
+          {/* Subscriptions Link */}
+          <div className="mt-6 p-4 border-t">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setCurrentView('subscriptions')}
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              View Subscription Plans
+            </Button>
+          </div>
         </Card>
 
         {/* Test Cards */}
@@ -610,6 +847,10 @@ export default function YouMenu() {
         return renderCheckupsView();
       case 'personalized-checkup':
         return renderPersonalizedCheckupView();
+      case 'subscriptions':
+        return renderSubscriptionsView();
+      case 'deep-analysis':
+        return renderDeepAnalysisView();
       case 'avatar-edit':
         return (
           <div className="space-y-6">

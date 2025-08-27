@@ -3,17 +3,17 @@ import { cn } from "@/lib/utils";
 import { 
   Home,
   TrendingUp,
-  Plus,
-  Brain,
+  MessageCircle,
+  BookOpen,
   User
 } from "lucide-react";
 
 const navItems = [
   { path: "/", icon: Home, label: "Home" },
-  { path: "/trends", icon: TrendingUp, label: "Monitor" },
-  { path: "/lab-upload", icon: Plus, label: "Add Data", isSpecial: true },
-  { path: "/holistic-plans", icon: Brain, label: "AI Plans" },
-  { path: "/you", icon: User, label: "You" },
+  { path: "/monitor", icon: TrendingUp, label: "Monitor" },
+  { path: "/chat", icon: MessageCircle, label: "Chat", isSpecial: true },
+  { path: "/educational", icon: BookOpen, label: "Educational" },
+  { path: "/profile", icon: User, label: "Profile" },
 ];
 
 export default function BottomNavigation() {

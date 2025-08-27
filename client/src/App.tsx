@@ -14,6 +14,9 @@ import HolisticPlans from "@/pages/holistic-plans";
 import Profile from "@/pages/profile";
 import Onboarding from "@/pages/onboarding";
 import YouMenu from "@/pages/you-menu";
+import ChatPage from "@/pages/chat";
+import EducationalPage from "@/pages/educational";
+import ActionPlanPage from "@/pages/action-plan";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
 
@@ -36,14 +39,16 @@ function Router() {
     <MobileLayout>
       <Switch>
         <Route path="/onboarding" component={Onboarding} />
-        <Route path="/" component={Dashboard} />
+        <Route path="/" component={YouMenu} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/monitor" component={Trends} />
+        <Route path="/chat" component={ChatPage} />
+        <Route path="/educational" component={EducationalPage} />
+        <Route path="/profile" component={Profile} />
+        <Route path="/action-plan" component={ActionPlanPage} />
         <Route path="/lab-upload" component={LabUpload} />
         <Route path="/manual-entry" component={ManualEntry} />
-        <Route path="/trends" component={Trends} />
-        <Route path="/action-plans" component={ActionPlans} />
         <Route path="/holistic-plans" component={HolisticPlans} />
-        <Route path="/profile" component={Profile} />
-        <Route path="/you" component={YouMenu} />
         <Route path="/not-found" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
