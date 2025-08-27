@@ -11,9 +11,9 @@ import {
 const navItems = [
   { path: "/", icon: Home, label: "Home" },
   { path: "/monitor", icon: TrendingUp, label: "Monitor" },
+  { path: "/plan", icon: Target, label: "Plan" },
   { path: "/chat", icon: MessageCircle, label: "Chat", isSpecial: true },
   { path: "/educational", icon: BookOpen, label: "Educational" },
-  { path: "/plan", icon: Target, label: "Plan" },
 ];
 
 export default function BottomNavigation() {

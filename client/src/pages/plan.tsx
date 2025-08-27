@@ -186,7 +186,8 @@ const statusColors = {
 };
 
 export default function PlanPage() {
-  const [activeTab, setActiveTab] = useState('goals');
+  const [activeTab, setActiveTab] = useState('action-plans');
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const { toast } = useToast();
 
   const handleGoalAction = (goalId: string, action: 'pause' | 'resume' | 'complete') => {
@@ -212,11 +213,11 @@ export default function PlanPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="action-plans">
         <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="goals">Goals</TabsTrigger>
-              <TabsTrigger value="challenges">Challenges</TabsTrigger>
-              <TabsTrigger value="action-plans">Action Plans</TabsTrigger>
+          <TabsTrigger value="action-plans">Action Plans</TabsTrigger>
+          <TabsTrigger value="goals">Goals</TabsTrigger>
+          <TabsTrigger value="challenges">Challenges</TabsTrigger>
         </TabsList>
 
         <TabsContent value="goals" className="space-y-4 mt-6">
@@ -384,95 +385,282 @@ export default function PlanPage() {
         </TabsContent>
 
         <TabsContent value="action-plans" className="space-y-4 mt-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Action Plans</h2>
-                <Link href="/action-plan">
-                  <Button size="sm">
-                    <Target className="w-4 h-4 mr-2" />
-                    Today's Plan
-                  </Button>
-                </Link>
-              </div>
+          {/* Date Navigation */}
+          <div className="flex items-center justify-between mb-6">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                const yesterday = new Date(selectedDate);
+                yesterday.setDate(yesterday.getDate() - 1);
+                setSelectedDate(yesterday);
+              }}
+            >
+              ← Previous
+            </Button>
+            
+            <div className="text-center">
+              <h2 className="text-lg font-semibold">
+                {selectedDate.toDateString() === new Date().toDateString() 
+                  ? "Today's Work" 
+                  : selectedDate.toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })
+                }
+              </h2>
+              <p className="text-sm text-gray-500">
+                {selectedDate.toLocaleDateString()}
+              </p>
+            </div>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                const tomorrow = new Date(selectedDate);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                setSelectedDate(tomorrow);
+              }}
+            >
+              Next →
+            </Button>
+          </div>
 
-              <div className="space-y-4">
-                {mockActionPlans.map((plan) => (
-                  <Card key={plan.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                              {plan.title}
-                            </h3>
-                            <Badge className={statusColors[plan.status]}>
-                              {plan.status}
-                            </Badge>
-                            {plan.source === 'Deep Analysis' && (
-                              <Badge variant="outline" className="bg-purple-50 text-purple-700">
-                                <Brain className="w-3 h-3 mr-1" />
-                                AI Generated
-                              </Badge>
-                            )}
+          {/* Today's Tasks */}
+          <div className="space-y-4">
+            {selectedDate.toDateString() === new Date().toDateString() ? (
+              // Today's editable tasks
+              <>
+                <div className="grid gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 rounded border-gray-300"
+                          />
+                          <div>
+                            <h4 className="font-medium">Take morning supplements</h4>
+                            <p className="text-sm text-gray-500">Vitamin D, Omega-3, Multivitamin</p>
                           </div>
-                          
-                          <p className="text-gray-600 dark:text-gray-400 mb-3">
-                            {plan.description}
-                          </p>
-                          
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <CheckCircle className="w-4 h-4" />
-                                {plan.tasksCompleted} / {plan.tasksTotal} tasks
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                Created {plan.createdDate.toLocaleDateString()}
-                              </div>
-                            </div>
-                            
-                            <div className="text-sm text-gray-500">
-                              Updated {plan.lastUpdated.toLocaleDateString()}
-                            </div>
-                          </div>
-                          
-                          {plan.status === 'active' && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-500">Completion</span>
-                                <span className="font-medium">
-                                  {Math.round((plan.tasksCompleted / plan.tasksTotal) * 100)}%
-                                </span>
-                              </div>
-                              <Progress 
-                                value={(plan.tasksCompleted / plan.tasksTotal) * 100} 
-                                className="h-2" 
-                              />
-                            </div>
-                          )}
                         </div>
-                        
-                        <div className="ml-4">
-                          {plan.status === 'active' && (
-                            <Link href="/action-plan">
-                              <Button>
-                                <Activity className="w-4 h-4 mr-2" />
-                                Continue
-                              </Button>
-                            </Link>
-                          )}
-                          {plan.status === 'completed' && (
-                            <Button variant="outline">
-                              <Heart className="w-4 h-4 mr-2" />
-                              Review
-                            </Button>
-                          )}
-                        </div>
+                        <Badge className="bg-green-100 text-green-800">Morning</Badge>
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 rounded border-gray-300"
+                            defaultChecked
+                          />
+                          <div>
+                            <h4 className="font-medium line-through">30-minute walk</h4>
+                            <p className="text-sm text-gray-500">Completed at 8:30 AM</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-blue-100 text-blue-800">Exercise</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 rounded border-gray-300"
+                            defaultChecked
+                          />
+                          <div>
+                            <h4 className="font-medium line-through">Drink 2L water</h4>
+                            <p className="text-sm text-gray-500">Progress: 2.1L / 2L</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-blue-100 text-blue-800">Hydration</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 rounded border-gray-300"
+                          />
+                          <div>
+                            <h4 className="font-medium">10-minute meditation</h4>
+                            <p className="text-sm text-gray-500">Evening mindfulness session</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-purple-100 text-purple-800">Evening</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 rounded border-gray-300"
+                          />
+                          <div>
+                            <h4 className="font-medium">Log food intake</h4>
+                            <p className="text-sm text-gray-500">Track meals and snacks</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-orange-100 text-orange-800">Nutrition</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-100">Daily Progress</h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">2 of 5 tasks completed</p>
+                    </div>
+                    <div className="w-16 h-16 relative">
+                      <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-gray-200 dark:text-gray-700" />
+                        <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${60 * 0.4} ${60}`} className="text-blue-600" strokeLinecap="round" />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">40%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Past/Future days - read-only
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                  <Calendar className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  {selectedDate < new Date() ? 'Past Day' : 'Future Day'}
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  {selectedDate < new Date() 
+                    ? 'Review your completed tasks from this day'
+                    : 'Tasks will be available on this date'
+                  }
+                </p>
+                
+                {selectedDate < new Date() && (
+                  <div className="space-y-3 max-w-md mx-auto">
+                    <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <span className="text-sm">Completed 4 of 5 tasks</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <Activity className="w-5 h-5 text-blue-600" />
+                      <span className="text-sm">Exercise goal achieved</span>
+                    </div>
+                  </div>
+                )}
               </div>
+            )}
+          </div>
+
+          {/* Historical Action Plans */}
+          <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold mb-4">Your Action Plans</h3>
+
+            <div className="space-y-4">
+              {mockActionPlans.map((plan) => (
+                <Card key={plan.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                            {plan.title}
+                          </h3>
+                          <Badge className={statusColors[plan.status]}>
+                            {plan.status}
+                          </Badge>
+                          {plan.source === 'Deep Analysis' && (
+                            <Badge variant="outline" className="bg-purple-50 text-purple-700">
+                              <Brain className="w-3 h-3 mr-1" />
+                              AI Generated
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <p className="text-gray-600 dark:text-gray-400 mb-3">
+                          {plan.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <CheckCircle className="w-4 h-4" />
+                              {plan.tasksCompleted} / {plan.tasksTotal} tasks
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              Created {plan.createdDate.toLocaleDateString()}
+                            </div>
+                          </div>
+                          
+                          <div className="text-sm text-gray-500">
+                            Updated {plan.lastUpdated.toLocaleDateString()}
+                          </div>
+                        </div>
+                        
+                        {plan.status === 'active' && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-gray-500">Completion</span>
+                              <span className="font-medium">
+                                {Math.round((plan.tasksCompleted / plan.tasksTotal) * 100)}%
+                              </span>
+                            </div>
+                            <Progress 
+                              value={(plan.tasksCompleted / plan.tasksTotal) * 100} 
+                              className="h-2" 
+                            />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="ml-4">
+                        {plan.status === 'active' && (
+                          <Link href="/action-plan">
+                            <Button>
+                              <Activity className="w-4 h-4 mr-2" />
+                              Continue
+                            </Button>
+                          </Link>
+                        )}
+                        {plan.status === 'completed' && (
+                          <Button variant="outline">
+                            <Heart className="w-4 h-4 mr-2" />
+                            Review
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

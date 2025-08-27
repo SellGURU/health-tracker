@@ -20,7 +20,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   const [searchQuery, setSearchQuery] = useState("");
   
   // Pages that should use the ProfileHeader instead of the default global header
-  const useProfileHeader = ['/plan'].includes(location);
+  const useProfileHeader = true; // Use ProfileHeader for all pages for consistency
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
