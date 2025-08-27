@@ -126,6 +126,8 @@ Changelog:
 - January 27, 2025. Implemented comprehensive Plan page with Goals, Challenges, and Action Plans tabs
 - January 27, 2025. Added ProfileHeader component with notifications, user avatar dropdown, and subscription access
 - January 27, 2025. Enhanced subscription system integration with Request Deep Analysis and coaching credits
+- January 27, 2025. Moved Chat menu to center position: Home → Monitor → Chat → Plan → Educational
+- January 27, 2025. Implemented Today Work with date navigation in Plan page, consistent ProfileHeader across all pages
 ```
 
 ## User Preferences
