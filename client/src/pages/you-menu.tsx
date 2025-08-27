@@ -183,12 +183,12 @@ export default function YouMenu() {
       )}
 
       {/* Today's Action Plan Progress */}
-      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation('/action-plan')}>
+      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation('/plan')}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Today's Action Plan</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">3 / 5 tasks completed</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Goals, challenges & action plans</p>
             </div>
             <div className="w-16 h-16 relative">
               <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">

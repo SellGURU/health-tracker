@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Bell, Moon, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
+import ProfileHeader from "./profile-header";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -12,9 +14,13 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ children }: MobileLayoutProps) {
   const { toast } = useToast();
+  const [location] = useLocation();
   const [showSearch, setShowSearch] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Pages that should use the ProfileHeader instead of the default global header
+  const useProfileHeader = ['/plan'].includes(location);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -42,37 +48,45 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* Global Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-10">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">HolistiCare</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setShowSearch(true)}>
-              <Search className="w-4 h-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                toast({
-                  title: "Notifications",
-                  description: "No new notifications",
-                });
-              }}
-            >
-              <Bell className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={toggleDarkMode}>
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </Button>
+      {useProfileHeader ? (
+        <ProfileHeader />
+      ) : (
+        /* Global Header */
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-10">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">HolistiCare</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setShowSearch(true)}>
+                <Search className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  toast({
+                    title: "Notifications",
+                    description: "No new notifications",
+                  });
+                }}
+              >
+                <Bell className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={toggleDarkMode}>
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       <div className="flex-1 overflow-y-auto">
-        <main className="p-4">
-          {children}
-        </main>
+        {useProfileHeader ? (
+          children
+        ) : (
+          <main className="p-4">
+            {children}
+          </main>
+        )}
       </div>
 
       {/* Search Dialog */}

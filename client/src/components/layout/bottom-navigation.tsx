@@ -5,7 +5,7 @@ import {
   TrendingUp,
   MessageCircle,
   BookOpen,
-  User
+  Target
 } from "lucide-react";
 
 const navItems = [
@@ -13,7 +13,7 @@ const navItems = [
   { path: "/monitor", icon: TrendingUp, label: "Monitor" },
   { path: "/chat", icon: MessageCircle, label: "Chat", isSpecial: true },
   { path: "/educational", icon: BookOpen, label: "Educational" },
-  { path: "/profile", icon: User, label: "Profile" },
+  { path: "/plan", icon: Target, label: "Plan" },
 ];
 
 export default function BottomNavigation() {

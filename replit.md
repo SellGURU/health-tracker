@@ -122,6 +122,10 @@ Changelog:
 - June 20, 2025. Implemented comprehensive interactive features across all pages
 - June 20, 2025. Added global header with search, dark mode toggle, and notifications
 - June 21, 2025. Created comprehensive 26-step user onboarding flow with health questionnaire
+- January 27, 2025. Complete navigation restructure: You screen as Home, Plan tab replaces Profile in nav, Profile moved to top-right dropdown
+- January 27, 2025. Implemented comprehensive Plan page with Goals, Challenges, and Action Plans tabs
+- January 27, 2025. Added ProfileHeader component with notifications, user avatar dropdown, and subscription access
+- January 27, 2025. Enhanced subscription system integration with Request Deep Analysis and coaching credits
 ```
 
 ## User Preferences

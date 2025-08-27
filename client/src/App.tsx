@@ -16,6 +16,7 @@ import Onboarding from "@/pages/onboarding";
 import YouMenu from "@/pages/you-menu";
 import ChatPage from "@/pages/chat";
 import EducationalPage from "@/pages/educational";
+import PlanPage from "@/pages/plan";
 import ActionPlanPage from "@/pages/action-plan";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
@@ -45,6 +46,7 @@ function Router() {
         <Route path="/chat" component={ChatPage} />
         <Route path="/educational" component={EducationalPage} />
         <Route path="/profile" component={Profile} />
+        <Route path="/plan" component={PlanPage} />
         <Route path="/action-plan" component={ActionPlanPage} />
         <Route path="/lab-upload" component={LabUpload} />
         <Route path="/manual-entry" component={ManualEntry} />
