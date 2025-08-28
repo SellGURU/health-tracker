@@ -186,54 +186,6 @@ export default function YouMenu() {
         </Card>
       )}
 
-      {/* Latest Deep Analysis Card */}
-      {hasHealthData && (
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Latest Deep Analysis</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Generated Jan 15, 2025</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Previous analysis */ }}>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Badge variant="outline">1 of 3</Badge>
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Next analysis */ }}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">Metabolic health optimized</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">12 personalized action items</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-600" />
-                <span className="text-sm">Biological age: 28 years</span>
-              </div>
-            </div>
-            
-            <Button className="w-full mt-4" onClick={() => setLocation('/plan')}>
-              View Full Analysis
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Health Summary Card */}
       {hasHealthData && (
         <Card>
@@ -283,6 +235,54 @@ export default function YouMenu() {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Latest Deep Analysis Card */}
+      {hasHealthData && (
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Latest Deep Analysis</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Generated Jan 15, 2025</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Previous analysis */ }}>
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Badge variant="outline">1 of 3</Badge>
+                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Next analysis */ }}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Metabolic health optimized</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">12 personalized action items</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-blue-600" />
+                <span className="text-sm">Biological age: 28 years</span>
+              </div>
+            </div>
+            
+            <Button className="w-full mt-4" onClick={() => setLocation('/plan')}>
+              View Full Analysis
+            </Button>
           </CardContent>
         </Card>
       )}
