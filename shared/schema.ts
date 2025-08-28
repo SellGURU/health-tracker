@@ -165,6 +165,90 @@ export const wellnessChallenges = pgTable("wellness_challenges", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Educational content table
+export const educationalContent = pgTable("educational_content", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(),
+  tags: jsonb("tags").$type<string[]>().notNull(),
+  readingTime: integer("reading_time").notNull(), // in minutes
+  author: text("author"),
+  publishedAt: timestamp("published_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User progress on educational content
+export const userEducationProgress = pgTable("user_education_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  contentId: integer("content_id").notNull().references(() => educationalContent.id, { onDelete: 'cascade' }),
+  completed: boolean("completed").default(false),
+  saved: boolean("saved").default(false),
+  progress: integer("progress").default(0), // percentage
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Chat messages table
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  sender: text("sender").notNull(), // 'user', 'copilot', 'coach'
+  content: text("content").notNull(),
+  messageType: text("message_type").default("text"), // 'text', 'booking', 'attachment'
+  attachmentUrl: text("attachment_url"),
+  sessionId: text("session_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Coach availability and profiles
+export const coachProfiles = pgTable("coach_profiles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  specialization: text("specialization").notNull(),
+  available: boolean("available").default(true),
+  avatar: text("avatar"),
+  bio: text("bio"),
+  experience: text("experience"),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
+  hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Deep analysis results
+export const deepAnalyses = pgTable("deep_analyses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  analysisData: jsonb("analysis_data").$type<{
+    biologicalAge?: number;
+    riskFactors: string[];
+    recommendations: string[];
+    scores: Record<string, number>;
+    charts?: Record<string, any>;
+  }>().notNull(),
+  status: text("status").default("completed"), // 'processing', 'completed', 'failed'
+  generatedAt: timestamp("generated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Coaching sessions
+export const coachingSessions = pgTable("coaching_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  coachId: integer("coach_id").notNull().references(() => coachProfiles.id, { onDelete: 'cascade' }),
+  scheduledAt: timestamp("scheduled_at").notNull(),
+  duration: integer("duration").default(60), // minutes
+  status: text("status").default("scheduled"), // 'scheduled', 'completed', 'cancelled'
+  notes: text("notes"),
+  sessionType: text("session_type").default("consultation"), // 'consultation', 'follow-up', 'emergency'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   labResults: many(labResults),
@@ -175,6 +259,10 @@ export const usersRelations = relations(users, ({ many }) => ({
   holisticPlans: many(holisticPlans),
   healthGoals: many(healthGoals),
   wellnessChallenges: many(wellnessChallenges),
+  educationProgress: many(userEducationProgress),
+  chatMessages: many(chatMessages),
+  deepAnalyses: many(deepAnalyses),
+  coachingSessions: many(coachingSessions),
 }));
 
 export const labResultsRelations = relations(labResults, ({ one }) => ({
@@ -243,6 +331,42 @@ export const fileUploadsRelations = relations(fileUploads, ({ one }) => ({
   }),
 }));
 
+export const userEducationProgressRelations = relations(userEducationProgress, ({ one }) => ({
+  user: one(users, {
+    fields: [userEducationProgress.userId],
+    references: [users.id],
+  }),
+  content: one(educationalContent, {
+    fields: [userEducationProgress.contentId],
+    references: [educationalContent.id],
+  }),
+}));
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  user: one(users, {
+    fields: [chatMessages.userId],
+    references: [users.id],
+  }),
+}));
+
+export const deepAnalysesRelations = relations(deepAnalyses, ({ one }) => ({
+  user: one(users, {
+    fields: [deepAnalyses.userId],
+    references: [users.id],
+  }),
+}));
+
+export const coachingSessionsRelations = relations(coachingSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [coachingSessions.userId],
+    references: [users.id],
+  }),
+  coach: one(coachProfiles, {
+    fields: [coachingSessions.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -294,6 +418,39 @@ export const insertWellnessChallengeSchema = createInsertSchema(wellnessChalleng
   updatedAt: true,
 });
 
+export const insertEducationalContentSchema = createInsertSchema(educationalContent).omit({
+  id: true,
+  publishedAt: true,
+  updatedAt: true,
+});
+
+export const insertUserEducationProgressSchema = createInsertSchema(userEducationProgress).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCoachProfileSchema = createInsertSchema(coachProfiles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDeepAnalysisSchema = createInsertSchema(deepAnalyses).omit({
+  id: true,
+  generatedAt: true,
+  createdAt: true,
+});
+
+export const insertCoachingSessionSchema = createInsertSchema(coachingSessions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -319,4 +476,16 @@ export type HealthGoal = typeof healthGoals.$inferSelect;
 export type InsertHealthGoal = z.infer<typeof insertHealthGoalSchema>;
 export type WellnessChallenge = typeof wellnessChallenges.$inferSelect;
 export type InsertWellnessChallenge = z.infer<typeof insertWellnessChallengeSchema>;
+export type EducationalContent = typeof educationalContent.$inferSelect;
+export type InsertEducationalContent = z.infer<typeof insertEducationalContentSchema>;
+export type UserEducationProgress = typeof userEducationProgress.$inferSelect;
+export type InsertUserEducationProgress = z.infer<typeof insertUserEducationProgressSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type CoachProfile = typeof coachProfiles.$inferSelect;
+export type InsertCoachProfile = z.infer<typeof insertCoachProfileSchema>;
+export type DeepAnalysis = typeof deepAnalyses.$inferSelect;
+export type InsertDeepAnalysis = z.infer<typeof insertDeepAnalysisSchema>;
+export type CoachingSession = typeof coachingSessions.$inferSelect;
+export type InsertCoachingSession = z.infer<typeof insertCoachingSessionSchema>;
 export type LoginCredentials = z.infer<typeof loginSchema>;

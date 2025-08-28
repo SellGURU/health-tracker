@@ -1,707 +1,694 @@
 import { useState } from "react";
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-
 import { 
-  Target,
+  Target, 
+  Trophy, 
+  Plus, 
   Calendar,
-  CheckCircle,
   Clock,
-  TrendingUp,
+  Zap,
   Award,
-  Play,
-  Pause,
-  MoreHorizontal,
-  Plus,
-  Brain,
+  TrendingUp,
+  CheckCircle,
+  Circle,
+  Star,
+  Flame,
   Activity,
   Heart,
-  ArrowLeft
+  Brain,
+  Settings,
+  ArrowRight,
+  Users,
+  Timer,
+  BarChart3
 } from "lucide-react";
 
 interface Goal {
   id: string;
   title: string;
   description: string;
-  category: 'Health' | 'Fitness' | 'Nutrition' | 'Mental Health';
+  category: string;
   progress: number;
-  targetDate: Date;
+  target: number;
+  unit: string;
+  deadline: Date;
+  priority: 'high' | 'medium' | 'low';
   status: 'active' | 'completed' | 'paused';
-  createdDate: Date;
 }
 
 interface Challenge {
   id: string;
   title: string;
   description: string;
-  duration: number; // days
+  duration: number;
   participants: number;
-  category: 'Movement' | 'Nutrition' | 'Mindfulness' | 'Sleep';
-  progress: number;
-  status: 'active' | 'completed' | 'upcoming';
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  reward: string;
   startDate: Date;
-  rewards: string[];
+  joined: boolean;
 }
 
 interface ActionPlan {
   id: string;
   title: string;
   description: string;
-  createdDate: Date;
-  status: 'active' | 'completed' | 'archived';
-  tasksTotal: number;
-  tasksCompleted: number;
-  source: 'Deep Analysis' | 'Manual' | 'Goal-based';
-  lastUpdated: Date;
+  tasks: Array<{
+    id: string;
+    title: string;
+    completed: boolean;
+    priority: 'high' | 'medium' | 'low';
+  }>;
+  category: string;
+  progress: number;
+  dueDate: Date;
 }
 
 const mockGoals: Goal[] = [
   {
     id: '1',
-    title: 'Improve Cardiovascular Health',
-    description: 'Reduce cholesterol levels and improve heart health through diet and exercise',
-    category: 'Health',
-    progress: 65,
-    targetDate: new Date('2025-06-01'),
-    status: 'active',
-    createdDate: new Date('2024-12-01')
+    title: 'Improve Cholesterol Levels',
+    description: 'Reduce LDL cholesterol to below 100 mg/dL',
+    category: 'Cardiovascular',
+    progress: 75,
+    target: 100,
+    unit: 'mg/dL',
+    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    priority: 'high',
+    status: 'active'
   },
   {
     id: '2',
-    title: 'Lose 15 pounds',
-    description: 'Achieve healthy weight through sustainable diet and exercise plan',
+    title: 'Weight Management',
+    description: 'Achieve and maintain optimal BMI range',
     category: 'Fitness',
     progress: 40,
-    targetDate: new Date('2025-04-15'),
-    status: 'active',
-    createdDate: new Date('2024-11-15')
+    target: 165,
+    unit: 'lbs',
+    deadline: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    priority: 'medium',
+    status: 'active'
   },
   {
     id: '3',
-    title: 'Establish Meditation Practice',
-    description: 'Practice mindfulness meditation for 20 minutes daily',
-    category: 'Mental Health',
-    progress: 100,
-    targetDate: new Date('2025-01-01'),
-    status: 'completed',
-    createdDate: new Date('2024-10-01')
+    title: 'Better Sleep Quality',
+    description: 'Consistent 7-8 hours of quality sleep nightly',
+    category: 'Lifestyle',
+    progress: 85,
+    target: 8,
+    unit: 'hours',
+    deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+    priority: 'high',
+    status: 'active'
   }
 ];
 
 const mockChallenges: Challenge[] = [
   {
     id: '1',
-    title: '30-Day Movement Challenge',
-    description: 'Move your body for at least 30 minutes every day',
+    title: '30-Day Mediterranean Diet',
+    description: 'Adopt Mediterranean eating patterns to improve heart health and reduce inflammation',
     duration: 30,
-    participants: 1247,
-    category: 'Movement',
-    progress: 73,
-    status: 'active',
-    startDate: new Date('2025-01-01'),
-    rewards: ['Fitness Badge', '50 Health Points', 'Movement Master Title']
+    participants: 2847,
+    category: 'Nutrition',
+    difficulty: 'intermediate',
+    reward: '500 Health Points + Badge',
+    startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    joined: false
   },
   {
     id: '2',
-    title: 'Hydration Hero',
-    description: 'Drink 8 glasses of water daily for 2 weeks',
-    duration: 14,
-    participants: 892,
-    category: 'Nutrition',
-    progress: 100,
-    status: 'completed',
-    startDate: new Date('2024-12-15'),
-    rewards: ['Hydration Champion', '30 Health Points']
+    title: 'Daily Movement Challenge',
+    description: 'Achieve 10,000 steps daily for improved cardiovascular health',
+    duration: 21,
+    participants: 1256,
+    category: 'Fitness',
+    difficulty: 'beginner',
+    reward: '300 Health Points',
+    startDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    joined: true
   },
   {
     id: '3',
-    title: 'Sleep Quality Boost',
-    description: '7+ hours of quality sleep every night for 21 days',
-    duration: 21,
-    participants: 645,
-    category: 'Sleep',
-    progress: 0,
-    status: 'upcoming',
-    startDate: new Date('2025-02-01'),
-    rewards: ['Sleep Master', '40 Health Points', 'Rest & Recovery Badge']
+    title: 'Mindful Stress Management',
+    description: 'Practice meditation and breathing exercises to reduce stress levels',
+    duration: 14,
+    participants: 892,
+    category: 'Mental Health',
+    difficulty: 'beginner',
+    reward: '200 Health Points + Calm Badge',
+    startDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    joined: false
   }
 ];
 
 const mockActionPlans: ActionPlan[] = [
   {
     id: '1',
-    title: 'Metabolic Health Optimization',
-    description: 'Comprehensive plan to improve metabolic markers and energy levels',
-    createdDate: new Date('2025-01-15'),
-    status: 'active',
-    tasksTotal: 12,
-    tasksCompleted: 8,
-    source: 'Deep Analysis',
-    lastUpdated: new Date('2025-01-27')
+    title: 'Daily Cardiovascular Care',
+    description: 'Essential daily actions for heart health improvement',
+    category: 'Cardiovascular',
+    progress: 80,
+    dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    tasks: [
+      { id: '1a', title: 'Take morning omega-3 supplement', completed: true, priority: 'high' },
+      { id: '1b', title: 'Walk for 30 minutes', completed: true, priority: 'medium' },
+      { id: '1c', title: 'Eat fiber-rich breakfast', completed: false, priority: 'high' },
+      { id: '1d', title: 'Monitor blood pressure', completed: true, priority: 'medium' },
+      { id: '1e', title: 'Practice deep breathing', completed: false, priority: 'low' }
+    ]
   },
   {
     id: '2',
-    title: 'Cardiovascular Fitness Plan',
-    description: 'Exercise and lifestyle plan to strengthen heart health',
-    createdDate: new Date('2024-12-10'),
-    status: 'completed',
-    tasksTotal: 15,
-    tasksCompleted: 15,
-    source: 'Deep Analysis',
-    lastUpdated: new Date('2025-01-10')
-  },
-  {
-    id: '3',
-    title: 'Stress Management Protocol',
-    description: 'Mindfulness and stress reduction techniques',
-    createdDate: new Date('2024-11-20'),
-    status: 'archived',
-    tasksTotal: 8,
-    tasksCompleted: 6,
-    source: 'Manual',
-    lastUpdated: new Date('2024-12-20')
+    title: 'Weekly Metabolic Health',
+    description: 'Weekly routine for optimal metabolic function',
+    category: 'Metabolic',
+    progress: 60,
+    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    tasks: [
+      { id: '2a', title: 'Complete strength training (2x)', completed: true, priority: 'high' },
+      { id: '2b', title: 'Track daily food intake', completed: false, priority: 'medium' },
+      { id: '2c', title: 'Get 7+ hours sleep nightly', completed: true, priority: 'high' },
+      { id: '2d', title: 'Hydrate with 8+ glasses water daily', completed: false, priority: 'low' }
+    ]
   }
 ];
 
-const categoryColors = {
-  'Health': 'bg-red-100 text-red-800',
-  'Fitness': 'bg-blue-100 text-blue-800',
-  'Nutrition': 'bg-green-100 text-green-800',
-  'Mental Health': 'bg-purple-100 text-purple-800',
-  'Movement': 'bg-orange-100 text-orange-800',
-  'Mindfulness': 'bg-indigo-100 text-indigo-800',
-  'Sleep': 'bg-gray-100 text-gray-800'
-};
-
-const statusColors = {
-  'active': 'bg-green-100 text-green-800',
-  'completed': 'bg-blue-100 text-blue-800',
-  'paused': 'bg-yellow-100 text-yellow-800',
-  'archived': 'bg-gray-100 text-gray-800',
-  'upcoming': 'bg-purple-100 text-purple-800'
-};
-
 export default function PlanPage() {
-  const [activeTab, setActiveTab] = useState('action-plans');
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState('main');
+  const [activeTab, setActiveTab] = useState('goals');
+  const [showNewGoalDialog, setShowNewGoalDialog] = useState(false);
+  const [showNewGoal, setShowNewGoal] = useState(false);
+  const [newGoal, setNewGoal] = useState({
+    title: '',
+    description: '',
+    category: '',
+    target: '',
+    unit: '',
+    deadline: '',
+    priority: 'medium' as const
+  });
   const { toast } = useToast();
 
-  const handleGoalAction = (goalId: string, action: 'pause' | 'resume' | 'complete') => {
+  const createGoal = () => {
+    if (!newGoal.title || !newGoal.target) return;
+    
     toast({
-      title: `Goal ${action}d`,
-      description: `Goal has been ${action}d successfully`,
+      title: "Goal created!",
+      description: `Your goal "${newGoal.title}" has been added to your plan.`,
+    });
+    
+    setShowNewGoalDialog(false);
+    setNewGoal({
+      title: '',
+      description: '',
+      category: '',
+      target: '',
+      unit: '',
+      deadline: '',
+      priority: 'medium'
     });
   };
 
-  const handleChallengeJoin = (challengeId: string) => {
+  const joinChallenge = (challengeId: string) => {
     toast({
-      title: "Challenge Joined",
-      description: "You've successfully joined the challenge!",
+      title: "Challenge joined!",
+      description: "You've successfully joined the challenge. Good luck!",
     });
   };
 
-  const renderNewGoalView = () => (
-    <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" size="sm" onClick={() => setCurrentView('main')}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <h1 className="text-xl font-bold ml-4">Create New Goal</h1>
-      </div>
-      
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">Goal Title</label>
-            <input 
-              type="text" 
-              placeholder="e.g., Lose 10 pounds" 
-              className="w-full p-3 border rounded-lg"
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium mb-2 block">Description</label>
-            <textarea 
-              placeholder="Describe your goal and why it's important to you"
-              className="w-full p-3 border rounded-lg h-24"
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium mb-2 block">Category</label>
-            <select className="w-full p-3 border rounded-lg">
-              <option>Health</option>
-              <option>Fitness</option>
-              <option>Nutrition</option>
-              <option>Mental Health</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium mb-2 block">Target Date</label>
-            <input type="date" className="w-full p-3 border rounded-lg" />
-          </div>
-          
-          <Button 
-            className="w-full" 
-            onClick={() => {
-              toast({ title: "Goal Created", description: "Your new goal has been added to your plan" });
-              setCurrentView('main');
-            }}
-          >
-            Create Goal
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const toggleTask = (planId: string, taskId: string) => {
+    toast({
+      title: "Task updated",
+      description: "Your progress has been saved.",
+    });
+  };
 
-  const renderBrowseChallengesView = () => (
-    <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" size="sm" onClick={() => setCurrentView('main')}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <h1 className="text-xl font-bold ml-4">Browse Challenges</h1>
-      </div>
-      
-      <div className="space-y-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <Activity className="w-6 h-6 text-orange-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">7-Day Hydration Challenge</h3>
-                <p className="text-sm text-gray-500">Drink 8 glasses of water daily</p>
-              </div>
-              <Badge>2.1k joined</Badge>
-            </div>
-            <Button 
-              className="w-full" 
-              onClick={() => {
-                toast({ title: "Challenge Joined!", description: "You've joined the 7-Day Hydration Challenge" });
-                setCurrentView('main');
-              }}
-            >
-              Join Challenge
-            </Button>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <Heart className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">21-Day Meditation Journey</h3>
-                <p className="text-sm text-gray-500">Build a daily meditation habit</p>
-              </div>
-              <Badge>1.8k joined</Badge>
-            </div>
-            <Button 
-              className="w-full" 
-              onClick={() => {
-                toast({ title: "Challenge Joined!", description: "You've joined the 21-Day Meditation Journey" });
-                setCurrentView('main');
-              }}
-            >
-              Join Challenge
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'from-red-500 to-pink-500';
+      case 'medium': return 'from-yellow-500 to-orange-500';
+      case 'low': return 'from-green-500 to-emerald-500';
+      default: return 'from-gray-500 to-gray-600';
+    }
+  };
 
-  if (currentView === 'new-goal') return renderNewGoalView();
-  if (currentView === 'browse-challenges') return renderBrowseChallengesView();
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'beginner': return 'from-green-500 to-emerald-500';
+      case 'intermediate': return 'from-yellow-500 to-orange-500';
+      case 'advanced': return 'from-red-500 to-pink-500';
+      default: return 'from-gray-500 to-gray-600';
+    }
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
+  const getDaysUntil = (date: Date) => {
+    const days = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    return days;
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Your Plan</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Track your goals, challenges, and action plans
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/40 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/10">
+      {/* Header */}
+      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-purple-800 to-pink-800 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent">
+                Health Plan
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 font-light">Track goals, join challenges, and complete action plans</p>
+            </div>
+            <Button
+              onClick={() => toast({ title: "Settings", description: "Plan preferences coming soon" })}
+              variant="outline"
+              size="sm"
+              className="backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-white/30 dark:border-gray-700/30 shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="action-plans">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="action-plans">Action Plans</TabsTrigger>
-          <TabsTrigger value="goals">Goals</TabsTrigger>
-          <TabsTrigger value="challenges">Challenges</TabsTrigger>
-        </TabsList>
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* Tab Navigation with Glassmorphism */}
+          <div className="flex justify-center">
+            <TabsList className="bg-gradient-to-r from-white/80 to-purple-50/50 dark:from-gray-800/80 dark:to-purple-900/30 p-2 rounded-3xl backdrop-blur-lg border border-white/30 dark:border-gray-700/20 shadow-2xl">
+              <TabsTrigger 
+                value="goals" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-2xl px-6 py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  <span className="font-medium">Goals</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="challenges" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-2xl px-6 py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4" />
+                  <span className="font-medium">Challenges</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="actions" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-2xl px-6 py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="font-medium">Action Plans</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <TabsContent value="goals" className="space-y-4 mt-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Health Goals</h2>
-                <Button size="sm" onClick={() => setCurrentView('new-goal')}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Goal
-                </Button>
+          {/* Goals Tab */}
+          <TabsContent value="goals" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-thin bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Your Health Goals
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 font-light">Track and achieve your health objectives</p>
               </div>
+              <Dialog open={showNewGoalDialog} onOpenChange={setShowNewGoalDialog}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105">
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Goal
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="backdrop-blur-xl bg-white/95 dark:bg-gray-900/95 border border-white/20 dark:border-gray-700/30 shadow-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-thin bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      Create New Goal
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
+                      Set a specific, measurable health goal to track your progress
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div>
+                      <Label htmlFor="goal-title" className="text-sm font-medium text-gray-700 dark:text-gray-300">Goal Title</Label>
+                      <Input
+                        id="goal-title"
+                        value={newGoal.title}
+                        onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="e.g., Improve Cholesterol Levels"
+                        className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="goal-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</Label>
+                      <Textarea
+                        id="goal-description"
+                        value={newGoal.description}
+                        onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="Describe what you want to achieve..."
+                        className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="goal-category" className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</Label>
+                        <Select value={newGoal.category} onValueChange={(value) => setNewGoal(prev => ({ ...prev, category: value }))}>
+                          <SelectTrigger className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent className="backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 border-white/20 dark:border-gray-700/30">
+                            <SelectItem value="cardiovascular">Cardiovascular</SelectItem>
+                            <SelectItem value="fitness">Fitness</SelectItem>
+                            <SelectItem value="nutrition">Nutrition</SelectItem>
+                            <SelectItem value="mental-health">Mental Health</SelectItem>
+                            <SelectItem value="lifestyle">Lifestyle</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="goal-priority" className="text-sm font-medium text-gray-700 dark:text-gray-300">Priority</Label>
+                        <Select value={newGoal.priority} onValueChange={(value: any) => setNewGoal(prev => ({ ...prev, priority: value }))}>
+                          <SelectTrigger className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 border-white/20 dark:border-gray-700/30">
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="low">Low</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="goal-target" className="text-sm font-medium text-gray-700 dark:text-gray-300">Target Value</Label>
+                        <Input
+                          id="goal-target"
+                          value={newGoal.target}
+                          onChange={(e) => setNewGoal(prev => ({ ...prev, target: e.target.value }))}
+                          placeholder="e.g., 100"
+                          className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="goal-unit" className="text-sm font-medium text-gray-700 dark:text-gray-300">Unit</Label>
+                        <Input
+                          id="goal-unit"
+                          value={newGoal.unit}
+                          onChange={(e) => setNewGoal(prev => ({ ...prev, unit: e.target.value }))}
+                          placeholder="e.g., mg/dL"
+                          className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="goal-deadline" className="text-sm font-medium text-gray-700 dark:text-gray-300">Target Date</Label>
+                      <Input
+                        id="goal-deadline"
+                        type="date"
+                        value={newGoal.deadline}
+                        onChange={(e) => setNewGoal(prev => ({ ...prev, deadline: e.target.value }))}
+                        className="bg-gradient-to-r from-gray-50 to-purple-50/50 dark:from-gray-700 dark:to-purple-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        onClick={createGoal}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
+                      >
+                        <Target className="w-4 h-4 mr-2" />
+                        Create Goal
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowNewGoalDialog(false)}
+                        className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border-gray-200/50 dark:border-gray-700/30 shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-              <div className="space-y-4">
-                {mockGoals.map((goal) => (
-                  <Card key={goal.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                              {goal.title}
-                            </h3>
-                            <Badge className={categoryColors[goal.category]}>
-                              {goal.category}
-                            </Badge>
-                            <Badge className={statusColors[goal.status]}>
-                              {goal.status}
-                            </Badge>
-                          </div>
-                          <p className="text-gray-600 dark:text-gray-400 mb-3">
-                            {goal.description}
-                          </p>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-500">Progress</span>
-                              <span className="font-medium">{goal.progress}%</span>
-                            </div>
-                            <Progress value={goal.progress} className="h-2" />
-                          </div>
-                          
-                          <div className="flex items-center justify-between text-sm text-gray-500 mt-3">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              Target: {goal.targetDate.toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              Created: {goal.createdDate.toLocaleDateString()}
-                            </div>
-                          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockGoals.map((goal) => (
+                <Card key={goal.id} className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 bg-gradient-to-br ${getPriorityColor(goal.priority)} rounded-2xl flex items-center justify-center shadow-lg`}>
+                          <Target className="w-6 h-6 text-white" />
                         </div>
-                        
-                        <div className="flex items-center gap-2 ml-4">
-                          {goal.status === 'active' && (
-                            <>
-                              <Button variant="ghost" size="sm" onClick={() => handleGoalAction(goal.id, 'pause')}>
-                                <Pause className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => handleGoalAction(goal.id, 'complete')}>
-                                <CheckCircle className="w-4 h-4" />
-                              </Button>
-                            </>
-                          )}
-                          {goal.status === 'paused' && (
-                            <Button variant="ghost" size="sm" onClick={() => handleGoalAction(goal.id, 'resume')}>
-                              <Play className="w-4 h-4" />
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
+                        <div>
+                          <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100">{goal.title}</CardTitle>
+                          <Badge variant="secondary" className="mt-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                            {goal.category}
+                          </Badge>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-        </TabsContent>
+                      <Badge variant={goal.priority === 'high' ? 'destructive' : goal.priority === 'medium' ? 'default' : 'secondary'}>
+                        {goal.priority}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-light">{goal.description}</p>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
+                        <span className="text-sm text-purple-600 dark:text-purple-400 font-semibold">{goal.progress}%</span>
+                      </div>
+                      <div className="relative">
+                        <Progress value={goal.progress} className="h-3 bg-gray-200/50 dark:bg-gray-700/50" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-80" style={{ width: `${goal.progress}%` }} />
+                      </div>
+                    </div>
 
-        <TabsContent value="challenges" className="space-y-4 mt-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Health Challenges</h2>
-                <Button size="sm" onClick={() => setCurrentView('browse-challenges')}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Browse Challenges
-                </Button>
-              </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-4 h-4" />
+                        <span>{formatDate(goal.deadline)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-medium">
+                        <Clock className="w-4 h-4" />
+                        <span>{getDaysUntil(goal.deadline)} days left</span>
+                      </div>
+                    </div>
 
-              <div className="space-y-4">
-                {mockChallenges.map((challenge) => (
-                  <Card key={challenge.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                              {challenge.title}
-                            </h3>
-                            <Badge className={categoryColors[challenge.category]}>
+                    <div className="pt-2">
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="w-full backdrop-blur-sm bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/50 dark:border-purple-700/30 hover:shadow-lg transition-all duration-300"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Challenges Tab */}
+          <TabsContent value="challenges" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-thin bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2">
+                Wellness Challenges
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 font-light">Join community challenges and earn rewards</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {mockChallenges.map((challenge) => (
+                <Card key={challenge.id} className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 bg-gradient-to-br ${getDifficultyColor(challenge.difficulty)} rounded-2xl flex items-center justify-center shadow-lg`}>
+                          <Trophy className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100">{challenge.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
                               {challenge.category}
                             </Badge>
-                            <Badge className={statusColors[challenge.status]}>
-                              {challenge.status}
+                            <Badge variant={challenge.difficulty === 'advanced' ? 'destructive' : challenge.difficulty === 'intermediate' ? 'default' : 'secondary'}>
+                              {challenge.difficulty}
                             </Badge>
                           </div>
-                          
-                          <p className="text-gray-600 dark:text-gray-400 mb-3">
-                            {challenge.description}
-                          </p>
-                          
-                          <div className="flex items-center gap-6 text-sm text-gray-500 mb-3">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {challenge.duration} days
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <TrendingUp className="w-4 h-4" />
-                              {challenge.participants} participants
-                            </div>
-                          </div>
-                          
-                          {challenge.status === 'active' && (
-                            <div className="space-y-2 mb-3">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-500">Progress</span>
-                                <span className="font-medium">{challenge.progress}%</span>
-                              </div>
-                              <Progress value={challenge.progress} className="h-2" />
-                            </div>
-                          )}
-                          
-                          <div className="flex flex-wrap gap-2">
-                            {challenge.rewards.map((reward, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                <Award className="w-3 h-3 mr-1" />
-                                {reward}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="ml-4">
-                          {challenge.status === 'upcoming' && (
-                            <Button onClick={() => handleChallengeJoin(challenge.id)}>
-                              Join Challenge
-                            </Button>
-                          )}
-                          {challenge.status === 'active' && (
-                            <Button variant="outline">
-                              View Details
-                            </Button>
-                          )}
-                          {challenge.status === 'completed' && (
-                            <Badge className="bg-green-100 text-green-800">
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Completed
-                            </Badge>
-                          )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-        </TabsContent>
+                      {challenge.joined && (
+                        <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+                          Joined
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-light">{challenge.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-gradient-to-br from-gray-50 to-orange-50/50 dark:from-gray-700/50 dark:to-orange-900/20 rounded-xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20">
+                        <div className="flex items-center gap-2">
+                          <Timer className="w-4 h-4 text-orange-600" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{challenge.duration} days</span>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-gradient-to-br from-gray-50 to-orange-50/50 dark:from-gray-700/50 dark:to-orange-900/20 rounded-xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-orange-600" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{challenge.participants.toLocaleString()} joined</span>
+                        </div>
+                      </div>
+                    </div>
 
-        <TabsContent value="action-plans" className="space-y-4 mt-6">
-          {/* Date Navigation */}
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                const yesterday = new Date(selectedDate);
-                yesterday.setDate(yesterday.getDate() - 1);
-                setSelectedDate(yesterday);
-              }}
-            >
-              ← Previous
-            </Button>
-            
-            <div className="text-center">
-              <h2 className="text-lg font-semibold">
-                {selectedDate.toDateString() === new Date().toDateString() 
-                  ? "Today's Work" 
-                  : selectedDate.toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })
-                }
-              </h2>
-              <p className="text-sm text-gray-500">
-                {selectedDate.toLocaleDateString()}
-              </p>
+                    <div className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/10 rounded-xl backdrop-blur-sm border border-yellow-200/30 dark:border-yellow-800/20">
+                      <div className="flex items-center gap-2">
+                        <Award className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Reward: {challenge.reward}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-4 h-4" />
+                        <span>Starts {formatDate(challenge.startDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-medium">
+                        <Clock className="w-4 h-4" />
+                        <span>{getDaysUntil(challenge.startDate)} days</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button 
+                        onClick={() => joinChallenge(challenge.id)}
+                        disabled={challenge.joined}
+                        className={`w-full font-medium transition-all duration-300 hover:shadow-xl ${
+                          challenge.joined 
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' 
+                            : 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 shadow-lg text-white hover:scale-105'
+                        }`}
+                      >
+                        {challenge.joined ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Joined
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Join Challenge
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-            
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                const tomorrow = new Date(selectedDate);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                setSelectedDate(tomorrow);
-              }}
-            >
-              Next →
-            </Button>
-          </div>
+          </TabsContent>
 
-          {/* Today's Tasks */}
-          <div className="space-y-4">
-            {selectedDate.toDateString() === new Date().toDateString() ? (
-              // Today's editable tasks
-              <>
-                <div className="grid gap-4">
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 rounded border-gray-300"
-                          />
-                          <div>
-                            <h4 className="font-medium">Take morning supplements</h4>
-                            <p className="text-sm text-gray-500">Vitamin D, Omega-3, Multivitamin</p>
+          {/* Action Plans Tab */}
+          <TabsContent value="actions" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+                Action Plans
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 font-light">Complete daily and weekly tasks for optimal health</p>
+            </div>
+
+            <div className="space-y-6">
+              {mockActionPlans.map((plan) => (
+                <Card key={plan.id} className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                          <CheckCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100">{plan.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                              {plan.category}
+                            </Badge>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Due {formatDate(plan.dueDate)}</span>
                           </div>
                         </div>
-                        <Badge className="bg-green-100 text-green-800">Morning</Badge>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 rounded border-gray-300"
-                            defaultChecked
-                          />
-                          <div>
-                            <h4 className="font-medium line-through">30-minute walk</h4>
-                            <p className="text-sm text-gray-500">Completed at 8:30 AM</p>
-                          </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                          {plan.progress}%
                         </div>
-                        <Badge className="bg-blue-100 text-blue-800">Exercise</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 rounded border-gray-300"
-                            defaultChecked
-                          />
-                          <div>
-                            <h4 className="font-medium line-through">Drink 2L water</h4>
-                            <p className="text-sm text-gray-500">Progress: 2.1L / 2L</p>
-                          </div>
-                        </div>
-                        <Badge className="bg-blue-100 text-blue-800">Hydration</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 rounded border-gray-300"
-                          />
-                          <div>
-                            <h4 className="font-medium">10-minute meditation</h4>
-                            <p className="text-sm text-gray-500">Evening mindfulness session</p>
-                          </div>
-                        </div>
-                        <Badge className="bg-purple-100 text-purple-800">Evening</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 rounded border-gray-300"
-                          />
-                          <div>
-                            <h4 className="font-medium">Log food intake</h4>
-                            <p className="text-sm text-gray-500">Track meals and snacks</p>
-                          </div>
-                        </div>
-                        <Badge className="bg-orange-100 text-orange-800">Nutrition</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-100">Daily Progress</h4>
-                      <p className="text-sm text-blue-700 dark:text-blue-300">2 of 5 tasks completed</p>
-                    </div>
-                    <div className="w-16 h-16 relative">
-                      <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                        <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-gray-200 dark:text-gray-700" />
-                        <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${60 * 0.4} ${60}`} className="text-blue-600" strokeLinecap="round" />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">40%</span>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Complete</div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              // Past/Future days - read-only
-              <div className="text-center py-8">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                  <Calendar className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  {selectedDate < new Date() ? 'Past Day' : 'Future Day'}
-                </h3>
-                <p className="text-gray-500 mb-4">
-                  {selectedDate < new Date() 
-                    ? 'Review your completed tasks from this day'
-                    : 'Tasks will be available on this date'
-                  }
-                </p>
-                
-                {selectedDate < new Date() && (
-                  <div className="space-y-3 max-w-md mx-auto">
-                    <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                      <span className="text-sm">Completed 4 of 5 tasks</span>
+                    <div className="mt-4">
+                      <Progress value={plan.progress} className="h-2" />
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <Activity className="w-5 h-5 text-blue-600" />
-                      <span className="text-sm">Exercise goal achieved</span>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-light mb-4">{plan.description}</p>
+                    
+                    <div className="space-y-3">
+                      {plan.tasks.map((task) => (
+                        <div 
+                          key={task.id}
+                          onClick={() => toggleTask(plan.id, task.id)}
+                          className="flex items-center gap-3 p-3 bg-gradient-to-br from-gray-50/80 to-blue-50/50 dark:from-gray-700/50 dark:to-blue-900/20 rounded-xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
+                        >
+                          {task.completed ? (
+                            <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          ) : (
+                            <Circle className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          )}
+                          <span className={`flex-1 text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'} font-medium`}>
+                            {task.title}
+                          </span>
+                          <Badge 
+                            variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {task.priority}
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-        </TabsContent>
-      </Tabs>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

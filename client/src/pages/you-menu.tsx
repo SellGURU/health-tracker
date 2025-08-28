@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { bodySystemSurveys, type SurveyQuestion } from "@/data/body-system-surveys";
 import { 
   User, 
@@ -74,6 +76,37 @@ export default function YouMenu() {
   const [chronologicalAge, setChronologicalAge] = useState(25);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Deep analysis state and API integration
+  const [currentAnalysisIndex, setCurrentAnalysisIndex] = useState(0);
+
+  // Deep analysis queries
+  const { data: deepAnalyses = [], isLoading: loadingAnalyses } = useQuery({
+    queryKey: ['/api/deep-analyses'],
+    enabled: currentView === 'main'
+  });
+
+  const generateAnalysisMutation = useMutation({
+    mutationFn: () => apiRequest('/api/deep-analyses', { 
+      method: 'POST',
+      body: {}
+    }),
+    onSuccess: (newAnalysis) => {
+      toast({
+        title: "Analysis Generated",
+        description: "Your deep health analysis is ready!",
+      });
+      // Invalidate and refetch analyses
+      queryClient.invalidateQueries({ queryKey: ['/api/deep-analyses'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error", 
+        description: "Failed to generate analysis. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleUpgrade = () => {
     toast({

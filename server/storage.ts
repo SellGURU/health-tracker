@@ -6,6 +6,15 @@ import {
   aiInsights, 
   fileUploads,
   biomarkers,
+  educationalContent,
+  userEducationProgress,
+  chatMessages,
+  coachProfiles,
+  deepAnalyses,
+  coachingSessions,
+  healthGoals,
+  holisticPlans,
+  wellnessChallenges,
   type User, 
   type InsertUser,
   type LabResult,
@@ -18,7 +27,25 @@ import {
   type InsertAiInsight,
   type FileUpload,
   type InsertFileUpload,
-  type Biomarker
+  type Biomarker,
+  type EducationalContent,
+  type InsertEducationalContent,
+  type UserEducationProgress,
+  type InsertUserEducationProgress,
+  type ChatMessage,
+  type InsertChatMessage,
+  type CoachProfile,
+  type InsertCoachProfile,
+  type DeepAnalysis,
+  type InsertDeepAnalysis,
+  type CoachingSession,
+  type InsertCoachingSession,
+  type HealthGoal,
+  type InsertHealthGoal,
+  type HolisticPlan,
+  type InsertHolisticPlan,
+  type WellnessChallenge,
+  type InsertWellnessChallenge
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte } from "drizzle-orm";
@@ -54,6 +81,49 @@ export interface IStorage {
   
   // Biomarkers methods
   getBiomarkers(): Promise<Biomarker[]>;
+  
+  // Educational content methods
+  getEducationalContent(category?: string): Promise<EducationalContent[]>;
+  getEducationalContentById(id: number): Promise<EducationalContent | undefined>;
+  createEducationalContent(insertEducationalContent: InsertEducationalContent): Promise<EducationalContent>;
+  
+  // User education progress methods
+  getUserEducationProgress(userId: number): Promise<UserEducationProgress[]>;
+  updateUserEducationProgress(userId: number, contentId: number, progress: number, completed?: boolean): Promise<UserEducationProgress>;
+  
+  // Chat messages methods
+  getChatMessages(userId: number, sessionId?: string): Promise<ChatMessage[]>;
+  createChatMessage(insertChatMessage: InsertChatMessage): Promise<ChatMessage>;
+  
+  // Coach profiles methods
+  getCoachProfiles(available?: boolean): Promise<CoachProfile[]>;
+  getCoachProfile(id: number): Promise<CoachProfile | undefined>;
+  createCoachProfile(insertCoachProfile: InsertCoachProfile): Promise<CoachProfile>;
+  
+  // Deep analyses methods
+  getDeepAnalyses(userId: number): Promise<DeepAnalysis[]>;
+  getDeepAnalysis(id: number): Promise<DeepAnalysis | undefined>;
+  createDeepAnalysis(insertDeepAnalysis: InsertDeepAnalysis): Promise<DeepAnalysis>;
+  
+  // Coaching sessions methods
+  getCoachingSessions(userId: number): Promise<CoachingSession[]>;
+  createCoachingSession(insertCoachingSession: InsertCoachingSession): Promise<CoachingSession>;
+  updateCoachingSession(id: number, updates: Partial<CoachingSession>): Promise<CoachingSession>;
+  
+  // Health goals methods
+  getHealthGoals(userId: number): Promise<HealthGoal[]>;
+  createHealthGoal(insertHealthGoal: InsertHealthGoal): Promise<HealthGoal>;
+  updateHealthGoal(id: number, updates: Partial<HealthGoal>): Promise<HealthGoal>;
+  
+  // Holistic plans methods
+  getHolisticPlans(userId: number): Promise<HolisticPlan[]>;
+  createHolisticPlan(insertHolisticPlan: InsertHolisticPlan): Promise<HolisticPlan>;
+  updateHolisticPlan(id: number, updates: Partial<HolisticPlan>): Promise<HolisticPlan>;
+  
+  // Wellness challenges methods
+  getWellnessChallenges(userId?: number): Promise<WellnessChallenge[]>;
+  createWellnessChallenge(insertWellnessChallenge: InsertWellnessChallenge): Promise<WellnessChallenge>;
+  updateWellnessChallenge(id: number, updates: Partial<WellnessChallenge>): Promise<WellnessChallenge>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -188,6 +258,234 @@ export class DatabaseStorage implements IStorage {
 
   async getBiomarkers(): Promise<Biomarker[]> {
     return await db.select().from(biomarkers);
+  }
+
+  // Educational content methods
+  async getEducationalContent(category?: string): Promise<EducationalContent[]> {
+    if (category) {
+      return await db.select().from(educationalContent)
+        .where(eq(educationalContent.category, category))
+        .orderBy(desc(educationalContent.publishedAt));
+    }
+    return await db.select().from(educationalContent)
+      .orderBy(desc(educationalContent.publishedAt));
+  }
+
+  async getEducationalContentById(id: number): Promise<EducationalContent | undefined> {
+    const [content] = await db.select().from(educationalContent)
+      .where(eq(educationalContent.id, id));
+    return content || undefined;
+  }
+
+  async createEducationalContent(insertEducationalContent: InsertEducationalContent): Promise<EducationalContent> {
+    const [content] = await db
+      .insert(educationalContent)
+      .values(insertEducationalContent)
+      .returning();
+    return content;
+  }
+
+  // User education progress methods
+  async getUserEducationProgress(userId: number): Promise<UserEducationProgress[]> {
+    return await db.select().from(userEducationProgress)
+      .where(eq(userEducationProgress.userId, userId))
+      .orderBy(desc(userEducationProgress.createdAt));
+  }
+
+  async updateUserEducationProgress(userId: number, contentId: number, progress: number, completed?: boolean): Promise<UserEducationProgress> {
+    // Check if progress record exists
+    const [existingProgress] = await db.select().from(userEducationProgress)
+      .where(and(
+        eq(userEducationProgress.userId, userId),
+        eq(userEducationProgress.contentId, contentId)
+      ));
+
+    if (existingProgress) {
+      // Update existing record
+      const [updated] = await db.update(userEducationProgress)
+        .set({ 
+          progress, 
+          completed: completed ?? (progress >= 100),
+          completedAt: completed || progress >= 100 ? new Date() : null
+        })
+        .where(eq(userEducationProgress.id, existingProgress.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new record
+      const [created] = await db.insert(userEducationProgress)
+        .values({
+          userId,
+          contentId,
+          progress,
+          completed: completed ?? (progress >= 100),
+          completedAt: completed || progress >= 100 ? new Date() : null
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  // Chat messages methods
+  async getChatMessages(userId: number, sessionId?: string): Promise<ChatMessage[]> {
+    const conditions = [eq(chatMessages.userId, userId)];
+    if (sessionId) {
+      conditions.push(eq(chatMessages.sessionId, sessionId));
+    }
+    
+    return await db.select().from(chatMessages)
+      .where(and(...conditions))
+      .orderBy(chatMessages.createdAt);
+  }
+
+  async createChatMessage(insertChatMessage: InsertChatMessage): Promise<ChatMessage> {
+    const [message] = await db
+      .insert(chatMessages)
+      .values(insertChatMessage)
+      .returning();
+    return message;
+  }
+
+  // Coach profiles methods
+  async getCoachProfiles(available?: boolean): Promise<CoachProfile[]> {
+    if (available !== undefined) {
+      return await db.select().from(coachProfiles)
+        .where(eq(coachProfiles.available, available))
+        .orderBy(desc(coachProfiles.rating));
+    }
+    return await db.select().from(coachProfiles)
+      .orderBy(desc(coachProfiles.rating));
+  }
+
+  async getCoachProfile(id: number): Promise<CoachProfile | undefined> {
+    const [coach] = await db.select().from(coachProfiles)
+      .where(eq(coachProfiles.id, id));
+    return coach || undefined;
+  }
+
+  async createCoachProfile(insertCoachProfile: InsertCoachProfile): Promise<CoachProfile> {
+    const [coach] = await db
+      .insert(coachProfiles)
+      .values(insertCoachProfile)
+      .returning();
+    return coach;
+  }
+
+  // Deep analyses methods
+  async getDeepAnalyses(userId: number): Promise<DeepAnalysis[]> {
+    return await db.select().from(deepAnalyses)
+      .where(eq(deepAnalyses.userId, userId))
+      .orderBy(desc(deepAnalyses.generatedAt));
+  }
+
+  async getDeepAnalysis(id: number): Promise<DeepAnalysis | undefined> {
+    const [analysis] = await db.select().from(deepAnalyses)
+      .where(eq(deepAnalyses.id, id));
+    return analysis || undefined;
+  }
+
+  async createDeepAnalysis(insertDeepAnalysis: InsertDeepAnalysis): Promise<DeepAnalysis> {
+    const [analysis] = await db
+      .insert(deepAnalyses)
+      .values(insertDeepAnalysis)
+      .returning();
+    return analysis;
+  }
+
+  // Coaching sessions methods
+  async getCoachingSessions(userId: number): Promise<CoachingSession[]> {
+    return await db.select().from(coachingSessions)
+      .where(eq(coachingSessions.userId, userId))
+      .orderBy(desc(coachingSessions.scheduledAt));
+  }
+
+  async createCoachingSession(insertCoachingSession: InsertCoachingSession): Promise<CoachingSession> {
+    const [session] = await db
+      .insert(coachingSessions)
+      .values(insertCoachingSession)
+      .returning();
+    return session;
+  }
+
+  async updateCoachingSession(id: number, updates: Partial<CoachingSession>): Promise<CoachingSession> {
+    const [updated] = await db.update(coachingSessions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(coachingSessions.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Health goals methods
+  async getHealthGoals(userId: number): Promise<HealthGoal[]> {
+    return await db.select().from(healthGoals)
+      .where(eq(healthGoals.userId, userId))
+      .orderBy(desc(healthGoals.createdAt));
+  }
+
+  async createHealthGoal(insertHealthGoal: InsertHealthGoal): Promise<HealthGoal> {
+    const [goal] = await db
+      .insert(healthGoals)
+      .values(insertHealthGoal)
+      .returning();
+    return goal;
+  }
+
+  async updateHealthGoal(id: number, updates: Partial<HealthGoal>): Promise<HealthGoal> {
+    const [updated] = await db.update(healthGoals)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(healthGoals.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Holistic plans methods
+  async getHolisticPlans(userId: number): Promise<HolisticPlan[]> {
+    return await db.select().from(holisticPlans)
+      .where(eq(holisticPlans.userId, userId))
+      .orderBy(desc(holisticPlans.createdAt));
+  }
+
+  async createHolisticPlan(insertHolisticPlan: InsertHolisticPlan): Promise<HolisticPlan> {
+    const [plan] = await db
+      .insert(holisticPlans)
+      .values(insertHolisticPlan)
+      .returning();
+    return plan;
+  }
+
+  async updateHolisticPlan(id: number, updates: Partial<HolisticPlan>): Promise<HolisticPlan> {
+    const [updated] = await db.update(holisticPlans)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(holisticPlans.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Wellness challenges methods
+  async getWellnessChallenges(userId?: number): Promise<WellnessChallenge[]> {
+    if (userId) {
+      return await db.select().from(wellnessChallenges)
+        .where(eq(wellnessChallenges.userId, userId))
+        .orderBy(desc(wellnessChallenges.createdAt));
+    }
+    return await db.select().from(wellnessChallenges)
+      .orderBy(desc(wellnessChallenges.createdAt));
+  }
+
+  async createWellnessChallenge(insertWellnessChallenge: InsertWellnessChallenge): Promise<WellnessChallenge> {
+    const [challenge] = await db
+      .insert(wellnessChallenges)
+      .values(insertWellnessChallenge)
+      .returning();
+    return challenge;
+  }
+
+  async updateWellnessChallenge(id: number, updates: Partial<WellnessChallenge>): Promise<WellnessChallenge> {
+    const [updated] = await db.update(wellnessChallenges)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(wellnessChallenges.id, id))
+      .returning();
+    return updated;
   }
 }
 

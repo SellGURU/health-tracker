@@ -1,12 +1,30 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import { insertUserSchema, insertLabResultSchema, insertActionPlanSchema, loginSchema } from "@shared/schema";
+import { 
+  insertUserSchema, 
+  insertLabResultSchema, 
+  insertActionPlanSchema, 
+  loginSchema,
+  insertEducationalContentSchema,
+  insertChatMessageSchema,
+  insertCoachProfileSchema,
+  insertDeepAnalysisSchema,
+  insertCoachingSessionSchema,
+  insertHealthGoalSchema,
+  insertHolisticPlanSchema,
+  insertWellnessChallengeSchema
+} from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+
+// Extend Request type for file uploads
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -19,7 +37,7 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
@@ -195,7 +213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // File upload route
-  app.post("/api/upload", upload.single('file'), async (req, res) => {
+  app.post("/api/upload", upload.single('file'), async (req: MulterRequest, res) => {
     const userId = isAuthenticated(req);
     if (!userId) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -379,6 +397,189 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(biomarkers);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch biomarkers" });
+    }
+  });
+
+  // Educational content routes
+  app.get("/api/educational-content", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      const content = await storage.getEducationalContent(category);
+      res.json(content);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch educational content" });
+    }
+  });
+
+  // Deep analyses routes
+  app.get("/api/deep-analyses", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const analyses = await storage.getDeepAnalyses(userId);
+      res.json(analyses);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch analyses" });
+    }
+  });
+
+  app.post("/api/deep-analyses", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      // Simulate AI deep analysis generation
+      const analysisData = {
+        title: "Health Analysis Report",
+        summary: "Comprehensive analysis of your health biomarkers and trends",
+        analysisData: {
+          biologicalAge: 28.5,
+          riskFactors: ["Elevated LDL cholesterol", "Insufficient sleep"],
+          recommendations: [
+            "Increase omega-3 intake",
+            "Implement consistent sleep schedule",
+            "Add 30 minutes daily cardio exercise"
+          ],
+          scores: {
+            cardiovascular: 82,
+            metabolic: 75,
+            inflammatory: 88,
+            hormonal: 79
+          }
+        },
+        userId
+      };
+      
+      const analysis = await storage.createDeepAnalysis(analysisData);
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate analysis" });
+    }
+  });
+
+  // Chat messages routes
+  app.get("/api/chat-messages", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const sessionId = req.query.sessionId as string;
+      const messages = await storage.getChatMessages(userId, sessionId);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.post("/api/chat-messages", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const messageData = insertChatMessageSchema.parse({
+        ...req.body,
+        userId
+      });
+      const message = await storage.createChatMessage(messageData);
+      res.json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create message" });
+      }
+    }
+  });
+
+  // Coach profiles routes
+  app.get("/api/coaches", async (req, res) => {
+    try {
+      const available = req.query.available === 'true' ? true : req.query.available === 'false' ? false : undefined;
+      const coaches = await storage.getCoachProfiles(available);
+      res.json(coaches);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch coaches" });
+    }
+  });
+
+  // Health goals routes
+  app.get("/api/health-goals", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const goals = await storage.getHealthGoals(userId);
+      res.json(goals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch goals" });
+    }
+  });
+
+  app.post("/api/health-goals", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const goalData = insertHealthGoalSchema.parse({
+        ...req.body,
+        userId
+      });
+      const goal = await storage.createHealthGoal(goalData);
+      res.json(goal);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create goal" });
+      }
+    }
+  });
+
+  // Wellness challenges routes
+  app.get("/api/wellness-challenges", async (req, res) => {
+    const userId = isAuthenticated(req);
+    const userIdForFilter = req.query.userOnly === 'true' ? userId : undefined;
+    
+    try {
+      const challenges = await storage.getWellnessChallenges(userIdForFilter);
+      res.json(challenges);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch challenges" });
+    }
+  });
+
+  app.post("/api/wellness-challenges", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const challengeData = insertWellnessChallengeSchema.parse({
+        ...req.body,
+        userId
+      });
+      const challenge = await storage.createWellnessChallenge(challengeData);
+      res.json(challenge);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create challenge" });
+      }
     }
   });
 
