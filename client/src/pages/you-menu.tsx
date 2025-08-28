@@ -129,6 +129,9 @@ export default function YouMenu() {
     }
   };
 
+  // For showing health-related cards - using hasRequiredData as indicator
+  const hasHealthData = hasRequiredData;
+
   const renderMainView = () => (
     <div className="space-y-6">
       {/* Header with User Name */}

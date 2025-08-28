@@ -128,6 +128,12 @@ Changelog:
 - January 27, 2025. Enhanced subscription system integration with Request Deep Analysis and coaching credits
 - January 27, 2025. Moved Chat menu to center position: Home → Monitor → Chat → Plan → Educational
 - January 27, 2025. Implemented Today Work with date navigation in Plan page, consistent ProfileHeader across all pages
+- January 27, 2025. Removed subscription system completely, renamed "Request Deep Analysis" to "Deep Analysis" with instant generation
+- January 27, 2025. Added Latest Deep Analysis card to Home with back/next navigation for viewing previous analyses
+- January 27, 2025. Moved Health Summary from profile to Home page with comprehensive health scores and progress indicators
+- January 27, 2025. Fully implemented New Goal and Browse Challenges with complete forms and join functionality
+- January 27, 2025. Merged action plans into single logical structure in Plan page for better UX
+- January 27, 2025. Fixed profile header text colors and added "Member since" information
 ```
 
 ## User Preferences
