@@ -76,10 +76,7 @@ export default function ProfileHeader() {
               </Link>
             </DropdownMenuItem>
             
-            <DropdownMenuItem>
-              <Crown className="mr-2 h-4 w-4" />
-              Subscription
-            </DropdownMenuItem>
+
             
             <DropdownMenuSeparator />
             

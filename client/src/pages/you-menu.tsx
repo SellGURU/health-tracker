@@ -34,7 +34,8 @@ import {
   BookOpen,
   Calendar,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Target
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -63,7 +64,7 @@ const surveyIcons = {
 };
 
 export default function YouMenu() {
-  const [currentView, setCurrentView] = useState<'main' | 'avatar-edit' | 'go-plus' | 'see-all' | 'health-profile' | 'checkups' | 'personalized-checkup' | 'survey' | 'subscriptions' | 'deep-analysis'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'avatar-edit' | 'go-plus' | 'see-all' | 'health-profile' | 'checkups' | 'personalized-checkup' | 'survey' | 'deep-analysis'>('main');
   const [selectedSurvey, setSelectedSurvey] = useState<string | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
@@ -142,29 +143,40 @@ export default function YouMenu() {
 
       {/* Age Cards - Prominent Display */}
       <div className="grid grid-cols-2 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => toast({ title: "Biological Age", description: "Calculation details coming soon" })}>
-          <CardContent className="p-4 text-center">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Activity className="w-6 h-6 text-blue-600" />
+        <Card className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-blue-900/10 dark:via-gray-900 dark:to-blue-900/10 border-0 shadow-lg backdrop-blur-sm" onClick={() => toast({ title: "Biological Age", description: "Calculation details coming soon" })}>
+          <CardContent className="p-6 text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-lg"></div>
+            <div className="relative">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Activity className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-3xl font-thin text-gray-900 dark:text-gray-100 mb-2">
+                {hasRequiredData && biologicalAge ? biologicalAge : '?'}
+              </div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Biological Age</p>
+              {hasRequiredData && biologicalAge && (
+                <div className="mt-3">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full shadow-sm" style={{ width: '85%' }}></div>
+                  </div>
+                  <p className="text-xs text-emerald-600 mt-2 font-medium">Optimal range</p>
+                </div>
+              )}
             </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-              {hasRequiredData && biologicalAge ? biologicalAge : '?'}
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Biological Age</p>
-            {hasRequiredData && biologicalAge && (
-              <p className="text-xs text-green-600 mt-1">Optimal range</p>
-            )}
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => toast({ title: "Chronological Age", description: "Based on your date of birth" })}>
-          <CardContent className="p-4 text-center">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Calendar className="w-6 h-6 text-purple-600" />
+        <Card className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-purple-900/10 dark:via-gray-900 dark:to-purple-900/10 border-0 shadow-lg backdrop-blur-sm" onClick={() => toast({ title: "Chronological Age", description: "Based on your date of birth" })}>
+          <CardContent className="p-6 text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-lg"></div>
+            <div className="relative">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Calendar className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-3xl font-thin text-gray-900 dark:text-gray-100 mb-2">{chronologicalAge}</div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chronological Age</p>
+              <p className="text-xs text-gray-500 mt-2">Years lived</p>
             </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{chronologicalAge}</div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Chronological Age</p>
-            <p className="text-xs text-gray-500 mt-1">Years lived</p>
           </CardContent>
         </Card>
       </div>
@@ -188,50 +200,61 @@ export default function YouMenu() {
 
       {/* Health Summary Card */}
       {hasHealthData && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Health Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">8.5</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Overall Score</div>
+        <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-thin flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+                <Heart className="w-4 h-4 text-white" />
               </div>
-              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">85%</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Goals Progress</div>
+              Health Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl backdrop-blur-sm border border-blue-200/20 dark:border-blue-800/20 shadow-lg">
+                <div className="text-3xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">8.5</div>
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">Overall Score</div>
+                <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-1 mt-2">
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-1 rounded-full shadow-sm" style={{ width: '85%' }}></div>
+                </div>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl backdrop-blur-sm border border-emerald-200/20 dark:border-emerald-800/20 shadow-lg">
+                <div className="text-3xl font-thin bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">85%</div>
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">Goals Progress</div>
+                <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-1 mt-2">
+                  <div className="bg-gradient-to-r from-emerald-500 to-green-500 h-1 rounded-full shadow-sm" style={{ width: '85%' }}></div>
+                </div>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Cardiovascular Health</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-500/5 to-green-500/5 backdrop-blur-sm">
+                <span className="text-sm font-medium">Cardiovascular Health</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 shadow-inner">
+                    <div className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full shadow-sm" style={{ width: '85%' }}></div>
                   </div>
-                  <span className="text-sm font-medium">Good</span>
+                  <span className="text-sm font-medium text-emerald-600 min-w-[4rem]">Good</span>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Metabolic Health</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '70%' }}></div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/5 to-orange-500/5 backdrop-blur-sm">
+                <span className="text-sm font-medium">Metabolic Health</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 shadow-inner">
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full shadow-sm" style={{ width: '70%' }}></div>
                   </div>
-                  <span className="text-sm font-medium">Fair</span>
+                  <span className="text-sm font-medium text-amber-600 min-w-[4rem]">Fair</span>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Mental Wellness</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '90%' }}></div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-500/5 to-teal-500/5 backdrop-blur-sm">
+                <span className="text-sm font-medium">Mental Wellness</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 shadow-inner">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full shadow-sm" style={{ width: '90%' }}></div>
                   </div>
-                  <span className="text-sm font-medium">Excellent</span>
+                  <span className="text-sm font-medium text-emerald-600 min-w-[4rem]">Excellent</span>
                 </div>
               </div>
             </div>
@@ -241,68 +264,97 @@ export default function YouMenu() {
 
       {/* Latest Deep Analysis Card */}
       {hasHealthData && (
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-purple-600" />
+        <Card className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-purple-50/50 via-white/50 to-indigo-50/50 dark:from-purple-900/20 dark:via-gray-800/50 dark:to-indigo-900/20 border-0 shadow-xl backdrop-blur-lg">
+          <CardContent className="p-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-lg"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Brain className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100">Latest Deep Analysis</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-light">Generated Jan 15, 2025</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Latest Deep Analysis</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Generated Jan 15, 2025</p>
+                
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" onClick={(e) => { e.stopPropagation(); }}>
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Badge variant="outline" className="bg-white/30 dark:bg-black/30 backdrop-blur-sm border-purple-200/50 dark:border-purple-800/50">1 of 3</Badge>
+                  <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" onClick={(e) => { e.stopPropagation(); }}>
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Previous analysis */ }}>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Badge variant="outline">1 of 3</Badge>
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Next analysis */ }}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+              <div className="space-y-3 mb-5">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 backdrop-blur-sm">
+                  <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">Metabolic health optimized</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 backdrop-blur-sm">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">12 personalized action items</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-500/10 backdrop-blur-sm">
+                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                    <Activity className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">Biological age: 28 years</span>
+                </div>
               </div>
+              
+              <Button 
+                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" 
+                onClick={() => setLocation('/plan')}
+              >
+                View Full Analysis
+              </Button>
             </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">Metabolic health optimized</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">12 personalized action items</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-600" />
-                <span className="text-sm">Biological age: 28 years</span>
-              </div>
-            </div>
-            
-            <Button className="w-full mt-4" onClick={() => setLocation('/plan')}>
-              View Full Analysis
-            </Button>
           </CardContent>
         </Card>
       )}
 
       {/* Your Plan Card */}
       {hasHealthData && (
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation('/plan')}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Goals, challenges & action plans</p>
+        <Card className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-teal-50/50 via-white/50 to-cyan-50/50 dark:from-teal-900/20 dark:via-gray-800/50 dark:to-cyan-900/20 border-0 shadow-xl backdrop-blur-lg" onClick={() => setLocation('/plan')}>
+          <CardContent className="p-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-lg"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-light">Goals, challenges & action plans</p>
+                </div>
               </div>
-              <div className="w-16 h-16 relative">
-                <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                  <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-gray-200 dark:text-gray-700" />
-                  <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${60 * 0.6} ${60}`} className="text-blue-600" strokeLinecap="round" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">60%</span>
+              <div className="relative">
+                <div className="w-20 h-20 relative">
+                  <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200/30 dark:text-gray-700/30" />
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${60 * 0.6} ${60}`} strokeLinecap="round" className="drop-shadow-sm" />
+                    <defs>
+                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#14b8a6" />
+                        <stop offset="100%" stopColor="#06b6d4" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">60%</span>
+                  </div>
+                </div>
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                  <div className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full shadow-lg animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -311,31 +363,33 @@ export default function YouMenu() {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setLocation('/chat')}>
-          <MessageCircle className="w-5 h-5" />
-          <span className="text-sm">Chat</span>
+      <div className="grid grid-cols-2 gap-4">
+        <Button 
+          variant="outline" 
+          className="h-20 flex flex-col gap-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-0 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+          onClick={() => setLocation('/chat')}
+        >
+          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+            <MessageCircle className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm font-medium">Chat</span>
         </Button>
         
-        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => toast({ title: "Book Coaching", description: "Opening booking interface..." })}>
-          <Calendar className="w-5 h-5" />
-          <span className="text-sm">Book Coaching</span>
-        </Button>
-        
-        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setCurrentView('deep-analysis')}>
-          <Brain className="w-5 h-5" />
-          <span className="text-sm">Deep Analysis</span>
-        </Button>
-        
-        <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setLocation('/educational')}>
-          <BookOpen className="w-5 h-5" />
-          <span className="text-sm">Educational</span>
+        <Button 
+          variant="outline" 
+          className="h-20 flex flex-col gap-2 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-0 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+          onClick={() => setCurrentView('deep-analysis')}
+        >
+          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center shadow-md">
+            <Brain className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm font-medium">Deep Analysis</span>
         </Button>
       </div>
     </div>
   );
 
-  const renderSubscriptionsView = () => (
+  const renderDeletedSubscriptionsView = () => (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center mb-6">
