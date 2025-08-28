@@ -20,7 +20,7 @@ export default function BottomNavigation() {
   const [location] = useLocation();
 
   return (
-    <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
+    <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-t border-gray-200/30 dark:border-gray-700/30 px-6 py-3 shadow-lg">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -30,18 +30,32 @@ export default function BottomNavigation() {
             <Link key={item.path} href={item.path}>
               <button
                 className={cn(
-                  "flex flex-col items-center py-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors",
-                  isActive && "text-primary",
+                  "flex flex-col items-center py-3 px-2 rounded-2xl transition-all duration-300",
+                  isActive 
+                    ? "bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm shadow-lg transform scale-105" 
+                    : "hover:bg-gray-100/50 dark:hover:bg-gray-700/30 hover:shadow-md",
                   item.isSpecial && "transform scale-110"
                 )}
               >
-                <Icon 
-                  className={cn(
-                    "mb-1",
-                    item.isSpecial ? "w-7 h-7" : "w-5 h-5"
-                  )} 
-                />
-                <span className="text-xs font-medium">{item.label}</span>
+                <div className={cn(
+                  "rounded-full p-2 mb-1 transition-all duration-300",
+                  isActive 
+                    ? "bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg" 
+                    : "bg-gray-200/50 dark:bg-gray-700/50"
+                )}>
+                  <Icon 
+                    className={cn(
+                      isActive ? "text-white" : "text-gray-600 dark:text-gray-400",
+                      item.isSpecial ? "w-6 h-6" : "w-5 h-5"
+                    )} 
+                  />
+                </div>
+                <span className={cn(
+                  "text-xs font-medium transition-colors",
+                  isActive 
+                    ? "text-blue-600 dark:text-blue-400" 
+                    : "text-gray-600 dark:text-gray-400"
+                )}>{item.label}</span>
               </button>
             </Link>
           );

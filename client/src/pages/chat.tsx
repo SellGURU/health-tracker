@@ -94,24 +94,28 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header with Mode Switcher */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Chat</h1>
+      <div className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 dark:from-gray-800/90 dark:via-gray-800/95 dark:to-gray-800/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 px-6 py-4 shadow-lg">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Chat</h1>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={handleAttachment}>
+            <Button variant="ghost" size="icon" onClick={handleAttachment} className="w-10 h-10 rounded-full bg-gray-100/50 dark:bg-gray-700/50 hover:bg-gray-200/50 dark:hover:bg-gray-600/50 transition-all duration-300">
               <Paperclip className="w-4 h-4" />
             </Button>
           </div>
         </div>
         
         {/* Mode Switcher */}
-        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+        <div className="flex bg-gradient-to-r from-gray-100/50 to-gray-200/50 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-1 backdrop-blur-sm shadow-inner">
           <Button
             variant={activeMode === 'copilot' ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1"
+            className={`flex-1 rounded-xl transition-all duration-300 ${
+              activeMode === 'copilot' 
+                ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
+                : 'hover:bg-white/50 dark:hover:bg-gray-600/50'
+            }`}
             onClick={() => setActiveMode('copilot')}
           >
             <Bot className="w-4 h-4 mr-2" />
@@ -120,7 +124,11 @@ export default function ChatPage() {
           <Button
             variant={activeMode === 'coach' ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1"
+            className={`flex-1 rounded-xl transition-all duration-300 ${
+              activeMode === 'coach' 
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg' 
+                : 'hover:bg-white/50 dark:hover:bg-gray-600/50'
+            }`}
             onClick={() => setActiveMode('coach')}
           >
             <User className="w-4 h-4 mr-2" />
