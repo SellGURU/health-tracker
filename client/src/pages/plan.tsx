@@ -188,6 +188,7 @@ const statusColors = {
 export default function PlanPage() {
   const [activeTab, setActiveTab] = useState('action-plans');
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState('main');
   const { toast } = useToast();
 
   const handleGoalAction = (goalId: string, action: 'pause' | 'resume' | 'complete') => {
@@ -203,6 +204,127 @@ export default function PlanPage() {
       description: "You've successfully joined the challenge!",
     });
   };
+
+  const renderNewGoalView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center mb-6">
+        <Button variant="ghost" size="sm" onClick={() => setCurrentView('main')}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-xl font-bold ml-4">Create New Goal</h1>
+      </div>
+      
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Goal Title</label>
+            <input 
+              type="text" 
+              placeholder="e.g., Lose 10 pounds" 
+              className="w-full p-3 border rounded-lg"
+            />
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Description</label>
+            <textarea 
+              placeholder="Describe your goal and why it's important to you"
+              className="w-full p-3 border rounded-lg h-24"
+            />
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Category</label>
+            <select className="w-full p-3 border rounded-lg">
+              <option>Health</option>
+              <option>Fitness</option>
+              <option>Nutrition</option>
+              <option>Mental Health</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Target Date</label>
+            <input type="date" className="w-full p-3 border rounded-lg" />
+          </div>
+          
+          <Button 
+            className="w-full" 
+            onClick={() => {
+              toast({ title: "Goal Created", description: "Your new goal has been added to your plan" });
+              setCurrentView('main');
+            }}
+          >
+            Create Goal
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderBrowseChallengesView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center mb-6">
+        <Button variant="ghost" size="sm" onClick={() => setCurrentView('main')}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-xl font-bold ml-4">Browse Challenges</h1>
+      </div>
+      
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <Activity className="w-6 h-6 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">7-Day Hydration Challenge</h3>
+                <p className="text-sm text-gray-500">Drink 8 glasses of water daily</p>
+              </div>
+              <Badge>2.1k joined</Badge>
+            </div>
+            <Button 
+              className="w-full" 
+              onClick={() => {
+                toast({ title: "Challenge Joined!", description: "You've joined the 7-Day Hydration Challenge" });
+                setCurrentView('main');
+              }}
+            >
+              Join Challenge
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Heart className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">21-Day Meditation Journey</h3>
+                <p className="text-sm text-gray-500">Build a daily meditation habit</p>
+              </div>
+              <Badge>1.8k joined</Badge>
+            </div>
+            <Button 
+              className="w-full" 
+              onClick={() => {
+                toast({ title: "Challenge Joined!", description: "You've joined the 21-Day Meditation Journey" });
+                setCurrentView('main');
+              }}
+            >
+              Join Challenge
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
+  if (currentView === 'new-goal') return renderNewGoalView();
+  if (currentView === 'browse-challenges') return renderBrowseChallengesView();
 
   return (
     <div className="space-y-6">
@@ -223,7 +345,7 @@ export default function PlanPage() {
         <TabsContent value="goals" className="space-y-4 mt-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Health Goals</h2>
-                <Button size="sm">
+                <Button size="sm" onClick={() => setCurrentView('new-goal')}>
                   <Plus className="w-4 h-4 mr-2" />
                   New Goal
                 </Button>
@@ -300,7 +422,7 @@ export default function PlanPage() {
         <TabsContent value="challenges" className="space-y-4 mt-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Health Challenges</h2>
-                <Button size="sm">
+                <Button size="sm" onClick={() => setCurrentView('browse-challenges')}>
                   <Plus className="w-4 h-4 mr-2" />
                   Browse Challenges
                 </Button>
@@ -577,89 +699,68 @@ export default function PlanPage() {
             )}
           </div>
 
-          {/* Historical Action Plans */}
+          {/* Single Action Plan - Merged View */}
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold mb-4">Your Action Plans</h3>
-
-            <div className="space-y-4">
-              {mockActionPlans.map((plan) => (
-                <Card key={plan.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                            {plan.title}
-                          </h3>
-                          <Badge className={statusColors[plan.status]}>
-                            {plan.status}
-                          </Badge>
-                          {plan.source === 'Deep Analysis' && (
-                            <Badge variant="outline" className="bg-purple-50 text-purple-700">
-                              <Brain className="w-3 h-3 mr-1" />
-                              AI Generated
-                            </Badge>
-                          )}
+            <h3 className="text-lg font-semibold mb-4">Current Action Plan</h3>
+            
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        Metabolic Health Optimization
+                      </h3>
+                      <Badge className="bg-green-100 text-green-800">
+                        active
+                      </Badge>
+                      <Badge variant="outline" className="bg-purple-50 text-purple-700">
+                        <Brain className="w-3 h-3 mr-1" />
+                        AI Generated
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-gray-600 dark:text-gray-400 mb-3">
+                      Comprehensive plan to improve metabolic markers and energy levels based on your latest deep analysis
+                    </p>
+                    
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="w-4 h-4" />
+                          8 / 12 tasks completed
                         </div>
-                        
-                        <p className="text-gray-600 dark:text-gray-400 mb-3">
-                          {plan.description}
-                        </p>
-                        
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <CheckCircle className="w-4 h-4" />
-                              {plan.tasksCompleted} / {plan.tasksTotal} tasks
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              Created {plan.createdDate.toLocaleDateString()}
-                            </div>
-                          </div>
-                          
-                          <div className="text-sm text-gray-500">
-                            Updated {plan.lastUpdated.toLocaleDateString()}
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          Created Jan 15, 2025
                         </div>
-                        
-                        {plan.status === 'active' && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-500">Completion</span>
-                              <span className="font-medium">
-                                {Math.round((plan.tasksCompleted / plan.tasksTotal) * 100)}%
-                              </span>
-                            </div>
-                            <Progress 
-                              value={(plan.tasksCompleted / plan.tasksTotal) * 100} 
-                              className="h-2" 
-                            />
-                          </div>
-                        )}
                       </div>
                       
-                      <div className="ml-4">
-                        {plan.status === 'active' && (
-                          <Link href="/action-plan">
-                            <Button>
-                              <Activity className="w-4 h-4 mr-2" />
-                              Continue
-                            </Button>
-                          </Link>
-                        )}
-                        {plan.status === 'completed' && (
-                          <Button variant="outline">
-                            <Heart className="w-4 h-4 mr-2" />
-                            Review
-                          </Button>
-                        )}
+                      <div className="text-sm text-gray-500">
+                        Updated Today
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Overall Progress</span>
+                        <span className="font-medium">67%</span>
+                      </div>
+                      <Progress value={67} className="h-2" />
+                    </div>
+                  </div>
+                  
+                  <div className="ml-4">
+                    <Link href="/action-plan">
+                      <Button>
+                        <Activity className="w-4 h-4 mr-2" />
+                        Continue Plan
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>

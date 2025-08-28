@@ -57,9 +57,12 @@ export default function ProfileHeader() {
           <DropdownMenuContent className="w-64" align="end" forceMount>
             <div className="flex items-center justify-start gap-2 p-2">
               <div className="flex flex-col space-y-1 leading-none">
-                <p className="font-medium">Test User</p>
-                <p className="w-[200px] truncate text-sm text-muted-foreground">
+                <p className="font-medium text-gray-900 dark:text-gray-100">Test User</p>
+                <p className="w-[200px] truncate text-sm text-gray-600 dark:text-gray-400">
                   test@holisticare.com
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  Member since Jan 2025
                 </p>
               </div>
             </div>

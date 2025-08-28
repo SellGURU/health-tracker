@@ -19,7 +19,6 @@ import {
   Zap, 
   Baby, 
   UtensilsCrossed,
-  ChevronRight,
   ArrowLeft,
   Check,
   Heart,
@@ -33,7 +32,9 @@ import {
   CheckCircle,
   MessageCircle,
   BookOpen,
-  Calendar
+  Calendar,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -182,26 +183,129 @@ export default function YouMenu() {
         </Card>
       )}
 
-      {/* Today's Action Plan Progress */}
-      <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation('/plan')}>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Goals, challenges & action plans</p>
-            </div>
-            <div className="w-16 h-16 relative">
-              <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-gray-200 dark:text-gray-700" />
-                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${60 * 0.6} ${60}`} className="text-blue-600" strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">60%</span>
+      {/* Latest Deep Analysis Card */}
+      {hasHealthData && (
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Latest Deep Analysis</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Generated Jan 15, 2025</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Previous analysis */ }}>
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Badge variant="outline">1 of 3</Badge>
+                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); /* Next analysis */ }}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">Metabolic health optimized</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm">12 personalized action items</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-blue-600" />
+                <span className="text-sm">Biological age: 28 years</span>
+              </div>
+            </div>
+            
+            <Button className="w-full mt-4" onClick={() => setLocation('/plan')}>
+              View Full Analysis
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Health Summary Card */}
+      {hasHealthData && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Health Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">8.5</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Overall Score</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">85%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Goals Progress</div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Cardiovascular Health</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium">Good</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Metabolic Health</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '70%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium">Fair</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Mental Wellness</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '90%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium">Excellent</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Your Plan Card */}
+      {hasHealthData && (
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation('/plan')}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Goals, challenges & action plans</p>
+              </div>
+              <div className="w-16 h-16 relative">
+                <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-gray-200 dark:text-gray-700" />
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${60 * 0.6} ${60}`} className="text-blue-600" strokeLinecap="round" />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">60%</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3">
@@ -217,7 +321,7 @@ export default function YouMenu() {
         
         <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setCurrentView('deep-analysis')}>
           <Brain className="w-5 h-5" />
-          <span className="text-sm">Request Deep Analysis</span>
+          <span className="text-sm">Deep Analysis</span>
         </Button>
         
         <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setLocation('/educational')}>
@@ -347,7 +451,7 @@ export default function YouMenu() {
         <Button variant="ghost" size="sm" onClick={() => setCurrentView('main')}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <h1 className="text-xl font-bold ml-4">Request Deep Analysis</h1>
+        <h1 className="text-xl font-bold ml-4">Deep Analysis</h1>
       </div>
 
       {/* Analysis Info */}
@@ -389,41 +493,27 @@ export default function YouMenu() {
         </CardContent>
       </Card>
 
-      {/* Subscription Status */}
-      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-semibold text-blue-900 dark:text-blue-100">Subscription Status</h4>
-              <p className="text-sm text-blue-700 dark:text-blue-300">12-month plan • 2 deep analyses remaining</p>
-            </div>
-            <Badge className="bg-green-100 text-green-800">
-              Included in Plan
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Request Button */}
+
+      {/* Generate Button */}
       <Button 
         className="w-full bg-purple-600 hover:bg-purple-700" 
         size="lg"
         onClick={() => {
           toast({
-            title: "Deep Analysis Requested",
-            description: "Your analysis will be ready in 24-48 hours. We'll notify you when it's complete.",
+            title: "Deep Analysis Started",
+            description: "Your analysis is being generated. This will take a few moments.",
           });
           setTimeout(() => {
             setLocation('/action-plan');
           }, 2000);
         }}
       >
-        Request Deep Analysis
+        Generate Deep Analysis
       </Button>
 
       <p className="text-center text-sm text-gray-500">
-        Analysis typically takes 24-48 hours to complete. 
-        You'll receive a notification when your personalized action plan is ready.
+        Your personalized action plan will be generated based on your health data and goals.
       </p>
     </div>
   );
@@ -519,17 +609,7 @@ export default function YouMenu() {
             })}
           </CardContent>
           
-          {/* Subscriptions Link */}
-          <div className="mt-6 p-4 border-t">
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => setCurrentView('subscriptions')}
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              View Subscription Plans
-            </Button>
-          </div>
+
         </Card>
 
         {/* Test Cards */}
@@ -847,8 +927,6 @@ export default function YouMenu() {
         return renderCheckupsView();
       case 'personalized-checkup':
         return renderPersonalizedCheckupView();
-      case 'subscriptions':
-        return renderSubscriptionsView();
       case 'deep-analysis':
         return renderDeepAnalysisView();
       case 'avatar-edit':
