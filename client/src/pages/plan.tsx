@@ -20,7 +20,8 @@ import {
   Plus,
   Brain,
   Activity,
-  Heart
+  Heart,
+  ArrowLeft
 } from "lucide-react";
 
 interface Goal {

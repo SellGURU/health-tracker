@@ -68,8 +68,8 @@ export default function YouMenu() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
   const [completedSurveys, setCompletedSurveys] = useState<string[]>([]);
-  const [hasRequiredData, setHasRequiredData] = useState(false);
-  const [biologicalAge, setBiologicalAge] = useState<number | null>(null);
+  const [hasRequiredData, setHasRequiredData] = useState(true);
+  const [biologicalAge, setBiologicalAge] = useState<number | null>(28);
   const [chronologicalAge, setChronologicalAge] = useState(25);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
