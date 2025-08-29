@@ -388,22 +388,22 @@ export default function EducationalPage() {
               </TabsList>
 
               <TabsContent value="all" className="space-y-6 mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   {filteredContent.map((content) => {
                     const TypeIcon = getTypeIcon(content.type);
                     return (
                       <Card key={content.id} className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                        <CardHeader className="pb-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(content.type)} rounded-2xl flex items-center justify-center shadow-lg`}>
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-start gap-3 flex-1 pr-2">
+                              <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(content.type)} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
                                 <TypeIcon className="w-6 h-6 text-white" />
                               </div>
-                              <div className="flex-1">
-                                <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100 leading-tight">
+                              <div className="flex-1 min-w-0">
+                                <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100 leading-tight mb-2 break-words">
                                   {content.title}
                                 </CardTitle>
-                                <div className="flex items-center gap-2 mt-1">
+                                <div className="flex flex-wrap items-center gap-2">
                                   <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs">
                                     {content.category}
                                   </Badge>
@@ -417,7 +417,7 @@ export default function EducationalPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleSaved(content.id)}
-                              className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                              className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex-shrink-0"
                             >
                               {content.saved ? (
                                 <BookmarkCheck className="w-4 h-4 text-emerald-600" />
@@ -427,20 +427,24 @@ export default function EducationalPage() {
                             </Button>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                          <p className="text-sm text-gray-600 dark:text-gray-400 font-light line-clamp-3">
+                        <CardContent className="pt-0 space-y-4">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed">
                             {content.description}
                           </p>
                           
                           {content.progress > 0 && (
-                            <div className="space-y-2">
+                            <div className="space-y-3 bg-emerald-50/30 dark:bg-emerald-900/10 rounded-xl p-3 backdrop-blur-sm">
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Progress</span>
-                                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{content.progress}%</span>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
+                                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">{content.progress}%</span>
                               </div>
                               <div className="relative">
-                                <Progress value={content.progress} className="h-2 bg-gray-200/50 dark:bg-gray-700/50" />
-                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full opacity-80" style={{ width: `${content.progress}%` }} />
+                                <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 shadow-inner">
+                                  <div 
+                                    className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full shadow-sm transition-all duration-500" 
+                                    style={{ width: `${content.progress}%` }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           )}
@@ -488,7 +492,7 @@ export default function EducationalPage() {
               </TabsContent>
 
               <TabsContent value="saved" className="space-y-6 mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   {savedContent.map((content) => {
                     const TypeIcon = getTypeIcon(content.type);
                     return (
