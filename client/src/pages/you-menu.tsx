@@ -231,6 +231,46 @@ export default function YouMenu() {
         </Card>
       )}
 
+      {/* Your Plan Card */}
+      {hasHealthData && (
+        <Card className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-teal-50/50 via-white/50 to-cyan-50/50 dark:from-teal-900/20 dark:via-gray-800/50 dark:to-cyan-900/20 border-0 shadow-xl backdrop-blur-lg" onClick={() => setLocation('/plan')}>
+          <CardContent className="p-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-lg"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-light">Goals, challenges & action plans</p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="w-20 h-20 relative">
+                  <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200/30 dark:text-gray-700/30" />
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${60 * 0.6} ${60}`} strokeLinecap="round" className="drop-shadow-sm" />
+                    <defs>
+                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#14b8a6" />
+                        <stop offset="100%" stopColor="#06b6d4" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">60%</span>
+                  </div>
+                </div>
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                  <div className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full shadow-lg animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Health Summary Card */}
       {hasHealthData && (
         <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
@@ -368,46 +408,6 @@ export default function YouMenu() {
               >
                 Download PDF Report
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Your Plan Card */}
-      {hasHealthData && (
-        <Card className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-teal-50/50 via-white/50 to-cyan-50/50 dark:from-teal-900/20 dark:via-gray-800/50 dark:to-cyan-900/20 border-0 shadow-xl backdrop-blur-lg" onClick={() => setLocation('/plan')}>
-          <CardContent className="p-6 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-lg"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100 mb-1">Your Plan</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-light">Goals, challenges & action plans</p>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="w-20 h-20 relative">
-                  <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 64 64">
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200/30 dark:text-gray-700/30" />
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${60 * 0.6} ${60}`} strokeLinecap="round" className="drop-shadow-sm" />
-                    <defs>
-                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#14b8a6" />
-                        <stop offset="100%" stopColor="#06b6d4" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">60%</span>
-                  </div>
-                </div>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                  <div className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full shadow-lg animate-pulse"></div>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
