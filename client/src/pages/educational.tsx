@@ -161,18 +161,28 @@ export default function EducationalPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const { toast } = useToast();
 
-  const filteredContent = mockContent.filter(content => {
-    const matchesCategory = selectedCategory === 'All' || content.category === selectedCategory;
-    const matchesSearch = content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         content.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         content.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesSaved = !showSavedOnly || content.saved;
-    
-    return matchesCategory && matchesSearch && matchesSaved;
-  });
+  const getFilteredContent = () => {
+    const baseFilter = (content: any) => {
+      const matchesCategory = selectedCategory === 'All' || content.category === selectedCategory;
+      const matchesSearch = content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           content.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           content.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    };
+
+    switch (activeTab) {
+      case 'saved':
+        return savedContent.filter(baseFilter);
+      case 'progress':
+        return inProgressContent.filter(baseFilter);
+      default:
+        return mockContent.filter(baseFilter);
+    }
+  };
+
+  const filteredContent = getFilteredContent();
 
   const toggleSaved = (contentId: string) => {
     toast({
@@ -230,9 +240,9 @@ export default function EducationalPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Search and Filters */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex-1 relative">
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               value={searchQuery}
@@ -241,85 +251,8 @@ export default function EducationalPage() {
               className="pl-10 bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner"
             />
           </div>
-          <Button
-            onClick={() => setShowSavedOnly(!showSavedOnly)}
-            variant={showSavedOnly ? "default" : "outline"}
-            className={showSavedOnly 
-              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg" 
-              : "backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-gray-200/50 dark:border-gray-600/50"
-            }
-          >
-            <Bookmark className="w-4 h-4 mr-2" />
-            Saved Only
-          </Button>
         </div>
         <div className="space-y-6">
-          {/* Stats Cards - Horizontal Layout */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <BookOpen className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-thin bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                      {inProgressContent.length}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">In Progress</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <Award className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                      {completedContent.length}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Completed</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <Bookmark className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-thin bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {savedContent.length}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Saved</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <TrendingUp className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-thin bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                      {mockContent.length}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Total</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Categories - Horizontal Scrollable */}
           <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
@@ -381,7 +314,7 @@ export default function EducationalPage() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="saved" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-4 py-2"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-4 py-2"
                 >
                   <span className="font-medium">Saved ({savedContent.length})</span>
                 </TabsTrigger>
@@ -499,7 +432,7 @@ export default function EducationalPage() {
 
               <TabsContent value="saved" className="space-y-6 mt-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                  {savedContent.map((content) => {
+                  {filteredContent.map((content) => {
                     const TypeIcon = getTypeIcon(content.type);
                     return (
                       <Card key={content.id} className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
@@ -537,7 +470,7 @@ export default function EducationalPage() {
 
               <TabsContent value="progress" className="space-y-6 mt-6">
                 <div className="space-y-4">
-                  {inProgressContent.map((content) => {
+                  {filteredContent.map((content) => {
                     const TypeIcon = getTypeIcon(content.type);
                     return (
                       <Card key={content.id} className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg">
