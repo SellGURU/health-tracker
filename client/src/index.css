@@ -192,3 +192,22 @@
 .health-score-pulse {
   animation: pulse-health 2s ease-in-out infinite;
 }
+
+/* Shimmer animation for enhanced age cards */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}

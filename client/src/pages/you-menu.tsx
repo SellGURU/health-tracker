@@ -87,9 +87,9 @@ export default function YouMenu() {
   });
 
   const generateAnalysisMutation = useMutation({
-    mutationFn: () => apiRequest('/api/deep-analyses', { 
+    mutationFn: () => apiRequest('/api/deep-analyses', {
       method: 'POST',
-      body: {}
+      body: JSON.stringify({})
     }),
     onSuccess: (newAnalysis) => {
       toast({
@@ -176,39 +176,102 @@ export default function YouMenu() {
 
       {/* Age Cards - Prominent Display */}
       <div className="grid grid-cols-2 gap-4">
-        <Card className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-blue-900/10 dark:via-gray-900 dark:to-blue-900/10 border-0 shadow-lg backdrop-blur-sm" onClick={() => toast({ title: "Biological Age", description: "Calculation details coming soon" })}>
-          <CardContent className="p-6 text-center relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-lg"></div>
+        <Card className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group" onClick={() => toast({ title: "Biological Age", description: "Calculation details coming soon" })}>
+          <CardContent className="p-6 text-center relative z-10">
+            {/* Animated background glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
+            
             <div className="relative">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Activity className="w-8 h-8 text-white" />
+              {/* Enhanced icon with pulsing animation */}
+              <div className="relative mx-auto mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                  <Activity className="w-10 h-10 text-white animate-pulse" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full opacity-30 animate-ping"></div>
               </div>
-              <div className="text-3xl font-thin text-gray-900 dark:text-gray-100 mb-2">
-                {hasRequiredData && biologicalAge ? biologicalAge : '?'}
+              
+              {/* Prominent age display */}
+              <div className="mb-3">
+                <div className="text-5xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
+                  {hasRequiredData && biologicalAge ? biologicalAge : '?'}
+                </div>
+                <div className="text-lg font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">Biological Age</div>
               </div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Biological Age</p>
+              
               {hasRequiredData && biologicalAge && (
-                <div className="mt-3">
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full shadow-sm" style={{ width: '85%' }}></div>
+                <div className="space-y-3">
+                  {/* Enhanced progress visualization */}
+                  <div className="relative">
+                    <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full h-3 shadow-inner">
+                      <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 h-3 rounded-full shadow-lg animate-pulse" style={{ width: '85%' }}></div>
+                    </div>
+                    <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-emerald-300/50 to-cyan-300/50 rounded-full animate-shimmer"></div>
                   </div>
-                  <p className="text-xs text-emerald-600 mt-2 font-medium">Optimal range</p>
+                  
+                  {/* Success badge */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 rounded-full border border-emerald-200/50 dark:border-emerald-700/50">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Optimal Range</span>
+                  </div>
+                  
+                  {/* Age difference highlight */}
+                  <div className="mt-2 p-2 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-lg border border-emerald-200/30 dark:border-emerald-700/30">
+                    <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                      🎉 {chronologicalAge - (biologicalAge || 0)} years younger than chronological age!
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-purple-900/10 dark:via-gray-900 dark:to-purple-900/10 border-0 shadow-lg backdrop-blur-sm" onClick={() => toast({ title: "Chronological Age", description: "Based on your date of birth" })}>
-          <CardContent className="p-6 text-center relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-lg"></div>
+        <Card className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group" onClick={() => toast({ title: "Chronological Age", description: "Based on your date of birth" })}>
+          <CardContent className="p-6 text-center relative z-10">
+            {/* Animated background elements */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-pink-400/5 to-rose-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-300/20 to-transparent rounded-full blur-xl animate-pulse"></div>
+            
             <div className="relative">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Calendar className="w-8 h-8 text-white" />
+              {/* Enhanced calendar icon */}
+              <div className="relative mx-auto mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                  <Calendar className="w-10 h-10 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-xs font-bold text-white">📅</span>
+                </div>
               </div>
-              <div className="text-3xl font-thin text-gray-900 dark:text-gray-100 mb-2">{chronologicalAge}</div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chronological Age</p>
-              <p className="text-xs text-gray-500 mt-2">Years lived</p>
+              
+              {/* Age display */}
+              <div className="mb-3">
+                <div className="text-5xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm">
+                  {chronologicalAge}
+                </div>
+                <div className="text-lg font-thin text-purple-700 dark:text-purple-300 tracking-wide">Chronological Age</div>
+              </div>
+              
+              {/* Enhanced years lived display */}
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 rounded-full border border-purple-200/50 dark:border-purple-700/50">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Years Lived</span>
+                </div>
+                
+                {/* Life timeline visualization */}
+                <div className="mt-3 p-3 bg-gradient-to-r from-purple-50/80 to-pink-50/80 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200/30 dark:border-purple-700/30">
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    {Array.from({ length: Math.min(chronologicalAge, 10) }, (_, i) => (
+                      <div key={i} className="w-1 h-1 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: `${i * 100}ms` }}></div>
+                    ))}
+                    {chronologicalAge > 10 && <span className="text-xs text-purple-500 ml-1">+{chronologicalAge - 10}</span>}
+                  </div>
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                    🎂 {Math.floor(chronologicalAge * 365)} days of experiences
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
