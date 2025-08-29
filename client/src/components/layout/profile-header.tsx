@@ -178,7 +178,7 @@ export default function ProfileHeader() {
           
           {/* Notification Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 top-12 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl z-[9999] max-h-96 overflow-hidden">
+            <div className="fixed right-4 top-16 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden" style={{ zIndex: 99999 }}>
               {/* Header */}
               <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                 <div className="flex items-center justify-between">
@@ -247,19 +247,19 @@ export default function ProfileHeader() {
                                   }`}>
                                     {notification.title}
                                   </h4>
-                                  <p className={`text-xs leading-relaxed ${
+                                  <div className={`text-xs leading-relaxed ${
                                     notification.read 
                                       ? 'text-gray-500 dark:text-gray-500' 
                                       : 'text-gray-700 dark:text-gray-300'
                                   }`}>
                                     {notification.message}
-                                  </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
+                                  </div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
                                     <div className={`w-1 h-1 rounded-full ${
                                       notification.read ? 'bg-gray-400' : 'bg-blue-500 animate-pulse'
                                     }`} />
                                     {notification.time}
-                                  </p>
+                                  </div>
                                 </div>
                                 
                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
