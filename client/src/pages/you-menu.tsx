@@ -301,23 +301,41 @@ export default function YouMenu() {
           <CardContent className="p-6 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-lg"></div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-4">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4 flex-1">
                   <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
                     <Brain className="w-7 h-7 text-white" />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100">Latest Deep Analysis</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 font-light">Generated Jan 15, 2025</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" onClick={(e) => { e.stopPropagation(); }}>
+                <div className="flex items-center gap-1 ml-4">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-8 h-8 p-0 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setCurrentAnalysisIndex(prev => Math.max(0, prev - 1));
+                    }}
+                  >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  <Badge variant="outline" className="bg-white/30 dark:bg-black/30 backdrop-blur-sm border-purple-200/50 dark:border-purple-800/50">1 of 3</Badge>
-                  <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" onClick={(e) => { e.stopPropagation(); }}>
+                  <Badge variant="outline" className="bg-white/30 dark:bg-black/30 backdrop-blur-sm border-purple-200/50 dark:border-purple-800/50 text-xs min-w-[60px] text-center">
+                    {currentAnalysisIndex + 1} of {Math.max(1, Array.isArray(deepAnalyses) ? deepAnalyses.length : 0)}
+                  </Badge>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-8 h-8 p-0 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setCurrentAnalysisIndex(prev => Math.min(Array.isArray(deepAnalyses) ? deepAnalyses.length - 1 : 0, prev + 1));
+                    }}
+                  >
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
