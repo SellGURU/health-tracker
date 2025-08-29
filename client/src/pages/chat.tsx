@@ -282,39 +282,6 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* AI Copilot Sidebar */}
-          {activeMode === 'copilot' && (
-            <div className="lg:col-span-1 space-y-4">
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-thin text-center bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                    AI Capabilities
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {[
-                    { icon: Brain, label: 'Health Analysis', desc: 'Interpret lab results' },
-                    { icon: Activity, label: 'Trend Tracking', desc: 'Monitor biomarkers' },
-                    { icon: Zap, label: 'Quick Answers', desc: 'Instant responses' },
-                    { icon: Heart, label: 'Recommendations', desc: 'Personalized advice' }
-                  ].map((item, index) => (
-                    <div key={index} className="p-3 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/10 rounded-xl backdrop-blur-sm border border-blue-200/30 dark:border-blue-800/20">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-sm">
-                          <item.icon className="w-4 h-4 text-white" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{item.label}</div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">{item.desc}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
           {/* Chat Messages */}
           <Card className={`${activeMode === 'coach' ? 'lg:col-span-3' : 'lg:col-span-3'} bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}>
             <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
