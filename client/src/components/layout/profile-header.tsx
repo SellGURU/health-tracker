@@ -178,7 +178,7 @@ export default function ProfileHeader() {
           
           {/* Notification Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 top-12 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-0 shadow-2xl rounded-2xl z-50 max-h-96 overflow-hidden">
+            <div className="absolute right-0 top-12 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl z-[9999] max-h-96 overflow-hidden">
               {/* Header */}
               <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                 <div className="flex items-center justify-between">
@@ -204,9 +204,9 @@ export default function ProfileHeader() {
                   </div>
                 </div>
                 {notificationCount > 0 && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     You have {notificationCount} unread notification{notificationCount !== 1 ? 's' : ''}
-                  </p>
+                  </div>
                 )}
               </div>
               
