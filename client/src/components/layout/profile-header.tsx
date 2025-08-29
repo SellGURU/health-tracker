@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -176,17 +177,18 @@ export default function ProfileHeader() {
             )}
           </Button>
           
-          {/* Notification Dropdown - Full Screen Portal */}
-          {showNotifications && (
-            <>
-              {/* Background Overlay */}
-              <div 
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
-                style={{ zIndex: 99998 }}
-                onClick={() => setShowNotifications(false)}
-              />
-              {/* Notification Panel */}
-              <div className="fixed right-4 top-16 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden" style={{ zIndex: 99999 }}>
+        </div>
+
+        {/* Notification Portal */}
+        {showNotifications && createPortal(
+          <>
+            {/* Background Overlay */}
+            <div 
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[999998]"
+              onClick={() => setShowNotifications(false)}
+            />
+            {/* Notification Panel */}
+            <div className="fixed right-4 top-16 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
               {/* Header */}
               <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                 <div className="flex items-center justify-between">
@@ -322,9 +324,9 @@ export default function ProfileHeader() {
                 </div>
               )}
             </div>
-            </>
-          )}
-        </div>
+          </>,
+          document.body
+        )}
 
         {/* Profile Dropdown */}
         <DropdownMenu>
