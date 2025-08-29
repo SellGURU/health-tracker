@@ -452,37 +452,41 @@ export default function PlanPage() {
               </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {mockGoals.map((goal) => (
-                <Card key={goal.id} className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-start gap-3 flex-1">
-                        <div className={`w-12 h-12 bg-gradient-to-br ${getPriorityColor(goal.priority)} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                          <Target className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100 leading-tight">{goal.title}</CardTitle>
-                          <Badge variant="secondary" className="mt-2 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
-                            {goal.category}
+                <Card key={goal.id} className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 hover:scale-102">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className={`w-14 h-14 bg-gradient-to-br ${getPriorityColor(goal.priority)} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+                        <Target className="w-7 h-7 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <CardTitle className="text-xl font-medium text-gray-900 dark:text-gray-100 leading-tight break-words pr-2">
+                            {goal.title}
+                          </CardTitle>
+                          <Badge variant={goal.priority === 'high' ? 'destructive' : goal.priority === 'medium' ? 'default' : 'secondary'} className="text-xs flex-shrink-0">
+                            {goal.priority}
                           </Badge>
                         </div>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
+                          {goal.category}
+                        </Badge>
                       </div>
-                      <Badge variant={goal.priority === 'high' ? 'destructive' : goal.priority === 'medium' ? 'default' : 'secondary'} className="text-xs">
-                        {goal.priority}
-                      </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-0 space-y-4">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 font-light">{goal.description}</p>
+                  <CardContent className="pt-0 space-y-5">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed break-words">
+                      {goal.description}
+                    </p>
                     
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
+                    <div className="space-y-3 bg-purple-50/30 dark:bg-purple-900/10 rounded-xl p-4 backdrop-blur-sm">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-                        <span className="text-lg font-semibold text-purple-600 dark:text-purple-400">{goal.progress}%</span>
+                        <span className="text-xl font-semibold text-purple-600 dark:text-purple-400">{goal.progress}%</span>
                       </div>
                       <div className="relative">
-                        <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-3 shadow-inner">
+                        <div className="w-full bg-gray-200/60 dark:bg-gray-700/60 rounded-full h-3 shadow-inner">
                           <div 
                             className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full shadow-sm transition-all duration-500" 
                             style={{ width: `${goal.progress}%` }}
@@ -491,22 +495,22 @@ export default function PlanPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 pt-2 border-t border-gray-200/50 dark:border-gray-700/30">
-                      <div className="flex items-center justify-between text-sm">
+                    <div className="space-y-3 pt-2 border-t border-gray-200/50 dark:border-gray-700/30">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                          <Calendar className="w-4 h-4" />
-                          <span>{formatDate(goal.deadline)}</span>
+                          <Calendar className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{formatDate(goal.deadline)}</span>
                         </div>
                         <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-medium">
-                          <Clock className="w-4 h-4" />
-                          <span>{getDaysUntil(goal.deadline)} days left</span>
+                          <Clock className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{getDaysUntil(goal.deadline)} days left</span>
                         </div>
                       </div>
                       
                       <Button 
                         variant="outline"
                         size="sm"
-                        className="w-full backdrop-blur-sm bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/50 dark:border-purple-700/30 hover:shadow-lg transition-all duration-300 mt-3"
+                        className="w-full backdrop-blur-sm bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/50 dark:border-purple-700/30 hover:shadow-lg transition-all duration-300"
                       >
                         <TrendingUp className="w-4 h-4 mr-2" />
                         View Details
