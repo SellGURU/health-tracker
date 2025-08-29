@@ -539,51 +539,6 @@ export default function Profile() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
-              onClick={() => setLocation('/trends')}
-              variant="outline"
-              className="p-4 h-auto bg-gradient-to-r from-emerald-50/60 to-teal-50/60 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200/50 dark:border-emerald-800/30 hover:from-emerald-100/60 hover:to-teal-100/60 dark:hover:from-emerald-900/30 dark:hover:to-teal-900/30 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                <span className="font-medium text-emerald-700 dark:text-emerald-300">View Trends</span>
-              </div>
-            </Button>
-            
-            <Button 
-              onClick={() => setLocation('/plan')}
-              variant="outline"
-              className="p-4 h-auto bg-gradient-to-r from-blue-50/60 to-cyan-50/60 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100/60 hover:to-cyan-100/60 dark:hover:from-blue-900/30 dark:hover:to-cyan-900/30 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <span className="font-medium text-blue-700 dark:text-blue-300">Health Plans</span>
-              </div>
-            </Button>
-            
-            <Button 
-              onClick={() => setLocation('/educational')}
-              variant="outline"
-              className="p-4 h-auto bg-gradient-to-r from-purple-50/60 to-indigo-50/60 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200/50 dark:border-purple-800/30 hover:from-purple-100/60 hover:to-indigo-100/60 dark:hover:from-purple-900/30 dark:hover:to-indigo-900/30 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                <span className="font-medium text-purple-700 dark:text-purple-300">Learn More</span>
-              </div>
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* Edit Profile Dialog */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
