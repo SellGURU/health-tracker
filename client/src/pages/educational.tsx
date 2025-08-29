@@ -267,78 +267,107 @@ export default function EducationalPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar - Categories */}
-          <div className="lg:w-80 space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <BookOpen className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-2xl font-thin bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                        {inProgressContent.length}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">In Progress</div>
-                    </div>
+        <div className="space-y-6">
+          {/* Stats Cards - Horizontal Layout */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <BookOpen className="w-5 h-5 text-white" />
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Award className="w-5 h-5 text-white" />
+                  <div>
+                    <div className="text-2xl font-thin bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      {inProgressContent.length}
                     </div>
-                    <div>
-                      <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                        {completedContent.length}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Completed</div>
-                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">In Progress</div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Categories */}
-            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-thin bg-gradient-to-r from-gray-900 to-emerald-800 dark:from-white dark:to-emerald-200 bg-clip-text text-transparent">
-                  Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                      {completedContent.length}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Completed</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Bookmark className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-thin bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      {savedContent.length}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Saved</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-thin bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                      {mockContent.length}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Total</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Categories - Horizontal Scrollable */}
+          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-thin bg-gradient-to-r from-gray-900 to-emerald-800 dark:from-white dark:to-emerald-200 bg-clip-text text-transparent">
+                Categories
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                 {categories.map((category) => (
                   <button
                     key={category.name}
                     onClick={() => setSelectedCategory(category.name)}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:shadow-lg ${
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 hover:shadow-lg flex-shrink-0 min-w-fit ${
                       selectedCategory === category.name
                         ? 'bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30'
                         : 'bg-gradient-to-r from-gray-50 to-white dark:from-gray-700/50 dark:to-gray-800/30 hover:from-emerald-50 hover:to-teal-50 dark:hover:from-emerald-900/20 dark:hover:to-teal-900/20'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        selectedCategory === category.name 
-                          ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md' 
-                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 text-gray-600 dark:text-gray-300'
-                      }`}>
-                        <category.icon className="w-4 h-4" />
-                      </div>
-                      <span className={`font-medium text-sm ${
-                        selectedCategory === category.name 
-                          ? 'text-emerald-800 dark:text-emerald-200' 
-                          : 'text-gray-700 dark:text-gray-300'
-                      }`}>
-                        {category.name}
-                      </span>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      selectedCategory === category.name 
+                        ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md' 
+                        : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 text-gray-600 dark:text-gray-300'
+                    }`}>
+                      <category.icon className="w-4 h-4" />
                     </div>
+                    <span className={`font-medium text-sm ${
+                      selectedCategory === category.name 
+                        ? 'text-emerald-800 dark:text-emerald-200' 
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}>
+                      {category.name}
+                    </span>
                     <Badge 
                       variant="secondary" 
                       className={selectedCategory === category.name 
@@ -350,12 +379,12 @@ export default function EducationalPage() {
                     </Badge>
                   </button>
                 ))}
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Main Content */}
-          <div className="flex-1 space-y-6">
+          <div className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-800/80 dark:to-emerald-900/30 p-2 rounded-2xl backdrop-blur-lg border border-white/30 dark:border-gray-700/20 shadow-xl">
                 <TabsTrigger 
