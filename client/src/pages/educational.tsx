@@ -163,6 +163,11 @@ export default function EducationalPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
+  // Define content arrays first
+  const inProgressContent = mockContent.filter(c => c.progress > 0 && c.progress < 100);
+  const completedContent = mockContent.filter(c => c.completed);
+  const savedContent = mockContent.filter(c => c.saved);
+
   const getFilteredContent = () => {
     const baseFilter = (content: any) => {
       const matchesCategory = selectedCategory === 'All' || content.category === selectedCategory;
@@ -233,9 +238,7 @@ export default function EducationalPage() {
     });
   };
 
-  const inProgressContent = mockContent.filter(c => c.progress > 0 && c.progress < 100);
-  const completedContent = mockContent.filter(c => c.completed);
-  const savedContent = mockContent.filter(c => c.saved);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
