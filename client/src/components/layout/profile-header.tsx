@@ -176,9 +176,17 @@ export default function ProfileHeader() {
             )}
           </Button>
           
-          {/* Notification Dropdown */}
+          {/* Notification Dropdown - Full Screen Portal */}
           {showNotifications && (
-            <div className="fixed right-4 top-16 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden" style={{ zIndex: 99999 }}>
+            <>
+              {/* Background Overlay */}
+              <div 
+                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+                style={{ zIndex: 99998 }}
+                onClick={() => setShowNotifications(false)}
+              />
+              {/* Notification Panel */}
+              <div className="fixed right-4 top-16 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden" style={{ zIndex: 99999 }}>
               {/* Header */}
               <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                 <div className="flex items-center justify-between">
@@ -314,6 +322,7 @@ export default function ProfileHeader() {
                 </div>
               )}
             </div>
+            </>
           )}
         </div>
 
