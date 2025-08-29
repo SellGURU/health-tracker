@@ -247,7 +247,7 @@ export default function Profile() {
               <div className="relative">
                 <Avatar className="w-20 h-20 ring-4 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-xl">
                   <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xl font-medium">
-                    {user?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
+                    {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
