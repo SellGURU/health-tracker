@@ -148,19 +148,9 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      {/* Minimal Header with Mode Selector */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/10 dark:border-gray-700/20 shadow-xl">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                <MessageCircle className="w-4 h-4 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Mode Toggle */}
-          <div className="flex bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 p-2 rounded-2xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20 shadow-inner">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Mode Toggle */}
+        <div className="flex bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 p-2 rounded-2xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20 shadow-inner mb-6">
             <Button
               onClick={() => setActiveMode('copilot')}
               variant={activeMode === 'copilot' ? 'default' : 'ghost'}
@@ -205,10 +195,7 @@ export default function ChatPage() {
               </div>
             </Button>
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
+        
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar - Coach Selection */}
           {activeMode === 'coach' && (

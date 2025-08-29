@@ -168,11 +168,6 @@ export default function YouMenu() {
 
   const renderMainView = () => (
     <div className="space-y-6">
-      {/* Header with User Name */}
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Welcome, User</h1>
-        <p className="text-gray-600 dark:text-gray-400">Your health dashboard</p>
-      </div>
 
       {/* Age Cards - Prominent Display */}
       <div className="grid grid-cols-2 gap-4">

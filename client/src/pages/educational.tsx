@@ -229,44 +229,30 @@ export default function EducationalPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
-      {/* Minimal Header */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/10 dark:border-gray-700/20 shadow-xl">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                <BookOpen className="w-4 h-4 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex items-center gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search articles, guides, videos..."
-                className="pl-10 bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner"
-              />
-            </div>
-            <Button
-              onClick={() => setShowSavedOnly(!showSavedOnly)}
-              variant={showSavedOnly ? "default" : "outline"}
-              className={showSavedOnly 
-                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg" 
-                : "backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-gray-200/50 dark:border-gray-600/50"
-              }
-            >
-              <Bookmark className="w-4 h-4 mr-2" />
-              Saved Only
-            </Button>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Search and Filters */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search articles, guides, videos..."
+              className="pl-10 bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner"
+            />
+          </div>
+          <Button
+            onClick={() => setShowSavedOnly(!showSavedOnly)}
+            variant={showSavedOnly ? "default" : "outline"}
+            className={showSavedOnly 
+              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg" 
+              : "backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-gray-200/50 dark:border-gray-600/50"
+            }
+          >
+            <Bookmark className="w-4 h-4 mr-2" />
+            Saved Only
+          </Button>
+        </div>
         <div className="space-y-6">
           {/* Stats Cards - Horizontal Layout */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
