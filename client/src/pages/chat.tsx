@@ -157,14 +157,6 @@ export default function ChatPage() {
                 <MessageCircle className="w-4 h-4 text-white" />
               </div>
             </div>
-            <Button
-              onClick={() => toast({ title: "Settings", description: "Chat preferences coming soon" })}
-              variant="ghost"
-              size="sm"
-              className="w-8 h-8 p-0 rounded-full backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-all duration-300"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
           </div>
 
           {/* Mode Toggle */}
