@@ -148,21 +148,20 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      {/* Header with Mode Selector */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                Health Chat
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 font-light">Connect with AI and human experts</p>
+      {/* Minimal Header with Mode Selector */}
+      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/10 dark:border-gray-700/20 shadow-xl">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                <MessageCircle className="w-4 h-4 text-white" />
+              </div>
             </div>
             <Button
               onClick={() => toast({ title: "Settings", description: "Chat preferences coming soon" })}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-white/30 dark:border-gray-700/30 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-8 h-8 p-0 rounded-full backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-all duration-300"
             >
               <Settings className="w-4 h-4" />
             </Button>

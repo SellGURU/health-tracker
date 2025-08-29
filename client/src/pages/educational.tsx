@@ -229,21 +229,20 @@ export default function EducationalPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
-      {/* Header */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
-                Health Library
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 font-light">Evidence-based content for your health journey</p>
+      {/* Minimal Header */}
+      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/10 dark:border-gray-700/20 shadow-xl">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+                <BookOpen className="w-4 h-4 text-white" />
+              </div>
             </div>
             <Button
               onClick={() => toast({ title: "Settings", description: "Learning preferences coming soon" })}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="backdrop-blur-sm bg-white/60 dark:bg-gray-800/60 border-white/30 dark:border-gray-700/30 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="w-8 h-8 p-0 rounded-full backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-all duration-300"
             >
               <Settings className="w-4 h-4" />
             </Button>
