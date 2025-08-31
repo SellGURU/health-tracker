@@ -12,12 +12,13 @@ import { useAuth } from "@/lib/auth";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { Heart, Upload, TrendingUp, Brain, UserPlus, LogIn, TestTube } from "lucide-react";
 import { mockAuth } from "@/lib/mock-auth";
+import { useSahha } from "@/hooks/use-sahha";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  
+  const { isInitialized, data, error, initialize, connect } = useSahha();
   // Login form state
   const [loginData, setLoginData] = useState({
     email: "",
@@ -45,8 +46,9 @@ export default function AuthPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
+      await initialize("BF9yybnbq44AreyJf04tNbvBCXXRIFJH", "YFhSuGe4CuY13XZZzW0dGqowfM6oMNSwz9qkQBiyCxm8FneNGncwuQU7YkU50sMp", "SANDBOX");
+      await connect();
       if (!validateEmail(loginData.email)) {
         throw new Error("Please enter a valid email address");
       }
