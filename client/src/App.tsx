@@ -16,7 +16,7 @@ import Onboarding from "@/pages/onboarding";
 import YouMenu from "@/pages/you-menu";
 import ChatPage from "@/pages/chat";
 import EducationalPage from "@/pages/educational";
-import PlanPage from "@/pages/plan";
+import PlanPage from "@/pages/plan-simple";
 import ActionPlanPage from "@/pages/action-plan";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
