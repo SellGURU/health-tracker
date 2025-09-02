@@ -363,15 +363,15 @@ export default function Plan() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className={`text-sm font-medium ${
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className={`text-sm font-medium flex-1 ${
                           completed ? 'text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'
                         }`}>
                           {task.title}
                         </h4>
                         <Badge 
                           variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'secondary'}
-                          className="text-xs ml-2 flex-shrink-0"
+                          className="text-xs ml-3 flex-shrink-0"
                         >
                           {task.priority}
                         </Badge>
@@ -397,22 +397,22 @@ export default function Plan() {
                       {/* Value Input Task */}
                       {task.type === 'value_input' && (
                         <div className="space-y-3">
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                             <Input
                               type="number"
                               placeholder={`Enter ${task.unit || 'value'}`}
                               value={taskValues[task.id] || task.currentValue || ''}
                               onChange={(e) => updateTaskValue(task.id, parseFloat(e.target.value) || 0)}
-                              className="w-32 h-8 text-sm"
+                              className="w-full sm:w-32 h-8 text-sm"
                               disabled={completed}
                             />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                            <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
                               Target: {task.targetValue} {task.unit}
                             </span>
                             <Button
                               size="sm"
                               onClick={() => toggleTask('today', task.id)}
-                              className="ml-auto"
+                              className="w-full sm:w-auto"
                             >
                               <CheckCircle className="w-4 h-4 mr-2" />
                               Save
@@ -434,82 +434,6 @@ export default function Plan() {
               </div>
             </div>
 
-            {/* Long-term Action Plans for Today Tab */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full animate-pulse"></div>
-                Long-term Plans
-              </h3>
-              <div className="space-y-6">
-                {mockActionPlans.map((plan) => (
-                  <Card key={plan.id} className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <CheckCircle className="w-6 h-6 text-white" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100">{plan.title}</CardTitle>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                {plan.category}
-                              </Badge>
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Due {formatDate(plan.dueDate)}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                            {plan.progress}%
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Complete</div>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <Progress value={plan.progress} className="h-2" />
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 font-light mb-4">{plan.description}</p>
-                      
-                      <div className="space-y-4">
-                        {plan.tasks.slice(0, 2).map((task) => {
-                          const TaskIcon = getTaskIcon(task);
-                          const completed = isTaskCompleted(task);
-                          
-                          return (
-                            <div 
-                              key={task.id}
-                              className="p-3 bg-gradient-to-br from-gray-50/80 to-blue-50/50 dark:from-gray-700/50 dark:to-blue-900/20 rounded-lg backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                  completed ? 'bg-emerald-500' : 'bg-gray-400'
-                                }`}>
-                                  <TaskIcon className="w-3 h-3 text-white" />
-                                </div>
-                                <span className={`text-sm ${
-                                  completed ? 'text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'
-                                }`}>
-                                  {task.title}
-                                </span>
-                                <Badge 
-                                  variant={task.priority === 'high' ? 'destructive' : 'secondary'}
-                                  className="text-xs ml-auto"
-                                >
-                                  {task.priority}
-                                </Badge>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-6">
