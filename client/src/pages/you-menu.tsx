@@ -512,30 +512,6 @@ export default function YouMenu() {
         </Card>
       )}
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
-        <Button 
-          variant="outline" 
-          className="h-20 flex flex-col gap-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-0 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
-          onClick={() => setLocation('/chat')}
-        >
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
-            <MessageCircle className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-sm font-medium">Chat</span>
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="h-20 flex flex-col gap-2 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-0 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
-          onClick={() => setCurrentView('deep-analysis')}
-        >
-          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center shadow-md">
-            <Brain className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-sm font-medium">Deep Analysis</span>
-        </Button>
-      </div>
     </div>
   );
 
