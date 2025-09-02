@@ -259,7 +259,7 @@ export default function Trends() {
         </div>
 
         {/* Biomarker Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {mockBiomarkers.map((biomarker) => {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
@@ -268,12 +268,12 @@ export default function Trends() {
             return (
               <Card 
                 key={biomarker.id} 
-                className={`bg-gradient-to-br ${biomarker.bgColor} border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 cursor-pointer ${
-                  isExpanded ? 'lg:col-span-2' : ''
+                className={`bg-gradient-to-br ${biomarker.bgColor} border-0 shadow-lg backdrop-blur-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${
+                  isExpanded ? 'md:col-span-2 lg:col-span-2 xl:col-span-2' : ''
                 }`}
                 onClick={() => openDetailModal(biomarker)}
               >
-                <CardContent className="p-5">
+                <CardContent className="p-4">
                   {/* Card Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-3">
@@ -323,12 +323,6 @@ export default function Trends() {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       {getTrendIcon(biomarker.trend)}
-                      <span className={`text-sm font-medium ${
-                        biomarker.trend === 'improving' ? 'text-emerald-600' :
-                        biomarker.trend === 'declining' ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {biomarker.trendPercent > 0 ? '+' : ''}{biomarker.trendPercent.toFixed(1)}%
-                      </span>
                     </div>
                   </div>
 
