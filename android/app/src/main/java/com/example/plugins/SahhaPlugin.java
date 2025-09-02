@@ -1,13 +1,15 @@
 package com.example.plugins;
 
-import com.getcapacitor.*;
-import android.util.Log;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
 import sdk.sahha.android.source.*;
 
-@NativePlugin
+@CapacitorPlugin(name = "SahhaPlugin")
 public class SahhaPlugin extends Plugin {
 
-    @PluginMethod
     public void authenticate(PluginCall call) {
         String appId = call.getString("appId");
         String appSecret = call.getString("appSecret");
@@ -18,10 +20,9 @@ public class SahhaPlugin extends Plugin {
             return;
         }
 
-        // تنظیمات Sahha
         SahhaSettings settings = new SahhaSettings(
-            SahhaEnvironment.sandbox, // میتونی param هم بذاری
-            null,                     // Notification اختیاری
+            SahhaEnvironment.sandbox, // یا production
+            null,
             SahhaFramework.capacitor
         );
 
