@@ -249,7 +249,7 @@ export default function Trends() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="w-full max-w-none mx-auto px-4 py-6 overflow-hidden">
         {/* Your Results Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent mb-2">
@@ -259,7 +259,7 @@ export default function Trends() {
         </div>
 
         {/* Biomarker Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {mockBiomarkers.map((biomarker) => {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
@@ -273,32 +273,34 @@ export default function Trends() {
               >
                 <CardContent className="p-6">
                   {/* Card Header */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${biomarker.color} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                        <Icon className="w-6 h-6 text-white" />
+                  <div className="mb-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`w-10 h-10 bg-gradient-to-br ${biomarker.color} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+                        <Icon className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate">
                           {biomarker.name}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          Last test: {new Date(biomarker.lastTest).toLocaleDateString()}
-                        </p>
                       </div>
                     </div>
-                    <Badge className={statusBadge.color}>
-                      {biomarker.status}
-                    </Badge>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Last test: {new Date(biomarker.lastTest).toLocaleDateString()}
+                      </p>
+                      <Badge className={`${statusBadge.color} text-xs flex-shrink-0`}>
+                        {biomarker.status}
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* Current Value */}
                   <div className="mb-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                      <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         {biomarker.value.toLocaleString()}
                       </span>
-                      <span className="text-lg text-gray-600 dark:text-gray-400">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {biomarker.unit}
                       </span>
                     </div>
