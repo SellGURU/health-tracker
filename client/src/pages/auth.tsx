@@ -47,6 +47,7 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
+      alert("authenticate started");
       await authenticate("BF9yybnbq44AreyJf04tNbvBCXXRIFJH", "YFhSuGe4CuY13XZZzW0dGqowfM6oMNSwz9qkQBiyCxm8FneNGncwuQU7YkU50sMp", "test12");
       await connect();
       if (!validateEmail(loginData.email)) {

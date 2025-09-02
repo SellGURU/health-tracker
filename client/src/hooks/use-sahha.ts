@@ -25,6 +25,7 @@ export function useSahha() {
       setInitialized(true);
       setError(null);
     } catch (err: any) {
+      alert(err.message || String(err));
       setError(err?.message || String(err) || "Authentication failed");
     }
   };
@@ -35,6 +36,7 @@ export function useSahha() {
       setData(result);
       setError(null);
     } catch (err: any) {
+      alert(err.message || String(err));
       setError(err?.message || String(err) || "Connect failed");
     }
   };
