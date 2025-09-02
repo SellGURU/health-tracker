@@ -355,7 +355,7 @@ export default function YouMenu() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-gray-500 dark:text-gray-400">7 Biomarkers</div>
-                  <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">✓ Needs Focus</div>
+                  <div className="text-sm font-medium text-amber-600 dark:text-amber-400">68%</div>
                 </div>
               </div>
               
@@ -368,7 +368,7 @@ export default function YouMenu() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-gray-500 dark:text-gray-400">12 Biomarkers</div>
-                  <div className="text-sm font-medium text-blue-600 dark:text-blue-400">✓ Good</div>
+                  <div className="text-sm font-medium text-blue-600 dark:text-blue-400">84%</div>
                 </div>
               </div>
               
@@ -381,7 +381,7 @@ export default function YouMenu() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-gray-500 dark:text-gray-400">5 Biomarkers</div>
-                  <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">✓ Excellent</div>
+                  <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">92%</div>
                 </div>
               </div>
             </div>
