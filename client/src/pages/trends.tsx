@@ -308,7 +308,7 @@ export default function Trends() {
 
                   {/* Reference Range */}
                   <div className="mb-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Reference Range</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Optimal Range</div>
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {biomarker.referenceRange}
                     </div>
@@ -388,24 +388,12 @@ export default function Trends() {
                       <h3 className="text-lg font-medium mb-4">Reference Range</h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Normal Range:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Optimal Range:</span>
                           <span className="font-medium">{selectedBiomarker.referenceRange}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600 dark:text-gray-400">Last Test:</span>
                           <span className="font-medium">{new Date(selectedBiomarker.lastTest).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600 dark:text-gray-400">Trend:</span>
-                          <div className="flex items-center gap-2">
-                            {getTrendIcon(selectedBiomarker.trend)}
-                            <span className={`font-medium ${
-                              selectedBiomarker.trend === 'improving' ? 'text-emerald-600' :
-                              selectedBiomarker.trend === 'declining' ? 'text-red-600' : 'text-blue-600'
-                            }`}>
-                              {selectedBiomarker.trendPercent > 0 ? '+' : ''}{selectedBiomarker.trendPercent.toFixed(1)}%
-                            </span>
-                          </div>
                         </div>
                       </div>
                     </CardContent>
