@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { registerPlugin } from "@capacitor/core";
 
-interface InitializeOptions {
+interface AuthenticateOptions {
   appId: string;
   appSecret: string;
-  env: "PRODUCTION" | "SANDBOX";
+  externalId: string;
 }
 
 interface SahhaPlugin {
-  initialize(options: InitializeOptions): Promise<void>;
+  authenticate(options: AuthenticateOptions): Promise<void>;
   connect(): Promise<{ heartRate?: number; steps?: number }>;
 }
 
@@ -16,16 +16,16 @@ const Sahha = registerPlugin<SahhaPlugin>("SahhaPlugin");
 
 export function useSahha() {
   const [isInitialized, setInitialized] = useState(false);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<{ heartRate?: number; steps?: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const initialize = async (appId: string, appSecret: string, env: "PRODUCTION" | "SANDBOX" = "PRODUCTION") => {
+  const authenticate = async (appId: string, appSecret: string, externalId: string) => {
     try {
-      await Sahha.initialize({ appId, appSecret, env });
+      await Sahha.authenticate({ appId, appSecret, externalId });
       setInitialized(true);
       setError(null);
     } catch (err: any) {
-      setError(err.message || "Initialization failed");
+      setError(err?.message || String(err) || "Authentication failed");
     }
   };
 
@@ -35,9 +35,9 @@ export function useSahha() {
       setData(result);
       setError(null);
     } catch (err: any) {
-      setError(err.message || "Connect failed");
+      setError(err?.message || String(err) || "Connect failed");
     }
   };
 
-  return { isInitialized, data, error, initialize, connect };
+  return { isInitialized, data, error, authenticate, connect };
 }
