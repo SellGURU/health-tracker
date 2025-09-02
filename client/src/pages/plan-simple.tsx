@@ -249,18 +249,12 @@ export default function Plan() {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="mb-3">
                             <h4 className={`text-sm font-medium ${
                               completed ? 'text-gray-500 line-through' : 'text-gray-800 dark:text-gray-200'
                             }`}>
                               {task.title}
                             </h4>
-                            <Badge 
-                              variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'secondary'}
-                              className="text-xs flex-shrink-0"
-                            >
-                              {task.priority}
-                            </Badge>
                           </div>
                           
                           {/* Regular Checkbox Task */}
@@ -407,43 +401,31 @@ export default function Plan() {
                 return (
                   <>
                     {/* Selected Day Header */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <h4 className={`text-xl font-medium ${
-                          isCurrentDay ? 'text-green-700 dark:text-green-300' : 'text-gray-800 dark:text-gray-200'
-                        }`}>
-                          {selectedDateObj.toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </h4>
+                    <div className="mb-6">
+                      <h4 className={`text-xl font-medium text-center mb-4 ${
+                        isCurrentDay ? 'text-green-700 dark:text-green-300' : 'text-gray-800 dark:text-gray-200'
+                      }`}>
+                        {selectedDateObj.toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
                         {isCurrentDay && (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          <span className="ml-2 text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded">
                             Today
-                          </Badge>
+                          </span>
                         )}
+                      </h4>
+                      
+                      {/* Progress Bar */}
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
+                          }`}
+                          style={{ width: `${completionRate}%` }}
+                        />
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {selectedDayTasks.length} tasks
-                        </span>
-                        <span className={`text-sm font-medium ${
-                          completionRate === 100 ? 'text-green-600' : completionRate > 50 ? 'text-yellow-600' : 'text-gray-500'
-                        }`}>
-                          {completionRate}% complete
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-6">
-                      <div 
-                        className={`h-3 rounded-full transition-all duration-300 ${
-                          completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
-                        }`}
-                        style={{ width: `${completionRate}%` }}
-                      />
                     </div>
                     
                     {/* Tasks for selected day */}
@@ -470,18 +452,12 @@ export default function Plan() {
                                 </div>
                                 
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mb-3">
+                                  <div className="mb-3">
                                     <h5 className={`text-sm font-medium ${
                                       completed ? 'text-gray-500 line-through' : 'text-gray-800 dark:text-gray-200'
                                     }`}>
                                       {task.title}
                                     </h5>
-                                    <Badge 
-                                      variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'secondary'}
-                                      className="text-xs flex-shrink-0"
-                                    >
-                                      {task.priority}
-                                    </Badge>
                                   </div>
                                   
                                   {/* Regular Checkbox Task */}
