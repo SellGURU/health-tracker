@@ -451,42 +451,9 @@ export default function YouMenu() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-1 ml-4">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-8 h-8 p-0 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      setCurrentAnalysisIndex(prev => Math.max(0, prev - 1));
-                    }}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Badge variant="outline" className="bg-white/30 dark:bg-black/30 backdrop-blur-sm border-purple-200/50 dark:border-purple-800/50 text-xs min-w-[60px] text-center">
-                    {currentAnalysisIndex + 1} of {Math.max(1, Array.isArray(deepAnalyses) ? deepAnalyses.length : 0)}
-                  </Badge>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-8 h-8 p-0 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm hover:bg-white/30 dark:hover:bg-black/30" 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      setCurrentAnalysisIndex(prev => Math.min(Array.isArray(deepAnalyses) ? deepAnalyses.length - 1 : 0, prev + 1));
-                    }}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
               </div>
               
               <div className="space-y-3 mb-5">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 backdrop-blur-sm">
-                  <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium">Metabolic health optimized</span>
-                </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 backdrop-blur-sm">
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-white" />
