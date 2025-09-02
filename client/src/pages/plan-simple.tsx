@@ -138,7 +138,7 @@ export default function Plan() {
   const [taskValues, setTaskValues] = useState<Record<string, number>>({});
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("today");
-  const [selectedWeek, setSelectedWeek] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(todayKey);
   const { toast } = useToast();
 
   const formatDateKey = (dateString: string) => {
@@ -150,19 +150,22 @@ export default function Plan() {
     });
   };
 
-  const getWeekDates = (weekOffset: number) => {
+  const getDateRange = () => {
     const today = new Date();
-    const currentDay = today.getDay();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - currentDay + (weekOffset * 7));
+    const dates = [];
     
-    const weekDates = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      weekDates.push(date.toISOString().split('T')[0]);
+    // Get 7 days before, today, and 7 days after (15 total days)
+    for (let i = -7; i <= 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push({
+        key: date.toISOString().split('T')[0],
+        date: date,
+        day: date.getDate(),
+        weekday: date.toLocaleDateString('en-US', { weekday: 'short' })
+      });
     }
-    return weekDates;
+    return dates;
   };
 
   const isToday = (dateKey: string) => {
@@ -321,51 +324,99 @@ export default function Plan() {
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-6">
-            {/* Calendar Navigation */}
-            <div className="flex items-center justify-between mb-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedWeek(selectedWeek - 1)}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </Button>
-              
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                  {selectedWeek === 0 ? 'This Week' : selectedWeek > 0 ? `${selectedWeek} Week${selectedWeek > 1 ? 's' : ''} Ahead` : `${Math.abs(selectedWeek)} Week${Math.abs(selectedWeek) > 1 ? 's' : ''} Ago`}
-                </h3>
+            {/* Date Picker - Horizontal Row */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 text-center">
+                Select a Date
+              </h3>
+              <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
+                {getDateRange().map((dateInfo) => {
+                  const isCurrentDay = isToday(dateInfo.key);
+                  const isSelected = selectedDate === dateInfo.key;
+                  const dayTasks = calendarTasks[dateInfo.key] || [];
+                  const completionRate = getTaskCompletionRate(dayTasks);
+                  
+                  return (
+                    <button
+                      key={dateInfo.key}
+                      onClick={() => setSelectedDate(dateInfo.key)}
+                      className={`flex-shrink-0 p-3 rounded-2xl border-2 transition-all duration-200 min-w-[80px] ${
+                        isSelected
+                          ? isCurrentDay
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                            : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : isCurrentDay
+                            ? 'border-green-300 bg-green-50/50 dark:bg-green-900/10 hover:border-green-400'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold ${
+                          isSelected
+                            ? isCurrentDay
+                              ? 'text-green-700 dark:text-green-300'
+                              : 'text-blue-700 dark:text-blue-300'
+                            : isCurrentDay
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-gray-800 dark:text-gray-200'
+                        }`}>
+                          {dateInfo.day}
+                        </div>
+                        <div className={`text-xs font-medium ${
+                          isSelected
+                            ? isCurrentDay
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-blue-600 dark:text-blue-400'
+                            : isCurrentDay
+                              ? 'text-green-500 dark:text-green-500'
+                              : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {dateInfo.weekday}
+                        </div>
+                        {isCurrentDay && (
+                          <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-1">
+                            Today
+                          </div>
+                        )}
+                        {/* Progress indicator */}
+                        <div className="mt-2">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                            <div 
+                              className={`h-1 rounded-full transition-all duration-300 ${
+                                completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
+                              }`}
+                              style={{ width: `${completionRate}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedWeek(selectedWeek + 1)}
-                className="flex items-center gap-2"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </Button>
             </div>
 
-            {/* Daily Task Lists for the Week */}
-            <div className="space-y-8">
-              {getWeekDates(selectedWeek).map((dateKey) => {
-                const dayTasks = calendarTasks[dateKey] || [];
-                const completionRate = getTaskCompletionRate(dayTasks);
-                const isCurrentDay = isToday(dateKey);
+            {/* Selected Date Tasks */}
+            <div className="space-y-4">
+              {(() => {
+                const selectedDayTasks = calendarTasks[selectedDate] || [];
+                const completionRate = getTaskCompletionRate(selectedDayTasks);
+                const isCurrentDay = isToday(selectedDate);
+                const selectedDateObj = new Date(selectedDate + 'T00:00:00');
                 
                 return (
-                  <div key={dateKey} className="space-y-4">
-                    {/* Day Header */}
-                    <div className="flex items-center justify-between">
+                  <>
+                    {/* Selected Day Header */}
+                    <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-3">
-                        <h4 className={`text-lg font-medium ${
+                        <h4 className={`text-xl font-medium ${
                           isCurrentDay ? 'text-green-700 dark:text-green-300' : 'text-gray-800 dark:text-gray-200'
                         }`}>
-                          {formatDateKey(dateKey)}
+                          {selectedDateObj.toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
                         </h4>
                         {isCurrentDay && (
                           <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
@@ -375,7 +426,7 @@ export default function Plan() {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {dayTasks.length} tasks
+                          {selectedDayTasks.length} tasks
                         </span>
                         <span className={`text-sm font-medium ${
                           completionRate === 100 ? 'text-green-600' : completionRate > 50 ? 'text-yellow-600' : 'text-gray-500'
@@ -386,18 +437,18 @@ export default function Plan() {
                     </div>
                     
                     {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-6">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
+                        className={`h-3 rounded-full transition-all duration-300 ${
                           completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
                         }`}
                         style={{ width: `${completionRate}%` }}
                       />
                     </div>
                     
-                    {/* Tasks for this day */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {dayTasks.map((task) => {
+                    {/* Tasks for selected day */}
+                    <div className="space-y-4">
+                      {selectedDayTasks.map((task) => {
                         const TaskIcon = getTaskIcon(task);
                         const completed = task.completed;
                         const progressPercent = getProgressPercent(task);
@@ -438,7 +489,7 @@ export default function Plan() {
                                     <Button
                                       variant={completed ? "default" : "outline"}
                                       size="sm"
-                                      onClick={() => toggleTask(dateKey, task.id)}
+                                      onClick={() => toggleTask(selectedDate, task.id)}
                                       className={`w-full ${
                                         completed 
                                           ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
@@ -469,7 +520,7 @@ export default function Plan() {
                                         </div>
                                         <Button
                                           size="sm"
-                                          onClick={() => toggleTask(dateKey, task.id)}
+                                          onClick={() => toggleTask(selectedDate, task.id)}
                                           className="w-full"
                                         >
                                           <CheckCircle className="w-4 h-4 mr-2" />
@@ -502,7 +553,7 @@ export default function Plan() {
                                         </Button>
                                         <Button
                                           size="sm"
-                                          onClick={() => toggleTask(dateKey, task.id)}
+                                          onClick={() => toggleTask(selectedDate, task.id)}
                                           className={`${
                                             completed 
                                               ? 'bg-emerald-500 hover:bg-emerald-600' 
@@ -527,9 +578,9 @@ export default function Plan() {
                         );
                       })}
                     </div>
-                  </div>
+                  </>
                 );
-              })}
+              })()}
             </div>
           </TabsContent>
         </Tabs>
