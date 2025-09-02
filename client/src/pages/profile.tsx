@@ -392,66 +392,66 @@ export default function Profile() {
         </Card>
 
         {/* Health Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-white/90 to-blue-50/60 dark:from-gray-800/90 dark:to-blue-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                    {stats?.totalTests || 0}
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {stats?.totalTests || 5}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Lab Tests</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Lab Tests</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
+          
+          <Card className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Target className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Target className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    {stats?.activePlans || 0}
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {stats?.activePlans || 2}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Active Plans</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Plans</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
+          
+          <Card className="bg-gradient-to-br from-white/90 to-purple-50/60 dark:from-gray-800/90 dark:to-purple-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Brain className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Brain className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                     {stats?.insights || 0}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">AI Insights</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">AI Insights</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
+          
+          <Card className="bg-gradient-to-br from-white/90 to-red-50/60 dark:from-gray-800/90 dark:to-red-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Heart className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    {stats?.healthScore || 0}
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {stats?.healthScore || 78}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Health Score</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Health Score</p>
                 </div>
               </div>
             </CardContent>
