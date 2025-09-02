@@ -350,75 +350,184 @@ export default function Plan() {
               </Button>
             </div>
 
-            {/* Weekly Calendar Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            {/* Daily Task Lists for the Week */}
+            <div className="space-y-8">
               {getWeekDates(selectedWeek).map((dateKey) => {
                 const dayTasks = calendarTasks[dateKey] || [];
                 const completionRate = getTaskCompletionRate(dayTasks);
                 const isCurrentDay = isToday(dateKey);
                 
                 return (
-                  <Card 
-                    key={dateKey} 
-                    className={`${isCurrentDay 
-                      ? 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700' 
-                      : 'bg-gradient-to-br from-white/90 to-gray-50/60 dark:from-gray-800/90 dark:to-gray-700/60'
-                    } border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300`}
-                  >
-                    <CardHeader className="pb-2 text-center">
-                      <div className={`text-sm font-medium ${
-                        isCurrentDay ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'
-                      }`}>
-                        {formatDateKey(dateKey)}
-                      </div>
-                      {isCurrentDay && (
-                        <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs">
-                          Today
-                        </Badge>
-                      )}
-                    </CardHeader>
-                    <CardContent className="space-y-3 pb-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {dayTasks.length} tasks
-                        </span>
-                        <span className={`text-xs font-medium ${
-                          completionRate === 100 ? 'text-green-600' : completionRate > 50 ? 'text-yellow-600' : 'text-gray-500'
+                  <div key={dateKey} className="space-y-4">
+                    {/* Day Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <h4 className={`text-lg font-medium ${
+                          isCurrentDay ? 'text-green-700 dark:text-green-300' : 'text-gray-800 dark:text-gray-200'
                         }`}>
-                          {completionRate}%
-                        </span>
-                      </div>
-                      
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
-                          }`}
-                          style={{ width: `${completionRate}%` }}
-                        />
-                      </div>
-                      
-                      <div className="space-y-1">
-                        {dayTasks.slice(0, 2).map((task) => (
-                          <div 
-                            key={task.id}
-                            className={`text-xs p-2 rounded-lg ${
-                              task.completed 
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 line-through' 
-                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-                            }`}
-                          >
-                            {task.title}
-                          </div>
-                        ))}
-                        {dayTasks.length > 2 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400 text-center py-1">
-                            +{dayTasks.length - 2} more
-                          </div>
+                          {formatDateKey(dateKey)}
+                        </h4>
+                        {isCurrentDay && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                            Today
+                          </Badge>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {dayTasks.length} tasks
+                        </span>
+                        <span className={`text-sm font-medium ${
+                          completionRate === 100 ? 'text-green-600' : completionRate > 50 ? 'text-yellow-600' : 'text-gray-500'
+                        }`}>
+                          {completionRate}% complete
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
+                        }`}
+                        style={{ width: `${completionRate}%` }}
+                      />
+                    </div>
+                    
+                    {/* Tasks for this day */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {dayTasks.map((task) => {
+                        const TaskIcon = getTaskIcon(task);
+                        const completed = task.completed;
+                        const progressPercent = getProgressPercent(task);
+                        
+                        return (
+                          <Card 
+                            key={task.id}
+                            className={`${isCurrentDay 
+                              ? 'bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border-green-200/30 dark:border-green-700/20' 
+                              : 'bg-gradient-to-br from-white/90 to-gray-50/60 dark:from-gray-800/90 dark:to-gray-700/60 border-gray-200/30 dark:border-gray-700/20'
+                            } border shadow-lg backdrop-blur-sm`}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start gap-3">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                  completed ? 'bg-emerald-500' : task.type === 'value_input' ? 'bg-blue-500' : 'bg-gray-400'
+                                }`}>
+                                  <TaskIcon className="w-5 h-5 text-white" />
+                                </div>
+                                
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h5 className={`text-sm font-medium ${
+                                      completed ? 'text-gray-500 line-through' : 'text-gray-800 dark:text-gray-200'
+                                    }`}>
+                                      {task.title}
+                                    </h5>
+                                    <Badge 
+                                      variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'default' : 'secondary'}
+                                      className="text-xs flex-shrink-0"
+                                    >
+                                      {task.priority}
+                                    </Badge>
+                                  </div>
+                                  
+                                  {/* Regular Checkbox Task */}
+                                  {task.type === 'checkbox' && (
+                                    <Button
+                                      variant={completed ? "default" : "outline"}
+                                      size="sm"
+                                      onClick={() => toggleTask(dateKey, task.id)}
+                                      className={`w-full ${
+                                        completed 
+                                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                          : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                                      }`}
+                                    >
+                                      {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
+                                      {completed ? 'Completed' : 'Mark Complete'}
+                                    </Button>
+                                  )}
+
+                                  {/* Value Input Task */}
+                                  {task.type === 'value_input' && (
+                                    <div className="space-y-3">
+                                      <div className="flex flex-col gap-3">
+                                        <div className="flex items-center gap-3">
+                                          <Input
+                                            type="number"
+                                            placeholder={`Enter ${task.unit || 'value'}`}
+                                            value={taskValues[task.id] || task.currentValue || ''}
+                                            onChange={(e) => updateTaskValue(task.id, parseFloat(e.target.value) || 0)}
+                                            className="flex-1 h-9 text-sm"
+                                            disabled={completed}
+                                          />
+                                          <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                                            Target: {task.targetValue} {task.unit}
+                                          </span>
+                                        </div>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => toggleTask(dateKey, task.id)}
+                                          className="w-full"
+                                        >
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                          Save
+                                        </Button>
+                                      </div>
+                                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div 
+                                          className={`h-2 rounded-full transition-all duration-300 ${
+                                            isCurrentDay ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-blue-500 to-cyan-500'
+                                          }`}
+                                          style={{ width: `${progressPercent}%` }}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Activity Detail Task */}
+                                  {task.type === 'activity_detail' && (
+                                    <div className="space-y-3">
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => setSelectedActivity(task)}
+                                          className="flex-1"
+                                        >
+                                          <Activity className="w-4 h-4 mr-2" />
+                                          View Details
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          onClick={() => toggleTask(dateKey, task.id)}
+                                          className={`${
+                                            completed 
+                                              ? 'bg-emerald-500 hover:bg-emerald-600' 
+                                              : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
+                                          }`}
+                                        >
+                                          {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
+                                          {completed ? 'Done' : 'Start'}
+                                        </Button>
+                                      </div>
+                                      {task.activityDetails?.duration && (
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                          Duration: {task.activityDetails.duration}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
