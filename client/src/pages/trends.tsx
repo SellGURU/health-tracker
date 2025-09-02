@@ -259,7 +259,7 @@ export default function Trends() {
         </div>
 
         {/* Biomarker Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {mockBiomarkers.map((biomarker) => {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
@@ -268,61 +268,39 @@ export default function Trends() {
             return (
               <Card 
                 key={biomarker.id} 
-                className={`bg-gradient-to-br ${biomarker.bgColor} border-0 shadow-lg backdrop-blur-lg hover:shadow-xl transition-all duration-300 cursor-pointer ${
-                  isExpanded ? 'md:col-span-2 lg:col-span-2 xl:col-span-2' : ''
-                }`}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl"
                 onClick={() => openDetailModal(biomarker)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-6">
                   {/* Card Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 bg-gradient-to-br ${biomarker.color} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                        <Icon className="w-5 h-5 text-white" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 bg-gradient-to-br ${biomarker.color} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+                        <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100 leading-tight">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                           {biomarker.name}
                         </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                           Last test: {new Date(biomarker.lastTest).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <Badge className={statusBadge.color}>
-                        {biomarker.status}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleCardExpansion(biomarker.id);
-                        }}
-                        className="h-6 w-6 p-0 hover:bg-white/50"
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className="w-4 h-4" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4" />
-                        )}
-                      </Button>
-                    </div>
+                    <Badge className={statusBadge.color}>
+                      {biomarker.status}
+                    </Badge>
                   </div>
 
                   {/* Current Value */}
                   <div className="mb-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-thin text-gray-900 dark:text-gray-100">
+                      <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                         {biomarker.value.toLocaleString()}
                       </span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-lg text-gray-600 dark:text-gray-400">
                         {biomarker.unit}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getTrendIcon(biomarker.trend)}
                     </div>
                   </div>
 
