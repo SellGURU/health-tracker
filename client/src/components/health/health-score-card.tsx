@@ -17,12 +17,6 @@ export default function HealthScoreCard({
   vitaminScore,
   className 
 }: HealthScoreCardProps) {
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return "Excellent";
-    if (score >= 70) return "Good";
-    if (score >= 60) return "Fair";
-    return "Needs Attention";
-  };
 
   return (
     <Card className={cn("overflow-hidden", className)}>
@@ -45,7 +39,7 @@ export default function HealthScoreCard({
                 style={{ width: `${score}%` }}
               />
             </div>
-            <span className="text-sm font-medium">{getScoreLabel(score)}</span>
+            <span className="text-sm font-medium">{score}%</span>
           </div>
         </div>
 

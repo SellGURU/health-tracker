@@ -74,7 +74,7 @@ export default function YouMenu() {
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
   const [completedSurveys, setCompletedSurveys] = useState<string[]>([]);
   const [hasRequiredData, setHasRequiredData] = useState(true);
-  const [biologicalAge, setBiologicalAge] = useState<number | null>(28);
+  const [phenotypicAge, setPhenotypicAge] = useState<number | null>(28);
   const [chronologicalAge, setChronologicalAge] = useState(25);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -173,7 +173,7 @@ export default function YouMenu() {
 
       {/* Age Cards - Prominent Display */}
       <div className="grid grid-cols-2 gap-4">
-        <Card className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group" onClick={() => toast({ title: "Phenotypic Age", description: "Phenotypic Age (PhenoAge) is an estimate of your biological age—how old your body seems based on health markers—rather than just your chronological age." })}>
+        <Card className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group" onClick={() => toast({ title: "Phenotypic Age", description: "Phenotypic Age (PhenoAge) is an estimate of how old your body seems based on health markers—rather than just your chronological age." })}>
           <CardContent className="p-6 text-center relative z-10">
             {/* Animated background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -191,12 +191,12 @@ export default function YouMenu() {
               {/* Prominent age display */}
               <div className="mb-3">
                 <div className="text-5xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
-                  {hasRequiredData && biologicalAge ? biologicalAge : '?'}
+                  {hasRequiredData && phenotypicAge ? phenotypicAge : '?'}
                 </div>
                 <div className="text-lg font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">Phenotypic Age</div>
               </div>
               
-              {hasRequiredData && biologicalAge && (
+              {hasRequiredData && phenotypicAge && (
                 <div className="space-y-3">
                   {/* Enhanced progress visualization */}
                   <div className="relative">
@@ -247,7 +247,7 @@ export default function YouMenu() {
               Complete your Health Profile
             </h3>
             <p className="text-blue-700 dark:text-blue-300 text-sm mb-4">
-              We need your date of birth, height, weight, and some health data to calculate your biological age
+              We need your date of birth, height, weight, and some health data to calculate your phenotypic age
             </p>
             <Button onClick={() => setCurrentView('health-profile')} className="bg-blue-600 hover:bg-blue-700">
               Complete Profile

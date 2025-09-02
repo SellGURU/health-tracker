@@ -438,7 +438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: "Health Analysis Report",
         summary: "Comprehensive analysis of your health biomarkers and trends",
         analysisData: {
-          biologicalAge: 28.5,
+          phenotypicAge: 28.5,
           riskFactors: ["Elevated LDL cholesterol", "Insufficient sleep"],
           recommendations: [
             "Increase omega-3 intake",

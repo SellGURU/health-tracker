@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { 
   CheckCircle,
@@ -15,10 +16,15 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Apple,
+  Pill,
+  Dumbbell,
+  Users,
+  ClipboardList
 } from "lucide-react";
 
-// Calendar-based tasks - each date has its own tasks
+// Calendar-based tasks with detailed categories
 const generateCalendarTasks = () => {
   const tasks: Record<string, any[]> = {};
   const today = new Date();
@@ -33,67 +39,136 @@ const generateCalendarTasks = () => {
       tasks[dateKey] = [
         {
           id: `${dateKey}-1`,
-          title: 'Take morning medications',
-          completed: true,
-          priority: 'high' as const,
-          type: 'checkbox' as const
+          title: 'Mediterranean Diet',
+          category: 'Diet',
+          completed: false,
+          details: {
+            instruction: 'Focus on olive oil, fish, vegetables, and whole grains',
+            total_macros: { fats: 65, carbs: 120, protein: 85 },
+            notes: 'Include 2 servings of fish this week'
+          }
         },
         {
           id: `${dateKey}-2`,
-          title: 'Record blood pressure',
-          completed: false,
-          priority: 'high' as const,
-          type: 'value_input' as const,
-          targetValue: 120,
-          currentValue: 0,
-          unit: 'mmHg'
+          title: 'Vitamin D3',
+          category: 'Supplement',
+          completed: true,
+          details: {
+            dose: '2000 IU',
+            instruction: 'Take with fatty meal for better absorption',
+            notes: 'Take in the morning'
+          }
         },
         {
           id: `${dateKey}-3`,
-          title: 'Drink 8 glasses of water',
+          title: 'Sleep Quality',
+          category: 'Lifestyle',
           completed: false,
-          priority: 'medium' as const,
-          type: 'value_input' as const,
-          targetValue: 8,
-          currentValue: 0,
-          unit: 'glasses'
+          details: {
+            instruction: 'Maintain consistent sleep schedule',
+            value: 8,
+            unit: 'hours',
+            notes: 'No screens 1 hour before bed'
+          }
         },
         {
           id: `${dateKey}-4`,
-          title: 'Take evening supplements',
+          title: 'Full Body Strength Training',
+          category: 'Activity',
           completed: false,
-          priority: 'medium' as const,
-          type: 'checkbox' as const
+          details: {
+            instruction: 'Focus on compound movements',
+            sections: [
+              {
+                section: 'Warm-Up',
+                sets: '1',
+                type: 'Circuit',
+                exercises: [
+                  {
+                    title: 'Dynamic Stretching',
+                    description: 'Prepare muscles for workout',
+                    instruction: 'Hold each stretch for 30 seconds',
+                    reps: '5 minutes',
+                    exercise_filters: { type: 'Flexibility', level: 'Beginner' },
+                    exercise_location: ['Home', 'Gym']
+                  }
+                ]
+              },
+              {
+                section: 'Main',
+                sets: '3',
+                type: 'Superset',
+                exercises: [
+                  {
+                    title: 'Squats',
+                    description: 'Lower body compound movement',
+                    instruction: 'Keep knees aligned with toes',
+                    reps: '12',
+                    rest: '60',
+                    weight: 'bodyweight',
+                    exercise_filters: { type: 'Strength', level: 'Intermediate', muscle: 'Glutes', equipment: 'Body Only' },
+                    exercise_location: ['Home', 'Gym']
+                  }
+                ]
+              }
+            ],
+            activity_location: ['Home', 'Gym'],
+            notes: 'Focus on form over weight'
+          }
+        },
+        {
+          id: `${dateKey}-5`,
+          title: 'Stress Level Check-in',
+          category: 'Test',
+          completed: false,
+          details: {
+            questions_count: 5,
+            estimated_time: '2 minutes'
+          }
         }
       ];
     } else if (i < 0) { // Past days - some completed tasks
       tasks[dateKey] = [
         {
           id: `${dateKey}-1`,
-          title: 'Take morning medications',
-          completed: true,
-          priority: 'high' as const,
-          type: 'checkbox' as const
+          title: 'Anti-Inflammatory Diet',
+          category: 'Diet',
+          completed: Math.random() > 0.3,
+          details: {
+            instruction: 'Reduce processed foods, increase omega-3 rich foods',
+            total_macros: { fats: 70, carbs: 100, protein: 90 }
+          }
         },
         {
           id: `${dateKey}-2`,
-          title: 'Record blood pressure',
-          completed: Math.random() > 0.3,
-          priority: 'high' as const,
-          type: 'value_input' as const,
-          targetValue: 120,
-          currentValue: Math.random() > 0.5 ? 118 : 0,
-          unit: 'mmHg'
+          title: 'Omega-3',
+          category: 'Supplement',
+          completed: Math.random() > 0.2,
+          details: {
+            dose: '1000 mg',
+            instruction: 'Take with dinner'
+          }
         },
         {
           id: `${dateKey}-3`,
-          title: '30-minute cardio workout',
+          title: 'Morning Walk',
+          category: 'Activity',
           completed: Math.random() > 0.4,
-          priority: 'medium' as const,
-          type: 'activity_detail' as const,
-          activityDetails: {
-            duration: '30 minutes',
-            instructions: 'Maintain moderate intensity'
+          details: {
+            instruction: 'Moderate pace outdoor walk',
+            sections: [
+              {
+                section: 'Main',
+                sets: '1',
+                type: 'Cardio',
+                exercises: [{
+                  title: 'Brisk Walking',
+                  description: 'Cardiovascular exercise',
+                  instruction: 'Maintain steady pace',
+                  reps: '30 minutes'
+                }]
+              }
+            ]
           }
         }
       ];
@@ -101,27 +176,34 @@ const generateCalendarTasks = () => {
       tasks[dateKey] = [
         {
           id: `${dateKey}-1`,
-          title: 'Take morning medications',
+          title: 'Balanced Nutrition',
+          category: 'Diet',
           completed: false,
-          priority: 'high' as const,
-          type: 'checkbox' as const
+          details: {
+            instruction: 'Include all food groups in appropriate portions',
+            total_macros: { fats: 60, carbs: 130, protein: 80 }
+          }
         },
         {
           id: `${dateKey}-2`,
-          title: 'Record blood pressure',
+          title: 'Hydration Check',
+          category: 'Lifestyle',
           completed: false,
-          priority: 'high' as const,
-          type: 'value_input' as const,
-          targetValue: 120,
-          currentValue: 0,
-          unit: 'mmHg'
+          details: {
+            instruction: 'Track daily water intake',
+            value: 8,
+            unit: 'glasses'
+          }
         },
         {
           id: `${dateKey}-3`,
-          title: 'Weekly health check',
+          title: 'Weekly Assessment',
+          category: 'Test',
           completed: false,
-          priority: 'medium' as const,
-          type: 'checkbox' as const
+          details: {
+            questions_count: 10,
+            estimated_time: '5 minutes'
+          }
         }
       ];
     }
@@ -179,15 +261,31 @@ export default function Plan() {
   };
 
   const getTaskIcon = (task: any) => {
-    if (task.type === 'value_input') return Activity;
-    if (task.type === 'activity_detail') return Heart;
-    return Circle;
+    switch (task.category) {
+      case 'Diet': return Apple;
+      case 'Supplement': return Pill;
+      case 'Lifestyle': return Users;
+      case 'Activity': return Dumbbell;
+      case 'Test': return ClipboardList;
+      default: return Circle;
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Diet': return 'bg-green-500';
+      case 'Supplement': return 'bg-blue-500';
+      case 'Lifestyle': return 'bg-purple-500';
+      case 'Activity': return 'bg-orange-500';
+      case 'Test': return 'bg-pink-500';
+      default: return 'bg-gray-500';
+    }
   };
 
   const getProgressPercent = (task: any) => {
-    if (task.type === 'value_input' && task.targetValue) {
-      const current = taskValues[task.id] || task.currentValue || 0;
-      return Math.min((current / task.targetValue) * 100, 100);
+    if (task.category === 'Lifestyle' && task.details.value) {
+      const current = taskValues[task.id] || 0;
+      return Math.min((current / task.details.value) * 100, 100);
     }
     return task.completed ? 100 : 0;
   };
@@ -201,6 +299,144 @@ export default function Plan() {
 
   const updateTaskValue = (taskId: string, value: number) => {
     setTaskValues(prev => ({ ...prev, [taskId]: value }));
+  };
+
+  const renderTaskDetails = (task: any) => {
+    const { category, details } = task;
+    
+    switch (category) {
+      case 'Diet':
+        return (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
+            {details.total_macros && (
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded">
+                  <div className="font-medium text-green-800 dark:text-green-300">Fats</div>
+                  <div className="text-green-600 dark:text-green-400">{details.total_macros.fats}g</div>
+                </div>
+                <div className="bg-orange-100 dark:bg-orange-900/20 p-2 rounded">
+                  <div className="font-medium text-orange-800 dark:text-orange-300">Carbs</div>
+                  <div className="text-orange-600 dark:text-orange-400">{details.total_macros.carbs}g</div>
+                </div>
+                <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded">
+                  <div className="font-medium text-blue-800 dark:text-blue-300">Protein</div>
+                  <div className="text-blue-600 dark:text-blue-400">{details.total_macros.protein}g</div>
+                </div>
+              </div>
+            )}
+            {details.notes && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            )}
+          </div>
+        );
+        
+      case 'Supplement':
+        return (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium text-blue-600 dark:text-blue-400">Dose:</span>
+              <span className="text-gray-700 dark:text-gray-300">{details.dose}</span>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
+            {details.notes && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            )}
+          </div>
+        );
+        
+      case 'Lifestyle':
+        return (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
+            {details.value && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    placeholder={`Enter ${details.unit || 'value'}`}
+                    value={taskValues[task.id] || ''}
+                    onChange={(e) => updateTaskValue(task.id, parseFloat(e.target.value) || 0)}
+                    className="flex-1 h-9 text-sm"
+                    disabled={task.completed}
+                  />
+                  <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    Target: {details.value} {details.unit}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${getProgressPercent(task)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            {details.notes && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            )}
+          </div>
+        );
+        
+      case 'Activity':
+        return (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
+            {details.sections && details.sections.map((section: any, index: number) => (
+              <div key={index} className="border border-orange-200 dark:border-orange-700/30 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h5 className="font-medium text-orange-800 dark:text-orange-300">{section.section}</h5>
+                  <Badge variant="secondary" className="text-xs">{section.sets} sets</Badge>
+                </div>
+                {section.exercises.map((exercise: any, exIndex: number) => (
+                  <div key={exIndex} className="ml-2 space-y-1">
+                    <div className="font-medium text-sm">{exercise.title}</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">{exercise.description}</div>
+                    <div className="text-xs">
+                      {exercise.reps && <span className="mr-3">Reps: {exercise.reps}</span>}
+                      {exercise.rest && <span className="mr-3">Rest: {exercise.rest}s</span>}
+                      {exercise.weight && <span>Weight: {exercise.weight}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+            {details.activity_location && (
+              <div className="flex gap-1">
+                {details.activity_location.map((location: string) => (
+                  <Badge key={location} variant="outline" className="text-xs">{location}</Badge>
+                ))}
+              </div>
+            )}
+            {details.notes && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            )}
+          </div>
+        );
+        
+      case 'Test':
+        return (
+          <div className="space-y-2">
+            <div className="flex items-center gap-4 text-sm">
+              {details.questions_count && (
+                <div className="flex items-center gap-1">
+                  <span className="font-medium text-pink-600 dark:text-pink-400">Questions:</span>
+                  <span className="text-gray-700 dark:text-gray-300">{details.questions_count}</span>
+                </div>
+              )}
+              {details.estimated_time && (
+                <div className="flex items-center gap-1">
+                  <span className="font-medium text-pink-600 dark:text-pink-400">Time:</span>
+                  <span className="text-gray-700 dark:text-gray-300">{details.estimated_time}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        
+      default:
+        return null;
+    }
   };
 
   return (
@@ -243,7 +479,7 @@ export default function Plan() {
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                          completed ? 'bg-emerald-500' : task.type === 'value_input' ? 'bg-blue-500' : 'bg-gray-400'
+                          completed ? 'bg-emerald-500' : getCategoryColor(task.category)
                         }`}>
                           <TaskIcon className="w-5 h-5 text-white" />
                         </div>
@@ -255,59 +491,28 @@ export default function Plan() {
                             }`}>
                               {task.title}
                             </h4>
+                            <Badge variant="outline" className="text-xs mt-1">{task.category}</Badge>
                           </div>
                           
-                          {/* Regular Checkbox Task */}
-                          {task.type === 'checkbox' && (
-                            <Button
-                              variant={completed ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => toggleTask('today', task.id)}
-                              className={`w-full ${
-                                completed 
-                                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                  : 'hover:bg-green-50 dark:hover:bg-green-900/20'
-                              }`}
-                            >
-                              {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                              {completed ? 'Completed' : 'Mark Complete'}
-                            </Button>
-                          )}
-
-                          {/* Value Input Task */}
-                          {task.type === 'value_input' && (
-                            <div className="space-y-3">
-                              <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3">
-                                  <Input
-                                    type="number"
-                                    placeholder={`Enter ${task.unit || 'value'}`}
-                                    value={taskValues[task.id] || task.currentValue || ''}
-                                    onChange={(e) => updateTaskValue(task.id, parseFloat(e.target.value) || 0)}
-                                    className="flex-1 h-9 text-sm"
-                                    disabled={completed}
-                                  />
-                                  <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                                    Target: {task.targetValue} {task.unit}
-                                  </span>
-                                </div>
-                                <Button
-                                  size="sm"
-                                  onClick={() => toggleTask('today', task.id)}
-                                  className="w-full"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Save
-                                </Button>
-                              </div>
-                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div 
-                                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
-                                  style={{ width: `${progressPercent}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
+                          {/* Task Details */}
+                          <div className="mb-4">
+                            {renderTaskDetails(task)}
+                          </div>
+                          
+                          {/* Task Action Button */}
+                          <Button
+                            variant={completed ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => toggleTask('today', task.id)}
+                            className={`w-full ${
+                              completed 
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                            }`}
+                          >
+                            {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
+                            {completed ? 'Completed' : 'Mark Complete'}
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -446,7 +651,7 @@ export default function Plan() {
                             <CardContent className="p-4">
                               <div className="flex items-start gap-3">
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                  completed ? 'bg-emerald-500' : task.type === 'value_input' ? 'bg-blue-500' : 'bg-gray-400'
+                                  completed ? 'bg-emerald-500' : getCategoryColor(task.category)
                                 }`}>
                                   <TaskIcon className="w-5 h-5 text-white" />
                                 </div>
@@ -458,95 +663,28 @@ export default function Plan() {
                                     }`}>
                                       {task.title}
                                     </h5>
+                                    <Badge variant="outline" className="text-xs mt-1">{task.category}</Badge>
                                   </div>
                                   
-                                  {/* Regular Checkbox Task */}
-                                  {task.type === 'checkbox' && (
-                                    <Button
-                                      variant={completed ? "default" : "outline"}
-                                      size="sm"
-                                      onClick={() => toggleTask(selectedDate, task.id)}
-                                      className={`w-full ${
-                                        completed 
-                                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                          : 'hover:bg-green-50 dark:hover:bg-green-900/20'
-                                      }`}
-                                    >
-                                      {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                                      {completed ? 'Completed' : 'Mark Complete'}
-                                    </Button>
-                                  )}
-
-                                  {/* Value Input Task */}
-                                  {task.type === 'value_input' && (
-                                    <div className="space-y-3">
-                                      <div className="flex flex-col gap-3">
-                                        <div className="flex items-center gap-3">
-                                          <Input
-                                            type="number"
-                                            placeholder={`Enter ${task.unit || 'value'}`}
-                                            value={taskValues[task.id] || task.currentValue || ''}
-                                            onChange={(e) => updateTaskValue(task.id, parseFloat(e.target.value) || 0)}
-                                            className="flex-1 h-9 text-sm"
-                                            disabled={completed}
-                                          />
-                                          <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                                            Target: {task.targetValue} {task.unit}
-                                          </span>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          onClick={() => toggleTask(selectedDate, task.id)}
-                                          className="w-full"
-                                        >
-                                          <CheckCircle className="w-4 h-4 mr-2" />
-                                          Save
-                                        </Button>
-                                      </div>
-                                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                        <div 
-                                          className={`h-2 rounded-full transition-all duration-300 ${
-                                            isCurrentDay ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-blue-500 to-cyan-500'
-                                          }`}
-                                          style={{ width: `${progressPercent}%` }}
-                                        />
-                                      </div>
-                                    </div>
-                                  )}
+                                  {/* Task Details */}
+                                  <div className="mb-4">
+                                    {renderTaskDetails(task)}
+                                  </div>
                                   
-                                  {/* Activity Detail Task */}
-                                  {task.type === 'activity_detail' && (
-                                    <div className="space-y-3">
-                                      <div className="flex gap-2">
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => setSelectedActivity(task)}
-                                          className="flex-1"
-                                        >
-                                          <Activity className="w-4 h-4 mr-2" />
-                                          View Details
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          onClick={() => toggleTask(selectedDate, task.id)}
-                                          className={`${
-                                            completed 
-                                              ? 'bg-emerald-500 hover:bg-emerald-600' 
-                                              : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
-                                          }`}
-                                        >
-                                          {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                                          {completed ? 'Done' : 'Start'}
-                                        </Button>
-                                      </div>
-                                      {task.activityDetails?.duration && (
-                                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                                          Duration: {task.activityDetails.duration}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
+                                  {/* Task Action Button */}
+                                  <Button
+                                    variant={completed ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => toggleTask(selectedDate, task.id)}
+                                    className={`w-full ${
+                                      completed 
+                                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                        : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                                    }`}
+                                  >
+                                    {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
+                                    {completed ? 'Completed' : 'Mark Complete'}
+                                  </Button>
                                 </div>
                               </div>
                             </CardContent>
@@ -561,67 +699,6 @@ export default function Plan() {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Activity Detail Modal */}
-      {selectedActivity && (
-        <Dialog open={!!selectedActivity} onOpenChange={() => setSelectedActivity(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-3">
-                <Heart className="w-5 h-5 text-red-500" />
-                {selectedActivity.title}
-              </DialogTitle>
-              <DialogDescription>
-                Activity details and instructions
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6">
-              {/* Duration and Sets */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Duration</div>
-                  <div className="text-lg font-semibold text-blue-600">{selectedActivity.activityDetails?.duration || 'N/A'}</div>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Sets</div>
-                  <div className="text-lg font-semibold text-green-600">{selectedActivity.activityDetails?.sets || 'N/A'}</div>
-                </div>
-              </div>
-              
-              {/* Instructions */}
-              {selectedActivity.activityDetails?.instructions && (
-                <div className="space-y-3">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Instructions</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {selectedActivity.activityDetails.instructions}
-                  </p>
-                </div>
-              )}
-              
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={() => {
-                    toggleTask('', selectedActivity.id);
-                    setSelectedActivity(null);
-                  }}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Mark Complete
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedActivity(null)}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Close
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }

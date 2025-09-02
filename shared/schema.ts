@@ -64,7 +64,63 @@ export const actionPlans = pgTable("action_plans", {
   description: text("description"),
   type: text("type").notNull(), // "ai_generated", "doctor_validated", "manual"
   status: text("status").default("active"), // active, completed, paused
-  tasks: jsonb("tasks").$type<Array<{ id: string; text: string; completed: boolean; dueDate?: string }>>().notNull(),
+  tasks: jsonb("tasks").$type<Array<{
+    id: string;
+    title: string;
+    category: "Diet" | "Supplement" | "Lifestyle" | "Activity" | "Test";
+    completed: boolean;
+    dueDate?: string;
+    details: {
+      // Diet details
+      instruction?: string;
+      total_macros?: {
+        fats: number;
+        carbs: number;
+        protein: number;
+      };
+      // Supplement details
+      dose?: string;
+      // Lifestyle details
+      value?: number;
+      unit?: string;
+      // Activity details
+      sections?: Array<{
+        section: string;
+        sets: string;
+        type: string;
+        exercises: Array<{
+          title: string;
+          description: string;
+          instruction: string;
+          reps?: string;
+          rest?: string;
+          weight?: string;
+          files?: Array<{
+            type: string;
+            title: string;
+            content: {
+              url: string;
+              file_id: string;
+            };
+          }>;
+          exercise_filters?: {
+            type: string | string[];
+            level: string;
+            muscle: string | string[];
+            equipment: string | string[];
+            conditions?: string | string[];
+          };
+          exercise_location?: string[];
+        }>;
+      }>;
+      activity_location?: string[];
+      // Test details
+      questions_count?: number;
+      estimated_time?: string;
+      // Common fields
+      notes?: string;
+    };
+  }>>().notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -224,7 +280,7 @@ export const deepAnalyses = pgTable("deep_analyses", {
   title: text("title").notNull(),
   summary: text("summary").notNull(),
   analysisData: jsonb("analysis_data").$type<{
-    biologicalAge?: number;
+    phenotypicAge?: number;
     riskFactors: string[];
     recommendations: string[];
     scores: Record<string, number>;
