@@ -8,14 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Send, 
-  Paperclip, 
   Calendar, 
   Clock,
   MessageCircle,
   Bot,
   User,
   Phone,
-  Video,
   Star,
   Heart,
   Zap,
@@ -206,63 +204,30 @@ export default function ChatPage() {
                     Available Coaches
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {coaches.map((coach) => (
-                    <div
-                      key={coach.id}
-                      onClick={() => setSelectedCoach(coach)}
-                      className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                        selectedCoach?.id === coach.id
-                          ? 'bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30'
-                          : 'bg-gradient-to-br from-gray-50 to-white dark:from-gray-700/50 dark:to-gray-800/30 hover:from-emerald-50 hover:to-teal-50 dark:hover:from-emerald-900/20 dark:hover:to-teal-900/20'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <Avatar className="w-10 h-10 ring-2 ring-white shadow-md">
-                          <AvatarImage src={coach.avatar} />
-                          <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                            {coach.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900 dark:text-gray-100">{coach.name}</div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-3 h-3 ${i < Math.floor(coach.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                              ))}
-                            </div>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">{coach.rating}</span>
-                          </div>
-                        </div>
-                        <div className={`w-3 h-3 rounded-full ${coach.available ? 'bg-green-500' : 'bg-gray-400'} shadow-sm`} />
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">{coach.specialization}</div>
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-500">
-                        <span>Response: {coach.responseTime}</span>
-                        <span>{coach.experience}</span>
-                      </div>
+                <CardContent className="p-4">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-10 h-10 ring-2 ring-white shadow-md">
+                        <AvatarImage src={coaches[0].avatar} />
+                        <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+                          {coaches[0].name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{coaches[0].name}</div>
                     </div>
-                  ))}
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Quick Actions */}
               <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-4">
                   <Button 
                     onClick={bookSession}
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
                   >
                     <Calendar className="w-4 h-4 mr-2" />
                     Book Session
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="w-full backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-gray-200/50 dark:border-gray-600/50 hover:shadow-lg transition-all duration-300"
-                  >
-                    <Video className="w-4 h-4 mr-2" />
-                    Video Call
                   </Button>
                 </CardContent>
               </Card>
@@ -290,20 +255,8 @@ export default function ChatPage() {
                     <div className="font-medium text-gray-900 dark:text-gray-100">
                       {activeMode === 'coach' ? selectedCoach?.name : 'AI Health Copilot'}
                     </div>
-                    <div className={`text-sm flex items-center gap-2 ${
-                      activeMode === 'coach' 
-                        ? selectedCoach?.available ? 'text-emerald-600' : 'text-gray-500'
-                        : 'text-blue-600'
-                    }`}>
-                      <div className={`w-2 h-2 rounded-full ${
-                        activeMode === 'coach' 
-                          ? selectedCoach?.available ? 'bg-emerald-500' : 'bg-gray-400'
-                          : 'bg-blue-500'
-                      }`} />
-                      {activeMode === 'coach' ? 
-                        (selectedCoach?.available ? 'Available' : 'Away') : 
-                        'Online'
-                      }
+                    <div className="text-sm text-emerald-600 dark:text-emerald-400">
+                      {activeMode === 'coach' ? 'Human Expert' : 'AI Assistant'}
                     </div>
                   </div>
                 </div>
@@ -367,13 +320,6 @@ export default function ChatPage() {
                         }
                       }}
                     />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-2 bottom-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    >
-                      <Paperclip className="w-4 h-4 text-gray-500" />
-                    </Button>
                   </div>
                   <Button
                     onClick={sendMessage}
