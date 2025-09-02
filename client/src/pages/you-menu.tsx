@@ -33,6 +33,8 @@ import {
   Download,
   CheckCircle,
   MessageCircle,
+  Users,
+  Waves,
   BookOpen,
   Calendar,
   ChevronLeft,
@@ -336,52 +338,95 @@ export default function YouMenu() {
               Health Summary
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="text-center p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl backdrop-blur-sm border border-blue-200/20 dark:border-blue-800/20 shadow-lg mb-6">
-              <div className="text-3xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">8.5</div>
-              <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">Overall Health Score</div>
-              <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-1 mt-2">
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-1 rounded-full shadow-sm" style={{ width: '85%' }}></div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-700/50 dark:to-gray-800/50 backdrop-blur-sm border border-gray-200/30 dark:border-gray-600/30 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
-                    <Heart className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Cardiovascular Risk</span>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Droplets className="w-4 h-4 text-white" />
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">7 Biomarkers</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">29% • 57% • 14%</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Blood</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">3 Biomarkers · 0 Needs Focus</div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-700/50 dark:to-gray-800/50 backdrop-blur-sm border border-gray-200/30 dark:border-gray-600/30 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
-                    <Droplets className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Blood Health</span>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Heart className="w-4 h-4 text-white" />
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">12 Biomarkers</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">17% • 67% • 16%</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Cardiovascular Risk</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">7 Biomarkers · 0 Needs Focus</div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-white/80 to-gray-50/80 dark:from-gray-700/50 dark:to-gray-800/50 backdrop-blur-sm border border-gray-200/30 dark:border-gray-600/30 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                    <Brain className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Mental Wellness</span>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Activity className="w-4 h-4 text-white" />
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">5 Biomarkers</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">60% • 40%</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Diabetes & Glucose</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">3 Biomarkers · 0 Needs Focus</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Essential Minerals</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">4 Biomarkers · 0 Needs Focus</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Hormone Health</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">3 Biomarkers · 0 Needs Focus</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Liver Function</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">7 Biomarkers · 1 Needs Focus</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Users className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Sex Hormones</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">1 Biomarker · 0 Needs Focus</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Waves className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Thyroid Function</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">2 Biomarkers · 0 Needs Focus</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Pill className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Vitamins</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">2 Biomarkers · 0 Needs Focus</div>
                 </div>
               </div>
             </div>
