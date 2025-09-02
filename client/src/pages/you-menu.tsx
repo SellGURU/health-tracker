@@ -206,18 +206,6 @@ export default function YouMenu() {
                     <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-emerald-300/50 to-cyan-300/50 rounded-full animate-shimmer"></div>
                   </div>
                   
-                  {/* Success badge */}
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 rounded-full border border-emerald-200/50 dark:border-emerald-700/50">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Optimal Range</span>
-                  </div>
-                  
-                  {/* Age difference highlight */}
-                  <div className="mt-2 p-2 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-lg border border-emerald-200/30 dark:border-emerald-700/30">
-                    <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                      🎉 {chronologicalAge - (biologicalAge || 0)} years younger than chronological age!
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
@@ -246,25 +234,6 @@ export default function YouMenu() {
                 <div className="text-lg font-thin text-purple-700 dark:text-purple-300 tracking-wide">Chronological Age</div>
               </div>
               
-              {/* Enhanced years lived display */}
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 rounded-full border border-purple-200/50 dark:border-purple-700/50">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Years Lived</span>
-                </div>
-                
-                {/* Life timeline visualization */}
-                <div className="mt-3 p-3 bg-gradient-to-r from-purple-50/80 to-pink-50/80 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200/30 dark:border-purple-700/30">
-                  <div className="flex items-center justify-center gap-1 mb-2">
-                    {Array.from({ length: Math.min(chronologicalAge, 10) }, (_, i) => (
-                      <div key={i} className="w-1 h-1 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: `${i * 100}ms` }}></div>
-                    ))}
-                  </div>
-                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
-                    🎂 {Math.floor(chronologicalAge * 365)} days of experiences
-                  </div>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
