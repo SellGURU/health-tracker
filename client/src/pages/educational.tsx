@@ -372,20 +372,6 @@ export default function EducationalPage() {
               <h1 className="text-3xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                 {selectedContent.title}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mt-2">
-                {selectedContent.author && (
-                  <span>By {selectedContent.author}</span>
-                )}
-                {selectedContent.readingTime && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{selectedContent.readingTime} min read</span>
-                  </div>
-                )}
-                {selectedContent.publishedAt && (
-                  <span>{selectedContent.publishedAt}</span>
-                )}
-              </div>
             </div>
           </div>
         </div>
