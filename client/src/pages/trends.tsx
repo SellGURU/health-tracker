@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -208,6 +208,7 @@ export default function Trends() {
   const [selectedBiomarker, setSelectedBiomarker] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [activeTab, setActiveTab] = useState('results');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
@@ -246,6 +247,13 @@ export default function Trends() {
     }
   };
 
+  const filteredBiomarkers = useMemo(() => {
+    if (!searchQuery) return mockBiomarkers;
+    return mockBiomarkers.filter(biomarker =>
+      biomarker.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
@@ -255,12 +263,23 @@ export default function Trends() {
           <h2 className="text-2xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent mb-2">
             Your Results
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light">Click on any biomarker to view detailed information</p>
+          <p className="text-gray-600 dark:text-gray-400 font-light mb-4">Click on any biomarker to view detailed information</p>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-md mx-auto">
+            <Input
+              type="text"
+              placeholder="Search biomarkers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-4 pr-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl"
+            />
+          </div>
         </div>
 
-        {/* Biomarker Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-          {mockBiomarkers.map((biomarker) => {
+        {/* Biomarker Cards - Single Column */}
+        <div className="space-y-4 max-w-2xl mx-auto">
+          {filteredBiomarkers.map((biomarker) => {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
             const statusBadge = getStatusBadge(biomarker.status);
