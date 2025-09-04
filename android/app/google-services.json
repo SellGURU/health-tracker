@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "310839943108",
+    "project_id": "holisticare-ff64d",
+    "storage_bucket": "holisticare-ff64d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:310839943108:android:6a022d7c0756c259ea8e91",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfSqQvO0BNs1WdpDfhte1eQA7TszxsPxE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

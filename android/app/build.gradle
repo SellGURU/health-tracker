@@ -42,6 +42,8 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
     implementation 'ai.sahha:sahha-android:+'
+    implementation platform('com.google.firebase:firebase-bom:34.2.0')
+    implementation 'com.google.firebase:firebase-analytics'
     // implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
 }
