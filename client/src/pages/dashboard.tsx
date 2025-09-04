@@ -187,29 +187,68 @@ export default function Dashboard() {
         </Card>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="text-center hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600 mb-1">
-                {labResults?.length || 12}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-white/90 to-blue-50/60 dark:from-gray-800/90 dark:to-blue-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {labResults?.length || 5}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Lab Tests</p>
+                </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Lab Results</p>
             </CardContent>
           </Card>
-          <Card className="text-center hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-blue-600 mb-1">
-                {actionPlans?.filter(plan => plan.status === 'active').length || 3}
+          
+          <Card className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {actionPlans?.filter(plan => plan.status === 'active').length || 2}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Plans</p>
+                </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Active Plans</p>
             </CardContent>
           </Card>
-          <Card className="text-center hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-purple-600 mb-1">
-                {insights?.length || 8}
+          
+          <Card className="bg-gradient-to-br from-white/90 to-purple-50/60 dark:from-gray-800/90 dark:to-purple-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {insights?.length || 0}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">AI Insights</p>
+                </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">AI Insights</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-white/90 to-red-50/60 dark:from-gray-800/90 dark:to-red-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {healthScore?.overallScore || 78}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Health Score</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

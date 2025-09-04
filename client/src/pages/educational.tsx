@@ -2,50 +2,27 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { 
   BookOpen, 
   Search, 
-  Filter,
-  Star,
-  Clock,
-  User,
-  Bookmark,
-  BookmarkCheck,
   Play,
-  Heart,
-  Brain,
-  Activity,
-  Leaf,
-  Zap,
-  Target,
-  Award,
-  TrendingUp,
-  Settings,
-  ChevronRight,
   Video,
   FileText,
-  Headphones
+  Headphones,
+  ArrowLeft,
+  Clock
 } from "lucide-react";
 
 interface EducationalContent {
   id: string;
   title: string;
   description: string;
-  category: string;
-  tags: string[];
-  readingTime: number;
-  author: string;
-  publishedAt: Date;
-  saved: boolean;
-  completed: boolean;
-  progress: number;
-  rating: number;
   type: 'article' | 'video' | 'podcast' | 'guide';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  content?: string;
+  author?: string;
+  readingTime?: number;
+  publishedAt?: string;
 }
 
 const mockContent: EducationalContent[] = [
@@ -53,154 +30,300 @@ const mockContent: EducationalContent[] = [
     id: '1',
     title: 'Understanding Your Cholesterol Numbers',
     description: 'Learn how to interpret your lipid panel results and what different cholesterol levels mean for your cardiovascular health.',
-    category: 'Cardiovascular Health',
-    tags: ['cholesterol', 'heart-health', 'lab-results'],
-    readingTime: 8,
-    author: 'Dr. Sarah Chen',
-    publishedAt: new Date('2025-01-15'),
-    saved: true,
-    completed: false,
-    progress: 60,
-    rating: 4.8,
-    type: 'article',
-    difficulty: 'beginner'
+    type: 'article'
   },
   {
     id: '2',
     title: 'The Mediterranean Diet: Your Heart\'s Best Friend',
     description: 'Discover how Mediterranean eating patterns can reduce inflammation, lower cholesterol, and promote longevity.',
-    category: 'Nutrition',
-    tags: ['mediterranean-diet', 'heart-health', 'nutrition'],
-    readingTime: 15,
-    author: 'Maria Rodriguez, RD',
-    publishedAt: new Date('2025-01-20'),
-    saved: false,
-    completed: true,
-    progress: 100,
-    rating: 4.9,
-    type: 'guide',
-    difficulty: 'intermediate'
+    type: 'guide'
   },
   {
     id: '3',
     title: 'Stress and Your Health: Breaking the Cycle',
     description: 'Understanding how chronic stress affects your biomarkers and practical strategies for stress management.',
-    category: 'Mental Health',
-    tags: ['stress-management', 'cortisol', 'wellness'],
-    readingTime: 12,
-    author: 'Dr. Michael Kim',
-    publishedAt: new Date('2025-01-18'),
-    saved: true,
-    completed: false,
-    progress: 25,
-    rating: 4.7,
-    type: 'video',
-    difficulty: 'intermediate'
+    type: 'video'
   },
   {
     id: '4',
     title: 'Biomarker Optimization for Longevity',
     description: 'Advanced strategies for optimizing key health biomarkers through lifestyle interventions and targeted supplementation.',
-    category: 'Longevity',
-    tags: ['biomarkers', 'longevity', 'optimization'],
-    readingTime: 22,
-    author: 'Dr. Emma Wilson',
-    publishedAt: new Date('2025-01-10'),
-    saved: false,
-    completed: false,
-    progress: 0,
-    rating: 4.9,
-    type: 'guide',
-    difficulty: 'advanced'
+    type: 'guide'
   },
   {
     id: '5',
     title: 'Sleep Optimization for Better Health',
     description: 'How quality sleep impacts your biomarkers, hormone levels, and overall health. Practical tips for better rest.',
-    category: 'Lifestyle',
-    tags: ['sleep', 'recovery', 'hormones'],
-    readingTime: 10,
-    author: 'Dr. Lisa Park',
-    publishedAt: new Date('2025-01-12'),
-    saved: true,
-    completed: false,
-    progress: 40,
-    rating: 4.6,
-    type: 'podcast',
-    difficulty: 'beginner'
+    type: 'podcast'
   },
   {
     id: '6',
     title: 'Exercise Prescriptions for Metabolic Health',
     description: 'Evidence-based exercise protocols to improve insulin sensitivity, metabolic flexibility, and cardiovascular fitness.',
-    category: 'Fitness',
-    tags: ['exercise', 'metabolism', 'fitness'],
-    readingTime: 18,
-    author: 'Marcus Rodriguez, CSCS',
-    publishedAt: new Date('2025-01-08'),
-    saved: false,
-    completed: true,
-    progress: 100,
-    rating: 4.8,
-    type: 'video',
-    difficulty: 'intermediate'
+    type: 'video'
+  },
+  {
+    id: '7',
+    title: 'Nutrition Timing and Metabolic Health',
+    description: 'Learn how meal timing and intermittent fasting can optimize your metabolic markers and energy levels.',
+    type: 'article'
+  },
+  {
+    id: '8',
+    title: 'Understanding Inflammation Markers',
+    description: 'Deep dive into CRP, ESR, and other inflammatory biomarkers and how to interpret your results.',
+    type: 'guide'
+  },
+  {
+    id: '9',
+    title: 'Hormone Balance and Wellness',
+    description: 'How hormones affect your overall health and practical strategies for maintaining optimal hormone levels.',
+    type: 'video'
+  },
+  {
+    id: '10',
+    title: 'Mindfulness and Health Optimization',
+    description: 'Explore the connection between mental wellness and physical health through mindfulness practices.',
+    type: 'podcast'
   }
 ];
 
-const categories = [
-  { name: 'All', icon: BookOpen, count: mockContent.length },
-  { name: 'Cardiovascular Health', icon: Heart, count: mockContent.filter(c => c.category === 'Cardiovascular Health').length },
-  { name: 'Nutrition', icon: Leaf, count: mockContent.filter(c => c.category === 'Nutrition').length },
-  { name: 'Mental Health', icon: Brain, count: mockContent.filter(c => c.category === 'Mental Health').length },
-  { name: 'Fitness', icon: Activity, count: mockContent.filter(c => c.category === 'Fitness').length },
-  { name: 'Lifestyle', icon: Zap, count: mockContent.filter(c => c.category === 'Lifestyle').length },
-  { name: 'Longevity', icon: Target, count: mockContent.filter(c => c.category === 'Longevity').length }
-];
+// Detailed content for each educational item
+const contentDetails: Record<string, EducationalContent> = {
+  '1': {
+    id: '1',
+    title: 'Understanding Your Cholesterol Numbers',
+    description: 'Learn how to interpret your lipid panel results and what different cholesterol levels mean for your cardiovascular health.',
+    type: 'article',
+    author: 'Dr. Sarah Johnson',
+    readingTime: 8,
+    publishedAt: 'January 15, 2025',
+    content: `# Understanding Your Cholesterol Numbers
+
+Cholesterol is a waxy substance found in your blood that your body needs to build healthy cells. However, high levels of cholesterol can increase your risk of heart disease.
+
+## Types of Cholesterol
+
+### LDL Cholesterol ("Bad" Cholesterol)
+Low-density lipoprotein (LDL) cholesterol carries cholesterol particles throughout your body. LDL cholesterol builds up in the walls of your arteries, making them hard and narrow.
+
+**Optimal levels:**
+- Less than 100 mg/dL: Optimal
+- 100-129 mg/dL: Near optimal
+- 130-159 mg/dL: Borderline high
+- 160-189 mg/dL: High
+- 190 mg/dL and above: Very high
+
+### HDL Cholesterol ("Good" Cholesterol)
+High-density lipoprotein (HDL) cholesterol absorbs cholesterol and carries it back to the liver, which flushes it from the body.
+
+**Optimal levels:**
+- 60 mg/dL and above: High (protective against heart disease)
+- 40 mg/dL and above for men: Acceptable
+- 50 mg/dL and above for women: Acceptable
+- Below 40 mg/dL for men: Low (risk factor)
+- Below 50 mg/dL for women: Low (risk factor)
+
+## Improving Your Cholesterol
+
+### Dietary Changes
+1. **Reduce saturated fats** - Found in red meat and dairy products
+2. **Eliminate trans fats** - Often found in processed foods
+3. **Eat omega-3 fatty acids** - Found in salmon, walnuts, and flaxseeds
+4. **Increase soluble fiber** - Found in oats, beans, and fruits
+
+### Lifestyle Modifications
+- **Exercise regularly** - Aim for 150 minutes of moderate activity per week
+- **Lose weight** - Even a 5-10% weight loss can help
+- **Quit smoking** - Improves HDL cholesterol
+- **Limit alcohol** - Moderate consumption may help raise HDL
+
+## When to See Your Doctor
+
+Contact your healthcare provider if:
+- Your total cholesterol is above 240 mg/dL
+- Your LDL is above 160 mg/dL
+- Your HDL is below 40 mg/dL (men) or 50 mg/dL (women)
+- You have other risk factors for heart disease
+
+Remember, these numbers are just one part of your overall health picture. Work with your healthcare provider to understand what your specific numbers mean for you.`
+  },
+  '2': {
+    id: '2',
+    title: 'The Mediterranean Diet: Your Heart\'s Best Friend',
+    description: 'Discover how Mediterranean eating patterns can reduce inflammation, lower cholesterol, and promote longevity.',
+    type: 'guide',
+    author: 'Dr. Maria Rodriguez',
+    readingTime: 12,
+    publishedAt: 'January 10, 2025',
+    content: `# The Mediterranean Diet: Your Heart's Best Friend
+
+The Mediterranean diet has been extensively studied and proven to be one of the most effective eating patterns for heart health, longevity, and overall wellness.
+
+## What is the Mediterranean Diet?
+
+The Mediterranean diet is based on the traditional eating patterns of countries bordering the Mediterranean Sea, including Greece, Italy, Spain, and southern France.
+
+### Core Components
+
+**Primary Foods (Daily):**
+- Vegetables and fruits
+- Whole grains
+- Legumes and nuts
+- Olive oil as the primary fat source
+- Herbs and spices
+
+**Secondary Foods (Weekly):**
+- Fish and seafood (2-3 times per week)
+- Poultry (2-3 times per week)
+- Eggs (up to 4 per week)
+- Dairy products (moderate amounts)
+
+**Occasional Foods (Monthly):**
+- Red meat (limited)
+- Processed foods (minimal)
+- Sweets (occasional treats)
+
+## Health Benefits
+
+### Cardiovascular Health
+- **50% reduction** in heart disease risk
+- **Lower blood pressure** and improved circulation
+- **Reduced inflammation** markers like CRP
+- **Better cholesterol profiles** with higher HDL
+
+### Metabolic Benefits
+- Improved insulin sensitivity
+- Better blood sugar control
+- Reduced risk of type 2 diabetes
+- Healthy weight management
+
+### Cognitive Health
+- Reduced risk of Alzheimer's disease
+- Better memory and cognitive function
+- Lower rates of depression
+- Improved mood and mental clarity
+
+## Getting Started
+
+### Week 1: Foundation
+1. **Switch to olive oil** for cooking and dressings
+2. **Add a serving of nuts** to your daily routine
+3. **Include fish** in 2 meals this week
+4. **Eat more vegetables** with each meal
+
+### Week 2: Expansion
+1. **Try new whole grains** like quinoa and farro
+2. **Add legumes** to soups and salads
+3. **Use herbs and spices** instead of salt
+4. **Have fruit** for dessert instead of sweets
+
+### Week 3: Integration
+1. **Plan Mediterranean meals** for the entire week
+2. **Try new recipes** from different Mediterranean countries
+3. **Enjoy meals socially** when possible
+4. **Include a glass of red wine** with dinner (optional)
+
+The Mediterranean diet isn't just about food—it's a lifestyle that emphasizes fresh, whole foods, social eating, and mindful consumption.`
+  },
+  '3': {
+    id: '3',
+    title: 'Stress and Your Health: Breaking the Cycle',
+    description: 'Understanding how chronic stress affects your biomarkers and practical strategies for stress management.',
+    type: 'video',
+    author: 'Dr. Michael Chen',
+    readingTime: 15,
+    publishedAt: 'January 8, 2025',
+    content: `# Stress and Your Health: Breaking the Cycle
+
+Chronic stress is one of the most significant yet overlooked factors affecting your health biomarkers. Understanding this connection is crucial for optimal wellness.
+
+## How Stress Affects Your Body
+
+### Immediate Stress Response
+When you encounter stress, your body releases hormones like cortisol and adrenaline. This "fight-or-flight" response is designed to help you handle short-term threats.
+
+### Chronic Stress Impact
+When stress becomes chronic, these hormonal changes can seriously impact your health:
+
+**Cardiovascular Effects:**
+- Increased blood pressure
+- Elevated heart rate
+- Higher cholesterol levels
+- Increased inflammation (elevated CRP)
+
+**Metabolic Consequences:**
+- Insulin resistance
+- Higher blood glucose
+- Weight gain (especially abdominal)
+- Disrupted sleep patterns
+
+## Effective Stress Management Strategies
+
+### Mind-Body Techniques
+
+**1. Meditation and Mindfulness**
+- Start with 5 minutes daily
+- Use apps like Headspace or Calm
+- Practice deep breathing exercises
+- Try body scan meditation
+
+**2. Progressive Muscle Relaxation**
+- Tense and release muscle groups
+- Start from toes, work up to head
+- Practice 10-15 minutes before bed
+
+### Physical Strategies
+
+**1. Regular Exercise**
+- Cardio: 30 minutes, 5 times per week
+- Strength training: 2-3 times per week
+- Nature walks: Proven to reduce cortisol
+- Swimming: Low-impact stress relief
+
+**2. Sleep Optimization**
+- Maintain consistent sleep schedule
+- Create a relaxing bedtime routine
+- Limit screens 1 hour before bed
+- Keep bedroom cool and dark
+
+Remember, managing stress is not about eliminating it completely—it's about developing healthy ways to cope with life's inevitable challenges.`
+  }
+};
 
 export default function EducationalPage() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentView, setCurrentView] = useState<'list' | 'content'>('list');
+  const [selectedContent, setSelectedContent] = useState<EducationalContent | null>(null);
   const { toast } = useToast();
 
-  // Define content arrays first
-  const inProgressContent = mockContent.filter(c => c.progress > 0 && c.progress < 100);
-  const completedContent = mockContent.filter(c => c.completed);
-  const savedContent = mockContent.filter(c => c.saved);
-
   const getFilteredContent = () => {
-    const baseFilter = (content: any) => {
-      const matchesCategory = selectedCategory === 'All' || content.category === selectedCategory;
-      const matchesSearch = content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           content.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           content.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCategory && matchesSearch;
-    };
-
-    switch (activeTab) {
-      case 'saved':
-        return savedContent.filter(baseFilter);
-      case 'progress':
-        return inProgressContent.filter(baseFilter);
-      default:
-        return mockContent.filter(baseFilter);
-    }
+    if (!searchQuery) return mockContent;
+    
+    return mockContent.filter(content => 
+      content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      content.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   };
 
   const filteredContent = getFilteredContent();
 
-  const toggleSaved = (contentId: string) => {
-    toast({
-      title: "Content saved",
-      description: "Added to your reading list",
-    });
+  const startReading = (contentId: string) => {
+    const content = contentDetails[contentId] || mockContent.find(c => c.id === contentId);
+    if (content) {
+      setSelectedContent(content);
+      setCurrentView('content');
+    } else {
+      toast({
+        title: "Content Coming Soon",
+        description: "This content is being prepared and will be available soon.",
+      });
+    }
   };
 
-  const startReading = (contentId: string) => {
-    toast({
-      title: "Opening content",
-      description: "Starting your learning session",
-    });
+  const goBackToList = () => {
+    setCurrentView('list');
+    setSelectedContent(null);
   };
 
   const getTypeIcon = (type: string) => {
@@ -221,298 +344,176 @@ export default function EducationalPage() {
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner': return 'from-green-500 to-emerald-500';
-      case 'intermediate': return 'from-yellow-500 to-orange-500';
-      case 'advanced': return 'from-red-500 to-pink-500';
-      default: return 'from-gray-500 to-gray-600';
-    }
+  const renderContentView = () => {
+    if (!selectedContent) return null;
+    
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={goBackToList}
+          className="mb-6 flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Content
+        </Button>
+
+        {/* Content Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(selectedContent.type)} rounded-2xl flex items-center justify-center shadow-lg`}>
+              {(() => {
+                const TypeIcon = getTypeIcon(selectedContent.type);
+                return <TypeIcon className="w-6 h-6 text-white" />;
+              })()}
+            </div>
+            <div>
+              <h1 className="text-3xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                {selectedContent.title}
+              </h1>
+              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                {selectedContent.author && (
+                  <span>By {selectedContent.author}</span>
+                )}
+                {selectedContent.readingTime && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{selectedContent.readingTime} min read</span>
+                  </div>
+                )}
+                {selectedContent.publishedAt && (
+                  <span>{selectedContent.publishedAt}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Body */}
+        <Card className="bg-white/90 dark:bg-gray-800/90 border shadow-lg backdrop-blur-sm">
+          <CardContent className="p-8">
+            {selectedContent.content ? (
+              <div className="prose prose-lg dark:prose-invert max-w-none">
+                {selectedContent.content.split('\n').map((line, index) => {
+                  if (line.startsWith('# ')) {
+                    return <h1 key={index} className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">{line.slice(2)}</h1>;
+                  }
+                  if (line.startsWith('## ')) {
+                    return <h2 key={index} className="text-2xl font-semibold mb-4 mt-8 text-gray-800 dark:text-gray-200">{line.slice(3)}</h2>;
+                  }
+                  if (line.startsWith('### ')) {
+                    return <h3 key={index} className="text-xl font-medium mb-3 mt-6 text-gray-700 dark:text-gray-300">{line.slice(4)}</h3>;
+                  }
+                  if (line.startsWith('**') && line.endsWith('**') && line.length > 4) {
+                    return <p key={index} className="font-semibold mb-2 text-gray-800 dark:text-gray-200">{line.slice(2, -2)}</p>;
+                  }
+                  if (line.startsWith('- ')) {
+                    return <li key={index} className="mb-1 ml-4 text-gray-600 dark:text-gray-400 list-disc">{line.slice(2)}</li>;
+                  }
+                  if (line.match(/^\d+\. /)) {
+                    return <li key={index} className="mb-1 ml-4 text-gray-600 dark:text-gray-400 list-decimal">{line.slice(line.indexOf(' ') + 1)}</li>;
+                  }
+                  if (line.trim() === '') {
+                    return <div key={index} className="mb-4"></div>;
+                  }
+                  return <p key={index} className="mb-4 text-gray-600 dark:text-gray-400 leading-relaxed">{line}</p>;
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Content Coming Soon</h3>
+                <p className="text-gray-600 dark:text-gray-400">This content is being prepared and will be available soon.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  };
-
-
+  if (currentView === 'content') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
+        {renderContentView()}
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
+        {/* Page Title */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+            Educational Content
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 font-light">Browse health and wellness content</p>
+        </div>
+
         {/* Search */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search articles, guides, videos..."
-              className="pl-10 bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner"
+              placeholder="Search content..."
+              className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
             />
           </div>
         </div>
-        <div className="space-y-6">
 
-          {/* Categories - Horizontal Scrollable */}
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-thin bg-gradient-to-r from-gray-900 to-emerald-800 dark:from-white dark:to-emerald-200 bg-clip-text text-transparent">
-                Categories
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-                {categories.map((category) => (
-                  <button
-                    key={category.name}
-                    onClick={() => setSelectedCategory(category.name)}
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 hover:shadow-lg flex-shrink-0 min-w-fit ${
-                      selectedCategory === category.name
-                        ? 'bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30'
-                        : 'bg-gradient-to-r from-gray-50 to-white dark:from-gray-700/50 dark:to-gray-800/30 hover:from-emerald-50 hover:to-teal-50 dark:hover:from-emerald-900/20 dark:hover:to-teal-900/20'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      selectedCategory === category.name 
-                        ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md' 
-                        : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 text-gray-600 dark:text-gray-300'
-                    }`}>
-                      <category.icon className="w-4 h-4" />
+        {/* Content List */}
+        <div className="space-y-4">
+          {filteredContent.map((content) => {
+            const TypeIcon = getTypeIcon(content.type);
+            return (
+              <Card 
+                key={content.id} 
+                className="bg-gradient-to-br from-white/90 to-gray-50/60 dark:from-gray-800/90 dark:to-gray-700/60 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => startReading(content.id)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(content.type)} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+                      <TypeIcon className="w-6 h-6 text-white" />
                     </div>
-                    <span className={`font-medium text-sm ${
-                      selectedCategory === category.name 
-                        ? 'text-emerald-800 dark:text-emerald-200' 
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}>
-                      {category.name}
-                    </span>
-                    <Badge 
-                      variant="secondary" 
-                      className={selectedCategory === category.name 
-                        ? 'bg-emerald-200 text-emerald-800 dark:bg-emerald-800/30 dark:text-emerald-300' 
-                        : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                      }
-                    >
-                      {category.count}
-                    </Badge>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Main Content */}
-          <div className="space-y-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-800/80 dark:to-emerald-900/30 p-2 rounded-2xl backdrop-blur-lg border border-white/30 dark:border-gray-700/20 shadow-xl">
-                <TabsTrigger 
-                  value="all" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-4 py-2"
-                >
-                  <span className="font-medium">All Content</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="saved" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-4 py-2"
-                >
-                  <span className="font-medium">Saved ({savedContent.length})</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="progress" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-4 py-2"
-                >
-                  <span className="font-medium">In Progress ({inProgressContent.length})</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="all" className="space-y-6 mt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                  {filteredContent.map((content) => {
-                    const TypeIcon = getTypeIcon(content.type);
-                    return (
-                      <Card key={content.id} className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-start gap-3 flex-1 pr-2">
-                              <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(content.type)} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                                <TypeIcon className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100 leading-tight mb-2 break-words">
-                                  {content.title}
-                                </CardTitle>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs">
-                                    {content.category}
-                                  </Badge>
-                                  <Badge variant={content.difficulty === 'advanced' ? 'destructive' : content.difficulty === 'intermediate' ? 'default' : 'secondary'} className="text-xs">
-                                    {content.difficulty}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleSaved(content.id)}
-                              className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex-shrink-0"
-                            >
-                              {content.saved ? (
-                                <BookmarkCheck className="w-4 h-4 text-emerald-600" />
-                              ) : (
-                                <Bookmark className="w-4 h-4 text-gray-400" />
-                              )}
-                            </Button>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="pt-0 space-y-4">
-                          <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                            {content.description}
-                          </p>
-                          
-                          {content.progress > 0 && (
-                            <div className="space-y-3 bg-emerald-50/30 dark:bg-emerald-900/10 rounded-xl p-3 backdrop-blur-sm">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-                                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">{content.progress}%</span>
-                              </div>
-                              <div className="relative">
-                                <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 shadow-inner">
-                                  <div 
-                                    className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full shadow-sm transition-all duration-500" 
-                                    style={{ width: `${content.progress}%` }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex flex-wrap gap-2">
-                            {content.tags.slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                <span>{content.readingTime} min</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <User className="w-3 h-3" />
-                                <span>{content.author}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                <span>{content.rating}</span>
-                              </div>
-                            </div>
-                            <span>{formatDate(content.publishedAt)}</span>
-                          </div>
-
-                          <div className="pt-2">
-                            <Button 
-                              onClick={() => startReading(content.id)}
-                              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105"
-                            >
-                              <Play className="w-4 h-4 mr-2" />
-                              {content.progress > 0 ? 'Continue' : 'Start'} {content.type === 'video' ? 'Watching' : content.type === 'podcast' ? 'Listening' : 'Reading'}
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="saved" className="space-y-6 mt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                  {filteredContent.map((content) => {
-                    const TypeIcon = getTypeIcon(content.type);
-                    return (
-                      <Card key={content.id} className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                        <CardHeader className="pb-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(content.type)} rounded-2xl flex items-center justify-center shadow-lg`}>
-                              <TypeIcon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                {content.title}
-                              </CardTitle>
-                              <Badge variant="secondary" className="mt-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs">
-                                {content.category}
-                              </Badge>
-                            </div>
-                            <BookmarkCheck className="w-5 h-5 text-blue-600" />
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 font-light mb-4">{content.description}</p>
-                          <Button 
-                            onClick={() => startReading(content.id)}
-                            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
-                          >
-                            <Play className="w-4 h-4 mr-2" />
-                            Open Saved Content
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="progress" className="space-y-6 mt-6">
-                <div className="space-y-4">
-                  {filteredContent.map((content) => {
-                    const TypeIcon = getTypeIcon(content.type);
-                    return (
-                      <Card key={content.id} className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg">
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 bg-gradient-to-br ${getTypeColor(content.type)} rounded-2xl flex items-center justify-center shadow-lg`}>
-                              <TypeIcon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{content.title}</h3>
-                                <span className="text-sm text-orange-600 dark:text-orange-400 font-semibold">{content.progress}%</span>
-                              </div>
-                              <div className="mb-3">
-                                <Progress value={content.progress} className="h-2 bg-gray-200/50 dark:bg-gray-700/50" />
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 text-xs">
-                                  {content.category}
-                                </Badge>
-                                <Button 
-                                  onClick={() => startReading(content.id)}
-                                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
-                                >
-                                  <Play className="w-4 h-4 mr-2" />
-                                  Continue
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        {content.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-4">
+                        {content.description}
+                      </p>
+                      
+                      <Button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startReading(content.id);
+                        }}
+                        className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium transition-all duration-300"
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        {content.type === 'video' ? 'Watch' : content.type === 'podcast' ? 'Listen' : 'Read'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+
+        {filteredContent.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No content found</h3>
+            <p className="text-gray-600 dark:text-gray-400">Try adjusting your search terms</p>
+          </div>
+        )}
       </div>
     </div>
   );

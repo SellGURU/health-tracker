@@ -49,15 +49,13 @@ export default function Profile() {
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
-  const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editData, setEditData] = useState({
-    fullName: user?.fullName || "",
-    age: user?.age || "",
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
     gender: user?.gender || "",
-    height: user?.height || "",
-    weight: user?.weight || "",
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -87,8 +85,6 @@ export default function Profile() {
     thirdPartyIntegrations: true,
   });
   
-  // Language setting
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const { data: stats } = useQuery({
     queryKey: ["/api/profile/stats"],
@@ -113,11 +109,10 @@ export default function Profile() {
   const updateProfileMutation = useMutation({
     mutationFn: async (data: typeof editData) => {
       const updates = {
-        fullName: data.fullName,
-        age: data.age ? parseInt(data.age) : undefined,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dateOfBirth: data.dateOfBirth,
         gender: data.gender || undefined,
-        height: data.height ? parseInt(data.height) : undefined,
-        weight: data.weight ? parseFloat(data.weight) : undefined,
       };
 
       // This would typically be a PATCH /api/users/me endpoint
@@ -231,13 +226,6 @@ export default function Profile() {
     setShowPrivacyDialog(false);
   };
   
-  const saveLanguageSettings = () => {
-    toast({
-      title: "Language updated",
-      description: "Your language preference has been saved.",
-    });
-    setShowLanguageDialog(false);
-  };
 
   const settingsItems = [
     {
@@ -267,13 +255,6 @@ export default function Profile() {
       description: "Download your health data",
       action: () => handleExportData(),
       badge: null,
-    },
-    {
-      icon: Globe,
-      title: "Language",
-      description: "Change your preferred language",
-      action: () => setShowLanguageDialog(true),
-      badge: "English",
     },
     {
       icon: HelpCircle,
@@ -392,66 +373,34 @@ export default function Profile() {
         </Card>
 
         {/* Health Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="bg-gradient-to-br from-white/90 to-blue-50/60 dark:from-gray-800/90 dark:to-blue-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                    {stats?.totalTests || 0}
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {stats?.totalTests || 5}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Lab Tests</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Lab Tests</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
+          
+          <Card className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Target className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Target className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    {stats?.activePlans || 0}
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {stats?.activePlans || 2}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Active Plans</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-purple-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-purple-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Brain className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                    {stats?.insights || 0}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">AI Insights</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-orange-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-orange-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-2xl font-thin bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    {stats?.healthScore || 0}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Health Score</div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Plans</p>
                 </div>
               </div>
             </CardContent>
@@ -549,24 +498,35 @@ export default function Profile() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit-name" className="text-gray-700 dark:text-gray-300 font-medium">Full Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editData.fullName}
-                  onChange={(e) => setEditData(prev => ({ ...prev, fullName: e.target.value }))}
-                  className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-firstname" className="text-gray-700 dark:text-gray-300 font-medium">First Name</Label>
+                  <Input
+                    id="edit-firstname"
+                    value={editData.firstName || ''}
+                    onChange={(e) => setEditData(prev => ({ ...prev, firstName: e.target.value }))}
+                    className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-lastname" className="text-gray-700 dark:text-gray-300 font-medium">Last Name</Label>
+                  <Input
+                    id="edit-lastname"
+                    value={editData.lastName || ''}
+                    onChange={(e) => setEditData(prev => ({ ...prev, lastName: e.target.value }))}
+                    className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
+                  />
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-age" className="text-gray-700 dark:text-gray-300 font-medium">Age</Label>
+                  <Label htmlFor="edit-birthdate" className="text-gray-700 dark:text-gray-300 font-medium">Date of Birth</Label>
                   <Input
-                    id="edit-age"
-                    type="number"
-                    value={editData.age}
-                    onChange={(e) => setEditData(prev => ({ ...prev, age: e.target.value }))}
+                    id="edit-birthdate"
+                    type="date"
+                    value={editData.dateOfBirth || ''}
+                    onChange={(e) => setEditData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                     className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
                   />
                 </div>
@@ -586,30 +546,6 @@ export default function Profile() {
                       <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-height" className="text-gray-700 dark:text-gray-300 font-medium">Height (cm)</Label>
-                  <Input
-                    id="edit-height"
-                    type="number"
-                    value={editData.height}
-                    onChange={(e) => setEditData(prev => ({ ...prev, height: e.target.value }))}
-                    className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-weight" className="text-gray-700 dark:text-gray-300 font-medium">Weight (kg)</Label>
-                  <Input
-                    id="edit-weight"
-                    type="number"
-                    step="0.1"
-                    value={editData.weight}
-                    onChange={(e) => setEditData(prev => ({ ...prev, weight: e.target.value }))}
-                    className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
-                  />
                 </div>
               </div>
               
@@ -994,77 +930,6 @@ export default function Profile() {
           </DialogContent>
         </Dialog>
 
-        {/* Language Dialog */}
-        <Dialog open={showLanguageDialog} onOpenChange={setShowLanguageDialog}>
-          <DialogContent className="max-w-md bg-gradient-to-br from-white/95 via-white/90 to-green-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-green-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-green-800 dark:from-white dark:to-green-200 bg-clip-text text-transparent flex items-center gap-3">
-                <Globe className="w-5 h-5 text-green-600" />
-                Language Preferences
-              </DialogTitle>
-              <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
-                Choose your preferred language for the app interface
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-3">
-                {[
-                  { code: 'en', name: 'English', nativeName: 'English' },
-                  { code: 'es', name: 'Spanish', nativeName: 'Español' },
-                  { code: 'fr', name: 'French', nativeName: 'Français' },
-                  { code: 'de', name: 'German', nativeName: 'Deutsch' },
-                  { code: 'it', name: 'Italian', nativeName: 'Italiano' },
-                  { code: 'pt', name: 'Portuguese', nativeName: 'Português' },
-                  { code: 'zh', name: 'Chinese', nativeName: '中文' },
-                  { code: 'ja', name: 'Japanese', nativeName: '日本語' },
-                ].map((language) => (
-                  <div 
-                    key={language.code}
-                    onClick={() => setSelectedLanguage(language.code)}
-                    className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                      selectedLanguage === language.code
-                        ? 'bg-gradient-to-r from-green-100/80 to-emerald-100/80 dark:from-green-900/40 dark:to-emerald-900/40 border border-green-300/50 dark:border-green-700/50 shadow-lg'
-                        : 'bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30 hover:from-green-50/60 hover:to-emerald-50/60 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20'
-                    }`}
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{language.name}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">{language.nativeName}</div>
-                    </div>
-                    {selectedLanguage === language.code && (
-                      <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30">
-                <div className="text-xs text-gray-600 dark:text-gray-400">
-                  <strong>Note:</strong> Currently, only English is fully supported. Other languages will be available in future updates.
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button 
-                  onClick={saveLanguageSettings}
-                  disabled={selectedLanguage !== 'en'}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg disabled:opacity-50"
-                >
-                  Save Language
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowLanguageDialog(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Help & Support Dialog */}
         <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
@@ -1125,14 +990,6 @@ export default function Profile() {
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors duration-300 ml-auto" />
                   </button>
                   
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-50/60 to-white/50 dark:from-green-900/20 dark:to-gray-800/30 hover:from-green-100/60 hover:to-green-50/50 dark:hover:from-green-900/30 dark:hover:to-green-900/20 transition-all duration-300 group">
-                    <Brain className="w-5 h-5 text-green-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Live Chat</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Available 9 AM - 6 PM EST</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-green-600 transition-colors duration-300 ml-auto" />
-                  </button>
                 </div>
               </div>
 

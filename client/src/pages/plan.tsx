@@ -430,50 +430,19 @@ export default function PlanPage() {
           </Card>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          {/* Tab Navigation with Glassmorphism */}
-          <div className="flex justify-center">
-            <TabsList className="bg-gradient-to-r from-white/80 to-purple-50/50 dark:from-gray-800/80 dark:to-purple-900/30 p-2 rounded-3xl backdrop-blur-lg border border-white/30 dark:border-gray-700/20 shadow-2xl">
-              <TabsTrigger 
-                value="goals" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-2xl px-6 py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  <span className="font-medium">Goals</span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="challenges" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-2xl px-6 py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4" />
-                  <span className="font-medium">Challenges</span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="actions" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-2xl px-6 py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="font-medium">Action Plans</span>
-                </div>
-              </TabsTrigger>
-            </TabsList>
+        <div className="space-y-6">
+          {/* Page Title */}
+          <div className="text-center">
+            <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              Action Plans
+            </h2>
           </div>
 
-          {/* Goals Tab */}
-          <TabsContent value="goals" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-thin bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Your Health Goals
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 font-light">Track and achieve your health objectives</p>
-              </div>
-              <Dialog open={showNewGoalDialog} onOpenChange={setShowNewGoalDialog}>
+          {/* Action Plans Content */}
+          <div className="space-y-6">
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 font-light">Complete daily and weekly tasks for optimal health</p>
+            </div>
                 <DialogTrigger asChild>
                   <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl hover:scale-105">
                     <Plus className="w-4 h-4 mr-2" />
@@ -661,7 +630,7 @@ export default function PlanPage() {
                 </Card>
               ))}
             </div>
-          </TabsContent>
+
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">
@@ -763,16 +732,7 @@ export default function PlanPage() {
                 </Card>
               ))}
             </div>
-          </TabsContent>
 
-          {/* Action Plans Tab */}
-          <TabsContent value="actions" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-                Action Plans
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 font-light">Complete daily and weekly tasks for optimal health</p>
-            </div>
 
             <div className="space-y-6">
               {mockActionPlans.map((plan) => (
@@ -930,7 +890,7 @@ export default function PlanPage() {
                 </Card>
               ))}
             </div>
-          </TabsContent>
+
         </Tabs>
       </div>
       

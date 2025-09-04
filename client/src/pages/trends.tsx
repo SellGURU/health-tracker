@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -208,6 +208,7 @@ export default function Trends() {
   const [selectedBiomarker, setSelectedBiomarker] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [activeTab, setActiveTab] = useState('results');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
@@ -246,21 +247,39 @@ export default function Trends() {
     }
   };
 
+  const filteredBiomarkers = useMemo(() => {
+    if (!searchQuery) return mockBiomarkers;
+    return mockBiomarkers.filter(biomarker =>
+      biomarker.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="w-full max-w-none mx-auto px-4 py-6 overflow-hidden">
         {/* Your Results Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent mb-2">
             Your Results
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light">Click on any biomarker to view detailed information</p>
+          <p className="text-gray-600 dark:text-gray-400 font-light mb-4">Click on any biomarker to view detailed information</p>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-md mx-auto">
+            <Input
+              type="text"
+              placeholder="Search biomarkers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-4 pr-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl"
+            />
+          </div>
         </div>
 
-        {/* Biomarker Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockBiomarkers.map((biomarker) => {
+        {/* Biomarker Cards - Single Column */}
+        <div className="space-y-4 max-w-2xl mx-auto">
+          {filteredBiomarkers.map((biomarker) => {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
             const statusBadge = getStatusBadge(biomarker.status);
@@ -268,73 +287,47 @@ export default function Trends() {
             return (
               <Card 
                 key={biomarker.id} 
-                className={`bg-gradient-to-br ${biomarker.bgColor} border-0 shadow-xl backdrop-blur-lg hover:shadow-2xl transition-all duration-300 cursor-pointer ${
-                  isExpanded ? 'lg:col-span-2' : ''
-                }`}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl"
                 onClick={() => openDetailModal(biomarker)}
               >
-                <CardContent className="p-5">
+                <CardContent className="p-6">
                   {/* Card Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-3">
+                  <div className="mb-4">
+                    <div className="flex items-center gap-3 mb-3">
                       <div className={`w-10 h-10 bg-gradient-to-br ${biomarker.color} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
                         <Icon className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100 leading-tight">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-base truncate">
                           {biomarker.name}
                         </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Last test: {new Date(biomarker.lastTest).toLocaleDateString()}
-                        </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <Badge className={statusBadge.color}>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Last test: {new Date(biomarker.lastTest).toLocaleDateString()}
+                      </p>
+                      <Badge className={`${statusBadge.color} text-xs flex-shrink-0`}>
                         {biomarker.status}
                       </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleCardExpansion(biomarker.id);
-                        }}
-                        className="h-6 w-6 p-0 hover:bg-white/50"
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className="w-4 h-4" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4" />
-                        )}
-                      </Button>
                     </div>
                   </div>
 
                   {/* Current Value */}
                   <div className="mb-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-thin text-gray-900 dark:text-gray-100">
+                      <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         {biomarker.value.toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         {biomarker.unit}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getTrendIcon(biomarker.trend)}
-                      <span className={`text-sm font-medium ${
-                        biomarker.trend === 'improving' ? 'text-emerald-600' :
-                        biomarker.trend === 'declining' ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {biomarker.trendPercent > 0 ? '+' : ''}{biomarker.trendPercent.toFixed(1)}%
-                      </span>
-                    </div>
                   </div>
 
                   {/* Reference Range */}
                   <div className="mb-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Reference Range</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Optimal Range</div>
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {biomarker.referenceRange}
                     </div>
@@ -414,24 +407,12 @@ export default function Trends() {
                       <h3 className="text-lg font-medium mb-4">Reference Range</h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Normal Range:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Optimal Range:</span>
                           <span className="font-medium">{selectedBiomarker.referenceRange}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600 dark:text-gray-400">Last Test:</span>
                           <span className="font-medium">{new Date(selectedBiomarker.lastTest).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600 dark:text-gray-400">Trend:</span>
-                          <div className="flex items-center gap-2">
-                            {getTrendIcon(selectedBiomarker.trend)}
-                            <span className={`font-medium ${
-                              selectedBiomarker.trend === 'improving' ? 'text-emerald-600' :
-                              selectedBiomarker.trend === 'declining' ? 'text-red-600' : 'text-blue-600'
-                            }`}>
-                              {selectedBiomarker.trendPercent > 0 ? '+' : ''}{selectedBiomarker.trendPercent.toFixed(1)}%
-                            </span>
-                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -489,10 +470,6 @@ export default function Trends() {
             <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <Button variant="outline" onClick={() => setShowDetailModal(false)}>
                 Close
-              </Button>
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                <Download className="w-4 h-4 mr-2" />
-                Export Report
               </Button>
             </div>
           </DialogContent>

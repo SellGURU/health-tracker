@@ -1,0 +1,79 @@
+this is my verions: {
+  "Diet": {
+    "Title": "string (diet type)",
+    "Instruction": "string (guideline / food focus)",
+    "Total_macros": {
+      "Fats": "number (grams/day)",
+      "Carbs": "number (grams/day)",
+      "Protein": "number (grams/day)"
+    },
+    "Notes": "string (optional)"
+  },
+
+  "Supplement": {
+    "Title": "string (supplement name)",
+    "Dose": "string (amount + unit, e.g., '200 mcg')",
+    "Instruction": "string (how and when to take it)",
+    "Notes": "string (optional)" 
+  },
+
+  "Lifestyle": {
+    "Title": "string (habit/behavior)",
+    "Instruction": "string (how to perform or avoid)",
+    "Value": "number (optional: target value, e.g., 8)",
+    "Unit": "string (optional: hours, minutes, times/day)",
+    "Notes": "string (optional)" 
+  },
+
+  "Activity": {
+    "Title": "string (activity or session name)",
+    "Instruction": "string (overall activity guidance)",
+    "Sections": [
+      {
+        "Section": "string (Warm-Up, Main, Cool-Down)",
+        "Sets": "string (number of sets)",
+        "Type": "string (Superset, Circuit, etc.)",
+        "Exercises": [
+          {
+            "Title": "string (exercise name)",
+            "Description": "string (what it trains)",
+            "Instruction": "string (how to do it)",
+            "Reps": "string (optional reps)",
+            "Rest": "string (optional rest time in sec)",
+            "Weight": "string (optional weight)",
+            "Files": [
+              {
+                "Type": "string (Video, Image)",
+                "Title": "string (media file name)",
+                "Content": {
+                  "url": "string (media link)",
+                  "file_id": "string (media id)"
+                }
+              }
+            ],
+            "Exercise_Filters": {
+              "Type": "string or array (Strength, Plyometrics, etc.)",
+              "Level": "string (Beginner, Intermediate, Advanced)",
+              "Muscle": "string or array (Glutes, Core, etc.)",
+              "Equipment": "string or array (Dumbbell, Body Only, etc.)",
+              "Conditions": "string or array (if any restrictions)"
+            },
+            "Exercise_Location": [
+              "string (Gym, Home, Outdoor)"
+            ]
+          }
+        ]
+      }
+    ],
+
+    "Activity_Location": [
+      "string (Home, Gym, Outdoor)"
+    ],
+    "Notes": "string (optional" 
+  },  {
+        "Title": "Test",
+        "Questions_Count": 0,
+        "Category": "Checkin",
+        "Estimated_time": "0 Seconds" (optional)
+    }, 
+} 
