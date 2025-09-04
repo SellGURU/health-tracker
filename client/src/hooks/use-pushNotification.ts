@@ -19,6 +19,7 @@ export function usePushNotifications() {
     PushNotifications.addListener("registration", (token: Token) => {
       console.log("Device token:", token.value);
       setToken(token.value);
+      alert(token)
 
       // 👇 اینجا می‌تونی توکن رو به سرورت بفرستی
       // fetch("/api/save-token", { method: "POST", body: JSON.stringify({ token: token.value }) })

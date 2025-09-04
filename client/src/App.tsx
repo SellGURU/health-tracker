@@ -27,9 +27,9 @@ function Router() {
   const { isAuthenticated } = useAuth();
   const isOnboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
   const { token, notifications } = usePushNotifications();
-  useEffect(() => {
-    alert(notifications[notifications.length -1].title)
-  },[notifications])
+  // useEffect(() => {
+  //   alert(notifications[notifications.length -1].title)
+  // },[notifications])
 
   if (!isAuthenticated) {
     return (
