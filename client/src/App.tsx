@@ -20,16 +20,17 @@ import PlanPage from "@/pages/plan";
 import ActionPlanPage from "@/pages/action-plan";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
-import { usePushNotifications } from "./hooks/use-pushNotification";
+// import { usePushNotifications } from "./hooks/use-pushNotification";
 import { useEffect } from "react";
 
 function Router() {
   const { isAuthenticated } = useAuth();
-  const isOnboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
-  const { token, notifications } = usePushNotifications();
-  useEffect(() => {
-    alert(notifications[notifications.length -1].title)
-  },[notifications])
+  const isOnboardingCompleted =
+    localStorage.getItem("onboardingCompleted") === "true";
+  // const { token, notifications } = usePushNotifications();
+  // useEffect(() => {
+  //   alert(notifications[notifications.length -1].title)
+  // },[notifications])
 
   if (!isAuthenticated) {
     return (
