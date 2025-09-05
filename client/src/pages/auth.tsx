@@ -61,10 +61,10 @@ export default function AuthPage() {
   const CallLoginAuthApi = async (isRegister = false) => {
     Auth.login(loginData.email, loginData.password)
       .then((res) => {
-        localStorage.setItem(
-          "health_user",
-          JSON.stringify(res.data.permission)
-        );
+        // localStorage.setItem(
+        //   "health_user",
+        //   JSON.stringify(res.data.permission)
+        // );
         localStorage.setItem("health_session", res.data.access_token);
         localStorage.setItem("token", res.data.access_token);
         if (!isRegister) {
@@ -144,7 +144,7 @@ export default function AuthPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    CallLoginAuthApi();
+    
     // try {
     //   alert("authenticate started");
     //   await authenticate(
@@ -153,14 +153,14 @@ export default function AuthPage() {
     //     "test12"
     //   );
     //   await connect();
-    //   if (!validateEmail(loginData.email)) {
-    //     throw new Error("Please enter a valid email address");
-    //   }
+      if (!validateEmail(loginData.email)) {
+        throw new Error("Please enter a valid email address");
+      }
 
-    //   if (loginData.password.length < 6) {
-    //     throw new Error("Password must be at least 6 characters long");
-    //   }
-
+      if (loginData.password.length < 6) {
+        throw new Error("Password must be at least 6 characters long");
+      }
+      CallLoginAuthApi();
     //   await login(loginData);
 
     //   toast({

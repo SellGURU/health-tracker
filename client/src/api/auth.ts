@@ -9,14 +9,12 @@ interface AuthResponse {
 class Auth extends Api {
   static login(username: string, password: string): Promise<AuthResponse> {
     const data = {
-      username: username,
+      email: username,
       password: password,
     };
 
-    return this.post("/auth/token", data, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+    return this.post("/auth/mobile_token", data, {
+
     });
   }
   static signup(
@@ -32,7 +30,7 @@ class Auth extends Api {
       google_json: google_json,
     };
 
-    return this.post("/auth/", data, {
+    return this.post("/auth/mobile_token", data, {
       headers: {
         "Content-Type": "application/json",
       },
