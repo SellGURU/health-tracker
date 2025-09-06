@@ -21,6 +21,10 @@ class Application extends Api {
     const response = this.post("/mobile_chat", data);
     return response;
   }
+
+  static getBiomarkersData() {
+    return this.post("/biomarkers_mobile",{})
+  }
 }
 
 export default Application;
