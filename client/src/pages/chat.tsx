@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Send, 
-  Calendar, 
+import {
+  Send,
+  Calendar,
   Clock,
   MessageCircle,
   Bot,
@@ -19,17 +19,25 @@ import {
   Zap,
   Brain,
   Settings,
-  Activity
+  Activity,
 } from "lucide-react";
+import Application from "@/api/app";
 
-type ChatMode = 'coach' | 'copilot';
+type ChatMode = "coach" | "ai";
 
 interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'coach' | 'copilot';
-  timestamp: Date;
-  type: 'text' | 'booking' | 'attachment';
+  conversation_id: number;
+  date: string;
+  feedback?: string;
+  images?: string[];
+  message_text: string;
+  replied_message_id?: string;
+  reported: boolean;
+  sender_iamge?: string;
+  sender_id?: string;
+  sender_name?: string;
+  sender_type: "patient" | "coach" | "ai" | "user";
+  time: string;
 }
 
 interface Coach {
@@ -45,86 +53,117 @@ interface Coach {
 
 const coaches: Coach[] = [
   {
-    id: '1',
-    name: 'Dr. Sarah Chen',
-    specialization: 'Metabolic Health',
-    avatar: '/avatars/sarah.jpg',
+    id: "1",
+    name: "Dr. Sarah Chen",
+    specialization: "Metabolic Health",
+    avatar: "/avatars/sarah.jpg",
     rating: 4.9,
     available: true,
-    responseTime: '~2 hours',
-    experience: '8+ years'
+    responseTime: "~2 hours",
+    experience: "8+ years",
   },
   {
-    id: '2',
-    name: 'Marcus Rodriguez',
-    specialization: 'Fitness & Nutrition',
-    avatar: '/avatars/marcus.jpg',
+    id: "2",
+    name: "Marcus Rodriguez",
+    specialization: "Fitness & Nutrition",
+    avatar: "/avatars/marcus.jpg",
     rating: 4.8,
     available: false,
-    responseTime: '~4 hours',
-    experience: '6+ years'
+    responseTime: "~4 hours",
+    experience: "6+ years",
   },
   {
-    id: '3',
-    name: 'Dr. Emma Wilson',
-    specialization: 'Longevity Medicine',
-    avatar: '/avatars/emma.jpg',
+    id: "3",
+    name: "Dr. Emma Wilson",
+    specialization: "Longevity Medicine",
+    avatar: "/avatars/emma.jpg",
     rating: 4.9,
     available: true,
-    responseTime: '~1 hour',
-    experience: '12+ years'
-  }
+    responseTime: "~1 hour",
+    experience: "12+ years",
+  },
 ];
 
 export default function ChatPage() {
-  const [activeMode, setActiveMode] = useState<ChatMode>('copilot');
+  const [activeMode, setActiveMode] = useState<ChatMode>("ai");
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: 'Hello! I\'m your AI health copilot. I can help you understand your health data, create personalized plans, and answer questions about your wellness journey. What would you like to explore today?',
-      sender: 'copilot',
-      timestamp: new Date(Date.now() - 3600000),
-      type: 'text'
-    },
-    {
-      id: '2',
-      content: 'Hi! I\'m Dr. Sarah Chen, your health coach. I\'m here to provide personalized guidance and support for your health goals. Would you like to schedule a session to discuss your recent lab results?',
-      sender: 'coach',
-      timestamp: new Date(Date.now() - 1800000),
-      type: 'text'
-    }
-  ]);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const CallLoginAuthApi = async () => {
+    Application.getMessagesId({ message_from: activeMode })
+      .then((res) => {
+        setMessages(res.data.messages);
+        setConversationId(res.data.conversation_id);
+      })
+      .catch((res) => {
+        if (res.response.data.detail) {
+          toast({
+            title: "Error",
+            description: res.response.data.detail,
+            variant: "destructive",
+          });
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+  useEffect(() => {
+    setMessages([]);
+    setConversationId(0);
+    setIsLoading(true);
+    CallLoginAuthApi();
+  }, [activeMode]);
 
   const sendMessage = () => {
     if (!message.trim()) return;
 
     const newMessage: Message = {
-      id: Date.now().toString(),
-      content: message,
-      sender: 'user',
-      timestamp: new Date(),
-      type: 'text'
+      conversation_id: conversationId,
+      date: new Date().toISOString(),
+      message_text: message,
+      sender_type: activeMode,
+      time: new Date().toLocaleTimeString(),
+      reported: false,
     };
 
-    setMessages(prev => [...prev, newMessage]);
-    setMessage('');
+    Application.sendMessage({
+      conversation_id: 1,
+      message_to: activeMode,
+      text: message,
+    })
+      .then((res) => {
+        setMessages((prev) => [...prev, newMessage]);
+        setMessage("");
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
     // Simulate response
-    setTimeout(() => {
-      const responseMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: activeMode === 'copilot' 
-          ? 'I understand your question. Based on your health data and goals, here are my recommendations...'
-          : 'Thanks for reaching out! I\'ll analyze your question and provide detailed guidance. Let me review your recent health data.',
-        sender: activeMode,
-        timestamp: new Date(),
-        type: 'text'
-      };
-      setMessages(prev => [...prev, responseMessage]);
-    }, 1500);
+    // setTimeout(() => {
+    //   const responseMessage: Message = {
+    //     id: (Date.now() + 1).toString(),
+    //     content:
+    //       activeMode === "ai"
+    //         ? "I understand your question. Based on your health data and goals, here are my recommendations..."
+    //         : "Thanks for reaching out! I'll analyze your question and provide detailed guidance. Let me review your recent health data.",
+    //     sender: activeMode,
+    //     timestamp: new Date(),
+    //     type: "text",
+    //   };
+    //   setMessages((prev) => [...prev, responseMessage]);
+    // }, 1500);
   };
 
   const bookSession = () => {
@@ -134,69 +173,96 @@ export default function ChatPage() {
     });
   };
 
-  const formatTimestamp = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const getRelevantMessages = () => {
-    return messages.filter(msg => 
-      msg.sender === 'user' || msg.sender === activeMode
-    );
-  };
+  // const formatTimestamp = (timestamp: Date) => {
+  //   return timestamp.toLocaleTimeString([], {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //   });
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Mode Toggle */}
         <div className="flex bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 p-2 rounded-2xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20 shadow-inner mb-6">
-            <Button
-              onClick={() => setActiveMode('copilot')}
-              variant={activeMode === 'copilot' ? 'default' : 'ghost'}
-              className={`flex-1 transition-all duration-300 ${
-                activeMode === 'copilot' 
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl' 
-                  : 'hover:bg-white/50 dark:hover:bg-gray-700/50'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                  activeMode === 'copilot' ? 'bg-white/20' : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                }`}>
-                  <Bot className={`w-4 h-4 ${activeMode === 'copilot' ? 'text-white' : 'text-white'}`} />
-                </div>
-                <div className="text-left">
-                  <div className="font-medium">AI Copilot</div>
-                  <div className={`text-xs ${activeMode === 'copilot' ? 'text-blue-100' : 'text-gray-500'}`}>Instant responses</div>
+          <Button
+            onClick={() => setActiveMode("ai")}
+            variant={activeMode === "ai" ? "default" : "ghost"}
+            className={`flex-1 transition-all duration-300 ${
+              activeMode === "ai"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl"
+                : "hover:bg-white/50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                  activeMode === "ai"
+                    ? "bg-white/20"
+                    : "bg-gradient-to-br from-blue-500 to-cyan-500"
+                }`}
+              >
+                <Bot
+                  className={`w-4 h-4 ${
+                    activeMode === "ai" ? "text-white" : "text-white"
+                  }`}
+                />
+              </div>
+              <div className="text-left">
+                <div className="font-medium">AI Copilot</div>
+                <div
+                  className={`text-xs ${
+                    activeMode === "ai" ? "text-blue-100" : "text-gray-500"
+                  }`}
+                >
+                  Instant responses
                 </div>
               </div>
-            </Button>
-            
-            <Button
-              onClick={() => setActiveMode('coach')}
-              variant={activeMode === 'coach' ? 'default' : 'ghost'}
-              className={`flex-1 transition-all duration-300 ${
-                activeMode === 'coach' 
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl' 
-                  : 'hover:bg-white/50 dark:hover:bg-gray-700/50'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                  activeMode === 'coach' ? 'bg-white/20' : 'bg-gradient-to-br from-emerald-500 to-teal-500'
-                }`}>
-                  <User className={`w-4 h-4 ${activeMode === 'coach' ? 'text-white' : 'text-white'}`} />
-                </div>
-                <div className="text-left">
-                  <div className="font-medium">Human Coach</div>
-                  <div className={`text-xs ${activeMode === 'coach' ? 'text-emerald-100' : 'text-gray-500'}`}>Expert guidance</div>
+            </div>
+          </Button>
+
+          <Button
+            onClick={() => setActiveMode("coach")}
+            variant={activeMode === "coach" ? "default" : "ghost"}
+            className={`flex-1 transition-all duration-300 ${
+              activeMode === "coach"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
+                : "hover:bg-white/50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                  activeMode === "coach"
+                    ? "bg-white/20"
+                    : "bg-gradient-to-br from-emerald-500 to-teal-500"
+                }`}
+              >
+                <User
+                  className={`w-4 h-4 ${
+                    activeMode === "coach" ? "text-white" : "text-white"
+                  }`}
+                />
+              </div>
+              <div className="text-left">
+                <div className="font-medium">Human Coach</div>
+                <div
+                  className={`text-xs ${
+                    activeMode === "coach"
+                      ? "text-emerald-100"
+                      : "text-gray-500"
+                  }`}
+                >
+                  Expert guidance
                 </div>
               </div>
-            </Button>
-          </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            </div>
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
           {/* Sidebar - Coach Selection */}
-          {activeMode === 'coach' && (
+          {/* {activeMode === "coach" && (
             <div className="lg:col-span-1 space-y-4">
               <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
                 <CardHeader className="pb-4">
@@ -210,19 +276,23 @@ export default function ChatPage() {
                       <Avatar className="w-10 h-10 ring-2 ring-white shadow-md">
                         <AvatarImage src={coaches[0].avatar} />
                         <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                          {coaches[0].name.split(' ').map(n => n[0]).join('')}
+                          {coaches[0].name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">{coaches[0].name}</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                        {coaches[0].name}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Quick Actions */}
               <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
                 <CardContent className="p-4">
-                  <Button 
+                  <Button
                     onClick={bookSession}
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
                   >
@@ -232,18 +302,25 @@ export default function ChatPage() {
                 </CardContent>
               </Card>
             </div>
-          )}
+          )} */}
 
           {/* Chat Messages */}
-          <Card className={`${activeMode === 'coach' ? 'lg:col-span-3' : 'lg:col-span-3'} bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}>
+          <Card
+            className={`${
+              activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
+            } bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}
+          >
             <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {activeMode === 'coach' ? (
+                  {activeMode === "coach" ? (
                     <Avatar className="w-10 h-10 ring-2 ring-emerald-200 shadow-lg">
                       <AvatarImage src={selectedCoach?.avatar} />
                       <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                        {selectedCoach?.name.split(' ').map(n => n[0]).join('')}
+                        {selectedCoach?.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
@@ -253,49 +330,70 @@ export default function ChatPage() {
                   )}
                   <div>
                     <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {activeMode === 'coach' ? selectedCoach?.name : 'AI Health Copilot'}
+                      {activeMode === "coach"
+                        ? selectedCoach?.name
+                        : "AI Health Copilot"}
                     </div>
                     <div className="text-sm text-emerald-600 dark:text-emerald-400">
-                      {activeMode === 'coach' ? 'Human Expert' : 'AI Assistant'}
+                      {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
                     </div>
                   </div>
                 </div>
-                <Badge variant={activeMode === 'coach' ? 'default' : 'secondary'} className={
-                  activeMode === 'coach' 
-                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                }>
-                  {activeMode === 'coach' ? 'Human Expert' : 'AI Assistant'}
+                <Badge
+                  variant={activeMode === "coach" ? "default" : "secondary"}
+                  className={
+                    activeMode === "coach"
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                  }
+                >
+                  {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
                 </Badge>
               </div>
             </CardHeader>
 
             <CardContent className="flex-1 p-0">
               <div className="h-96 overflow-y-auto p-4 space-y-4">
-                {getRelevantMessages().map((msg) => (
+                {messages.map((msg) => (
                   <div
-                    key={msg.id}
-                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    key={msg.conversation_id}
+                    className={`flex ${
+                      msg.sender_type === "patient"
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
                   >
-                    <div className={`max-w-[80%] ${msg.sender === 'user' ? 'order-2' : 'order-1'}`}>
+                    <div
+                      className={`max-w-[80%] ${
+                        msg.sender_type === "patient" ? "order-2" : "order-1"
+                      }`}
+                    >
                       <div
                         className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
-                          msg.sender === 'user'
-                            ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto'
-                            : activeMode === 'coach'
-                            ? 'bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20'
-                            : 'bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20'
+                          msg.sender_type === "patient"
+                            ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto"
+                            : activeMode === "coach"
+                            ? "bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20"
+                            : "bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20"
                         }`}
                       >
-                        <p className={`text-sm ${msg.sender === 'user' ? 'text-white' : 'text-gray-800 dark:text-gray-200'}`}>
-                          {msg.content}
+                        <p
+                          className={`text-sm ${
+                            msg.sender_type === "patient"
+                              ? "text-white"
+                              : "text-gray-800 dark:text-gray-200"
+                          }`}
+                        >
+                          {msg.message_text}
                         </p>
-                        <p className={`text-xs mt-2 ${
-                          msg.sender === 'user' 
-                            ? 'text-blue-100' 
-                            : 'text-gray-500 dark:text-gray-400'
-                        }`}>
-                          {formatTimestamp(msg.timestamp)}
+                        <p
+                          className={`text-xs mt-2 ${
+                            msg.sender_type === "patient"
+                              ? "text-blue-100"
+                              : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
+                          {msg.time}
                         </p>
                       </div>
                     </div>
@@ -310,11 +408,15 @@ export default function ChatPage() {
                     <Textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder={activeMode === 'coach' ? "Ask your health coach anything..." : "Ask your AI copilot anything..."}
+                      placeholder={
+                        activeMode === "coach"
+                          ? "Ask your health coach anything..."
+                          : "Ask your AI copilot anything..."
+                      }
                       className="resize-none bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
                       rows={2}
                       onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
+                        if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
                           sendMessage();
                         }
@@ -325,9 +427,9 @@ export default function ChatPage() {
                     onClick={sendMessage}
                     disabled={!message.trim()}
                     className={`px-6 shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
-                      activeMode === 'coach'
-                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white'
-                        : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white'
+                      activeMode === "coach"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
+                        : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
                     }`}
                   >
                     <Send className="w-4 h-4 mr-2" />
