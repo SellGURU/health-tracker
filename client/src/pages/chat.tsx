@@ -5,6 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
   Send,
@@ -20,6 +27,7 @@ import {
   Brain,
   Settings,
   Activity,
+  ChevronDown,
 } from "lucide-react";
 import Application from "@/api/app";
 
@@ -183,80 +191,60 @@ export default function ChatPage() {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Mode Toggle */}
-        <div className="flex bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 p-2 rounded-2xl backdrop-blur-sm border border-gray-200/30 dark:border-gray-700/20 shadow-inner mb-6">
-          <Button
-            onClick={() => setActiveMode("ai")}
-            variant={activeMode === "ai" ? "default" : "ghost"}
-            className={`flex-1 transition-all duration-300 ${
-              activeMode === "ai"
-                ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl"
-                : "hover:bg-white/50 dark:hover:bg-gray-700/50"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                  activeMode === "ai"
-                    ? "bg-white/20"
-                    : "bg-gradient-to-br from-blue-500 to-cyan-500"
-                }`}
-              >
-                <Bot
-                  className={`w-4 h-4 ${
-                    activeMode === "ai" ? "text-white" : "text-white"
-                  }`}
-                />
-              </div>
-              <div className="text-left">
-                <div className="font-medium">AI Copilot</div>
-                <div
-                  className={`text-xs ${
-                    activeMode === "ai" ? "text-blue-100" : "text-gray-500"
-                  }`}
-                >
-                  Instant responses
+        <div className="mb-6">
+          <Select value={activeMode} onValueChange={(value: ChatMode) => setActiveMode(value)}>
+            <SelectTrigger className="w-full bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 border border-gray-200/30 dark:border-gray-700/20 shadow-inner backdrop-blur-sm h-14">
+              <SelectValue>
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                      activeMode === "ai"
+                        ? "bg-gradient-to-br from-blue-500 to-cyan-500"
+                        : "bg-gradient-to-br from-emerald-500 to-teal-500"
+                    }`}
+                  >
+                    {activeMode === "ai" ? (
+                      <Bot className="w-4 h-4 text-white" />
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium">
+                      {activeMode === "ai" ? "AI Copilot" : "Human Coach"}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {activeMode === "ai" ? "Instant responses" : "Expert guidance"}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Button>
-
-          <Button
-            onClick={() => setActiveMode("coach")}
-            variant={activeMode === "coach" ? "default" : "ghost"}
-            className={`flex-1 transition-all duration-300 ${
-              activeMode === "coach"
-                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
-                : "hover:bg-white/50 dark:hover:bg-gray-700/50"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                  activeMode === "coach"
-                    ? "bg-white/20"
-                    : "bg-gradient-to-br from-emerald-500 to-teal-500"
-                }`}
-              >
-                <User
-                  className={`w-4 h-4 ${
-                    activeMode === "coach" ? "text-white" : "text-white"
-                  }`}
-                />
-              </div>
-              <div className="text-left">
-                <div className="font-medium">Human Coach</div>
-                <div
-                  className={`text-xs ${
-                    activeMode === "coach"
-                      ? "text-emerald-100"
-                      : "text-gray-500"
-                  }`}
-                >
-                  Expert guidance
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ai">
+                <div className="flex items-center gap-3 py-2">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="font-medium">AI Copilot</div>
+                    <div className="text-xs text-gray-500">Instant responses</div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Button>
+              </SelectItem>
+              <SelectItem value="coach">
+                <div className="flex items-center gap-3 py-2">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-500">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Human Coach</div>
+                    <div className="text-xs text-gray-500">Expert guidance</div>
+                  </div>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-6">
