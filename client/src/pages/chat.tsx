@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Send, 
@@ -19,7 +21,9 @@ import {
   Zap,
   Brain,
   Settings,
-  Activity
+  Activity,
+  Flag,
+  X
 } from "lucide-react";
 
 type ChatMode = 'coach' | 'copilot';
@@ -80,6 +84,10 @@ export default function ChatPage() {
   const [activeMode, setActiveMode] = useState<ChatMode>('copilot');
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
   const [message, setMessage] = useState('');
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportingMessageId, setReportingMessageId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [reportDetails, setReportDetails] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -132,6 +140,32 @@ export default function ChatPage() {
       title: "Session booking",
       description: "Redirecting to scheduling interface...",
     });
+  };
+
+  const handleReportMessage = (messageId: string) => {
+    setReportingMessageId(messageId);
+    setShowReportModal(true);
+  };
+
+  const submitReport = () => {
+    if (!reportReason) {
+      toast({
+        title: "Error",
+        description: "Please select a reason for reporting.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Report submitted",
+      description: "Thank you for your feedback. Our team will review this message.",
+    });
+    
+    setShowReportModal(false);
+    setReportingMessageId(null);
+    setReportReason('');
+    setReportDetails('');
   };
 
   const formatTimestamp = (timestamp: Date) => {
@@ -194,48 +228,10 @@ export default function ChatPage() {
             </Button>
           </div>
         
-        <div className="flex flex-col lg:grid lg:grid-cols-4 gap-4 lg:gap-6">
-          {/* Sidebar - Coach Selection */}
-          {activeMode === 'coach' && (
-            <div className="lg:col-span-1 space-y-3 lg:space-y-4 order-2 lg:order-1">
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-thin text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    Available Coaches
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-3 sm:p-4">
-                  <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <Avatar className="w-10 h-10 ring-2 ring-white shadow-md">
-                        <AvatarImage src={coaches[0].avatar} />
-                        <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                          {coaches[0].name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">{coaches[0].name}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardContent className="p-3 sm:p-4">
-                  <Button 
-                    onClick={bookSession}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Session
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+        <div className="space-y-4">
 
           {/* Chat Messages */}
-          <Card className={`${activeMode === 'coach' ? 'lg:col-span-3 order-1 lg:order-2' : 'lg:col-span-4'} bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}>
+          <Card className="bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl">
             <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -251,7 +247,7 @@ export default function ChatPage() {
                       <Bot className="w-5 h-5 text-white" />
                     </div>
                   )}
-                  <div>
+                  <div className="flex-1">
                     <div className="font-medium text-gray-900 dark:text-gray-100">
                       {activeMode === 'coach' ? selectedCoach?.name : 'AI Health Copilot'}
                     </div>
@@ -260,13 +256,26 @@ export default function ChatPage() {
                     </div>
                   </div>
                 </div>
-                <Badge variant={activeMode === 'coach' ? 'default' : 'secondary'} className={
-                  activeMode === 'coach' 
-                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                }>
-                  {activeMode === 'coach' ? 'Human Expert' : 'AI Assistant'}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  {activeMode === 'coach' && (
+                    <Button 
+                      onClick={bookSession}
+                      size="sm"
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg transition-all duration-300 hover:shadow-xl"
+                    >
+                      <Calendar className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">Book Session</span>
+                      <span className="sm:hidden">Book</span>
+                    </Button>
+                  )}
+                  <Badge variant={activeMode === 'coach' ? 'default' : 'secondary'} className={
+                    activeMode === 'coach' 
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                  }>
+                    {activeMode === 'coach' ? 'Expert' : 'AI'}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
 
@@ -290,13 +299,25 @@ export default function ChatPage() {
                         <p className={`text-sm sm:text-base ${msg.sender === 'user' ? 'text-white' : 'text-gray-800 dark:text-gray-200'}`}>
                           {msg.content}
                         </p>
-                        <p className={`text-xs mt-1 sm:mt-2 ${
-                          msg.sender === 'user' 
-                            ? 'text-blue-100' 
-                            : 'text-gray-500 dark:text-gray-400'
-                        }`}>
-                          {formatTimestamp(msg.timestamp)}
-                        </p>
+                        <div className="flex items-center justify-between mt-1 sm:mt-2">
+                          <p className={`text-xs ${
+                            msg.sender === 'user' 
+                              ? 'text-blue-100' 
+                              : 'text-gray-500 dark:text-gray-400'
+                          }`}>
+                            {formatTimestamp(msg.timestamp)}
+                          </p>
+                          {(msg.sender === 'copilot' && activeMode === 'copilot') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleReportMessage(msg.id)}
+                              className="h-6 w-6 p-0 opacity-50 hover:opacity-100 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
+                            >
+                              <Flag className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -338,6 +359,67 @@ export default function ChatPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Report Message Dialog */}
+        <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle>Report AI Response</DialogTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowReportModal(false)}
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <DialogDescription>
+                Tell us what was wrong with this response.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Reason for Reporting
+                </label>
+                <Select value={reportReason} onValueChange={setReportReason}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a reason" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="inaccurate">Inaccurate or misleading information</SelectItem>
+                    <SelectItem value="inappropriate">Offensive, harmful, or inappropriate content</SelectItem>
+                    <SelectItem value="irrelevant">Irrelevant or nonsensical response</SelectItem>
+                    <SelectItem value="harassment">Harassment</SelectItem>
+                    <SelectItem value="other">Other (please specify)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Additional Details (optional)
+                </label>
+                <Textarea
+                  value={reportDetails}
+                  onChange={(e) => setReportDetails(e.target.value)}
+                  placeholder="Describe the issue in more detail"
+                  className="resize-none"
+                  rows={3}
+                />
+              </div>
+              
+              <Button
+                onClick={submitReport}
+                className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white"
+              >
+                Submit Report
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
