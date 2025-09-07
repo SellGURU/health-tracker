@@ -364,17 +364,7 @@ export default function ChatPage() {
         <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <div className="flex items-center justify-between">
-                <DialogTitle>Report AI Response</DialogTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowReportModal(false)}
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
+              <DialogTitle>Report AI Response</DialogTitle>
               <DialogDescription>
                 Tell us what was wrong with this response.
               </DialogDescription>
