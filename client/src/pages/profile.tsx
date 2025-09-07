@@ -335,73 +335,67 @@ export default function Profile() {
               </div>
               
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {user?.firstName && user?.lastName 
-                        ? `${user.firstName} ${user.lastName}` 
+                <div className="space-y-3">
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
+                      {(editData?.firstName && editData?.lastName) 
+                        ? `${editData.firstName} ${editData.lastName}` 
                         : user?.fullName || 'User'}
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
                   </div>
                   
-                  <Button 
-                    onClick={() => setShowEditDialog(true)}
-                    variant="outline"
-                    size="sm"
-                    className="ml-3 flex-shrink-0 text-xs px-3 py-1.5"
-                  >
-                    <Edit3 className="w-3 h-3 mr-1" />
-                    Edit Profile
-                  </Button>
-                </div>
-                
-                {/* Compact Info Grid */}
-                <div className="grid grid-cols-6 gap-3 text-xs">
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">
-                      {calculateAge(user?.dateOfBirth) || 'N/A'}
+                  {/* Better spaced info display */}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Age:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {calculateAge(editData?.dateOfBirth || user?.dateOfBirth) || 'N/A'}
+                      </span>
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Age</div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100 capitalize truncate">
-                      {user?.gender || 'N/A'}
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Gender:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
+                        {editData?.gender || user?.gender || 'Not specified'}
+                      </span>
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Gender</div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">
-                      {getMembershipDuration()}
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Member since:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {getMembershipDuration()}
+                      </span>
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Member</div>
                   </div>
-                  <div>
-                    <div className="font-semibold text-blue-600 dark:text-blue-400">
-                      {stats?.totalTests || 5}
+                  
+                  {/* Health stats */}
+                  <div className="space-y-2 text-sm pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Lab Tests:</span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        {stats?.totalTests || 5}
+                      </span>
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Lab Tests</div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-green-600 dark:text-green-400">
-                      {stats?.activePlans || 2}
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Active Plans:</span>
+                      <span className="font-semibold text-green-600 dark:text-green-400">
+                        {stats?.activePlans || 2}
+                      </span>
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Active Plans</div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      Verified
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Account:</span>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                        Verified
+                      </span>
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Account</div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-2 mt-3">
-                  {getSubscriptionBadge(user?.subscriptionTier || 'free')}
-                  <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active User
-                  </Badge>
+                  
+                  <div className="flex items-center gap-2 pt-2">
+                    {getSubscriptionBadge(user?.subscriptionTier || 'free')}
+                    <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs">
+                      <Activity className="w-3 h-3 mr-1" />
+                      Active User
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </div>
