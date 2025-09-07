@@ -30,6 +30,7 @@ import {
   Info,
   CheckCircle
 } from "lucide-react";
+import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
 
 export default function ProfileHeader() {
   const [notificationCount, setNotificationCount] = useState(5);
@@ -167,7 +168,7 @@ export default function ProfileHeader() {
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
           <img 
-            src="/attached_assets/Logo5 2_1753791920091_1757240780580.png" 
+            src={logoImage} 
             alt="HolistiCare Logo" 
             className="w-8 h-8 rounded-full object-cover"
           />

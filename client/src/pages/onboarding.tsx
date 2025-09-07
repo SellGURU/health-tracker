@@ -27,6 +27,7 @@ import {
   Star
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
 
 const ONBOARDING_STEPS = 26;
 
@@ -409,7 +410,7 @@ export default function Onboarding() {
           <div className="text-center space-y-6">
             <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center">
               <img 
-                src="/attached_assets/Logo5 2_1753791920091_1757240780580.png" 
+                src={logoImage} 
                 alt="HolistiCare Logo" 
                 className="w-24 h-24 rounded-full object-cover shadow-xl"
               />
