@@ -81,7 +81,7 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]); //  
-  const CallLoginAuthApi = async () => {
+  const handleGetMessagesId = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
         setMessages(res.data.messages);
@@ -104,7 +104,7 @@ export default function ChatPage() {
     setMessages([]);
     setConversationId(0);
     setIsLoading(true);
-    // handleGetMessagesId();
+    handleGetMessagesId();
   }, [activeMode]);
 
   const sendMessage = () => {
