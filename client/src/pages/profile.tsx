@@ -322,87 +322,83 @@ export default function Profile() {
         {/* Profile Overview Card */}
         <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
           <CardContent className="p-6">
-            <div className="flex items-start gap-6">
-              <div className="relative">
-                <Avatar className="w-24 h-24 ring-4 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-xl">
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-2xl font-medium">
-                    {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+            <div className="flex items-center gap-4">
+              <div className="relative flex-shrink-0">
+                <Avatar className="w-16 h-16 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-medium">
+                    {((user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Crown className="w-4 h-4 text-white" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Crown className="w-2.5 h-2.5 text-white" />
                 </div>
               </div>
               
-              <div className="flex-1 space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">
-                        {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-400 font-light mt-1">{user?.email}</p>
-                    </div>
-                    
-                    <Button 
-                      onClick={() => setShowEditDialog(true)}
-                      variant="outline"
-                      size="sm"
-                      className="backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-emerald-200/50 dark:border-emerald-800/30 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 shadow-lg flex-shrink-0"
-                    >
-                      <Edit3 className="w-4 h-4 mr-1" />
-                      Edit Profile
-                    </Button>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {user?.firstName && user?.lastName 
+                        ? `${user.firstName} ${user.lastName}` 
+                        : user?.fullName || 'User'}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
                   </div>
                   
-                  {/* User Details Grid */}
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">
-                        {calculateAge(user?.dateOfBirth) || 'N/A'}
-                      </span>
-                      <div className="text-xs">Age</div>
+                  <Button 
+                    onClick={() => setShowEditDialog(true)}
+                    variant="outline"
+                    size="sm"
+                    className="ml-3 flex-shrink-0 text-xs px-3 py-1.5"
+                  >
+                    <Edit3 className="w-3 h-3 mr-1" />
+                    Edit Profile
+                  </Button>
+                </div>
+                
+                {/* Compact Info Grid */}
+                <div className="grid grid-cols-6 gap-3 text-xs">
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">
+                      {calculateAge(user?.dateOfBirth) || 'N/A'}
                     </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium capitalize">
-                        {user?.gender || 'Not specified'}
-                      </span>
-                      <div className="text-xs">Gender</div>
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">
-                        {getMembershipDuration()}
-                      </span>
-                      <div className="text-xs">Member since</div>
-                    </div>
+                    <div className="text-gray-500 dark:text-gray-400">Age</div>
                   </div>
-                  
-                  {/* Health Stats */}
-                  <div className="grid grid-cols-3 gap-4 text-sm pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium text-lg">
-                        {stats?.totalTests || 5}
-                      </span>
-                      <div className="text-xs">Lab Tests</div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100 capitalize truncate">
+                      {user?.gender || 'N/A'}
                     </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium text-lg">
-                        {stats?.activePlans || 2}
-                      </span>
-                      <div className="text-xs">Active Plans</div>
+                    <div className="text-gray-500 dark:text-gray-400">Gender</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">
+                      {getMembershipDuration()}
                     </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                        Verified
-                      </span>
-                      <div className="text-xs">Account</div>
+                    <div className="text-gray-500 dark:text-gray-400">Member</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">
+                      {stats?.totalTests || 5}
                     </div>
+                    <div className="text-gray-500 dark:text-gray-400">Lab Tests</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-green-600 dark:text-green-400">
+                      {stats?.activePlans || 2}
+                    </div>
+                    <div className="text-gray-500 dark:text-gray-400">Active Plans</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      Verified
+                    </div>
+                    <div className="text-gray-500 dark:text-gray-400">Account</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 mt-3">
                   {getSubscriptionBadge(user?.subscriptionTier || 'free')}
-                  <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm">
+                  <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs">
                     <Activity className="w-3 h-3 mr-1" />
                     Active User
                   </Badge>
