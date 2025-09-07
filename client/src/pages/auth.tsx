@@ -147,7 +147,7 @@ export default function AuthPage() {
       </div>
 
       {/* Content */}
-      <div className={`flex flex-col items-center justify-center min-h-screen px-8 pt-16 pb-8 transition-opacity duration-500 ${fadeClass}`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen px-4 sm:px-8 pt-16 pb-8 transition-opacity duration-500 ${fadeClass}`}>
         
         {/* Stage 1: Loading with HolistiCare.io */}
         {stage === 1 && (
@@ -171,7 +171,7 @@ export default function AuthPage() {
             </div>
             
             <h1 className="text-white text-xl font-bold mb-2">HolistiCare</h1>
-            <p className="text-white/90 text-sm mb-12">Welcome back to your health journey</p>
+            <p className="text-white/90 text-sm mb-8 sm:mb-12">Welcome back to your health journey</p>
             
             <Button 
               onClick={handleContinue}
@@ -192,7 +192,7 @@ export default function AuthPage() {
             
             <h1 className="text-white text-xl font-bold mb-6">HolistiCare</h1>
             
-            <div className="max-w-xs mx-auto">
+            <div className="w-full max-w-xs mx-auto">
               <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-white/20 mb-6">
                   <TabsTrigger value="login" className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600">
@@ -204,7 +204,7 @@ export default function AuthPage() {
                 </TabsList>
                 
                 <TabsContent value="login" className="space-y-4">
-                  <p className="text-white/90 text-sm mb-8 px-4">
+                  <p className="text-white/90 text-sm mb-6 sm:mb-8 px-2 sm:px-4 text-center">
                     Welcome back! Enter your email and password to continue your health journey.
                   </p>
                   
@@ -275,7 +275,7 @@ export default function AuthPage() {
                 </TabsContent>
 
                 <TabsContent value="register" className="space-y-4">
-                  <p className="text-white/90 text-sm mb-8 px-4">
+                  <p className="text-white/90 text-sm mb-6 sm:mb-8 px-2 sm:px-4 text-center">
                     Join HolistiCare and start your personalized health journey today.
                   </p>
                   
