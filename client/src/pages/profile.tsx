@@ -336,33 +336,39 @@ export default function Profile() {
               
               <div className="flex-1 space-y-4">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">
-                      {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400 font-light">{user?.email}</p>
+                  <div className="space-y-3">
+                    <div>
+                      <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">
+                        {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
+                      </h2>
+                      <p className="text-gray-600 dark:text-gray-400 font-light mt-1">{user?.email}</p>
+                    </div>
                     
                     {/* Enhanced User Details */}
-                    <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
-                      {calculateAge(user?.dateOfBirth) && (
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-6">
+                        {calculateAge(user?.dateOfBirth) && (
+                          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                            <Calendar className="w-4 h-4" />
+                            <span>{calculateAge(user?.dateOfBirth)} years old</span>
+                          </div>
+                        )}
+                        {user?.gender && (
+                          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                            <User className="w-4 h-4" />
+                            <span className="capitalize">{user.gender}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-6">
                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                           <Calendar className="w-4 h-4" />
-                          <span>{calculateAge(user?.dateOfBirth)} years old</span>
+                          <span>Member since {getMembershipDuration()}</span>
                         </div>
-                      )}
-                      {user?.gender && (
                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                          <User className="w-4 h-4" />
-                          <span className="capitalize">{user.gender}</span>
+                          <Mail className="w-4 h-4" />
+                          <span>Verified account</span>
                         </div>
-                      )}
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <Calendar className="w-4 h-4" />
-                        <span>Member since {getMembershipDuration()}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <Mail className="w-4 h-4" />
-                        <span>Verified account</span>
                       </div>
                     </div>
                   </div>
