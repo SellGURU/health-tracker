@@ -163,17 +163,17 @@ export default function ProfileHeader() {
   };
   
   return (
-    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
+    <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
           <Heart className="w-4 h-4 text-white" />
         </div>
-        <h1 className="text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           HolistiCare
         </h1>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <Button 
@@ -201,11 +201,11 @@ export default function ProfileHeader() {
               onClick={() => setShowNotifications(false)}
             />
             {/* Notification Panel */}
-            <div className="fixed right-4 top-16 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
+            <div className="fixed right-2 sm:right-4 top-16 w-[calc(100vw-1rem)] sm:w-96 max-w-sm bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
               {/* Header */}
-              <div className="p-4 border-b border-gray-200/30 dark:border-gray-700/30">
+              <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Notifications</h3>
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">Notifications</h3>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
@@ -234,7 +234,7 @@ export default function ProfileHeader() {
               </div>
               
               {/* Notifications List */}
-              <div className="max-h-80 overflow-y-auto">
+              <div className="max-h-72 sm:max-h-80 overflow-y-auto">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center">
                     <Bell className="w-12 h-12 text-gray-400 mx-auto mb-3" />
@@ -248,22 +248,22 @@ export default function ProfileHeader() {
                       return (
                         <div
                           key={notification.id}
-                          className={`p-3 rounded-xl transition-all duration-300 cursor-pointer group ${getColorClasses(notification.color, notification.read)} ${!notification.read ? 'border-l-4 border-blue-500' : ''}`}
+                          className={`p-2 sm:p-3 rounded-xl transition-all duration-300 cursor-pointer group ${getColorClasses(notification.color, notification.read)} ${!notification.read ? 'border-l-4 border-blue-500' : ''}`}
                           onClick={() => !notification.read && markAsRead(notification.id)}
                         >
-                          <div className="flex items-start gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                               notification.read 
                                 ? 'bg-gray-200/50 dark:bg-gray-700/50' 
                                 : `bg-gradient-to-br from-${notification.color}-500/20 to-${notification.color}-600/20 dark:from-${notification.color}-400/20 dark:to-${notification.color}-500/20`
                             }`}>
-                              <IconComponent className={`w-4 h-4 ${notification.read ? 'text-gray-500' : getIconColor(notification.color)}`} />
+                              <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${notification.read ? 'text-gray-500' : getIconColor(notification.color)}`} />
                             </div>
                             
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1">
-                                  <h4 className={`text-sm font-medium mb-1 ${
+                                  <h4 className={`text-xs sm:text-sm font-medium mb-1 ${
                                     notification.read 
                                       ? 'text-gray-600 dark:text-gray-400' 
                                       : 'text-gray-900 dark:text-gray-100'
