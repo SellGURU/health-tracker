@@ -21,9 +21,28 @@ class Application extends Api {
     const response = this.post("/mobile_chat", data);
     return response;
   }
-
   static getBiomarkersData() {
-    return this.post("/biomarkers_mobile",{})
+    return this.post("/biomarkers_mobile", {});
+  }
+  static getTodayTasks() {
+    const response = this.post("/mobile/today_tasks", {});
+    return response;
+  }
+  static checkTask(data: { task_id: string }) {
+    const response = this.post("/mobile/check_task", data);
+    return response;
+  }
+  static uncheckTask(data: { task_id: string }) {
+    const response = this.post("/mobile/uncheck_task", data);
+    return response;
+  }
+  static updateValue(data: { task_id: string; temp_value: number }) {
+    const response = this.post("/mobile/update_value", data);
+    return response;
+  }
+  static getWeeklyTasks() {
+    const response = this.post("/mobile/weekly_tasks", {});
+    return response;
   }
 }
 

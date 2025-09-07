@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { 
+import {
   CheckCircle,
   Circle,
   Activity,
@@ -21,232 +27,412 @@ import {
   Pill,
   Dumbbell,
   Users,
-  ClipboardList
+  ClipboardList,
 } from "lucide-react";
+import Application from "@/api/app";
+
+interface Filters {
+  Type: string[];
+  Level: string[];
+  Terms: string[];
+  Muscle: string[];
+  Equipment: string[];
+  Conditions: string[];
+}
+
+interface Exercise {
+  Base_Score: number;
+  Description: string;
+  Exercise_Filters: Filters;
+  Exercise_Location: string[];
+  Files: [];
+  Instruction: string;
+  Reps: string;
+  Rest: string;
+  Status: boolean;
+  Title: string;
+  Updated_at: string;
+  Weight: string;
+  task_id: string;
+}
+
+interface Section {
+  Sets: number;
+  Type: string;
+  Section: string;
+  Exercises: Exercise[];
+}
+
+interface WeeklyTask {
+  date: string;
+  day: string;
+  progress: number;
+  tasks: Task[];
+}
+
+interface Task {
+  Category: "Activity" | "Supplement" | "Lifestyle" | "Diet";
+  Description: string;
+  Instruction: string;
+  Sections?: Section[];
+  Task_Type: "Action" | "Checkin";
+  Times: string[];
+  Title: string;
+  Estimated_time?: string;
+  Questions_Count?: number;
+  Status: boolean;
+  Updated_at: string;
+  task_id: string;
+  Dose?: string;
+  Temp_value?: number;
+  Unit?: string;
+  Value?: number;
+  Total_macros?: { Fats: number; Carbs: number; Protein: number };
+  Activity_Location?: string[];
+  Activity_Filters?: Filters;
+}
 
 // Calendar-based tasks with detailed categories
 const generateCalendarTasks = () => {
   const tasks: Record<string, any[]> = {};
   const today = new Date();
-  
+
   // Generate tasks for past 7 days, today, and next 7 days
   for (let i = -7; i <= 7; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
-    const dateKey = date.toISOString().split('T')[0];
-    
-    if (i === 0) { // Today's tasks
+    const dateKey = date.toISOString().split("T")[0];
+
+    if (i === 0) {
+      // Today's tasks
       tasks[dateKey] = [
         {
           id: `${dateKey}-1`,
-          title: 'Mediterranean Diet',
-          category: 'Diet',
+          title: "Mediterranean Diet",
+          category: "Diet",
           completed: false,
           details: {
-            instruction: 'Focus on olive oil, fish, vegetables, and whole grains',
+            instruction:
+              "Focus on olive oil, fish, vegetables, and whole grains",
             total_macros: { fats: 65, carbs: 120, protein: 85 },
-            notes: 'Include 2 servings of fish this week'
-          }
+            notes: "Include 2 servings of fish this week",
+          },
         },
         {
           id: `${dateKey}-2`,
-          title: 'Vitamin D3',
-          category: 'Supplement',
+          title: "Vitamin D3",
+          category: "Supplement",
           completed: true,
           details: {
-            dose: '2000 IU',
-            instruction: 'Take with fatty meal for better absorption',
-            notes: 'Take in the morning'
-          }
+            dose: "2000 IU",
+            instruction: "Take with fatty meal for better absorption",
+            notes: "Take in the morning",
+          },
         },
         {
           id: `${dateKey}-3`,
-          title: 'Sleep Quality',
-          category: 'Lifestyle',
+          title: "Sleep Quality",
+          category: "Lifestyle",
           completed: false,
           details: {
-            instruction: 'Maintain consistent sleep schedule',
+            instruction: "Maintain consistent sleep schedule",
             value: 8,
-            unit: 'hours',
-            notes: 'No screens 1 hour before bed'
-          }
+            unit: "hours",
+            notes: "No screens 1 hour before bed",
+          },
         },
         {
           id: `${dateKey}-4`,
-          title: 'Full Body Strength Training',
-          category: 'Activity',
+          title: "Full Body Strength Training",
+          category: "Activity",
           completed: false,
           details: {
-            instruction: 'Focus on compound movements',
+            instruction: "Focus on compound movements",
             sections: [
               {
-                section: 'Warm-Up',
-                sets: '1',
-                type: 'Circuit',
+                section: "Warm-Up",
+                sets: "1",
+                type: "Circuit",
                 exercises: [
                   {
-                    title: 'Dynamic Stretching',
-                    description: 'Prepare muscles for workout',
-                    instruction: 'Hold each stretch for 30 seconds',
-                    reps: '5 minutes',
-                    exercise_filters: { type: 'Flexibility', level: 'Beginner' },
-                    exercise_location: ['Home', 'Gym']
-                  }
-                ]
+                    title: "Dynamic Stretching",
+                    description: "Prepare muscles for workout",
+                    instruction: "Hold each stretch for 30 seconds",
+                    reps: "5 minutes",
+                    exercise_filters: {
+                      type: "Flexibility",
+                      level: "Beginner",
+                    },
+                    exercise_location: ["Home", "Gym"],
+                  },
+                ],
               },
               {
-                section: 'Main',
-                sets: '3',
-                type: 'Superset',
+                section: "Main",
+                sets: "3",
+                type: "Superset",
                 exercises: [
                   {
-                    title: 'Squats',
-                    description: 'Lower body compound movement',
-                    instruction: 'Keep knees aligned with toes',
-                    reps: '12',
-                    rest: '60',
-                    weight: 'bodyweight',
-                    exercise_filters: { type: 'Strength', level: 'Intermediate', muscle: 'Glutes', equipment: 'Body Only' },
-                    exercise_location: ['Home', 'Gym']
-                  }
-                ]
-              }
+                    title: "Squats",
+                    description: "Lower body compound movement",
+                    instruction: "Keep knees aligned with toes",
+                    reps: "12",
+                    rest: "60",
+                    weight: "bodyweight",
+                    exercise_filters: {
+                      type: "Strength",
+                      level: "Intermediate",
+                      muscle: "Glutes",
+                      equipment: "Body Only",
+                    },
+                    exercise_location: ["Home", "Gym"],
+                  },
+                ],
+              },
             ],
-            activity_location: ['Home', 'Gym'],
-            notes: 'Focus on form over weight'
-          }
+            activity_location: ["Home", "Gym"],
+            notes: "Focus on form over weight",
+          },
         },
         {
           id: `${dateKey}-5`,
-          title: 'Stress Level Check-in',
-          category: 'Test',
+          title: "Stress Level Check-in",
+          category: "Test",
           completed: false,
           details: {
             questions_count: 5,
-            estimated_time: '2 minutes'
-          }
-        }
+            estimated_time: "2 minutes",
+          },
+        },
       ];
-    } else if (i < 0) { // Past days - some completed tasks
+    } else if (i < 0) {
+      // Past days - some completed tasks
       tasks[dateKey] = [
         {
           id: `${dateKey}-1`,
-          title: 'Anti-Inflammatory Diet',
-          category: 'Diet',
+          title: "Anti-Inflammatory Diet",
+          category: "Diet",
           completed: Math.random() > 0.3,
           details: {
-            instruction: 'Reduce processed foods, increase omega-3 rich foods',
-            total_macros: { fats: 70, carbs: 100, protein: 90 }
-          }
+            instruction: "Reduce processed foods, increase omega-3 rich foods",
+            total_macros: { fats: 70, carbs: 100, protein: 90 },
+          },
         },
         {
           id: `${dateKey}-2`,
-          title: 'Omega-3',
-          category: 'Supplement',
+          title: "Omega-3",
+          category: "Supplement",
           completed: Math.random() > 0.2,
           details: {
-            dose: '1000 mg',
-            instruction: 'Take with dinner'
-          }
+            dose: "1000 mg",
+            instruction: "Take with dinner",
+          },
         },
         {
           id: `${dateKey}-3`,
-          title: 'Morning Walk',
-          category: 'Activity',
+          title: "Morning Walk",
+          category: "Activity",
           completed: Math.random() > 0.4,
           details: {
-            instruction: 'Moderate pace outdoor walk',
+            instruction: "Moderate pace outdoor walk",
             sections: [
               {
-                section: 'Main',
-                sets: '1',
-                type: 'Cardio',
-                exercises: [{
-                  title: 'Brisk Walking',
-                  description: 'Cardiovascular exercise',
-                  instruction: 'Maintain steady pace',
-                  reps: '30 minutes'
-                }]
-              }
-            ]
-          }
-        }
+                section: "Main",
+                sets: "1",
+                type: "Cardio",
+                exercises: [
+                  {
+                    title: "Brisk Walking",
+                    description: "Cardiovascular exercise",
+                    instruction: "Maintain steady pace",
+                    reps: "30 minutes",
+                  },
+                ],
+              },
+            ],
+          },
+        },
       ];
-    } else { // Future days - upcoming tasks
+    } else {
+      // Future days - upcoming tasks
       tasks[dateKey] = [
         {
           id: `${dateKey}-1`,
-          title: 'Balanced Nutrition',
-          category: 'Diet',
+          title: "Balanced Nutrition",
+          category: "Diet",
           completed: false,
           details: {
-            instruction: 'Include all food groups in appropriate portions',
-            total_macros: { fats: 60, carbs: 130, protein: 80 }
-          }
+            instruction: "Include all food groups in appropriate portions",
+            total_macros: { fats: 60, carbs: 130, protein: 80 },
+          },
         },
         {
           id: `${dateKey}-2`,
-          title: 'Hydration Check',
-          category: 'Lifestyle',
+          title: "Hydration Check",
+          category: "Lifestyle",
           completed: false,
           details: {
-            instruction: 'Track daily water intake',
+            instruction: "Track daily water intake",
             value: 8,
-            unit: 'glasses'
-          }
+            unit: "glasses",
+          },
         },
         {
           id: `${dateKey}-3`,
-          title: 'Weekly Assessment',
-          category: 'Test',
+          title: "Weekly Assessment",
+          category: "Test",
           completed: false,
           details: {
             questions_count: 10,
-            estimated_time: '5 minutes'
-          }
-        }
+            estimated_time: "5 minutes",
+          },
+        },
       ];
     }
   }
-  
+
   return tasks;
 };
 
 const calendarTasks = generateCalendarTasks();
-const todayKey = new Date().toISOString().split('T')[0];
-const todaysTasks = calendarTasks[todayKey] || [];
+const todayKey = new Date().toISOString().split("T")[0];
+// const todaysTasks = calendarTasks[todayKey] || [];
 
 export default function Plan() {
   const [taskValues, setTaskValues] = useState<Record<string, number>>({});
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("today");
   const [selectedDate, setSelectedDate] = useState(todayKey);
+  const [todaysTasks, setTodaysTasks] = useState<Task[]>([]);
+  const [weeklyTasks, setWeeklyTasks] = useState<WeeklyTask[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  useEffect(() => {
+    todaysTasks.forEach((task) => {
+      setTaskValues((prev) => ({
+        ...prev,
+        [task.task_id]: task.Temp_value || 0,
+      }));
+    });
+  }, [todaysTasks]);
+
+  const handleGetTodayTasks = async () => {
+    setIsLoading(true);
+    Application.getTodayTasks()
+      .then((res) => {
+        setTodaysTasks(res.data);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+  const handleGetWeeklyTasks = async () => {
+    setIsLoading(true);
+    Application.getWeeklyTasks()
+      .then((res) => {
+        setWeeklyTasks(res.data);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+  useEffect(() => {
+    if (activeTab === "calendar") {
+      handleGetWeeklyTasks();
+    } else {
+      handleGetTodayTasks();
+    }
+  }, [activeTab]);
+
+  const handleCheckTask = (taskId: string) => {
+    Application.checkTask({ task_id: taskId })
+      .then(() => {
+        handleGetTodayTasks();
+        toast({
+          title: "Task Checked",
+          description: "Your task has been checked.",
+        });
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
+  const handleUncheckTask = (taskId: string) => {
+    Application.uncheckTask({ task_id: taskId })
+      .then(() => {
+        handleGetTodayTasks();
+        toast({
+          title: "Task Unchecked",
+          description: "Your task has been unchecked.",
+        });
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
+
+  const handleUpdateValue = (taskId: string, value: number) => {
+    Application.updateValue({ task_id: taskId, temp_value: value })
+      .then(() => {
+        handleGetTodayTasks();
+        toast({
+          title: "Value Updated",
+          description: "Your value has been updated.",
+        });
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
 
   const formatDateKey = (dateString: string) => {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
+    const date = new Date(dateString + "T00:00:00");
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getDateRange = () => {
     const today = new Date();
-    const dates = [];
-    
-    // Get 7 days before, today, and 7 days after (15 total days)
-    for (let i = -7; i <= 7; i++) {
+    const dates: { key: string; date: string; weekday: string }[] = [];
+    weeklyTasks.forEach((task) => {
       const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      date.setDate(today.getDate() + parseInt(task.day));
       dates.push({
-        key: date.toISOString().split('T')[0],
-        date: date,
-        day: date.getDate(),
-        weekday: date.toLocaleDateString('en-US', { weekday: 'short' })
+        key: task.date,
+        date: task.date.split("-")[2],
+        weekday: task.day,
       });
-    }
+    });
+    console.log("dates => ", dates);
     return dates;
   };
 
@@ -256,186 +442,271 @@ export default function Plan() {
 
   const getTaskCompletionRate = (tasks: any[]) => {
     if (tasks.length === 0) return 0;
-    const completed = tasks.filter(task => task.completed).length;
+    const completed = tasks.filter((task) => task.Status).length;
     return Math.round((completed / tasks.length) * 100);
   };
 
-  const getTaskIcon = (task: any) => {
-    switch (task.category) {
-      case 'Diet': return Apple;
-      case 'Supplement': return Pill;
-      case 'Lifestyle': return Users;
-      case 'Activity': return Dumbbell;
-      case 'Test': return ClipboardList;
-      default: return Circle;
+  const getTaskIcon = (task: Task) => {
+    switch (task.Category) {
+      case "Diet":
+        return Apple;
+      case "Supplement":
+        return Pill;
+      case "Lifestyle":
+        return Users;
+      case "Activity":
+        return Dumbbell;
+      // case "Test":
+      //   return ClipboardList;
+      default:
+        return ClipboardList;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Diet': return 'bg-green-500';
-      case 'Supplement': return 'bg-blue-500';
-      case 'Lifestyle': return 'bg-purple-500';
-      case 'Activity': return 'bg-orange-500';
-      case 'Test': return 'bg-pink-500';
-      default: return 'bg-gray-500';
+      case "Diet":
+        return "bg-green-500";
+      case "Supplement":
+        return "bg-blue-500";
+      case "Lifestyle":
+        return "bg-purple-500";
+      case "Activity":
+        return "bg-orange-500";
+      case "Test":
+        return "bg-pink-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
-  const getProgressPercent = (task: any) => {
-    if (task.category === 'Lifestyle' && task.details.value) {
-      const current = taskValues[task.id] || 0;
-      return Math.min((current / task.details.value) * 100, 100);
+  const getProgressPercent = (task: Task) => {
+    if (task.Category === "Lifestyle" && task.Value) {
+      const current = taskValues[task.task_id] || 0;
+      return Math.min((current / task.Value) * 100, 100);
     }
-    return task.completed ? 100 : 0;
-  };
-
-  const toggleTask = (planId: string, taskId: string) => {
-    toast({
-      title: "Task Updated",
-      description: "Your progress has been saved.",
-    });
+    return task.Status ? 100 : 0;
   };
 
   const updateTaskValue = (taskId: string, value: number) => {
-    setTaskValues(prev => ({ ...prev, [taskId]: value }));
+    setTaskValues({
+      ...taskValues,
+      [taskId]: Number(value),
+    });
   };
 
-  const renderTaskDetails = (task: any) => {
-    const { category, details } = task;
-    
-    switch (category) {
-      case 'Diet':
+  const renderTaskDetails = (task: Task) => {
+    switch (task.Category) {
+      case "Diet":
         return (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
-            {details.total_macros && (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {task.Instruction}
+            </p>
+            {task.Total_macros && (
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded">
-                  <div className="font-medium text-green-800 dark:text-green-300">Fats</div>
-                  <div className="text-green-600 dark:text-green-400">{details.total_macros.fats}g</div>
+                  <div className="font-medium text-green-800 dark:text-green-300">
+                    Fats
+                  </div>
+                  <div className="text-green-600 dark:text-green-400">
+                    {task.Total_macros.Fats}g
+                  </div>
                 </div>
                 <div className="bg-orange-100 dark:bg-orange-900/20 p-2 rounded">
-                  <div className="font-medium text-orange-800 dark:text-orange-300">Carbs</div>
-                  <div className="text-orange-600 dark:text-orange-400">{details.total_macros.carbs}g</div>
+                  <div className="font-medium text-orange-800 dark:text-orange-300">
+                    Carbs
+                  </div>
+                  <div className="text-orange-600 dark:text-orange-400">
+                    {task.Total_macros.Carbs}g
+                  </div>
                 </div>
                 <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded">
-                  <div className="font-medium text-blue-800 dark:text-blue-300">Protein</div>
-                  <div className="text-blue-600 dark:text-blue-400">{details.total_macros.protein}g</div>
+                  <div className="font-medium text-blue-800 dark:text-blue-300">
+                    Protein
+                  </div>
+                  <div className="text-blue-600 dark:text-blue-400">
+                    {task.Total_macros.Protein}g
+                  </div>
                 </div>
               </div>
             )}
-            {details.notes && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            {task.Description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                {task.Description}
+              </p>
             )}
           </div>
         );
-        
-      case 'Supplement':
+
+      case "Supplement":
         return (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-medium text-blue-600 dark:text-blue-400">Dose:</span>
-              <span className="text-gray-700 dark:text-gray-300">{details.dose}</span>
+              <span className="font-medium text-blue-600 dark:text-blue-400">
+                Dose:
+              </span>
+              <span className="text-gray-700 dark:text-gray-300">
+                {task.Dose}
+              </span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
-            {details.notes && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {task.Instruction}
+            </p>
+            {task.Description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                {task.Description}
+              </p>
             )}
           </div>
         );
-        
-      case 'Lifestyle':
+
+      case "Lifestyle":
         return (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
-            {details.value && (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {task.Instruction}
+            </p>
+            {task.Value && (
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Input
                     type="number"
-                    placeholder={`Enter ${details.unit || 'value'}`}
-                    value={taskValues[task.id] || ''}
-                    onChange={(e) => updateTaskValue(task.id, parseFloat(e.target.value) || 0)}
+                    placeholder={`Enter ${task.Unit || "value"}`}
+                    value={taskValues[task.task_id] || ""}
+                    onChange={(e) =>
+                      updateTaskValue(
+                        task.task_id,
+                        parseInt(e.target.value) > (task?.Value || 0)
+                          ? task?.Value || 0
+                          : parseInt(e.target.value)
+                      )
+                    }
                     className="flex-1 h-9 text-sm"
-                    disabled={task.completed}
+                    disabled={task.Status}
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                    Target: {details.value} {details.unit}
+                    Target: {task.Value} {task.Unit}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${getProgressPercent(task)}%` }}
                   />
                 </div>
               </div>
             )}
-            {details.notes && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            {task.Description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                {task.Description}
+              </p>
             )}
           </div>
         );
-        
-      case 'Activity':
+
+      case "Activity":
         return (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">{details.instruction}</p>
-            {details.sections && details.sections.map((section: any, index: number) => (
-              <div key={index} className="border border-orange-200 dark:border-orange-700/30 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h5 className="font-medium text-orange-800 dark:text-orange-300">{section.section}</h5>
-                  <Badge variant="secondary" className="text-xs">{section.sets} sets</Badge>
-                </div>
-                {section.exercises.map((exercise: any, exIndex: number) => (
-                  <div key={exIndex} className="ml-2 space-y-1">
-                    <div className="font-medium text-sm">{exercise.title}</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">{exercise.description}</div>
-                    <div className="text-xs">
-                      {exercise.reps && <span className="mr-3">Reps: {exercise.reps}</span>}
-                      {exercise.rest && <span className="mr-3">Rest: {exercise.rest}s</span>}
-                      {exercise.weight && <span>Weight: {exercise.weight}</span>}
-                    </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {task.Instruction}
+            </p>
+            {task.Sections &&
+              task.Sections.map((section: Section, index: number) => (
+                <div
+                  key={index}
+                  className="border border-orange-200 dark:border-orange-700/30 rounded-lg p-3"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="font-medium text-orange-800 dark:text-orange-300">
+                      {section.Section}
+                    </h5>
+                    <Badge variant="secondary" className="text-xs">
+                      {section.Sets} sets
+                    </Badge>
                   </div>
-                ))}
-              </div>
-            ))}
-            {details.activity_location && (
+                  {section.Exercises.map(
+                    (exercise: Exercise, exIndex: number) => {
+                      return (
+                        <div key={exIndex} className="ml-2 space-y-1">
+                          <div className="font-medium text-sm">
+                            {exercise.Title}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                            {exercise.Description}
+                          </div>
+                          <div className="text-xs">
+                            {exercise.Reps && (
+                              <span className="mr-3">
+                                Reps: {exercise.Reps}
+                              </span>
+                            )}
+                            {exercise.Rest && (
+                              <span className="mr-3">
+                                Rest: {exercise.Rest}s
+                              </span>
+                            )}
+                            {exercise.Weight && (
+                              <span>Weight: {exercise.Weight}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              ))}
+            {task.Activity_Location && (
               <div className="flex gap-1">
-                {details.activity_location.map((location: string) => (
-                  <Badge key={location} variant="outline" className="text-xs">{location}</Badge>
-                ))}
+                {task.Activity_Location.map(
+                  (location: string, index: number) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {location}
+                    </Badge>
+                  )
+                )}
               </div>
             )}
-            {details.notes && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
+            {task.Description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                {task.Description}
+              </p>
             )}
           </div>
         );
-        
-      case 'Test':
+
+      // case "Test":
+      //   return ClipboardList;
+      default:
         return (
           <div className="space-y-2">
             <div className="flex items-center gap-4 text-sm">
-              {details.questions_count && (
+              {task.Questions_Count && (
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-pink-600 dark:text-pink-400">Questions:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{details.questions_count}</span>
+                  <span className="font-medium text-pink-600 dark:text-pink-400">
+                    Questions:
+                  </span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {task.Questions_Count}
+                  </span>
                 </div>
               )}
-              {details.estimated_time && (
+              {task.Estimated_time && (
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-pink-600 dark:text-pink-400">Time:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{details.estimated_time}</span>
+                  <span className="font-medium text-pink-600 dark:text-pink-400">
+                    Time:
+                  </span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {task.Estimated_time}
+                  </span>
                 </div>
               )}
             </div>
           </div>
         );
-        
-      default:
-        return null;
+
+      // default:
+      //   return null;
     }
   };
 
@@ -447,7 +718,9 @@ export default function Plan() {
           <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
             Action Plans
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light">Complete daily tasks and track your calendar</p>
+          <p className="text-gray-600 dark:text-gray-400 font-light">
+            Complete daily tasks and track your calendar
+          </p>
         </div>
 
         {/* Tabs for Today vs Calendar */}
@@ -468,50 +741,72 @@ export default function Plan() {
             <div className="space-y-4">
               {todaysTasks.map((task) => {
                 const TaskIcon = getTaskIcon(task);
-                const completed = task.completed;
+                const completed = task.Status;
                 const progressPercent = getProgressPercent(task);
-                
+
                 return (
-                  <Card 
-                    key={task.id}
+                  <Card
+                    key={task.task_id}
                     className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border border-green-200/30 dark:border-green-700/20 shadow-lg backdrop-blur-sm"
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                          completed ? 'bg-emerald-500' : getCategoryColor(task.category)
-                        }`}>
+                        <div
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                            completed
+                              ? "bg-emerald-500"
+                              : getCategoryColor(task.Category)
+                          }`}
+                        >
                           <TaskIcon className="w-5 h-5 text-white" />
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="mb-3">
-                            <h4 className={`text-sm font-medium ${
-                              completed ? 'text-gray-500 line-through' : 'text-gray-800 dark:text-gray-200'
-                            }`}>
-                              {task.title}
+                            <h4
+                              className={`text-sm font-medium ${
+                                completed
+                                  ? "text-gray-500 line-through"
+                                  : "text-gray-800 dark:text-gray-200"
+                              }`}
+                            >
+                              {task.Title}
                             </h4>
-                            <Badge variant="outline" className="text-xs mt-1">{task.category}</Badge>
+                            <Badge variant="outline" className="text-xs mt-1">
+                              {task.Category || task.Task_Type}
+                            </Badge>
                           </div>
-                          
+
                           {/* Task Details */}
-                          <div className="mb-4">
-                            {renderTaskDetails(task)}
-                          </div>
-                          
+                          <div className="mb-4">{renderTaskDetails(task)}</div>
+
                           {/* Task Action Button */}
                           <Button
                             variant={completed ? "default" : "outline"}
                             size="sm"
-                            onClick={() => toggleTask('today', task.id)}
+                            onClick={() => {
+                              if (task.Category === "Lifestyle") {
+                                handleUpdateValue(
+                                  task.task_id,
+                                  taskValues[task.task_id] || 0
+                                );
+                              }
+                              completed
+                                ? handleUncheckTask(task.task_id)
+                                : handleCheckTask(task.task_id);
+                            }}
                             className={`w-full ${
-                              completed 
-                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                              completed
+                                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                : "hover:bg-green-50 dark:hover:bg-green-900/20"
                             }`}
                           >
-                            {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                            {completed ? 'Completed' : 'Mark Complete'}
+                            {completed ? (
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                            ) : (
+                              <Circle className="w-4 h-4 mr-2" />
+                            )}
+                            {completed ? "Completed" : "Mark Complete"}
                           </Button>
                         </div>
                       </div>
@@ -528,13 +823,16 @@ export default function Plan() {
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 text-center">
                 Select a Date
               </h3>
-              <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
+              <div className="flex gap-2 overflow-x-auto pb-2 justify-start">
                 {getDateRange().map((dateInfo) => {
                   const isCurrentDay = isToday(dateInfo.key);
+                  console.log("isCurrentDay => ", isCurrentDay);
                   const isSelected = selectedDate === dateInfo.key;
-                  const dayTasks = calendarTasks[dateInfo.key] || [];
+                  const dayTasks =
+                    weeklyTasks.find((task) => task.date === dateInfo.key)
+                      ?.tasks || [];
                   const completionRate = getTaskCompletionRate(dayTasks);
-                  
+
                   return (
                     <button
                       key={dateInfo.key}
@@ -542,34 +840,38 @@ export default function Plan() {
                       className={`flex-shrink-0 p-3 rounded-2xl border-2 transition-all duration-200 min-w-[80px] ${
                         isSelected
                           ? isCurrentDay
-                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                            : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                            ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                            : "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                           : isCurrentDay
-                            ? 'border-green-300 bg-green-50/50 dark:bg-green-900/10 hover:border-green-400'
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                          ? "border-green-300 bg-green-50/50 dark:bg-green-900/10 hover:border-green-400"
+                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600"
                       }`}
                     >
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${
-                          isSelected
-                            ? isCurrentDay
-                              ? 'text-green-700 dark:text-green-300'
-                              : 'text-blue-700 dark:text-blue-300'
-                            : isCurrentDay
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-gray-800 dark:text-gray-200'
-                        }`}>
-                          {dateInfo.day}
+                        <div
+                          className={`text-2xl font-bold ${
+                            isSelected
+                              ? isCurrentDay
+                                ? "text-green-700 dark:text-green-300"
+                                : "text-blue-700 dark:text-blue-300"
+                              : isCurrentDay
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-gray-800 dark:text-gray-200"
+                          }`}
+                        >
+                          {dateInfo.date}
                         </div>
-                        <div className={`text-xs font-medium ${
-                          isSelected
-                            ? isCurrentDay
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-blue-600 dark:text-blue-400'
-                            : isCurrentDay
-                              ? 'text-green-500 dark:text-green-500'
-                              : 'text-gray-500 dark:text-gray-400'
-                        }`}>
+                        <div
+                          className={`text-xs font-medium ${
+                            isSelected
+                              ? isCurrentDay
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-blue-600 dark:text-blue-400"
+                              : isCurrentDay
+                              ? "text-green-500 dark:text-green-500"
+                              : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
                           {dateInfo.weekday}
                         </div>
                         {isCurrentDay && (
@@ -580,9 +882,13 @@ export default function Plan() {
                         {/* Progress indicator */}
                         <div className="mt-2">
                           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
-                            <div 
+                            <div
                               className={`h-1 rounded-full transition-all duration-300 ${
-                                completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
+                                completionRate === 100
+                                  ? "bg-green-500"
+                                  : completionRate > 50
+                                  ? "bg-yellow-500"
+                                  : "bg-gray-400"
                               }`}
                               style={{ width: `${completionRate}%` }}
                             />
@@ -598,22 +904,28 @@ export default function Plan() {
             {/* Selected Date Tasks */}
             <div className="space-y-4">
               {(() => {
-                const selectedDayTasks = calendarTasks[selectedDate] || [];
+                const selectedDayTasks =
+                  weeklyTasks.find((task) => task.date === selectedDate)
+                    ?.tasks || [];
                 const completionRate = getTaskCompletionRate(selectedDayTasks);
                 const isCurrentDay = isToday(selectedDate);
-                const selectedDateObj = new Date(selectedDate + 'T00:00:00');
-                
+                const selectedDateObj = new Date(selectedDate + "T00:00:00");
+
                 return (
                   <>
                     {/* Selected Day Header */}
                     <div className="mb-6">
-                      <h4 className={`text-xl font-medium text-center mb-4 ${
-                        isCurrentDay ? 'text-green-700 dark:text-green-300' : 'text-gray-800 dark:text-gray-200'
-                      }`}>
-                        {selectedDateObj.toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          month: 'long',
-                          day: 'numeric'
+                      <h4
+                        className={`text-xl font-medium text-center mb-4 ${
+                          isCurrentDay
+                            ? "text-green-700 dark:text-green-300"
+                            : "text-gray-800 dark:text-gray-200"
+                        }`}
+                      >
+                        {selectedDateObj.toLocaleDateString("en-US", {
+                          weekday: "long",
+                          month: "long",
+                          day: "numeric",
                         })}
                         {isCurrentDay && (
                           <span className="ml-2 text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded">
@@ -621,76 +933,109 @@ export default function Plan() {
                           </span>
                         )}
                       </h4>
-                      
+
                       {/* Progress Bar */}
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full transition-all duration-300 ${
-                            completionRate === 100 ? 'bg-green-500' : completionRate > 50 ? 'bg-yellow-500' : 'bg-gray-400'
+                            completionRate === 100
+                              ? "bg-green-500"
+                              : completionRate > 50
+                              ? "bg-yellow-500"
+                              : "bg-gray-400"
                           }`}
                           style={{ width: `${completionRate}%` }}
                         />
                       </div>
                     </div>
-                    
+
                     {/* Tasks for selected day */}
                     <div className="space-y-4">
-                      {selectedDayTasks.map((task) => {
-                        const TaskIcon = getTaskIcon(task);
-                        const completed = task.completed;
-                        const progressPercent = getProgressPercent(task);
-                        
-                        return (
-                          <Card 
-                            key={task.id}
-                            className={`${isCurrentDay 
-                              ? 'bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border-green-200/30 dark:border-green-700/20' 
-                              : 'bg-gradient-to-br from-white/90 to-gray-50/60 dark:from-gray-800/90 dark:to-gray-700/60 border-gray-200/30 dark:border-gray-700/20'
-                            } border shadow-lg backdrop-blur-sm`}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex items-start gap-3">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                  completed ? 'bg-emerald-500' : getCategoryColor(task.category)
-                                }`}>
-                                  <TaskIcon className="w-5 h-5 text-white" />
-                                </div>
-                                
-                                <div className="flex-1 min-w-0">
-                                  <div className="mb-3">
-                                    <h5 className={`text-sm font-medium ${
-                                      completed ? 'text-gray-500 line-through' : 'text-gray-800 dark:text-gray-200'
-                                    }`}>
-                                      {task.title}
-                                    </h5>
-                                    <Badge variant="outline" className="text-xs mt-1">{task.category}</Badge>
-                                  </div>
-                                  
-                                  {/* Task Details */}
-                                  <div className="mb-4">
-                                    {renderTaskDetails(task)}
-                                  </div>
-                                  
-                                  {/* Task Action Button */}
-                                  <Button
-                                    variant={completed ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => toggleTask(selectedDate, task.id)}
-                                    className={`w-full ${
-                                      completed 
-                                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                        : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                      {weeklyTasks
+                        .find((task) => task.date === selectedDate)
+                        ?.tasks.map((task) => {
+                          const TaskIcon = getTaskIcon(task);
+                          const completed = task.Status;
+
+                          return (
+                            <Card
+                              key={task.task_id}
+                              className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border border-green-200/30 dark:border-green-700/20 shadow-lg backdrop-blur-sm"
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <div
+                                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                      completed
+                                        ? "bg-emerald-500"
+                                        : getCategoryColor(task.Category)
                                     }`}
                                   >
-                                    {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                                    {completed ? 'Completed' : 'Mark Complete'}
-                                  </Button>
+                                    <TaskIcon className="w-5 h-5 text-white" />
+                                  </div>
+
+                                  <div className="flex-1 min-w-0">
+                                    <div className="mb-3">
+                                      <h4
+                                        className={`text-sm font-medium ${
+                                          completed
+                                            ? "text-gray-500 line-through"
+                                            : "text-gray-800 dark:text-gray-200"
+                                        }`}
+                                      >
+                                        {task.Title}
+                                      </h4>
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs mt-1"
+                                      >
+                                        {task.Category || task.Task_Type}
+                                      </Badge>
+                                    </div>
+
+                                    {/* Task Details */}
+                                    <div className="mb-4">
+                                      {renderTaskDetails(task)}
+                                    </div>
+
+                                    {/* Task Action Button */}
+                                    <Button
+                                      variant={
+                                        completed ? "default" : "outline"
+                                      }
+                                      size="sm"
+                                      onClick={() => {
+                                        if (task.Category === "Lifestyle") {
+                                          handleUpdateValue(
+                                            task.task_id,
+                                            taskValues[task.task_id] || 0
+                                          );
+                                        }
+                                        completed
+                                          ? handleUncheckTask(task.task_id)
+                                          : handleCheckTask(task.task_id);
+                                      }}
+                                      className={`w-full ${
+                                        completed
+                                          ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                          : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                                      }`}
+                                    >
+                                      {completed ? (
+                                        <CheckCircle className="w-4 h-4 mr-2" />
+                                      ) : (
+                                        <Circle className="w-4 h-4 mr-2" />
+                                      )}
+                                      {completed
+                                        ? "Completed"
+                                        : "Mark Complete"}
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                     </div>
                   </>
                 );
