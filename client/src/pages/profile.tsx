@@ -335,8 +335,8 @@ export default function Profile() {
               </div>
               
               <div className="flex-1 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
                     <div>
                       <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">
                         {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
@@ -344,44 +344,60 @@ export default function Profile() {
                       <p className="text-gray-600 dark:text-gray-400 font-light mt-1">{user?.email}</p>
                     </div>
                     
-                    {/* Enhanced User Details */}
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-6">
-                        {calculateAge(user?.dateOfBirth) && (
-                          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                            <Calendar className="w-4 h-4" />
-                            <span>{calculateAge(user?.dateOfBirth)} years old</span>
-                          </div>
-                        )}
-                        {user?.gender && (
-                          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                            <User className="w-4 h-4" />
-                            <span className="capitalize">{user.gender}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                          <Calendar className="w-4 h-4" />
-                          <span>Member since {getMembershipDuration()}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                          <Mail className="w-4 h-4" />
-                          <span>Verified account</span>
-                        </div>
-                      </div>
+                    <Button 
+                      onClick={() => setShowEditDialog(true)}
+                      variant="outline"
+                      size="sm"
+                      className="backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-emerald-200/50 dark:border-emerald-800/30 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 shadow-lg flex-shrink-0"
+                    >
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit Profile
+                    </Button>
+                  </div>
+                  
+                  {/* User Details Grid */}
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="text-gray-600 dark:text-gray-400">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        {calculateAge(user?.dateOfBirth) || 'N/A'}
+                      </span>
+                      <div className="text-xs">Age</div>
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium capitalize">
+                        {user?.gender || 'Not specified'}
+                      </span>
+                      <div className="text-xs">Gender</div>
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        {getMembershipDuration()}
+                      </span>
+                      <div className="text-xs">Member since</div>
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={() => setShowEditDialog(true)}
-                    variant="outline"
-                    size="sm"
-                    className="backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-emerald-200/50 dark:border-emerald-800/30 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 shadow-lg"
-                  >
-                    <Edit3 className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  {/* Health Stats */}
+                  <div className="grid grid-cols-3 gap-4 text-sm pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
+                    <div className="text-gray-600 dark:text-gray-400">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium text-lg">
+                        {stats?.totalTests || 5}
+                      </span>
+                      <div className="text-xs">Lab Tests</div>
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium text-lg">
+                        {stats?.activePlans || 2}
+                      </span>
+                      <div className="text-xs">Active Plans</div>
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                        Verified
+                      </span>
+                      <div className="text-xs">Account</div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
@@ -396,40 +412,6 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Health Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-gradient-to-br from-white/90 to-blue-50/60 dark:from-gray-800/90 dark:to-blue-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    {stats?.totalTests || 5}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Lab Tests</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    {stats?.activePlans || 2}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Plans</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Settings Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
