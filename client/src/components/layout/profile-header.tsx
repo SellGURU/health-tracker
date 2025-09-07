@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,8 @@ import {
 export default function ProfileHeader() {
   const [notificationCount, setNotificationCount] = useState(5);
   const [showNotifications, setShowNotifications] = useState(false);
+  const { logout } = useAuth();
+  const [, navigate] = useLocation();
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -116,6 +119,15 @@ export default function ProfileHeader() {
   
   const removeNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
   
   const getColorClasses = (color: string, read: boolean) => {
@@ -365,7 +377,7 @@ export default function ProfileHeader() {
             
             <DropdownMenuSeparator />
             
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>
