@@ -165,8 +165,12 @@ export default function ProfileHeader() {
   return (
     <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
-          <Heart className="w-4 h-4 text-white" />
+        <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+          <img 
+            src="/attached_assets/Logo5 2_1753791920091_1757240780580.png" 
+            alt="HolistiCare Logo" 
+            className="w-8 h-8 rounded-full object-cover"
+          />
         </div>
         <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           HolistiCare
