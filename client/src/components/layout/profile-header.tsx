@@ -124,7 +124,8 @@ export default function ProfileHeader() {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/auth');
+      // Navigate to root path which will redirect to auth page
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }
