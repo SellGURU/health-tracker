@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -72,6 +72,15 @@ export default function ChatPage() {
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<any>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]); //  
   const CallLoginAuthApi = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
@@ -401,6 +410,7 @@ export default function ChatPage() {
                       </div>
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
                 <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
                   <div className="flex gap-3">
