@@ -72,7 +72,7 @@ export default function ChatPage() {
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const CallLoginAuthApi = async () => {
+  const handleGetMessagesId = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
         setMessages(res.data.messages);
@@ -95,7 +95,7 @@ export default function ChatPage() {
     setMessages([]);
     setConversationId(0);
     setIsLoading(true);
-    CallLoginAuthApi();
+    handleGetMessagesId();
   }, [activeMode]);
 
   const sendMessage = () => {
