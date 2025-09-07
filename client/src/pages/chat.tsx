@@ -109,15 +109,14 @@ export default function ChatPage() {
       time: new Date().toLocaleTimeString(),
       reported: false,
     };
-
+    setMessages((prev) => [...prev, newMessage]);
+    setMessage("");
     Application.sendMessage({
-      conversation_id: 1,
+      conversation_id: messages.find((msg) => msg.sender_type === "ai"|| msg.sender_type == 'coach')?.conversation_id || 1,
       message_to: activeMode,
       text: message,
     })
-      .then((res) => {
-        setMessages((prev) => [...prev, newMessage]);
-        setMessage("");
+      .then((res) => {    
         if (res.data?.answer) {
           const newMessage: Message = {
             conversation_id: res.data.current_conversation_id,
@@ -356,7 +355,7 @@ export default function ChatPage() {
               </CardHeader>
 
               <CardContent className="flex-1 p-0">
-                <div className="h-[calc(65vh-200px)] overflow-y-auto p-4 space-y-4">
+                <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
                   {messages.map((msg) => (
                     <div
                       key={msg.conversation_id}
