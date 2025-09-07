@@ -292,26 +292,28 @@ export default function Profile() {
     return `${diffMonths} months`;
   };
 
+  const calculateAge = (dateOfBirth: string | undefined) => {
+    if (!dateOfBirth) return null;
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
       {/* Header */}
       <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 shadow-2xl">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
-                Profile Settings
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 font-light">Manage your account and preferences</p>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="backdrop-blur-sm bg-red-50/60 dark:bg-red-900/20 border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-300 hover:bg-red-100/60 dark:hover:bg-red-900/30 shadow-lg"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+          <div>
+            <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
+              Profile Settings
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 font-light">Manage your account and preferences</p>
           </div>
         </div>
       </div>
@@ -322,22 +324,49 @@ export default function Profile() {
           <CardContent className="p-6">
             <div className="flex items-start gap-6">
               <div className="relative">
-                <Avatar className="w-20 h-20 ring-4 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-xl">
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xl font-medium">
+                <Avatar className="w-24 h-24 ring-4 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-xl">
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-2xl font-medium">
                     {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Crown className="w-3 h-3 text-white" />
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Crown className="w-4 h-4 text-white" />
                 </div>
               </div>
               
-              <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">{user?.fullName || 'User'}</h2>
+              <div className="flex-1 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">
+                      {user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'User'}
+                    </h2>
                     <p className="text-gray-600 dark:text-gray-400 font-light">{user?.email}</p>
+                    
+                    {/* Enhanced User Details */}
+                    <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                      {calculateAge(user?.dateOfBirth) && (
+                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                          <Calendar className="w-4 h-4" />
+                          <span>{calculateAge(user?.dateOfBirth)} years old</span>
+                        </div>
+                      )}
+                      {user?.gender && (
+                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                          <User className="w-4 h-4" />
+                          <span className="capitalize">{user.gender}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-4 h-4" />
+                        <span>Member since {getMembershipDuration()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <Mail className="w-4 h-4" />
+                        <span>Verified account</span>
+                      </div>
+                    </div>
                   </div>
+                  
                   <Button 
                     onClick={() => setShowEditDialog(true)}
                     variant="outline"
@@ -347,17 +376,6 @@ export default function Profile() {
                     <Edit3 className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>Member since {getMembershipDuration()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    <span>Verified account</span>
-                  </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
