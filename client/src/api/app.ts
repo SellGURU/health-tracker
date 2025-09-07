@@ -44,6 +44,10 @@ class Application extends Api {
     const response = this.post("/mobile/weekly_tasks", {});
     return response;
   }
+  static getClientInformation() {
+    const response = this.post("/client_information_mobile", {});
+    return response;
+  }
 }
 
 export default Application;

@@ -30,6 +30,8 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Auth from "@/api/auth";
+import Application from "@/api/app";
+import { toast } from "@/hooks/use-toast";
 
 export default function ProfileHeader() {
   const [notificationCount, setNotificationCount] = useState(5);
@@ -90,6 +92,30 @@ export default function ProfileHeader() {
   ]);
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [clientInformation, setClientInformation] = useState<{
+    age: number;
+    connected_wearable: boolean;
+    id: string;
+    name: string;
+    sex: string;
+  }>();
+
+  const handleGetClientInformation = async () => {
+    Application.getClientInformation()
+      .then((res) => {
+        setClientInformation(res.data);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
+  useEffect(() => {
+    handleGetClientInformation();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -396,10 +422,10 @@ export default function ProfileHeader() {
             <div className="flex items-center justify-start gap-2 p-2">
               <div className="flex flex-col space-y-1 leading-none">
                 <p className="font-medium text-gray-900 dark:text-gray-100">
-                  Test User
+                  {clientInformation?.name}
                 </p>
                 <p className="w-[200px] truncate text-sm text-gray-600 dark:text-gray-400">
-                  test@holisticare.com
+                  default@holisticare.com
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-500">
                   Member since Jan 2025
