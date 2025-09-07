@@ -104,7 +104,7 @@ export default function ChatPage() {
     setMessages([]);
     setConversationId(0);
     setIsLoading(true);
-    CallLoginAuthApi();
+    // handleGetMessagesId();
   }, [activeMode]);
 
   const sendMessage = () => {
