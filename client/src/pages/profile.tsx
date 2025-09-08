@@ -292,26 +292,28 @@ export default function Profile() {
     return `${diffMonths} months`;
   };
 
+  const calculateAge = (dateOfBirth: string | undefined) => {
+    if (!dateOfBirth) return null;
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
       {/* Header */}
       <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 shadow-2xl">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
-                Profile Settings
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 font-light">Manage your account and preferences</p>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="backdrop-blur-sm bg-red-50/60 dark:bg-red-900/20 border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-300 hover:bg-red-100/60 dark:hover:bg-red-900/30 shadow-lg"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+          <div>
+            <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
+              Profile Settings
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 font-light">Manage your account and preferences</p>
           </div>
         </div>
       </div>
@@ -320,92 +322,86 @@ export default function Profile() {
         {/* Profile Overview Card */}
         <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
           <CardContent className="p-6">
-            <div className="flex items-start gap-6">
-              <div className="relative">
-                <Avatar className="w-20 h-20 ring-4 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-xl">
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xl font-medium">
-                    {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+            <div className="flex items-center gap-4">
+              <div className="relative flex-shrink-0">
+                <Avatar className="w-16 h-16 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-medium">
+                    {((user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Crown className="w-3 h-3 text-white" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Crown className="w-2.5 h-2.5 text-white" />
                 </div>
               </div>
               
-              <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <div className="space-y-3">
                   <div>
-                    <h2 className="text-2xl font-thin text-gray-900 dark:text-gray-100">{user?.fullName || 'User'}</h2>
-                    <p className="text-gray-600 dark:text-gray-400 font-light">{user?.email}</p>
+                    <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
+                      {(editData?.firstName && editData?.lastName) 
+                        ? `${editData.firstName} ${editData.lastName}` 
+                        : user?.fullName || 'User'}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
                   </div>
-                  <Button 
-                    onClick={() => setShowEditDialog(true)}
-                    variant="outline"
-                    size="sm"
-                    className="backdrop-blur-sm bg-white/60 dark:bg-gray-700/60 border-emerald-200/50 dark:border-emerald-800/30 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 shadow-lg"
-                  >
-                    <Edit3 className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>Member since {getMembershipDuration()}</span>
+                  
+                  {/* Better spaced info display */}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Age:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {calculateAge(editData?.dateOfBirth || user?.dateOfBirth) || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Gender:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
+                        {editData?.gender || user?.gender || 'Not specified'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Member since:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {getMembershipDuration()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    <span>Verified account</span>
+                  
+                  {/* Health stats */}
+                  <div className="space-y-2 text-sm pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Lab Tests:</span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        {stats?.totalTests || 5}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Active Plans:</span>
+                      <span className="font-semibold text-green-600 dark:text-green-400">
+                        {stats?.activePlans || 2}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Account:</span>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                        Verified
+                      </span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  {getSubscriptionBadge(user?.subscriptionTier || 'free')}
-                  <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active User
-                  </Badge>
+                  
+                  <div className="flex items-center gap-2 pt-2">
+                    {getSubscriptionBadge(user?.subscriptionTier || 'free')}
+                    <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs">
+                      <Activity className="w-3 h-3 mr-1" />
+                      Active User
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Health Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-gradient-to-br from-white/90 to-blue-50/60 dark:from-gray-800/90 dark:to-blue-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    {stats?.totalTests || 5}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Lab Tests</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    {stats?.activePlans || 2}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Plans</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Settings Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

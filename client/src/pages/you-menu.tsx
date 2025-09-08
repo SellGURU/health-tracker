@@ -177,15 +177,15 @@ export default function YouMenu() {
           <CardContent className="p-6 text-center relative z-10">
             {/* Animated background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
             
             <div className="relative">
               {/* Enhanced icon with pulsing animation */}
               <div className="relative mx-auto mb-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                  <Activity className="w-10 h-10 text-white animate-pulse" />
+                  <Activity className="w-10 h-10 text-white" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full opacity-30 animate-ping"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full opacity-30"></div>
               </div>
               
               {/* Prominent age display */}
@@ -201,9 +201,9 @@ export default function YouMenu() {
                   {/* Enhanced progress visualization */}
                   <div className="relative">
                     <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full h-3 shadow-inner">
-                      <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 h-3 rounded-full shadow-lg animate-pulse" style={{ width: '85%' }}></div>
+                      <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 h-3 rounded-full shadow-lg" style={{ width: '85%' }}></div>
                     </div>
-                    <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-emerald-300/50 to-cyan-300/50 rounded-full animate-shimmer"></div>
+                    <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-emerald-300/50 to-cyan-300/50 rounded-full"></div>
                   </div>
                   
                 </div>

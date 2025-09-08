@@ -551,7 +551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Wellness challenges routes
   app.get("/api/wellness-challenges", async (req, res) => {
     const userId = isAuthenticated(req);
-    const userIdForFilter = req.query.userOnly === 'true' ? userId : undefined;
+    const userIdForFilter = (req.query.userOnly === 'true' && userId) ? userId : undefined;
     
     try {
       const challenges = await storage.getWellnessChallenges(userIdForFilter);
