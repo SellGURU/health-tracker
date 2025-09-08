@@ -85,10 +85,12 @@ const generateCalendarTasks = () => {
                 type: 'Circuit',
                 exercises: [
                   {
+                    id: 'dynamic-stretch-1',
                     title: 'Dynamic Stretching',
                     description: 'Prepare muscles for workout',
                     instruction: 'Hold each stretch for 30 seconds',
                     reps: '5 minutes',
+                    completed: false,
                     exercise_filters: { type: 'Flexibility', level: 'Beginner' },
                     exercise_location: ['Home', 'Gym'],
                     files: [
@@ -118,12 +120,14 @@ const generateCalendarTasks = () => {
                 type: 'Superset',
                 exercises: [
                   {
+                    id: 'squats-1',
                     title: 'Squats',
                     description: 'Lower body compound movement',
                     instruction: 'Keep knees aligned with toes',
                     reps: '12',
                     rest: '60',
                     weight: 'bodyweight',
+                    completed: false,
                     exercise_filters: { type: 'Strength', level: 'Intermediate', muscle: 'Glutes', equipment: 'Body Only' },
                     exercise_location: ['Home', 'Gym'],
                     files: [
@@ -254,6 +258,7 @@ const todaysTasks = calendarTasks[todayKey] || [];
 
 export default function Plan() {
   const [taskValues, setTaskValues] = useState<Record<string, number>>({});
+  const [exerciseCompletion, setExerciseCompletion] = useState<Record<string, boolean>>({});
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("today");
   const [selectedDate, setSelectedDate] = useState(todayKey);
@@ -335,6 +340,22 @@ export default function Plan() {
 
   const updateTaskValue = (taskId: string, value: number) => {
     setTaskValues(prev => ({ ...prev, [taskId]: value }));
+  };
+
+  const toggleExerciseCompletion = (exerciseId: string) => {
+    setExerciseCompletion(prev => ({
+      ...prev,
+      [exerciseId]: !prev[exerciseId]
+    }));
+    
+    toast({
+      title: exerciseCompletion[exerciseId] ? "Exercise Incomplete" : "Exercise Complete!",
+      description: exerciseCompletion[exerciseId] ? "Keep going, you've got this!" : "Great job! Exercise marked as complete.",
+    });
+  };
+
+  const isExerciseCompleted = (exerciseId: string) => {
+    return exerciseCompletion[exerciseId] || false;
   };
 
   const renderTaskDetails = (task: any) => {
@@ -426,7 +447,26 @@ export default function Plan() {
                 </div>
                 {section.exercises.map((exercise: any, exIndex: number) => (
                   <div key={exIndex} className="ml-2 space-y-3">
-                    <div className="font-medium text-sm">{exercise.title}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="font-medium text-sm">{exercise.title}</div>
+                        {isExerciseCompleted(exercise.id) && (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        )}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={isExerciseCompleted(exercise.id) ? "default" : "outline"}
+                        onClick={() => toggleExerciseCompletion(exercise.id)}
+                        className={`text-xs px-3 py-1 h-7 ${
+                          isExerciseCompleted(exercise.id)
+                            ? 'bg-green-500 hover:bg-green-600 text-white'
+                            : 'border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-900/20'
+                        }`}
+                      >
+                        {isExerciseCompleted(exercise.id) ? 'Completed' : 'Mark Complete'}
+                      </Button>
+                    </div>
                     <div className="text-xs text-gray-600 dark:text-gray-400">{exercise.description}</div>
                     <div className="text-xs">
                       {exercise.reps && <span className="mr-3">Reps: {exercise.reps}</span>}
