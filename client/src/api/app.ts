@@ -48,6 +48,14 @@ class Application extends Api {
     const response = this.post("/client_information_mobile", {});
     return response;
   }
+
+  static feeedBack(feed:"like"|"dislike",conversation_id:number){
+    const response = this.post("/mobile_chat/feedback", {
+      feedback: feed,
+      current_conversation_id: conversation_id,
+    });
+    return response;
+  }
 }
 
 export default Application;

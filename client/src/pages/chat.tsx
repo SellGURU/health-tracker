@@ -63,6 +63,7 @@ interface Message {
   sender_name?: string;
   sender_type: "patient" | "coach" | "ai" | "user";
   time: string;
+  message_id?: number; // Add unique message ID
 }
 
 interface Coach {
@@ -99,10 +100,11 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<any>(null);
   const [messageReactions, setMessageReactions] = useState<Record<number, 'liked' | 'disliked' | null>>({});
-  const [reportModalOpen, setReportModalOpen] = useState(false);
+  // const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportingMessageId, setReportingMessageId] = useState<number | null>(null);
   const [reportReason, setReportReason] = useState("");
-
+  const [reportDetails, setReportDetails] = useState('');
+  const [showReportModal, setShowReportModal] = useState(false);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -115,6 +117,17 @@ export default function ChatPage() {
       .then((res) => {
         setMessages(res.data.messages);
         setConversationId(res.data.conversation_id);
+        
+        // Sync feedback state with server data
+        const feedbackState: Record<number, 'liked' | 'disliked' | null> = {};
+        res.data.messages.forEach((msg: Message) => {
+          if (msg.feedback === 'like') {
+            feedbackState[msg.conversation_id] = 'liked';
+          } else if (msg.feedback === 'dislike') {
+            feedbackState[msg.conversation_id] = 'disliked';
+          }
+        });
+        setMessageReactions(feedbackState);
       })
       .catch((res) => {
         if (res.response.data.detail) {
@@ -150,7 +163,7 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, newMessage]);
     setMessage("");
     Application.sendMessage({
-      conversation_id: messages.find((msg) => msg.sender_type === "ai"|| msg.sender_type == 'coach')?.conversation_id || 1,
+      conversation_id: messages.filter((msg) => msg.sender_type === "ai" || msg.sender_type === 'coach').pop()?.conversation_id || 1,
       message_to: activeMode,
       text: message,
     })
@@ -194,10 +207,10 @@ export default function ChatPage() {
     // }, 1500);
   };
 
-  const handleMessageReaction = (messageId: number, reaction: 'liked' | 'disliked' | null) => {
+  const handleMessageReaction = (conversationId: number, reaction: 'liked' | 'disliked' | null) => {
     setMessageReactions(prev => ({
       ...prev,
-      [messageId]: prev[messageId] === reaction ? null : reaction
+      [conversationId]: prev[conversationId] === reaction ? null : reaction
     }));
     
     // Show toast feedback
@@ -206,11 +219,13 @@ export default function ChatPage() {
         title: "Thanks for the feedback!",
         description: "We're glad this response was helpful.",
       });
+      Application.feeedBack("like", conversationId);
     } else if (reaction === 'disliked') {
       toast({
         title: "Feedback received",
         description: "We'll work to improve our responses.",
       });
+      Application.feeedBack("dislike", conversationId);
     }
   };
 
@@ -220,7 +235,7 @@ export default function ChatPage() {
 
   const handleReportMessage = (messageId: number) => {
     setReportingMessageId(messageId);
-    setReportModalOpen(true);
+    setShowReportModal(true);
   };
 
   const handleSubmitReport = () => {
@@ -239,13 +254,13 @@ export default function ChatPage() {
       description: "Thank you for your feedback. We'll review this message.",
     });
 
-    setReportModalOpen(false);
+    setShowReportModal(false);
     setReportReason("");
     setReportingMessageId(null);
   };
 
   const handleCloseReportModal = () => {
-    setReportModalOpen(false);
+    setShowReportModal(false);
     setReportReason("");
     setReportingMessageId(null);
   };
@@ -570,38 +585,52 @@ export default function ChatPage() {
       </div>
 
       {/* Report Modal */}
-      <Dialog open={reportModalOpen} onOpenChange={setReportModalOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Flag className="h-5 w-5 text-red-500" />
-              Report Message
-            </DialogTitle>
+            <DialogTitle>Report AI Response</DialogTitle>
             <DialogDescription>
-              Please tell us why you're reporting this message. This helps us improve our service.
+              Tell us what was wrong with this response.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Textarea
-              placeholder="Describe the issue with this message..."
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              className="min-h-[100px]"
-            />
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCloseReportModal}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitReport}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                Submit Report
-              </Button>
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Reason for Reporting
+              </label>
+              <Select value={reportReason} onValueChange={setReportReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inaccurate">Inaccurate or misleading information</SelectItem>
+                  <SelectItem value="inappropriate">Offensive, harmful, or inappropriate content</SelectItem>
+                  <SelectItem value="irrelevant">Irrelevant or nonsensical response</SelectItem>
+                  <SelectItem value="harassment">Harassment</SelectItem>
+                  <SelectItem value="other">Other (please specify)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+            
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Additional Details (optional)
+              </label>
+              <Textarea
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                placeholder="Describe the issue in more detail"
+                className="resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <Button
+              // onClick={}
+              className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white"
+            >
+              Submit Report
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
