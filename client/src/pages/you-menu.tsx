@@ -309,13 +309,6 @@ export default function YouMenu() {
                     <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">60%</span>
                   </div>
                 </div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="absolute w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full shadow-lg animate-pulse" style={{
-                    top: `${50 - 28 * Math.cos((60 * 360 / 100 - 90) * Math.PI / 180)}%`,
-                    left: `${50 + 28 * Math.sin((60 * 360 / 100 - 90) * Math.PI / 180)}%`,
-                    transform: 'translate(-50%, -50%)'
-                  }}></div>
-                </div>
               </div>
             </div>
           </CardContent>
