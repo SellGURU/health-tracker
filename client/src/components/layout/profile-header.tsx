@@ -30,9 +30,11 @@ import {
   Info,
   CheckCircle
 } from "lucide-react";
-import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
+import Auth from "@/api/auth";
+// import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
 
 export default function ProfileHeader() {
+  const logoImage = "/logo.png";
   const [notificationCount, setNotificationCount] = useState(5);
   const [showNotifications, setShowNotifications] = useState(false);
   const { logout } = useAuth();
@@ -123,13 +125,9 @@ export default function ProfileHeader() {
   };
   
   const handleLogout = async () => {
-    try {
-      await logout();
-      // Navigate to root path which will redirect to auth page
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    Auth.logOut();
+    localStorage.clear();
+    window.location.reload();
   };
   
   const getColorClasses = (color: string, read: boolean) => {
@@ -383,7 +381,7 @@ export default function ProfileHeader() {
             
             <DropdownMenuSeparator />
             
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onTouchEnd={handleLogout} onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>

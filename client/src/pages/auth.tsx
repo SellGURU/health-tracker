@@ -7,10 +7,12 @@ import { Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { validateEmail, validatePassword } from "@/lib/utils";
-import logoImage from "@assets/logo.png";
+import Auth from "@/api/auth";
+// import logoImage from "@assets/logo.png";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
+  const logoImage = "/logo.png";
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [stage, setStage] = useState(1);
@@ -59,12 +61,66 @@ export default function AuthPage() {
       password: "password123"
     });
   };
+  const CallLoginAuthApi = async (isRegister = false) => {
+    Auth.login(loginData.email, loginData.password)
+      .then((res) => {
+        // localStorage.setItem(
+        //   "health_user",
+        //   JSON.stringify(res.data.permission)
+        // );
+        localStorage.setItem("health_session", res.data.access_token);
+        localStorage.setItem("token", res.data.access_token);
+        if (!isRegister) {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
+        }
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      })
+      .catch((res) => {
+        if (res.response.data.detail) {
+          if (res.response.data.detail.includes("email")) {
+            toast({
+              title: "Sign in failed",
+              description:
+                "This email address is not registered in our system.",
+              variant: "destructive",
+            });
+          } else if (res.response.data.detail.includes("password")) {
+            toast({
+              title: "Sign in failed",
+              description: "Incorrect password. Please try again.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Sign in failed",
+              description: res.response.data.detail,
+              variant: "destructive",
+            });
+          }
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    try {
+    
+    // try {
+    //   alert("authenticate started");
+    //   await authenticate(
+    //     "BF9yybnbq44AreyJf04tNbvBCXXRIFJH",
+    //     "YFhSuGe4CuY13XZZzW0dGqowfM6oMNSwz9qkQBiyCxm8FneNGncwuQU7YkU50sMp",
+    //     "test12"
+    //   );
+    //   await connect();
       if (!validateEmail(loginData.email)) {
         throw new Error("Please enter a valid email address");
       }
@@ -72,27 +128,30 @@ export default function AuthPage() {
       if (loginData.password.length < 6) {
         throw new Error("Password must be at least 6 characters long");
       }
+      CallLoginAuthApi();
+    //   await login(loginData);
 
-      await login(loginData);
-      
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-      
-      // Force a small delay to ensure auth state updates
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    } catch (error) {
-      toast({
-        title: "Sign in failed",
-        description: error instanceof Error ? error.message : "Please check your credentials and try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    //   toast({
+    //     title: "Welcome back!",
+    //     description: "You have successfully signed in.",
+    //   });
+
+    //   // Force a small delay to ensure auth state updates
+    //   setTimeout(() => {
+    //     window.location.reload();
+    //   }, 100);
+    // } catch (error) {
+    //   toast({
+    //     title: "Sign in failed",
+    //     description:
+    //       error instanceof Error
+    //         ? error.message
+    //         : "Please check your credentials and try again.",
+    //     variant: "destructive",
+    //   });
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const handleRegister = async (e: React.FormEvent) => {

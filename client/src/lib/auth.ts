@@ -127,7 +127,10 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    if (this.sessionId) {
+    // Handle mock mode logout
+    if (mockAuth.isMockModeEnabled()) {
+      mockAuth.logout();
+    } else if (this.sessionId) {
       try {
         await apiRequest("POST", "/api/auth/logout", {});
       } catch (error) {
