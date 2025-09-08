@@ -45,6 +45,7 @@ import {
   ThumbsDown,
   MoreVertical,
   Flag,
+  RotateCcw,
 } from "lucide-react";
 import Application from "@/api/app";
 
@@ -100,7 +101,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<any>(null);
   const [messageReactions, setMessageReactions] = useState<Record<number, 'liked' | 'disliked' | null>>({});
-  const [reportedMessages, setReportedMessages] = useState<Set<number>>(new Set());
+  const [reportedMessages, setReportedMessages] = useState<Set<string>>(new Set());
   // const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportingMessageId, setReportingMessageId] = useState<number | null>(null);
   const [reportReason, setReportReason] = useState("");
@@ -121,18 +122,19 @@ export default function ChatPage() {
         
         // Sync feedback state with server data
         const feedbackState: Record<number, 'liked' | 'disliked' | null> = {};
-        const reportedMessagesSet = new Set<number>();
+        const reportedMessagesSet = new Set<string>();
         
         res.data.messages.forEach((msg: Message) => {
           if (msg.feedback === 'like') {
             feedbackState[msg.conversation_id] = 'liked';
-          } else if (msg.feedback === 'dislike') {
+          } else if (msg.feedback === 'disliked') {
             feedbackState[msg.conversation_id] = 'disliked';
           }
           
-          // Add reported messages from server
+          // Add reported messages from server using unique key
           if (msg.reported) {
-            reportedMessagesSet.add(msg.conversation_id);
+            const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
+            reportedMessagesSet.add(messageKey);
           }
         });
         
@@ -248,6 +250,80 @@ export default function ChatPage() {
     setShowReportModal(true);
   };
 
+  const handleRegenerateMessage = async (messageId: number) => {
+    // Find the last AI message
+    const lastAIMessage = messages
+      .filter(msg => msg.sender_type === "ai")
+      .pop();
+    
+    if (!lastAIMessage || lastAIMessage.conversation_id !== messageId) {
+      toast({
+        title: "Error",
+        description: "Can only regenerate the last AI message.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Find the last user message that prompted this AI response
+    const userMessages = messages.filter(msg => 
+      msg.sender_type === "patient" && 
+      messages.indexOf(msg) < messages.indexOf(lastAIMessage)
+    );
+    
+    if (userMessages.length === 0) {
+      toast({
+        title: "Error", 
+        description: "Could not find the original user message.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get the last user message (most recent one before the AI response)
+    const userMessage = userMessages[userMessages.length - 1];
+    
+    // Remove the last AI message
+    setMessages(prev => prev.filter(msg => {
+      if(msg.conversation_id === messageId && msg.sender_type === "ai") {
+        return false;
+      }
+      return true;
+    } ));
+    
+    // Show loading state
+    setIsLoading(true);
+    
+    // Resend the user message to regenerate response
+    try {
+      const res = await Application.sendMessage({
+        conversation_id: userMessage.conversation_id,
+        message_to: activeMode,
+        text: userMessage.message_text,
+      });
+      
+      if (res.data?.answer) {
+        const newMessage: Message = {
+          conversation_id: res.data.current_conversation_id,
+          date: new Date().toISOString(),
+          message_text: res.data.answer,
+          sender_type: activeMode,
+          time: new Date().toLocaleTimeString(),
+          reported: false,
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.detail || "Failed to regenerate message",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleCloseReportModal = () => {
     setShowReportModal(false);
@@ -264,12 +340,18 @@ export default function ChatPage() {
 
   const handleSubmitReport = () => {
     if (reportingMessageId) {
-      // Add message to reported messages set
-      setReportedMessages(prev => {
-        const newSet = new Set(prev);
-        newSet.add(reportingMessageId);
-        return newSet;
-      });
+      // Find the specific message to create unique key
+      const messageToReport = messages.find(msg => msg.conversation_id === reportingMessageId);
+      if (messageToReport) {
+        const messageKey = `${messageToReport.conversation_id}-${messageToReport.date}-${messageToReport.time}`;
+        
+        // Add message to reported messages set
+        setReportedMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.add(messageKey);
+          return newSet;
+        });
+      }
       
       // Show success toast
       toast({
@@ -462,7 +544,9 @@ export default function ChatPage() {
               <CardContent className="flex-1 p-0">
                 <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
                   {messages.map((msg) => {
-                    const isReported = reportedMessages.has(msg.conversation_id);
+                    // Use unique key for reported messages
+                    const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
+                    const isReported = reportedMessages.has(messageKey);
                     return (
                     <div
                       key={msg.conversation_id}
@@ -544,6 +628,23 @@ export default function ChatPage() {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-48">
+                                    {/* Show regenerate only for the last AI message */}
+                                    {(() => {
+                                      const lastAIMessage = messages
+                                        .filter(m => m.sender_type === "ai")
+                                        .pop();
+                                      const isLastAIMessage = lastAIMessage?.conversation_id === msg.conversation_id;
+                                      
+                                      return isLastAIMessage ? (
+                                        <DropdownMenuItem
+                                          onClick={() => handleRegenerateMessage(msg.conversation_id)}
+                                          className="text-blue-600 dark:text-blue-400 focus:text-blue-600 dark:focus:text-blue-400"
+                                        >
+                                          <RotateCcw className="h-4 w-4 mr-2" />
+                                          Regenerate
+                                        </DropdownMenuItem>
+                                      ) : null;
+                                    })()}
                                     <DropdownMenuItem
                                       onClick={() => handleReportMessage(msg.conversation_id)}
                                       className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
