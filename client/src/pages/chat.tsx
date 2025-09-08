@@ -100,6 +100,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<any>(null);
   const [messageReactions, setMessageReactions] = useState<Record<number, 'liked' | 'disliked' | null>>({});
+  const [reportedMessages, setReportedMessages] = useState<Set<number>>(new Set());
   // const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportingMessageId, setReportingMessageId] = useState<number | null>(null);
   const [reportReason, setReportReason] = useState("");
@@ -120,14 +121,23 @@ export default function ChatPage() {
         
         // Sync feedback state with server data
         const feedbackState: Record<number, 'liked' | 'disliked' | null> = {};
+        const reportedMessagesSet = new Set<number>();
+        
         res.data.messages.forEach((msg: Message) => {
           if (msg.feedback === 'like') {
             feedbackState[msg.conversation_id] = 'liked';
           } else if (msg.feedback === 'dislike') {
             feedbackState[msg.conversation_id] = 'disliked';
           }
+          
+          // Add reported messages from server
+          if (msg.reported) {
+            reportedMessagesSet.add(msg.conversation_id);
+          }
         });
+        
         setMessageReactions(feedbackState);
+        setReportedMessages(reportedMessagesSet);
       })
       .catch((res) => {
         if (res.response.data.detail) {
@@ -253,10 +263,30 @@ export default function ChatPage() {
   };
 
   const handleSubmitReport = () => {
+    if (reportingMessageId) {
+      // Add message to reported messages set
+      setReportedMessages(prev => {
+        const newSet = new Set(prev);
+        newSet.add(reportingMessageId);
+        return newSet;
+      });
+      
+      // Show success toast
+      toast({
+        title: "Report submitted",
+        description: "Thank you for your feedback. We'll review this message.",
+      });
+    }
+    
     setShowReportModal(false);
     setReportReason("");
-    setReportingMessageId(null);    
-    Application.reportMessage(reportingMessageId || 0, reportReason, reportDetails);
+    setReportDetails("");
+    setReportingMessageId(null);
+    
+    // Call API to report message
+    if (reportingMessageId) {
+      Application.reportMessage(reportingMessageId, reportReason, reportDetails);
+    }
   };
   // const formatTimestamp = (timestamp: Date) => {
   //   return timestamp.toLocaleTimeString([], {
@@ -431,14 +461,16 @@ export default function ChatPage() {
 
               <CardContent className="flex-1 p-0">
                 <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
-                  {messages.map((msg) => (
+                  {messages.map((msg) => {
+                    const isReported = reportedMessages.has(msg.conversation_id);
+                    return (
                     <div
                       key={msg.conversation_id}
                       className={`flex ${
                         msg.sender_type === "patient"
                           ? "justify-end"
                           : "justify-start"
-                      }`}
+                      } ${isReported ? "opacity-50" : ""}`}
                     >
                       <div
                         className={`max-w-[80%] group ${
@@ -475,7 +507,7 @@ export default function ChatPage() {
                             </p>
                             
                             {/* Action buttons for AI messages */}
-                            {msg.sender_type === "ai" && (
+                            {msg.sender_type === "ai" && !isReported && (
                               <div className="flex items-center gap-1">
                                 <Button
                                   variant="ghost"
@@ -523,11 +555,22 @@ export default function ChatPage() {
                                 </DropdownMenu>
                               </div>
                             )}
+                            
+                            {/* Show reported indicator for reported messages */}
+                            {msg.sender_type === "ai" && isReported && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+                                  <Flag className="h-3 w-3" />
+                                  Reported
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                   <div ref={messagesEndRef} />
                 </div>
                 <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
