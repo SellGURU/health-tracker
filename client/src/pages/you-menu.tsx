@@ -484,13 +484,7 @@ export default function YouMenu() {
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm font-medium">12 personalized action items</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-500/10 backdrop-blur-sm">
-                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                    <Activity className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium">Phenotypic age: 28 years</span>
+                  <span className="text-sm font-medium">12 personalized interventions</span>
                 </div>
               </div>
               
