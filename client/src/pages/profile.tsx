@@ -1,50 +1,85 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Application from "@/api/app";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/lib/auth";
-import { useLocation } from "wouter";
-import { 
-  User,
-  Settings,
-  Bell,
-  Shield,
-  Download,
-  HelpCircle,
-  LogOut,
-  Edit3,
-  ChevronRight,
-  Mail,
-  Calendar,
-  Crown,
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
   Activity,
-  Target,
-  Brain,
-  Heart,
   Award,
-  Zap,
-  TrendingUp,
+  Bell,
+  Brain,
+  ChevronRight,
+  Crown,
+  Download,
   Globe,
+  Heart,
+  HelpCircle,
   Lock,
-  Smartphone
+  Mail,
+  Settings,
+  Shield,
+  Smartphone,
+  Target,
+  User,
+  Zap,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  
+  const [clientInformation, setClientInformation] = useState<{
+    age: number;
+    coach_username: [];
+    connected_wearable: boolean;
+    email: string;
+    id: string;
+    name: string;
+    sex: string;
+  }>();
+
+  const handleGetClientInformation = async () => {
+    Application.getClientInformation()
+      .then((res) => {
+        setClientInformation(res.data);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
+  useEffect(() => {
+    handleGetClientInformation();
+  }, []);
+
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
@@ -55,14 +90,22 @@ export default function Profile() {
     firstName: "",
     lastName: "",
     dateOfBirth: "",
-    gender: user?.gender || "",
+    gender: "",
   });
+  useEffect(() => {
+    setEditData({
+      firstName: clientInformation?.name?.split(" ")[0] || "",
+      lastName: clientInformation?.name?.split(" ")[1] || "",
+      dateOfBirth: "",
+      gender: clientInformation?.sex || "",
+    });
+  }, [clientInformation]);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  
+
   // Notification preferences
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
@@ -74,67 +117,76 @@ export default function Profile() {
     systemUpdates: false,
     marketingEmails: false,
   });
-  
+
   // Privacy settings
   const [privacySettings, setPrivacySettings] = useState({
     shareDataWithDoctors: true,
     anonymousAnalytics: true,
     shareHealthInsights: false,
     publicProfile: false,
-    dataRetention: '2_years',
+    dataRetention: "2_years",
     thirdPartyIntegrations: true,
   });
-  
 
   const { data: stats } = useQuery({
     queryKey: ["/api/profile/stats"],
     queryFn: async () => {
       // Get aggregated stats
-      const [labResults, actionPlans, insights, healthScore] = await Promise.all([
-        fetch('/api/lab-results', { headers: authService.getAuthHeaders() }).then(r => r.json()),
-        fetch('/api/action-plans', { headers: authService.getAuthHeaders() }).then(r => r.json()),
-        fetch('/api/insights', { headers: authService.getAuthHeaders() }).then(r => r.json()),
-        fetch('/api/health-score', { headers: authService.getAuthHeaders() }).then(r => r.json()),
-      ]);
+      const [labResults, actionPlans, insights, healthScore] =
+        await Promise.all([
+          fetch("/api/lab-results", {
+            headers: authService.getAuthHeaders(),
+          }).then((r) => r.json()),
+          fetch("/api/action-plans", {
+            headers: authService.getAuthHeaders(),
+          }).then((r) => r.json()),
+          fetch("/api/insights", {
+            headers: authService.getAuthHeaders(),
+          }).then((r) => r.json()),
+          fetch("/api/health-score", {
+            headers: authService.getAuthHeaders(),
+          }).then((r) => r.json()),
+        ]);
 
       return {
         totalTests: labResults.length || 0,
-        activePlans: actionPlans.filter((p: any) => p.status === 'active').length || 0,
+        activePlans:
+          actionPlans.filter((p: any) => p.status === "active").length || 0,
         healthScore: healthScore?.overallScore || 0,
         insights: insights.length || 0,
       };
     },
   });
 
-  const updateProfileMutation = useMutation({
-    mutationFn: async (data: typeof editData) => {
-      const updates = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: data.dateOfBirth,
-        gender: data.gender || undefined,
-      };
+  const [isUpdatingPersonalInfo, setIsUpdatingPersonalInfo] = useState(false);
 
-      // This would typically be a PATCH /api/users/me endpoint
-      // For now, we'll simulate the update
-      return updates;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Profile updated",
-        description: "Your profile information has been updated successfully.",
+  const handleUpdatePersonalInfo = async () => {
+    setIsUpdatingPersonalInfo(true);
+    Application.updatePersonalInfo({
+      first_name: editData.firstName,
+      last_name: editData.lastName,
+      date_of_birth: editData.dateOfBirth,
+      gender: editData.gender,
+    })
+      .then(() => {
+        toast({
+          title: "Profile updated",
+          description:
+            "Your profile information has been updated successfully.",
+        });
+        setShowEditDialog(false);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsUpdatingPersonalInfo(false);
       });
-      setShowEditDialog(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Update failed",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+  };
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: typeof passwordData) => {
@@ -148,12 +200,17 @@ export default function Profile() {
         description: "Your password has been updated successfully.",
       });
       setShowPasswordDialog(false);
-      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     },
     onError: (error) => {
       toast({
         title: "Password change failed",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     },
@@ -161,40 +218,42 @@ export default function Profile() {
 
   const handleLogout = () => {
     logout();
-    setLocation('/');
+    setLocation("/");
     toast({
       title: "Logged out",
       description: "You have been logged out successfully.",
     });
   };
-  
+
   const handleExportData = async () => {
     setIsExporting(true);
     try {
       // Simulate data export
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Create a mock data export
       const exportData = {
         profile: user,
-        labResults: 'Lab results data...',
-        actionPlans: 'Action plans data...',
-        healthInsights: 'Health insights data...',
+        labResults: "Lab results data...",
+        actionPlans: "Action plans data...",
+        healthInsights: "Health insights data...",
         exportDate: new Date().toISOString(),
       };
-      
+
       const dataStr = JSON.stringify(exportData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
       const url = URL.createObjectURL(dataBlob);
-      
-      const link = document.createElement('a');
+
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `holisticare-data-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `holisticare-data-${
+        new Date().toISOString().split("T")[0]
+      }.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       toast({
         title: "Data exported",
         description: "Your health data has been downloaded successfully.",
@@ -209,7 +268,7 @@ export default function Profile() {
       setIsExporting(false);
     }
   };
-  
+
   const saveNotificationSettings = () => {
     toast({
       title: "Notifications updated",
@@ -217,7 +276,7 @@ export default function Profile() {
     });
     setShowNotificationsDialog(false);
   };
-  
+
   const savePrivacySettings = () => {
     toast({
       title: "Privacy settings updated",
@@ -225,7 +284,6 @@ export default function Profile() {
     });
     setShowPrivacyDialog(false);
   };
-  
 
   const settingsItems = [
     {
@@ -274,18 +332,33 @@ export default function Profile() {
 
   const getSubscriptionBadge = (tier: string) => {
     switch (tier) {
-      case 'plus':
-        return <Badge className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 dark:text-emerald-300 dark:border-emerald-800/30 backdrop-blur-sm">Plus Plan</Badge>;
-      case 'professional':
-        return <Badge className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 text-purple-700 border-purple-200/50 dark:text-purple-300 dark:border-purple-800/30 backdrop-blur-sm">Professional</Badge>;
+      case "plus":
+        return (
+          <Badge className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 dark:text-emerald-300 dark:border-emerald-800/30 backdrop-blur-sm">
+            Plus Plan
+          </Badge>
+        );
+      case "professional":
+        return (
+          <Badge className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 text-purple-700 border-purple-200/50 dark:text-purple-300 dark:border-purple-800/30 backdrop-blur-sm">
+            Professional
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" className="bg-gradient-to-r from-gray-500/10 to-slate-500/10 backdrop-blur-sm">Free Plan</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gradient-to-r from-gray-500/10 to-slate-500/10 backdrop-blur-sm"
+          >
+            Free Plan
+          </Badge>
+        );
     }
   };
 
   const getMembershipDuration = () => {
     // Calculate membership duration
-    const joinDate = new Date('2024-06-01'); // Example join date
+    const joinDate = new Date("2024-06-01"); // Example join date
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - joinDate.getTime());
     const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30));
@@ -298,7 +371,10 @@ export default function Profile() {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;
@@ -313,7 +389,9 @@ export default function Profile() {
             <h1 className="text-3xl font-thin bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
               Profile Settings
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 font-light">Manage your account and preferences</p>
+            <p className="text-gray-600 dark:text-gray-400 font-light">
+              Manage your account and preferences
+            </p>
           </div>
         </div>
       </div>
@@ -326,72 +404,89 @@ export default function Profile() {
               <div className="relative flex-shrink-0">
                 <Avatar className="w-16 h-16 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
                   <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-medium">
-                    {((user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')).toUpperCase() || 'U'}
+                    {(
+                      clientInformation?.name?.split(" ")[0] || ""
+                    ).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
                   <Crown className="w-2.5 h-2.5 text-white" />
                 </div>
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="space-y-3">
                   <div>
                     <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
-                      {(editData?.firstName && editData?.lastName) 
-                        ? `${editData.firstName} ${editData.lastName}` 
-                        : user?.fullName || 'User'}
+                      {clientInformation?.name || "User"}
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {clientInformation?.email}
+                    </p>
                   </div>
-                  
+
                   {/* Better spaced info display */}
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Age:</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Age:
+                      </span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {calculateAge(editData?.dateOfBirth || user?.dateOfBirth) || 'N/A'}
+                        {clientInformation?.age || "N/A"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Gender:</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Gender:
+                      </span>
                       <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
-                        {editData?.gender || user?.gender || 'Not specified'}
+                        {clientInformation?.sex || "Not specified"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Member since:</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Member since:
+                      </span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">
                         {getMembershipDuration()}
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Health stats */}
                   <div className="space-y-2 text-sm pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Lab Tests:</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Lab Tests:
+                      </span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
                         {stats?.totalTests || 5}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Active Plans:</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Active Plans:
+                      </span>
                       <span className="font-semibold text-green-600 dark:text-green-400">
                         {stats?.activePlans || 2}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Account:</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Account:
+                      </span>
                       <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                         Verified
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 pt-2">
-                    {getSubscriptionBadge(user?.subscriptionTier || 'free')}
-                    <Badge variant="outline" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs">
+                    {getSubscriptionBadge(user?.subscriptionTier || "free")}
+                    <Badge
+                      variant="outline"
+                      className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
+                    >
                       <Activity className="w-3 h-3 mr-1" />
                       Active User
                     </Badge>
@@ -402,9 +497,8 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-
         {/* Settings Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="flex flex-col gap-6">
           {/* Account Settings */}
           <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
             <CardHeader className="pb-4">
@@ -427,13 +521,20 @@ export default function Profile() {
                       <item.icon className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
                     </div>
                     <div className="text-left">
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{item.title}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 font-light">{item.description}</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                        {item.title}
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 font-light">
+                        {item.description}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {item.badge && (
-                      <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs">
+                      <Badge
+                        variant="outline"
+                        className="bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs"
+                      >
                         {item.badge}
                       </Badge>
                     )}
@@ -466,13 +567,20 @@ export default function Profile() {
                       <item.icon className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
                     </div>
                     <div className="text-left">
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{item.title}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 font-light">{item.description}</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                        {item.title}
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 font-light">
+                        {item.description}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {item.badge && (
-                      <Badge variant="outline" className="bg-purple-100/50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
+                      <Badge
+                        variant="outline"
+                        className="bg-purple-100/50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs"
+                      >
                         {item.badge}
                       </Badge>
                     )}
@@ -483,7 +591,6 @@ export default function Profile() {
             </CardContent>
           </Card>
         </div>
-
 
         {/* Edit Profile Dialog */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
@@ -496,41 +603,78 @@ export default function Profile() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-firstname" className="text-gray-700 dark:text-gray-300 font-medium">First Name</Label>
+                  <Label
+                    htmlFor="edit-firstname"
+                    className="text-gray-700 dark:text-gray-300 font-medium"
+                  >
+                    First Name
+                  </Label>
                   <Input
                     id="edit-firstname"
-                    value={editData.firstName || ''}
-                    onChange={(e) => setEditData(prev => ({ ...prev, firstName: e.target.value }))}
+                    value={editData.firstName || ""}
+                    onChange={(e) =>
+                      setEditData((prev) => ({
+                        ...prev,
+                        firstName: e.target.value,
+                      }))
+                    }
                     className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-lastname" className="text-gray-700 dark:text-gray-300 font-medium">Last Name</Label>
+                  <Label
+                    htmlFor="edit-lastname"
+                    className="text-gray-700 dark:text-gray-300 font-medium"
+                  >
+                    Last Name
+                  </Label>
                   <Input
                     id="edit-lastname"
-                    value={editData.lastName || ''}
-                    onChange={(e) => setEditData(prev => ({ ...prev, lastName: e.target.value }))}
+                    value={editData.lastName || ""}
+                    onChange={(e) =>
+                      setEditData((prev) => ({
+                        ...prev,
+                        lastName: e.target.value,
+                      }))
+                    }
                     className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
                   />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-birthdate" className="text-gray-700 dark:text-gray-300 font-medium">Date of Birth</Label>
+                  <Label
+                    htmlFor="edit-birthdate"
+                    className="text-gray-700 dark:text-gray-300 font-medium"
+                  >
+                    Date of Birth
+                  </Label>
                   <Input
                     id="edit-birthdate"
                     type="date"
-                    value={editData.dateOfBirth || ''}
-                    onChange={(e) => setEditData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                    value={editData.dateOfBirth || ""}
+                    onChange={(e) =>
+                      setEditData((prev) => ({
+                        ...prev,
+                        dateOfBirth: e.target.value,
+                      }))
+                    }
                     className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-gender" className="text-gray-700 dark:text-gray-300 font-medium">Gender</Label>
+                  <Label
+                    htmlFor="edit-gender"
+                    className="text-gray-700 dark:text-gray-300 font-medium"
+                  >
+                    Gender
+                  </Label>
                   <Select
                     value={editData.gender}
-                    onValueChange={(value) => setEditData(prev => ({ ...prev, gender: value }))}
+                    onValueChange={(value) =>
+                      setEditData((prev) => ({ ...prev, gender: value }))
+                    }
                   >
                     <SelectTrigger className="bg-gradient-to-r from-white/80 to-emerald-50/50 dark:from-gray-700/80 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/30 backdrop-blur-sm shadow-inner">
                       <SelectValue placeholder="Select" />
@@ -539,22 +683,24 @@ export default function Profile() {
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                      <SelectItem value="prefer-not-to-say">
+                        Prefer not to say
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 pt-4">
-                <Button 
-                  onClick={() => updateProfileMutation.mutate(editData)}
-                  disabled={updateProfileMutation.isPending}
+                <Button
+                  onClick={handleUpdatePersonalInfo}
+                  disabled={isUpdatingPersonalInfo}
                   className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
                 >
-                  {updateProfileMutation.isPending ? 'Updating...' : 'Update Profile'}
+                  {isUpdatingPersonalInfo ? "Updating..." : "Update Profile"}
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowEditDialog(false)}
                   className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
                 >
@@ -578,38 +724,70 @@ export default function Profile() {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="currentPassword" className="text-gray-700 dark:text-gray-300 font-medium">Current Password</Label>
+                <Label
+                  htmlFor="currentPassword"
+                  className="text-gray-700 dark:text-gray-300 font-medium"
+                >
+                  Current Password
+                </Label>
                 <Input
                   id="currentPassword"
                   type="password"
                   value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      currentPassword: e.target.value,
+                    }))
+                  }
                   className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner"
                 />
               </div>
               <div>
-                <Label htmlFor="newPassword" className="text-gray-700 dark:text-gray-300 font-medium">New Password</Label>
+                <Label
+                  htmlFor="newPassword"
+                  className="text-gray-700 dark:text-gray-300 font-medium"
+                >
+                  New Password
+                </Label>
                 <Input
                   id="newPassword"
                   type="password"
                   value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }))
+                  }
                   className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner"
                 />
               </div>
               <div>
-                <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300 font-medium">Confirm New Password</Label>
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-gray-700 dark:text-gray-300 font-medium"
+                >
+                  Confirm New Password
+                </Label>
                 <Input
                   id="confirmPassword"
                   type="password"
                   value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
                   className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner"
                 />
               </div>
-              <Button 
+              <Button
                 onClick={() => {
-                  if (passwordData.newPassword !== passwordData.confirmPassword) {
+                  if (
+                    passwordData.newPassword !== passwordData.confirmPassword
+                  ) {
                     toast({
                       title: "Passwords don't match",
                       description: "Please ensure both password fields match.",
@@ -619,17 +797,26 @@ export default function Profile() {
                   }
                   changePasswordMutation.mutate(passwordData);
                 }}
-                disabled={!passwordData.currentPassword || !passwordData.newPassword || changePasswordMutation.isPending}
+                disabled={
+                  !passwordData.currentPassword ||
+                  !passwordData.newPassword ||
+                  changePasswordMutation.isPending
+                }
                 className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg"
               >
-                {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+                {changePasswordMutation.isPending
+                  ? "Changing..."
+                  : "Change Password"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* Notifications Dialog */}
-        <Dialog open={showNotificationsDialog} onOpenChange={setShowNotificationsDialog}>
+        <Dialog
+          open={showNotificationsDialog}
+          onOpenChange={setShowNotificationsDialog}
+        >
           <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-3">
@@ -642,32 +829,52 @@ export default function Profile() {
             </DialogHeader>
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Communication Methods</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Communication Methods
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Mail className="w-4 h-4 text-blue-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Notifications</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Receive updates via email</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Email Notifications
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Receive updates via email
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.emailNotifications}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, emailNotifications: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          emailNotifications: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Smartphone className="w-4 h-4 text-blue-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Push Notifications</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Get instant alerts on your device</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Push Notifications
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Get instant alerts on your device
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.pushNotifications}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, pushNotifications: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          pushNotifications: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -676,58 +883,96 @@ export default function Profile() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Content Preferences</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Content Preferences
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Activity className="w-4 h-4 text-emerald-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Lab Results</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">New test results and analysis</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Lab Results
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          New test results and analysis
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.labResults}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, labResults: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          labResults: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Target className="w-4 h-4 text-emerald-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Goal Reminders</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Daily and weekly goal check-ins</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Goal Reminders
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Daily and weekly goal check-ins
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.goalReminders}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, goalReminders: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          goalReminders: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Heart className="w-4 h-4 text-emerald-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Weekly Reports</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Summary of your health progress</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Weekly Reports
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Summary of your health progress
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.weeklyReports}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, weeklyReports: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          weeklyReports: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Brain className="w-4 h-4 text-purple-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Chat Messages</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">AI assistant and coach messages</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Chat Messages
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          AI assistant and coach messages
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.chatMessages}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, chatMessages: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          chatMessages: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -736,46 +981,66 @@ export default function Profile() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Other</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Other
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Settings className="w-4 h-4 text-gray-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">System Updates</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">App updates and maintenance</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          System Updates
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          App updates and maintenance
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.systemUpdates}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, systemUpdates: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          systemUpdates: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Award className="w-4 h-4 text-gray-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Marketing Emails</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Product updates and tips</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Marketing Emails
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Product updates and tips
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={notificationSettings.marketingEmails}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, marketingEmails: checked }))}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          marketingEmails: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button 
+                <Button
                   onClick={saveNotificationSettings}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
                 >
                   Save Preferences
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowNotificationsDialog(false)}
                   className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
                 >
@@ -800,45 +1065,74 @@ export default function Profile() {
             </DialogHeader>
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Data Sharing</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Data Sharing
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <User className="w-4 h-4 text-emerald-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Share with Doctors</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Allow healthcare providers to access your data</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Share with Doctors
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Allow healthcare providers to access your data
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={privacySettings.shareDataWithDoctors}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, shareDataWithDoctors: checked }))}
+                      onCheckedChange={(checked) =>
+                        setPrivacySettings((prev) => ({
+                          ...prev,
+                          shareDataWithDoctors: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Brain className="w-4 h-4 text-blue-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Health Insights Sharing</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Share anonymized insights for research</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Health Insights Sharing
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Share anonymized insights for research
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={privacySettings.shareHealthInsights}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, shareHealthInsights: checked }))}
+                      onCheckedChange={(checked) =>
+                        setPrivacySettings((prev) => ({
+                          ...prev,
+                          shareHealthInsights: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-purple-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Public Profile</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Make your health journey visible to others</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Public Profile
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Make your health journey visible to others
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={privacySettings.publicProfile}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, publicProfile: checked }))}
+                      onCheckedChange={(checked) =>
+                        setPrivacySettings((prev) => ({
+                          ...prev,
+                          publicProfile: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -847,32 +1141,52 @@ export default function Profile() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Analytics & Tracking</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Analytics & Tracking
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Activity className="w-4 h-4 text-gray-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Anonymous Analytics</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Help improve HolistiCare with usage data</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Anonymous Analytics
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Help improve HolistiCare with usage data
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={privacySettings.anonymousAnalytics}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, anonymousAnalytics: checked }))}
+                      onCheckedChange={(checked) =>
+                        setPrivacySettings((prev) => ({
+                          ...prev,
+                          anonymousAnalytics: checked,
+                        }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Zap className="w-4 h-4 text-gray-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Third-party Integrations</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Allow connections to fitness apps and devices</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Third-party Integrations
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Allow connections to fitness apps and devices
+                        </div>
                       </div>
                     </div>
                     <Switch
                       checked={privacySettings.thirdPartyIntegrations}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, thirdPartyIntegrations: checked }))}
+                      onCheckedChange={(checked) =>
+                        setPrivacySettings((prev) => ({
+                          ...prev,
+                          thirdPartyIntegrations: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -881,15 +1195,24 @@ export default function Profile() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Data Retention</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Data Retention
+                </h3>
                 <div className="p-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30">
                   <div className="flex items-center gap-3 mb-2">
                     <Lock className="w-4 h-4 text-orange-600" />
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Data Retention Period</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Data Retention Period
+                    </div>
                   </div>
                   <Select
                     value={privacySettings.dataRetention}
-                    onValueChange={(value) => setPrivacySettings(prev => ({ ...prev, dataRetention: value }))}
+                    onValueChange={(value) =>
+                      setPrivacySettings((prev) => ({
+                        ...prev,
+                        dataRetention: value,
+                      }))
+                    }
                   >
                     <SelectTrigger className="bg-gradient-to-r from-white/80 to-orange-50/50 dark:from-gray-700/80 dark:to-orange-900/20 border-orange-200/50 dark:border-orange-800/30 backdrop-blur-sm shadow-inner">
                       <SelectValue />
@@ -908,14 +1231,14 @@ export default function Profile() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button 
+                <Button
                   onClick={savePrivacySettings}
                   className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
                 >
                   Save Settings
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowPrivacyDialog(false)}
                   className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
                 >
@@ -925,7 +1248,6 @@ export default function Profile() {
             </div>
           </DialogContent>
         </Dialog>
-
 
         {/* Help & Support Dialog */}
         <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
@@ -941,31 +1263,45 @@ export default function Profile() {
             </DialogHeader>
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Quick Help</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Quick Help
+                </h3>
                 <div className="space-y-3">
                   <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50/60 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30 hover:from-blue-100/60 hover:to-blue-50/50 dark:hover:from-blue-900/30 dark:hover:to-blue-900/20 transition-all duration-300 group">
                     <Brain className="w-5 h-5 text-blue-600" />
                     <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">User Guide</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Learn how to use all features</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        User Guide
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        Learn how to use all features
+                      </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors duration-300 ml-auto" />
                   </button>
-                  
+
                   <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50/60 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30 hover:from-emerald-100/60 hover:to-emerald-50/50 dark:hover:from-emerald-900/30 dark:hover:to-emerald-900/20 transition-all duration-300 group">
                     <Activity className="w-5 h-5 text-emerald-600" />
                     <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Health Data FAQ</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Common questions about lab results</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Health Data FAQ
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        Common questions about lab results
+                      </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors duration-300 ml-auto" />
                   </button>
-                  
+
                   <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-50/60 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30 hover:from-purple-100/60 hover:to-purple-50/50 dark:hover:from-purple-900/30 dark:hover:to-purple-900/20 transition-all duration-300 group">
                     <Shield className="w-5 h-5 text-purple-600" />
                     <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Privacy Policy</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">How we protect your data</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Privacy Policy
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        How we protect your data
+                      </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors duration-300 ml-auto" />
                   </button>
@@ -975,44 +1311,63 @@ export default function Profile() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Contact Support</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  Contact Support
+                </h3>
                 <div className="space-y-3">
                   <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/60 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30 hover:from-orange-100/60 hover:to-orange-50/50 dark:hover:from-orange-900/30 dark:hover:to-orange-900/20 transition-all duration-300 group">
                     <Mail className="w-5 h-5 text-orange-600" />
                     <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Support</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">support@holisticare.com</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Email Support
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        support@holisticare.com
+                      </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors duration-300 ml-auto" />
                   </button>
-                  
                 </div>
               </div>
 
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">App Information</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  App Information
+                </h3>
                 <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50/60 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Version</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">2.1.0</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Version
+                      </span>
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        2.1.0
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Last Updated</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">Jan 28, 2025</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Last Updated
+                      </span>
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        Jan 28, 2025
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Platform</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">Web App</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Platform
+                      </span>
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                        Web App
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button 
+                <Button
                   onClick={() => {
                     toast({
                       title: "Support contacted",
@@ -1024,8 +1379,8 @@ export default function Profile() {
                 >
                   Contact Support
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowHelpDialog(false)}
                   className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
                 >

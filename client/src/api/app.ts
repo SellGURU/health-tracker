@@ -59,7 +59,6 @@ class Application extends Api {
     });
     return response;
   }
-
   static reportMessage(
     current_conversation_id: number,
     issue_text: string,
@@ -70,6 +69,15 @@ class Application extends Api {
       issue_text: issue_text,
       current_conversation_id: current_conversation_id,
     });
+    return response;
+  }
+  static updatePersonalInfo(data: {
+    first_name: string;
+    last_name: string;
+    date_of_birth: string;
+    gender: string;
+  }) {
+    const response = this.post("/mobile/update_personal_info", data);
     return response;
   }
 }
