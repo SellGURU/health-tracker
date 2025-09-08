@@ -450,21 +450,19 @@ export default function Plan() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="font-medium text-sm">{exercise.title}</div>
-                        {isExerciseCompleted(exercise.id) && (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        )}
                       </div>
                       <Button
                         size="sm"
-                        variant={isExerciseCompleted(exercise.id) ? "default" : "outline"}
+                        variant="ghost"
                         onClick={() => toggleExerciseCompletion(exercise.id)}
-                        className={`text-xs px-3 py-1 h-7 ${
-                          isExerciseCompleted(exercise.id)
-                            ? 'bg-green-500 hover:bg-green-600 text-white'
-                            : 'border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-900/20'
-                        }`}
+                        className="text-xs h-8 px-3 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                       >
-                        {isExerciseCompleted(exercise.id) ? 'Completed' : 'Mark Complete'}
+                        {isExerciseCompleted(exercise.id) ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-gray-400" />
+                        )}
+                        Mark Complete
                       </Button>
                     </div>
                     <div className="text-xs text-gray-600 dark:text-gray-400">{exercise.description}</div>
@@ -544,6 +542,22 @@ export default function Plan() {
             {details.notes && (
               <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
             )}
+            
+            {/* Overall Activity Mark Complete Button */}
+            <div className="mt-4 pt-3 border-t border-orange-200 dark:border-orange-700/30">
+              <Button
+                variant="ghost"
+                onClick={() => toggleTask('', task.id)}
+                className="text-sm h-9 px-4 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 w-full justify-center"
+              >
+                {task.completed ? (
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Circle className="w-4 h-4 text-gray-400" />
+                )}
+                Mark Complete
+              </Button>
+            </div>
           </div>
         );
         
