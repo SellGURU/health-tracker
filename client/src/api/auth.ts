@@ -13,24 +13,15 @@ class Auth extends Api {
       password: password,
     };
 
-    return this.post("/auth/mobile_token", data, {
-
-    });
+    return this.post("/auth/mobile_token", data, {});
   }
-  static signup(
-    username?: string,
-    email?: string,
-    password?: string,
-    google_json?: any
-  ) {
+  static signup(username: string, password: string) {
     const data = {
-      user_name: username,
-      user_mail: email,
+      email: username,
       password: password,
-      google_json: google_json,
     };
 
-    return this.post("/auth/mobile_token", data, {
+    return this.post("/auth/mobile_register", data, {
       headers: {
         "Content-Type": "application/json",
       },
