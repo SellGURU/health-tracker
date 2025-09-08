@@ -90,7 +90,25 @@ const generateCalendarTasks = () => {
                     instruction: 'Hold each stretch for 30 seconds',
                     reps: '5 minutes',
                     exercise_filters: { type: 'Flexibility', level: 'Beginner' },
-                    exercise_location: ['Home', 'Gym']
+                    exercise_location: ['Home', 'Gym'],
+                    files: [
+                      {
+                        type: 'video',
+                        title: 'Dynamic Stretching Routine',
+                        content: {
+                          url: 'https://www.youtube.com/watch?v=FSSDLDhbacc',
+                          file_id: 'yt_dynamic_stretch'
+                        }
+                      },
+                      {
+                        type: 'image',
+                        title: 'Stretching Form Guide',
+                        content: {
+                          url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+                          file_id: 'stretch_form_guide'
+                        }
+                      }
+                    ]
                   }
                 ]
               },
@@ -107,7 +125,25 @@ const generateCalendarTasks = () => {
                     rest: '60',
                     weight: 'bodyweight',
                     exercise_filters: { type: 'Strength', level: 'Intermediate', muscle: 'Glutes', equipment: 'Body Only' },
-                    exercise_location: ['Home', 'Gym']
+                    exercise_location: ['Home', 'Gym'],
+                    files: [
+                      {
+                        type: 'video',
+                        title: 'Perfect Squat Form',
+                        content: {
+                          url: 'https://www.youtube.com/watch?v=Dy28eq2PjcM',
+                          file_id: 'squat_form_video'
+                        }
+                      },
+                      {
+                        type: 'image',
+                        title: 'Squat Position Guide',
+                        content: {
+                          url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&h=300&fit=crop',
+                          file_id: 'squat_position'
+                        }
+                      }
+                    ]
                   }
                 ]
               }
@@ -389,7 +425,7 @@ export default function Plan() {
                   <Badge variant="secondary" className="text-xs">{section.sets} sets</Badge>
                 </div>
                 {section.exercises.map((exercise: any, exIndex: number) => (
-                  <div key={exIndex} className="ml-2 space-y-1">
+                  <div key={exIndex} className="ml-2 space-y-3">
                     <div className="font-medium text-sm">{exercise.title}</div>
                     <div className="text-xs text-gray-600 dark:text-gray-400">{exercise.description}</div>
                     <div className="text-xs">
@@ -397,6 +433,63 @@ export default function Plan() {
                       {exercise.rest && <span className="mr-3">Rest: {exercise.rest}s</span>}
                       {exercise.weight && <span>Weight: {exercise.weight}</span>}
                     </div>
+                    
+                    {/* Multimedia Content */}
+                    {exercise.files && exercise.files.length > 0 && (
+                      <div className="space-y-2">
+                        {exercise.files.map((file: any, fileIndex: number) => {
+                          const isYouTube = file.content.url.includes('youtube.com') || file.content.url.includes('youtu.be');
+                          const isVideo = file.type === 'video' || file.content.url.includes('.mp4') || file.content.url.includes('.webm');
+                          const isImage = file.type === 'image' || file.content.url.includes('.jpg') || file.content.url.includes('.png') || file.content.url.includes('.jpeg');
+                          
+                          return (
+                            <div key={fileIndex} className="border border-gray-200 dark:border-gray-600 rounded-lg p-2 bg-gray-50 dark:bg-gray-800/50">
+                              {file.title && (
+                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">{file.title}</div>
+                              )}
+                              
+                              {isYouTube ? (
+                                <div className="relative w-full h-48 rounded-md overflow-hidden">
+                                  <iframe
+                                    src={file.content.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                                    className="absolute inset-0 w-full h-full"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    title={file.title || exercise.title}
+                                  />
+                                </div>
+                              ) : isVideo ? (
+                                <video 
+                                  className="w-full h-48 rounded-md object-cover"
+                                  controls
+                                  preload="metadata"
+                                >
+                                  <source src={file.content.url} type="video/mp4" />
+                                  Your browser does not support the video tag.
+                                </video>
+                              ) : isImage ? (
+                                <img 
+                                  src={file.content.url}
+                                  alt={file.title || exercise.title}
+                                  className="w-full h-48 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                  onClick={() => window.open(file.content.url, '_blank')}
+                                />
+                              ) : (
+                                <a 
+                                  href={file.content.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
+                                >
+                                  View {file.type || 'file'}
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
