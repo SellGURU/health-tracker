@@ -48,6 +48,10 @@ class Application extends Api {
     const response = this.post("/client_information_mobile", {});
     return response;
   }
+  static getEducationalContent() {
+    const response = this.post("/mobile/educational_content", {});
+    return response;
+  }
 }
 
 export default Application;
