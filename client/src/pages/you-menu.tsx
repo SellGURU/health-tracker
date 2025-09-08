@@ -319,49 +319,45 @@ export default function YouMenu() {
       )}
 
       {/* Assigned Questionnaires Section */}
-      <Card className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-blue-900/20 dark:via-gray-800/50 dark:to-indigo-900/20 border-0 shadow-xl backdrop-blur-lg">
-        <CardHeader className="pb-4">
+      <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
+        <CardHeader className="pb-3">
           <CardTitle className="text-xl font-thin flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-white" />
             </div>
             Assigned Questionnaires
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="pt-0">
+          <div className="grid gap-3">
             {questionnaires.map((questionnaire) => (
-              <div key={questionnaire.unique_id} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    questionnaire.status === 'Done' 
-                      ? 'bg-green-100 dark:bg-green-900/30' 
-                      : 'bg-orange-100 dark:bg-orange-900/30'
-                  }`}>
-                    {questionnaire.status === 'Done' ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <Calendar className="w-5 h-5 text-orange-600" />
-                    )}
+              <div key={questionnaire.unique_id} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  questionnaire.status === 'Done' 
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
+                    : 'bg-gradient-to-br from-orange-500 to-amber-500'
+                }`}>
+                  {questionnaire.status === 'Done' ? (
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  ) : (
+                    <Calendar className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
+                    {questionnaire.title}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {questionnaire.title}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {questionnaire.Estimated_time && `${questionnaire.Estimated_time} • `}
-                      Status: {questionnaire.status}
-                    </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {questionnaire.Estimated_time || 'No time estimate'}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex-shrink-0">
                   {questionnaire.status === 'Done' ? (
-                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                      <CheckCircle className="w-3 h-3 mr-1" />
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                       Completed
                     </Badge>
                   ) : (
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                    <Button size="sm" variant="outline" className="text-xs h-7 px-3 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20">
                       Start
                     </Button>
                   )}
