@@ -56,6 +56,19 @@ class Application extends Api {
     });
     return response;
   }
+
+  static reportMessage(
+    current_conversation_id:number, 
+    issue_text:string,
+    reason:string,
+  ){
+    const response = this.post("/mobile_chat/report", {
+      reason:reason,
+      issue_text:issue_text,
+      current_conversation_id:current_conversation_id,
+    });
+    return response;
+  }
 }
 
 export default Application;

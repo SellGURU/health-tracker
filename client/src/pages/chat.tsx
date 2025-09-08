@@ -238,26 +238,6 @@ export default function ChatPage() {
     setShowReportModal(true);
   };
 
-  const handleSubmitReport = () => {
-    if (!reportReason.trim()) {
-      toast({
-        title: "Error",
-        description: "Please provide a reason for reporting this message.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // TODO: Implement actual report API call
-    toast({
-      title: "Report submitted",
-      description: "Thank you for your feedback. We'll review this message.",
-    });
-
-    setShowReportModal(false);
-    setReportReason("");
-    setReportingMessageId(null);
-  };
 
   const handleCloseReportModal = () => {
     setShowReportModal(false);
@@ -272,6 +252,12 @@ export default function ChatPage() {
     });
   };
 
+  const handleSubmitReport = () => {
+    setShowReportModal(false);
+    setReportReason("");
+    setReportingMessageId(null);    
+    Application.reportMessage(reportingMessageId || 0, reportReason, reportDetails);
+  };
   // const formatTimestamp = (timestamp: Date) => {
   //   return timestamp.toLocaleTimeString([], {
   //     hour: "2-digit",
@@ -626,7 +612,7 @@ export default function ChatPage() {
             </div>
             
             <Button
-              // onClick={}
+              onClick={handleSubmitReport}
               className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white"
             >
               Submit Report
