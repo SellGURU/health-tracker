@@ -12,7 +12,7 @@ import Auth from "@/api/auth";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
-  const logoImage = "/logo.png";
+  const logoImage = "./logo.png";
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [stage, setStage] = useState(1);
