@@ -518,7 +518,7 @@ export default function Plan() {
                         size="sm"
                         variant="ghost"
                         onClick={() => toggleExerciseCompletion(exercise.id)}
-                        className="text-sm h-9 px-4 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        className="text-sm h-9 px-4 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg"
                       >
                         {isExerciseCompleted(exercise.id) ? (
                           <CheckCircle className="w-4 h-4 text-green-500" />
@@ -630,20 +630,22 @@ export default function Plan() {
                             {renderTaskDetails(task)}
                           </div>
                           
-                          {/* Task Action Button */}
-                          <Button
-                            variant={completed ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => toggleTask('today', task.id)}
-                            className={`w-full ${
-                              completed 
-                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                : 'hover:bg-green-50 dark:hover:bg-green-900/20'
-                            }`}
-                          >
-                            {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                            {completed ? 'Completed' : 'Mark Complete'}
-                          </Button>
+                          {/* Task Action Button - Hide for Activity tasks */}
+                          {task.category !== 'Activity' && (
+                            <Button
+                              variant={completed ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => toggleTask('today', task.id)}
+                              className={`w-full ${
+                                completed 
+                                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                  : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                              }`}
+                            >
+                              {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
+                              {completed ? 'Completed' : 'Mark Complete'}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -802,20 +804,22 @@ export default function Plan() {
                                     {renderTaskDetails(task)}
                                   </div>
                                   
-                                  {/* Task Action Button */}
-                                  <Button
-                                    variant={completed ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => toggleTask(selectedDate, task.id)}
-                                    className={`w-full ${
-                                      completed 
-                                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                        : 'hover:bg-green-50 dark:hover:bg-green-900/20'
-                                    }`}
-                                  >
-                                    {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
-                                    {completed ? 'Completed' : 'Mark Complete'}
-                                  </Button>
+                                  {/* Task Action Button - Hide for Activity tasks */}
+                                  {task.category !== 'Activity' && (
+                                    <Button
+                                      variant={completed ? "default" : "outline"}
+                                      size="sm"
+                                      onClick={() => toggleTask(selectedDate, task.id)}
+                                      className={`w-full ${
+                                        completed 
+                                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                          : 'hover:bg-green-50 dark:hover:bg-green-900/20'
+                                      }`}
+                                    >
+                                      {completed ? <CheckCircle className="w-4 h-4 mr-2" /> : <Circle className="w-4 h-4 mr-2" />}
+                                      {completed ? 'Completed' : 'Mark Complete'}
+                                    </Button>
+                                  )}
                                 </div>
                               </div>
                             </CardContent>
