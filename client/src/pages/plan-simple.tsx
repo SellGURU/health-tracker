@@ -447,24 +447,7 @@ export default function Plan() {
                 </div>
                 {section.exercises.map((exercise: any, exIndex: number) => (
                   <div key={exIndex} className="ml-2 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="font-medium text-sm">{exercise.title}</div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => toggleExerciseCompletion(exercise.id)}
-                        className="text-xs h-8 px-3 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      >
-                        {isExerciseCompleted(exercise.id) ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-gray-400" />
-                        )}
-                        Mark Complete
-                      </Button>
-                    </div>
+                    <div className="font-medium text-sm">{exercise.title}</div>
                     <div className="text-xs text-gray-600 dark:text-gray-400">{exercise.description}</div>
                     <div className="text-xs">
                       {exercise.reps && <span className="mr-3">Reps: {exercise.reps}</span>}
@@ -528,6 +511,23 @@ export default function Plan() {
                         })}
                       </div>
                     )}
+                    
+                    {/* Exercise Mark Complete Button - Under multimedia content */}
+                    <div className="flex justify-center pt-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => toggleExerciseCompletion(exercise.id)}
+                        className="text-sm h-9 px-4 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
+                        {isExerciseCompleted(exercise.id) ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-gray-400" />
+                        )}
+                        Mark Complete
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -542,22 +542,6 @@ export default function Plan() {
             {details.notes && (
               <p className="text-xs text-gray-500 dark:text-gray-400 italic">{details.notes}</p>
             )}
-            
-            {/* Overall Activity Mark Complete Button */}
-            <div className="mt-4 pt-3 border-t border-orange-200 dark:border-orange-700/30">
-              <Button
-                variant="ghost"
-                onClick={() => toggleTask('', task.id)}
-                className="text-sm h-9 px-4 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 w-full justify-center"
-              >
-                {task.completed ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                ) : (
-                  <Circle className="w-4 h-4 text-gray-400" />
-                )}
-                Mark Complete
-              </Button>
-            </div>
           </div>
         );
         
