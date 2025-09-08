@@ -1,158 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { validateEmail, validatePassword } from "@/lib/utils";
-import {
-  Heart,
-  Upload,
-  TrendingUp,
-  Brain,
-  UserPlus,
-  LogIn,
-  TestTube,
-} from "lucide-react";
-import { mockAuth } from "@/lib/mock-auth";
-import { useSahha } from "@/hooks/use-sahha";
-import Auth from "@/api/auth";
+import logoImage from "@assets/logo.png";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const { isInitialized, data, error, authenticate, connect } = useSahha();
+  const [stage, setStage] = useState(1);
+  const [fadeClass, setFadeClass] = useState("opacity-100");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [currentTab, setCurrentTab] = useState("login");
+  
   // Login form state
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   });
 
-  const fillTestCredentials = () => {
-    setLoginData({
-      email: "test@holisticare.com",
-      password: "password123",
-    });
-  };
-
-  // Register form state
+  // Register form state  
   const [registerData, setRegisterData] = useState({
     email: "",
     password: "",
-    fullName: "",
-    age: "",
-    gender: "",
-    height: "",
-    weight: "",
+    confirmPassword: "",
   });
 
-  const CallLoginAuthApi = async (isRegister = false) => {
-    Auth.login(loginData.email, loginData.password)
-      .then((res) => {
-        // localStorage.setItem(
-        //   "health_user",
-        //   JSON.stringify(res.data.permission)
-        // );
-        localStorage.setItem("health_session", res.data.access_token);
-        localStorage.setItem("token", res.data.access_token);
-        if (!isRegister) {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in.",
-          });
-        }
+  useEffect(() => {
+    if (stage === 1) {
+      const timer = setTimeout(() => {
+        setFadeClass("opacity-0");
         setTimeout(() => {
-          window.location.reload();
+          setStage(2);
+          setFadeClass("opacity-100");
         }, 500);
-      })
-      .catch((res) => {
-        if (res.response.data.detail) {
-          if (res.response.data.detail.includes("email")) {
-            toast({
-              title: "Sign in failed",
-              description:
-                "This email address is not registered in our system.",
-              variant: "destructive",
-            });
-          } else if (res.response.data.detail.includes("password")) {
-            toast({
-              title: "Sign in failed",
-              description: "Incorrect password. Please try again.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Sign in failed",
-              description: res.response.data.detail,
-              variant: "destructive",
-            });
-          }
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [stage]);
+
+  const handleContinue = () => {
+    setFadeClass("opacity-0");
+    setTimeout(() => {
+      setStage(3);
+      setFadeClass("opacity-100");
+    }, 500);
   };
-  const CallRegisterAuthApi = async () => {
-    Auth.signup(
-      registerData.fullName,
-      registerData.email,
-      registerData.password
-    )
-      .then(() => {
-        CallLoginAuthApi(true);
-        toast({
-          title: "Account created!",
-          description:
-            "Welcome to HolistiCare. Let's start monitoring your health.",
-        });
-      })
-      .catch((res) => {
-        if (res.response.data.detail) {
-          if (res.response.data.detail.includes("email")) {
-            toast({
-              title: "Registration failed",
-              description: "This email is already registered in our system.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Registration failed",
-              description: res.response.data.detail,
-              variant: "destructive",
-            });
-          }
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+
+  const fillTestCredentials = () => {
+    setLoginData({
+      email: "test@holisticare.com",
+      password: "password123"
+    });
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // try {
-    //   alert("authenticate started");
-    //   await authenticate(
-    //     "BF9yybnbq44AreyJf04tNbvBCXXRIFJH",
-    //     "YFhSuGe4CuY13XZZzW0dGqowfM6oMNSwz9qkQBiyCxm8FneNGncwuQU7YkU50sMp",
-    //     "test12"
-    //   );
-    //   await connect();
+
+    try {
       if (!validateEmail(loginData.email)) {
         throw new Error("Please enter a valid email address");
       }
@@ -160,375 +72,303 @@ export default function AuthPage() {
       if (loginData.password.length < 6) {
         throw new Error("Password must be at least 6 characters long");
       }
-      CallLoginAuthApi();
-    //   await login(loginData);
 
-    //   toast({
-    //     title: "Welcome back!",
-    //     description: "You have successfully signed in.",
-    //   });
-
-    //   // Force a small delay to ensure auth state updates
-    //   setTimeout(() => {
-    //     window.location.reload();
-    //   }, 100);
-    // } catch (error) {
-    //   toast({
-    //     title: "Sign in failed",
-    //     description:
-    //       error instanceof Error
-    //         ? error.message
-    //         : "Please check your credentials and try again.",
-    //     variant: "destructive",
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
+      await login(loginData);
+      
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
+      });
+      
+      // Force a small delay to ensure auth state updates
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    } catch (error) {
+      toast({
+        title: "Sign in failed",
+        description: error instanceof Error ? error.message : "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    CallRegisterAuthApi();
-    // try {
-    //   if (!validateEmail(registerData.email)) {
-    //     throw new Error("Please enter a valid email address");
-    //   }
 
-    //   const passwordValidation = validatePassword(registerData.password);
-    //   if (!passwordValidation.valid) {
-    //     throw new Error(passwordValidation.message);
-    //   }
+    try {
+      if (!validateEmail(registerData.email)) {
+        throw new Error("Please enter a valid email address");
+      }
 
-    //   if (!registerData.fullName.trim()) {
-    //     throw new Error("Please enter your full name");
-    //   }
+      const passwordValidation = validatePassword(registerData.password);
+      if (!passwordValidation.valid) {
+        throw new Error(passwordValidation.message);
+      }
 
-    //   const registrationData = {
-    //     email: registerData.email,
-    //     password: registerData.password,
-    //     fullName: registerData.fullName.trim(),
-    //     age: registerData.age ? parseInt(registerData.age) : undefined,
-    //     gender: registerData.gender || undefined,
-    //     height: registerData.height ? parseInt(registerData.height) : undefined,
-    //     weight: registerData.weight
-    //       ? parseFloat(registerData.weight)
-    //       : undefined,
-    //   };
+      if (registerData.password !== registerData.confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
 
-    //   await register(registrationData);
+      const registrationData = {
+        email: registerData.email,
+        password: registerData.password,
+        fullName: registerData.email.split('@')[0], // Use email username as default name
+      };
 
-    //   toast({
-    //     title: "Account created!",
-    //     description:
-    //       "Welcome to HolistiCare. Let's start monitoring your health.",
-    //   });
-    // } catch (error) {
-    //   toast({
-    //     title: "Registration failed",
-    //     description:
-    //       error instanceof Error
-    //         ? error.message
-    //         : "Please check your information and try again.",
-    //     variant: "destructive",
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
+      await register(registrationData);
+      
+      toast({
+        title: "Account created!",
+        description: "Welcome to HolistiCare. Let's start monitoring your health.",
+      });
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : "Please check your information and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
-      {/* Hero Section */}
-      <div className="health-gradient medical-pattern relative overflow-hidden px-6 py-16 text-center text-white">
-        <div className="relative z-10">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
-            <Heart className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold mb-4">HolistiCare</h1>
-          <p className="text-lg opacity-90 mb-8">
-            Your personal health companion for better wellness insights
-          </p>
-
-          {/* Key Features */}
-          <div className="space-y-4 text-left max-w-sm mx-auto">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <Upload className="w-4 h-4" />
-              </div>
-              <span className="text-sm">Upload lab results instantly</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <span className="text-sm">Track 4,100+ biomarkers</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <Brain className="w-4 h-4" />
-              </div>
-              <span className="text-sm">AI-powered health insights</span>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-green-300 to-green-400 relative overflow-hidden">
+      {/* Curved bottom decoration */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 400 120" className="w-full h-24" preserveAspectRatio="none">
+          <path d="M0,60 Q100,20 200,60 T400,60 L400,120 L0,120 Z" fill="rgba(255,255,255,0.1)" />
+          <path d="M0,80 Q150,40 300,80 T400,80 L400,120 L0,120 Z" fill="rgba(255,255,255,0.05)" />
+        </svg>
       </div>
 
-      {/* Auth Forms */}
-      <div className="p-6 -mt-8 relative z-10">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle className="text-center">Get Started</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Sign In</TabsTrigger>
-                <TabsTrigger value="register">Create Account</TabsTrigger>
-              </TabsList>
+      {/* Content */}
+      <div className={`flex flex-col items-center justify-center min-h-screen px-4 sm:px-8 pt-16 pb-8 transition-opacity duration-500 ${fadeClass}`}>
+        
+        {/* Stage 1: Loading with HolistiCare.io */}
+        {stage === 1 && (
+          <div className="text-center">
+            {/* Logo circle */}
+            <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
+              <img src={logoImage} alt="HolistiCare Logo" className="w-12 h-12" />
+            </div>
+            
+            <h1 className="text-white text-2xl font-bold mb-2">HolistiCare.io</h1>
+            <p className="text-white/90 text-sm">Empower Health with Intelligence</p>
+          </div>
+        )}
 
-              <TabsContent value="login" className="space-y-4">
-                {/* {mockAuth.isMockModeEnabled() && (
-                  <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <TestTube className="w-4 h-4 text-blue-600" />
-                        <Badge variant="secondary" className="text-xs">
-                          UI Testing Mode
-                        </Badge>
+        {/* Stage 2: Welcome screen */}
+        {stage === 2 && (
+          <div className="text-center w-full">
+            {/* Logo circle */}
+            <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
+              <img src={logoImage} alt="HolistiCare Logo" className="w-12 h-12" />
+            </div>
+            
+            <h1 className="text-white text-xl font-bold mb-2">HolistiCare</h1>
+            <p className="text-white/90 text-sm mb-8 sm:mb-12">Welcome back to your health journey</p>
+            
+            <Button 
+              onClick={handleContinue}
+              className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full max-w-xs mx-auto"
+            >
+              Continue
+            </Button>
+          </div>
+        )}
+
+        {/* Stage 3: Auth forms */}
+        {stage === 3 && (
+          <div className="text-center w-full">
+            {/* Logo circle */}
+            <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
+              <img src={logoImage} alt="HolistiCare Logo" className="w-12 h-12" />
+            </div>
+            
+            <h1 className="text-white text-xl font-bold mb-6">HolistiCare</h1>
+            
+            <div className="w-full max-w-xs mx-auto">
+              <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-white/20 mb-6">
+                  <TabsTrigger value="login" className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600">
+                    Sign In
+                  </TabsTrigger>
+                  <TabsTrigger value="register" className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600">
+                    Create Account
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="login" className="space-y-4">
+                  <p className="text-white/90 text-sm mb-6 sm:mb-8 px-2 sm:px-4 text-center">
+                    Welcome back! Enter your email and password to continue your health journey.
+                  </p>
+                  
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="text-left">
+                      <Label htmlFor="login-email" className="text-white text-sm">
+                        Email
+                      </Label>
+                      <Input
+                        id="login-email"
+                        type="email"
+                        required
+                        value={loginData.email}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                        className="mt-1 bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                    
+                    <div className="text-left">
+                      <Label htmlFor="login-password" className="text-white text-sm">
+                        Password
+                      </Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="login-password"
+                          type={showPassword ? "text" : "password"}
+                          required
+                          value={loginData.password}
+                          onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                          className="bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg pr-10"
+                          placeholder="Enter your password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={fillTestCredentials}
-                        className="text-xs"
-                      >
-                        Use Test Login
-                      </Button>
                     </div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                      Backend bypassed - use test@holisticare.com / password123
-                    </p>
-                  </div>
-                )} */}
-
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <Label htmlFor="login-email">Email Address</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="your.email@example.com"
-                      value={loginData.email}
-                      onChange={(e) =>
-                        setLoginData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="login-password">Password</Label>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={loginData.password}
-                      onChange={(e) =>
-                        setLoginData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    {isLoading ? "Signing in..." : "Sign In"}
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-6"
+                      disabled={isLoading}
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      {isLoading ? "Logging in..." : "Log in"}
+                    </Button>
+                  </form>
+                  
+                  {/* Test credentials button */}
+                  <Button
+                    type="button"
+                    onClick={fillTestCredentials}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-full mt-4"
+                  >
+                    Fill Test Credentials
                   </Button>
-                </form>
+                </TabsContent>
 
-                <p className="text-center text-xs text-gray-600 dark:text-gray-400">
-                  Healthcare Professional?
-                  <button className="text-primary ml-1 hover:underline">
-                    Sign in here
-                  </button>
-                </p>
-              </TabsContent>
-
-              <TabsContent value="register" className="space-y-4">
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <div>
-                    <Label htmlFor="register-name">Full Name</Label>
-                    <Input
-                      id="register-name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={registerData.fullName}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          fullName: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="register-email">Email Address</Label>
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="your.email@example.com"
-                      value={registerData.email}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="register-password">Password</Label>
-                    <Input
-                      id="register-password"
-                      type="password"
-                      placeholder="Create a secure password"
-                      value={registerData.password}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="register-age">Age</Label>
-                      <Input
-                        id="register-age"
-                        type="number"
-                        placeholder="25"
-                        value={registerData.age}
-                        onChange={(e) =>
-                          setRegisterData((prev) => ({
-                            ...prev,
-                            age: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="register-gender">Gender</Label>
-                      <Select
-                        value={registerData.gender}
-                        onValueChange={(value) =>
-                          setRegisterData((prev) => ({
-                            ...prev,
-                            gender: value,
-                          }))
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                          <SelectItem value="prefer-not-to-say">
-                            Prefer not to say
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="register-height">Height (cm)</Label>
-                      <Input
-                        id="register-height"
-                        type="number"
-                        placeholder="170"
-                        value={registerData.height}
-                        onChange={(e) =>
-                          setRegisterData((prev) => ({
-                            ...prev,
-                            height: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="register-weight">Weight (kg)</Label>
-                      <Input
-                        id="register-weight"
-                        type="number"
-                        step="0.1"
-                        placeholder="70"
-                        value={registerData.weight}
-                        onChange={(e) =>
-                          setRegisterData((prev) => ({
-                            ...prev,
-                            weight: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-2">
-                      <Checkbox required />
-                      <Label className="text-xs leading-4">
-                        I agree to the{" "}
-                        <button
-                          type="button"
-                          className="text-primary hover:underline"
-                        >
-                          Terms of Service
-                        </button>{" "}
-                        and{" "}
-                        <button
-                          type="button"
-                          className="text-primary hover:underline"
-                        >
-                          Privacy Policy
-                        </button>
+                <TabsContent value="register" className="space-y-4">
+                  <p className="text-white/90 text-sm mb-6 sm:mb-8 px-2 sm:px-4 text-center">
+                    Join HolistiCare and start your personalized health journey today.
+                  </p>
+                  
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="text-left">
+                      <Label htmlFor="register-email" className="text-white text-sm">
+                        Email
                       </Label>
+                      <Input
+                        id="register-email"
+                        type="email"
+                        required
+                        value={registerData.email}
+                        onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                        className="mt-1 bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg"
+                        placeholder="Enter your email"
+                      />
                     </div>
-
-                    <div className="flex items-start space-x-2">
-                      <Checkbox />
-                      <Label className="text-xs leading-4">
-                        I consent to data processing for health insights
-                        (GDPR/HIPAA compliant)
+                    
+                    <div className="text-left">
+                      <Label htmlFor="register-password" className="text-white text-sm">
+                        Password
                       </Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="register-password"
+                          type={showPassword ? "text" : "password"}
+                          required
+                          value={registerData.password}
+                          onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                          className="bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg pr-10"
+                          placeholder="Create a secure password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {isLoading ? "Creating account..." : "Create Account"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                    <div className="text-left">
+                      <Label htmlFor="confirm-password" className="text-white text-sm">
+                        Confirm Password
+                      </Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="confirm-password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          required
+                          value={registerData.confirmPassword}
+                          onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          className="bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg pr-10"
+                          placeholder="Confirm your password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-6"
+                      disabled={isLoading}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      {isLoading ? "Creating account..." : "Create Account"}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
