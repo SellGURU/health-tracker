@@ -1,35 +1,21 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
+import Application from "@/api/app";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import {
+  Apple,
+  Calendar,
   CheckCircle,
   Circle,
-  Activity,
-  Heart,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Apple,
-  Pill,
-  Dumbbell,
-  Users,
   ClipboardList,
+  Dumbbell,
+  Pill,
+  Users,
 } from "lucide-react";
-import Application from "@/api/app";
+import { useEffect, useState } from "react";
 
 interface Filters {
   Type: string[];
@@ -92,211 +78,7 @@ interface Task {
   Activity_Filters?: Filters;
 }
 
-// Calendar-based tasks with detailed categories
-const generateCalendarTasks = () => {
-  const tasks: Record<string, any[]> = {};
-  const today = new Date();
-
-  // Generate tasks for past 7 days, today, and next 7 days
-  for (let i = -7; i <= 7; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-    const dateKey = date.toISOString().split("T")[0];
-
-    if (i === 0) {
-      // Today's tasks
-      tasks[dateKey] = [
-        {
-          id: `${dateKey}-1`,
-          title: "Mediterranean Diet",
-          category: "Diet",
-          completed: false,
-          details: {
-            instruction:
-              "Focus on olive oil, fish, vegetables, and whole grains",
-            total_macros: { fats: 65, carbs: 120, protein: 85 },
-            notes: "Include 2 servings of fish this week",
-          },
-        },
-        {
-          id: `${dateKey}-2`,
-          title: "Vitamin D3",
-          category: "Supplement",
-          completed: true,
-          details: {
-            dose: "2000 IU",
-            instruction: "Take with fatty meal for better absorption",
-            notes: "Take in the morning",
-          },
-        },
-        {
-          id: `${dateKey}-3`,
-          title: "Sleep Quality",
-          category: "Lifestyle",
-          completed: false,
-          details: {
-            instruction: "Maintain consistent sleep schedule",
-            value: 8,
-            unit: "hours",
-            notes: "No screens 1 hour before bed",
-          },
-        },
-        {
-          id: `${dateKey}-4`,
-          title: "Full Body Strength Training",
-          category: "Activity",
-          completed: false,
-          details: {
-            instruction: "Focus on compound movements",
-            sections: [
-              {
-                section: "Warm-Up",
-                sets: "1",
-                type: "Circuit",
-                exercises: [
-                  {
-                    title: "Dynamic Stretching",
-                    description: "Prepare muscles for workout",
-                    instruction: "Hold each stretch for 30 seconds",
-                    reps: "5 minutes",
-                    exercise_filters: {
-                      type: "Flexibility",
-                      level: "Beginner",
-                    },
-                    exercise_location: ["Home", "Gym"],
-                  },
-                ],
-              },
-              {
-                section: "Main",
-                sets: "3",
-                type: "Superset",
-                exercises: [
-                  {
-                    title: "Squats",
-                    description: "Lower body compound movement",
-                    instruction: "Keep knees aligned with toes",
-                    reps: "12",
-                    rest: "60",
-                    weight: "bodyweight",
-                    exercise_filters: {
-                      type: "Strength",
-                      level: "Intermediate",
-                      muscle: "Glutes",
-                      equipment: "Body Only",
-                    },
-                    exercise_location: ["Home", "Gym"],
-                  },
-                ],
-              },
-            ],
-            activity_location: ["Home", "Gym"],
-            notes: "Focus on form over weight",
-          },
-        },
-        {
-          id: `${dateKey}-5`,
-          title: "Stress Level Check-in",
-          category: "Test",
-          completed: false,
-          details: {
-            questions_count: 5,
-            estimated_time: "2 minutes",
-          },
-        },
-      ];
-    } else if (i < 0) {
-      // Past days - some completed tasks
-      tasks[dateKey] = [
-        {
-          id: `${dateKey}-1`,
-          title: "Anti-Inflammatory Diet",
-          category: "Diet",
-          completed: Math.random() > 0.3,
-          details: {
-            instruction: "Reduce processed foods, increase omega-3 rich foods",
-            total_macros: { fats: 70, carbs: 100, protein: 90 },
-          },
-        },
-        {
-          id: `${dateKey}-2`,
-          title: "Omega-3",
-          category: "Supplement",
-          completed: Math.random() > 0.2,
-          details: {
-            dose: "1000 mg",
-            instruction: "Take with dinner",
-          },
-        },
-        {
-          id: `${dateKey}-3`,
-          title: "Morning Walk",
-          category: "Activity",
-          completed: Math.random() > 0.4,
-          details: {
-            instruction: "Moderate pace outdoor walk",
-            sections: [
-              {
-                section: "Main",
-                sets: "1",
-                type: "Cardio",
-                exercises: [
-                  {
-                    title: "Brisk Walking",
-                    description: "Cardiovascular exercise",
-                    instruction: "Maintain steady pace",
-                    reps: "30 minutes",
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      ];
-    } else {
-      // Future days - upcoming tasks
-      tasks[dateKey] = [
-        {
-          id: `${dateKey}-1`,
-          title: "Balanced Nutrition",
-          category: "Diet",
-          completed: false,
-          details: {
-            instruction: "Include all food groups in appropriate portions",
-            total_macros: { fats: 60, carbs: 130, protein: 80 },
-          },
-        },
-        {
-          id: `${dateKey}-2`,
-          title: "Hydration Check",
-          category: "Lifestyle",
-          completed: false,
-          details: {
-            instruction: "Track daily water intake",
-            value: 8,
-            unit: "glasses",
-          },
-        },
-        {
-          id: `${dateKey}-3`,
-          title: "Weekly Assessment",
-          category: "Test",
-          completed: false,
-          details: {
-            questions_count: 10,
-            estimated_time: "5 minutes",
-          },
-        },
-      ];
-    }
-  }
-
-  return tasks;
-};
-
-const calendarTasks = generateCalendarTasks();
 const todayKey = new Date().toISOString().split("T")[0];
-// const todaysTasks = calendarTasks[todayKey] || [];
 
 export default function Plan() {
   const [taskValues, setTaskValues] = useState<Record<string, number>>({});
@@ -304,7 +86,79 @@ export default function Plan() {
   const [activeTab, setActiveTab] = useState("today");
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [todaysTasks, setTodaysTasks] = useState<Task[]>([]);
+  const handleUpdateTaskStatus = (taskId: string, status: boolean) => {
+    setTodaysTasks((prev) =>
+      prev.map((task) =>
+        task.task_id === taskId ? { ...task, Status: status } : task
+      )
+    );
+  };
+  const handleUpdateExerciseTaskStatus = (
+    exerciseId: string,
+    status: boolean
+  ) => {
+    setTodaysTasks((prev) =>
+      prev.map((task) =>
+        task.Sections?.some((section) =>
+          section.Exercises?.some((e) => e.task_id === exerciseId)
+        )
+          ? {
+              ...task,
+              Sections: task.Sections?.map((section) => ({
+                ...section,
+                Exercises: section.Exercises?.map((e) =>
+                  e.task_id === exerciseId ? { ...e, Status: status } : e
+                ),
+              })),
+            }
+          : task
+      )
+    );
+  };
+
   const [weeklyTasks, setWeeklyTasks] = useState<WeeklyTask[]>([]);
+  const handleUpdateWeeklyTaskStatus = (taskId: string, status: boolean) => {
+    setWeeklyTasks((prev) =>
+      prev.map((task) =>
+        task.tasks.find((t) => t.task_id === taskId)
+          ? {
+              ...task,
+              tasks: task.tasks.map((t) =>
+                t.task_id === taskId ? { ...t, Status: status } : t
+              ),
+            }
+          : task
+      )
+    );
+  };
+  const handleUpdateWeeklyExerciseTaskStatus = (
+    taskId: string,
+    status: boolean
+  ) => {
+    setWeeklyTasks((prev) =>
+      prev.map((task) =>
+        task.tasks?.some((t) =>
+          t.Sections?.some((section) =>
+            section.Exercises?.some((e) => e.task_id === taskId)
+          )
+        )
+          ? {
+              ...task,
+              tasks: task.tasks.map((t) => ({
+                ...t,
+                Sections: t.Sections?.map((section) => ({
+                  ...section,
+                  Exercises: section.Exercises?.map((e) =>
+                    e.task_id === taskId ? { ...e, Status: status } : e
+                  ),
+                })),
+              })),
+            }
+          : task
+      )
+    );
+  };
+
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   useEffect(() => {
@@ -361,7 +215,6 @@ export default function Plan() {
   const handleCheckTask = (taskId: string) => {
     Application.checkTask({ task_id: taskId })
       .then(() => {
-        handleGetTodayTasks();
         toast({
           title: "Task Checked",
           description: "Your task has been checked.",
@@ -378,7 +231,6 @@ export default function Plan() {
   const handleUncheckTask = (taskId: string) => {
     Application.uncheckTask({ task_id: taskId })
       .then(() => {
-        handleGetTodayTasks();
         toast({
           title: "Task Unchecked",
           description: "Your task has been unchecked.",
@@ -396,7 +248,6 @@ export default function Plan() {
   const handleUpdateValue = (taskId: string, value: number) => {
     Application.updateValue({ task_id: taskId, temp_value: value })
       .then(() => {
-        handleGetTodayTasks();
         toast({
           title: "Value Updated",
           description: "Your value has been updated.",
@@ -432,7 +283,6 @@ export default function Plan() {
         weekday: task.day,
       });
     });
-    console.log("dates => ", dates);
     return dates;
   };
 
@@ -627,6 +477,7 @@ export default function Plan() {
                   </div>
                   {section.Exercises.map(
                     (exercise: Exercise, exIndex: number) => {
+                      const completed = exercise.Status;
                       return (
                         <div key={exIndex} className="ml-2 space-y-1">
                           <div className="font-medium text-sm">
@@ -650,6 +501,41 @@ export default function Plan() {
                               <span>Weight: {exercise.Weight}</span>
                             )}
                           </div>
+                          <Button
+                            variant={completed ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => {
+                              if (activeTab === "today") {
+                                handleUpdateExerciseTaskStatus(
+                                  exercise.task_id,
+                                  !exercise.Status
+                                );
+                              } else {
+                                handleUpdateWeeklyExerciseTaskStatus(
+                                  exercise.task_id,
+                                  !exercise.Status
+                                );
+                              }
+                              if (completed) {
+                                handleUncheckTask(exercise.task_id);
+                              } else {
+                                handleCheckTask(exercise.task_id);
+                              }
+                            }}
+                            className={`w-full ${
+                              completed
+                                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                            }`}
+                            style={{ marginBottom: "5px" }}
+                          >
+                            {completed ? (
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                            ) : (
+                              <Circle className="w-4 h-4 mr-2" />
+                            )}
+                            {completed ? "Completed" : "Mark Complete"}
+                          </Button>
                         </div>
                       );
                     }
@@ -742,7 +628,6 @@ export default function Plan() {
               {todaysTasks.map((task) => {
                 const TaskIcon = getTaskIcon(task);
                 const completed = task.Status;
-                const progressPercent = getProgressPercent(task);
 
                 return (
                   <Card
@@ -781,33 +666,41 @@ export default function Plan() {
                           <div className="mb-4">{renderTaskDetails(task)}</div>
 
                           {/* Task Action Button */}
-                          <Button
-                            variant={completed ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => {
-                              if (task.Category === "Lifestyle") {
-                                handleUpdateValue(
+                          {task.Category !== "Activity" && (
+                            <Button
+                              variant={completed ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => {
+                                handleUpdateTaskStatus(
                                   task.task_id,
-                                  taskValues[task.task_id] || 0
+                                  !task.Status
                                 );
-                              }
-                              completed
-                                ? handleUncheckTask(task.task_id)
-                                : handleCheckTask(task.task_id);
-                            }}
-                            className={`w-full ${
-                              completed
-                                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                            }`}
-                          >
-                            {completed ? (
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Circle className="w-4 h-4 mr-2" />
-                            )}
-                            {completed ? "Completed" : "Mark Complete"}
-                          </Button>
+                                if (task.Category === "Lifestyle") {
+                                  handleUpdateValue(
+                                    task.task_id,
+                                    taskValues[task.task_id] || 0
+                                  );
+                                }
+                                if (completed) {
+                                  handleUncheckTask(task.task_id);
+                                } else {
+                                  handleCheckTask(task.task_id);
+                                }
+                              }}
+                              className={`w-full ${
+                                completed
+                                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                  : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                              }`}
+                            >
+                              {completed ? (
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                              ) : (
+                                <Circle className="w-4 h-4 mr-2" />
+                              )}
+                              {completed ? "Completed" : "Mark Complete"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -826,7 +719,6 @@ export default function Plan() {
               <div className="flex gap-2 overflow-x-auto pb-2 justify-start">
                 {getDateRange().map((dateInfo) => {
                   const isCurrentDay = isToday(dateInfo.key);
-                  console.log("isCurrentDay => ", isCurrentDay);
                   const isSelected = selectedDate === dateInfo.key;
                   const dayTasks =
                     weeklyTasks.find((task) => task.date === dateInfo.key)
@@ -999,37 +891,45 @@ export default function Plan() {
                                     </div>
 
                                     {/* Task Action Button */}
-                                    <Button
-                                      variant={
-                                        completed ? "default" : "outline"
-                                      }
-                                      size="sm"
-                                      onClick={() => {
-                                        if (task.Category === "Lifestyle") {
-                                          handleUpdateValue(
-                                            task.task_id,
-                                            taskValues[task.task_id] || 0
-                                          );
+                                    {task.Category !== "Activity" && (
+                                      <Button
+                                        variant={
+                                          completed ? "default" : "outline"
                                         }
-                                        completed
-                                          ? handleUncheckTask(task.task_id)
-                                          : handleCheckTask(task.task_id);
-                                      }}
-                                      className={`w-full ${
-                                        completed
-                                          ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                          : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                                      }`}
-                                    >
-                                      {completed ? (
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                      ) : (
-                                        <Circle className="w-4 h-4 mr-2" />
-                                      )}
-                                      {completed
-                                        ? "Completed"
-                                        : "Mark Complete"}
-                                    </Button>
+                                        size="sm"
+                                        onClick={() => {
+                                          handleUpdateWeeklyTaskStatus(
+                                            task.task_id,
+                                            !task.Status
+                                          );
+                                          if (task.Category === "Lifestyle") {
+                                            handleUpdateValue(
+                                              task.task_id,
+                                              taskValues[task.task_id] || 0
+                                            );
+                                          }
+                                          if (completed) {
+                                            handleUncheckTask(task.task_id);
+                                          } else {
+                                            handleCheckTask(task.task_id);
+                                          }
+                                        }}
+                                        className={`w-full ${
+                                          completed
+                                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                            : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                                        }`}
+                                      >
+                                        {completed ? (
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                        ) : (
+                                          <Circle className="w-4 h-4 mr-2" />
+                                        )}
+                                        {completed
+                                          ? "Completed"
+                                          : "Mark Complete"}
+                                      </Button>
+                                    )}
                                   </div>
                                 </div>
                               </CardContent>
