@@ -345,7 +345,7 @@ export default function Plan() {
     });
   };
 
-  const renderTaskDetails = (task: Task) => {
+  const renderTaskDetails = (task: Task, isCurrentDay: boolean) => {
     switch (task.Category) {
       case "Diet":
         return (
@@ -505,21 +505,23 @@ export default function Plan() {
                             variant={completed ? "default" : "outline"}
                             size="sm"
                             onClick={() => {
-                              if (activeTab === "today") {
-                                handleUpdateExerciseTaskStatus(
-                                  exercise.task_id,
-                                  !exercise.Status
-                                );
-                              } else {
-                                handleUpdateWeeklyExerciseTaskStatus(
-                                  exercise.task_id,
-                                  !exercise.Status
-                                );
-                              }
-                              if (completed) {
-                                handleUncheckTask(exercise.task_id);
-                              } else {
-                                handleCheckTask(exercise.task_id);
+                              if (isCurrentDay) {
+                                if (activeTab === "today") {
+                                  handleUpdateExerciseTaskStatus(
+                                    exercise.task_id,
+                                    !exercise.Status
+                                  );
+                                } else {
+                                  handleUpdateWeeklyExerciseTaskStatus(
+                                    exercise.task_id,
+                                    !exercise.Status
+                                  );
+                                }
+                                if (completed) {
+                                  handleUncheckTask(exercise.task_id);
+                                } else {
+                                  handleCheckTask(exercise.task_id);
+                                }
                               }
                             }}
                             className={`w-full ${
@@ -663,7 +665,9 @@ export default function Plan() {
                           </div>
 
                           {/* Task Details */}
-                          <div className="mb-4">{renderTaskDetails(task)}</div>
+                          <div className="mb-4">
+                            {renderTaskDetails(task, true)}
+                          </div>
 
                           {/* Task Action Button */}
                           {task.Category !== "Activity" && (
@@ -887,7 +891,7 @@ export default function Plan() {
 
                                     {/* Task Details */}
                                     <div className="mb-4">
-                                      {renderTaskDetails(task)}
+                                      {renderTaskDetails(task, isCurrentDay)}
                                     </div>
 
                                     {/* Task Action Button */}
@@ -898,20 +902,22 @@ export default function Plan() {
                                         }
                                         size="sm"
                                         onClick={() => {
-                                          handleUpdateWeeklyTaskStatus(
-                                            task.task_id,
-                                            !task.Status
-                                          );
-                                          if (task.Category === "Lifestyle") {
-                                            handleUpdateValue(
+                                          if (isCurrentDay) {
+                                            handleUpdateWeeklyTaskStatus(
                                               task.task_id,
-                                              taskValues[task.task_id] || 0
+                                              !task.Status
                                             );
-                                          }
-                                          if (completed) {
-                                            handleUncheckTask(task.task_id);
-                                          } else {
-                                            handleCheckTask(task.task_id);
+                                            if (task.Category === "Lifestyle") {
+                                              handleUpdateValue(
+                                                task.task_id,
+                                                taskValues[task.task_id] || 0
+                                              );
+                                            }
+                                            if (completed) {
+                                              handleUncheckTask(task.task_id);
+                                            } else {
+                                              handleCheckTask(task.task_id);
+                                            }
                                           }
                                         }}
                                         className={`w-full ${
