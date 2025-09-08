@@ -297,7 +297,7 @@ export default function YouMenu() {
                 <div className="w-20 h-20 relative">
                   <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 64 64">
                     <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200/30 dark:text-gray-700/30" />
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${60 * 0.6} ${60}`} strokeLinecap="round" className="drop-shadow-sm" />
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${2 * Math.PI * 28 * 0.6} ${2 * Math.PI * 28}`} strokeLinecap="round" className="drop-shadow-sm" />
                     <defs>
                       <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#14b8a6" />
