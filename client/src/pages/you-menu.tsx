@@ -309,7 +309,7 @@ export default function YouMenu() {
                     <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">60%</span>
                   </div>
                 </div>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                <div className="absolute top-1/2 right-0 transform translate-x-1 -translate-y-1/2 rotate-[144deg]" style={{transformOrigin: '-28px 0px'}}>
                   <div className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full shadow-lg animate-pulse"></div>
                 </div>
               </div>
