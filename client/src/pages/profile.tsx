@@ -376,7 +376,7 @@ export default function Profile() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Active Plans:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Action Plans:</span>
                       <span className="font-semibold text-green-600 dark:text-green-400">
                         {stats?.activePlans || 2}
                       </span>
