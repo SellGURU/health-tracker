@@ -73,6 +73,28 @@ export default function YouMenu() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
   const [completedSurveys, setCompletedSurveys] = useState<string[]>([]);
+
+  // Questionnaire data
+  const [questionnaires] = useState([
+    {
+      title: "Health and Lifestyle Profile",
+      status: "Done",
+      unique_id: "3fa0c241c2",
+      Estimated_time: "15 minutes"
+    },
+    {
+      title: "Mental Wellness Assessment",
+      status: "Pending",
+      unique_id: "5bc2d3e4f1",
+      Estimated_time: "10 minutes"
+    },
+    {
+      title: "Physical Activity Evaluation",
+      status: "Done",
+      unique_id: "7d8e9f0a1b",
+      Estimated_time: "8 minutes"
+    }
+  ]);
   const [hasRequiredData, setHasRequiredData] = useState(true);
   const [phenotypicAge, setPhenotypicAge] = useState<number | null>(28);
   const [chronologicalAge, setChronologicalAge] = useState(25);
@@ -295,6 +317,60 @@ export default function YouMenu() {
           </CardContent>
         </Card>
       )}
+
+      {/* Assigned Questionnaires Section */}
+      <Card className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-blue-900/20 dark:via-gray-800/50 dark:to-indigo-900/20 border-0 shadow-xl backdrop-blur-lg">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-thin flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-white" />
+            </div>
+            Assigned Questionnaires
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {questionnaires.map((questionnaire) => (
+              <div key={questionnaire.unique_id} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    questionnaire.status === 'Done' 
+                      ? 'bg-green-100 dark:bg-green-900/30' 
+                      : 'bg-orange-100 dark:bg-orange-900/30'
+                  }`}>
+                    {questionnaire.status === 'Done' ? (
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <Calendar className="w-5 h-5 text-orange-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {questionnaire.title}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {questionnaire.Estimated_time && `${questionnaire.Estimated_time} • `}
+                      Status: {questionnaire.status}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {questionnaire.status === 'Done' ? (
+                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Completed
+                    </Badge>
+                  ) : (
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      Start
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Health Summary Card */}
       {hasHealthData && (
