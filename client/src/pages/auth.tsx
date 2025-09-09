@@ -189,7 +189,7 @@ export default function AuthPage() {
       <div className="absolute bottom-0 left-0 right-0">
         <svg
           viewBox="0 0 400 120"
-          className="w-full h-24"
+          className="w-full h-24 pointer-events-none -z-10"
           preserveAspectRatio="none"
         >
           <path
@@ -205,7 +205,7 @@ export default function AuthPage() {
 
       {/* Content */}
       <div
-        className={`flex flex-col items-center justify-center min-h-screen px-4 sm:px-8 pt-16 pb-8 transition-opacity duration-500 ${fadeClass}`}
+        className={`flex flex-col items-center justify-center min-h-screen px-4 sm:px-8 pt-16 pb-8 transition-opacity duration-500 relative z-10 ${fadeClass}`}
       >
         {/* Stage 1: Loading with HolistiCare.io */}
         {stage === 1 && (
