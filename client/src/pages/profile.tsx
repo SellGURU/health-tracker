@@ -216,15 +216,6 @@ export default function Profile() {
     },
   });
 
-  const handleLogout = () => {
-    logout();
-    setLocation("/");
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully.",
-    });
-  };
-
   const handleExportData = async () => {
     setIsExporting(true);
     try {
@@ -400,22 +391,9 @@ export default function Profile() {
         {/* Profile Overview Card */}
         <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
           <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-shrink-0">
-                <Avatar className="w-16 h-16 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-medium">
-                    {(
-                      clientInformation?.name?.split(" ")[0] || ""
-                    ).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Crown className="w-2.5 h-2.5 text-white" />
-                </div>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="space-y-3">
+            <div className="flex-1 min-w-0">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
                       {clientInformation?.name || "User"}
@@ -424,73 +402,85 @@ export default function Profile() {
                       {clientInformation?.email}
                     </p>
                   </div>
-
-                  {/* Better spaced info display */}
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Age:
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {clientInformation?.age || "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Gender:
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
-                        {clientInformation?.sex || "Not specified"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Member since:
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {getMembershipDuration()}
-                      </span>
+                  <div className="relative flex-shrink-0">
+                    <Avatar className="w-16 h-16 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
+                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-medium">
+                        {(
+                          clientInformation?.name?.split(" ")[0] || ""
+                        ).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Crown className="w-2.5 h-2.5 text-white" />
                     </div>
                   </div>
+                </div>
 
-                  {/* Health stats */}
-                  <div className="space-y-2 text-sm pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Lab Tests:
-                      </span>
-                      <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        {stats?.totalTests || 5}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Active Plans:
-                      </span>
-                      <span className="font-semibold text-green-600 dark:text-green-400">
-                        {stats?.activePlans || 2}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Account:
-                      </span>
-                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                        Verified
-                      </span>
-                    </div>
+                {/* Better spaced info display */}
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Age:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {clientInformation?.age || "N/A"}
+                    </span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Gender:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
+                      {clientInformation?.sex || "Not specified"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Member since:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {getMembershipDuration()}
+                    </span>
+                  </div>
+                </div>
 
-                  <div className="flex items-center gap-2 pt-2">
-                    {getSubscriptionBadge(user?.subscriptionTier || "free")}
-                    <Badge
-                      variant="outline"
-                      className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
-                    >
-                      <Activity className="w-3 h-3 mr-1" />
-                      Active User
-                    </Badge>
+                {/* Health stats */}
+                <div className="space-y-2 text-sm pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Lab Tests:
+                    </span>
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">
+                      {stats?.totalTests || 5}
+                    </span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Active Plans:
+                    </span>
+                    <span className="font-semibold text-green-600 dark:text-green-400">
+                      {stats?.activePlans || 2}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Account:
+                    </span>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      Verified
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  {getSubscriptionBadge(user?.subscriptionTier || "free")}
+                  <Badge
+                    variant="outline"
+                    className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
+                  >
+                    <Activity className="w-3 h-3 mr-1" />
+                    Active User
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -827,7 +817,7 @@ export default function Profile() {
                 Manage how you receive notifications from HolistiCare
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[55vh] overflow-y-auto">
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">
                   Communication Methods
@@ -1031,22 +1021,21 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={saveNotificationSettings}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
-                >
-                  Save Preferences
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowNotificationsDialog(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Cancel
-                </Button>
-              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={saveNotificationSettings}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
+              >
+                Save Preferences
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowNotificationsDialog(false)}
+                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+              >
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -1063,7 +1052,7 @@ export default function Profile() {
                 Control how your health data is used and shared
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[55vh] overflow-y-auto">
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">
                   Data Sharing
@@ -1229,22 +1218,21 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={savePrivacySettings}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
-                >
-                  Save Settings
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowPrivacyDialog(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Cancel
-                </Button>
-              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={savePrivacySettings}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
+              >
+                Save Settings
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowPrivacyDialog(false)}
+                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+              >
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -1261,7 +1249,7 @@ export default function Profile() {
                 Get help with using HolistiCare and contact our support team
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[55vh] overflow-y-auto">
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">
                   Quick Help
@@ -1365,28 +1353,27 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={() => {
-                    toast({
-                      title: "Support contacted",
-                      description: "We'll get back to you within 24 hours.",
-                    });
-                    setShowHelpDialog(false);
-                  }}
-                  className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
-                >
-                  Contact Support
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowHelpDialog(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Close
-                </Button>
-              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={() => {
+                  toast({
+                    title: "Support contacted",
+                    description: "We'll get back to you within 24 hours.",
+                  });
+                  setShowHelpDialog(false);
+                }}
+                className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
+              >
+                Contact Support
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowHelpDialog(false)}
+                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+              >
+                Close
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
