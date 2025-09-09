@@ -73,6 +73,28 @@ export default function YouMenu() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
   const [completedSurveys, setCompletedSurveys] = useState<string[]>([]);
+
+  // Questionnaire data
+  const [questionnaires] = useState([
+    {
+      title: "Health and Lifestyle Profile",
+      status: "Done",
+      unique_id: "3fa0c241c2",
+      Estimated_time: "15 minutes"
+    },
+    {
+      title: "Mental Wellness Assessment",
+      status: "Pending",
+      unique_id: "5bc2d3e4f1",
+      Estimated_time: "10 minutes"
+    },
+    {
+      title: "Physical Activity Evaluation",
+      status: "Done",
+      unique_id: "7d8e9f0a1b",
+      Estimated_time: "8 minutes"
+    }
+  ]);
   const [hasRequiredData, setHasRequiredData] = useState(true);
   const [phenotypicAge, setPhenotypicAge] = useState<number | null>(28);
   const [chronologicalAge, setChronologicalAge] = useState(25);
@@ -180,34 +202,20 @@ export default function YouMenu() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
             
             <div className="relative">
-              {/* Enhanced icon with pulsing animation */}
+              {/* Simple icon */}
               <div className="relative mx-auto mb-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
                   <Activity className="w-10 h-10 text-white" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full opacity-30"></div>
               </div>
               
-              {/* Prominent age display */}
+              {/* Age display */}
               <div className="mb-3">
                 <div className="text-5xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
                   {hasRequiredData && phenotypicAge ? phenotypicAge : '?'}
                 </div>
                 <div className="text-lg font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">Phenotypic Age</div>
               </div>
-              
-              {hasRequiredData && phenotypicAge && (
-                <div className="space-y-3">
-                  {/* Enhanced progress visualization */}
-                  <div className="relative">
-                    <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full h-3 shadow-inner">
-                      <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 h-3 rounded-full shadow-lg" style={{ width: '85%' }}></div>
-                    </div>
-                    <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-emerald-300/50 to-cyan-300/50 rounded-full"></div>
-                  </div>
-                  
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -275,7 +283,7 @@ export default function YouMenu() {
                 <div className="w-20 h-20 relative">
                   <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 64 64">
                     <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-200/30 dark:text-gray-700/30" />
-                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${60 * 0.6} ${60}`} strokeLinecap="round" className="drop-shadow-sm" />
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#progressGradient)" strokeWidth="3" strokeDasharray={`${2 * Math.PI * 28 * 0.6} ${2 * Math.PI * 28}`} strokeLinecap="round" className="drop-shadow-sm" />
                     <defs>
                       <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#14b8a6" />
@@ -287,14 +295,63 @@ export default function YouMenu() {
                     <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">60%</span>
                   </div>
                 </div>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                  <div className="w-2 h-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full shadow-lg animate-pulse"></div>
-                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Assigned Questionnaires Section */}
+      <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl font-thin flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-white" />
+            </div>
+            Assigned Questionnaires
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-2">
+            {questionnaires.map((questionnaire) => (
+              <div key={questionnaire.unique_id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    questionnaire.status === 'Done' 
+                      ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
+                      : 'bg-gradient-to-br from-orange-500 to-amber-500'
+                  }`}>
+                    {questionnaire.status === 'Done' ? (
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    ) : (
+                      <Calendar className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 pr-2">
+                    <div className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
+                      {questionnaire.title}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {questionnaire.Estimated_time || 'No time estimate'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 ml-auto">
+                  {questionnaire.status === 'Done' ? (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 whitespace-nowrap">
+                      Completed
+                    </Badge>
+                  ) : (
+                    <Button size="sm" variant="outline" className="text-xs h-7 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap">
+                      Start
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Health Summary Card */}
       {hasHealthData && (
@@ -427,13 +484,7 @@ export default function YouMenu() {
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm font-medium">12 personalized action items</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-500/10 backdrop-blur-sm">
-                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                    <Activity className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium">Phenotypic age: 28 years</span>
+                  <span className="text-sm font-medium">12 personalized interventions</span>
                 </div>
               </div>
               
