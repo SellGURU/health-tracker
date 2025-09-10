@@ -75,6 +75,7 @@ export default function AuthPage() {
       .then((res) => {
         localStorage.setItem("health_session", res.data.access_token);
         localStorage.setItem("token", res.data.access_token);
+        localStorage.setItem("encoded_mi", res.data.encoded_mi);
         if (!isRegister) {
           toast({
             title: "Welcome back!",

@@ -4,6 +4,7 @@ interface AuthResponse {
   data: {
     access_token: string;
     permission: any;
+    encoded_mi: string;
   };
 }
 class Auth extends Api {

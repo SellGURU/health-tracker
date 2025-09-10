@@ -31,7 +31,14 @@ interface Exercise {
   Description: string;
   Exercise_Filters: Filters;
   Exercise_Location: string[];
-  Files: [];
+  Files: {
+    Type: string;
+    Title: string;
+    Content: {
+      url: string;
+      file_id: string;
+    };
+  }[];
   Instruction: string;
   Reps: string;
   Rest: string;
@@ -77,6 +84,16 @@ interface Task {
   Activity_Location?: string[];
   Activity_Filters?: Filters;
 }
+interface FileData {
+  Title: string;
+  Type: string;
+  base64Data?: string;
+  // Optional until received from the API
+  Content: {
+    url?: string;
+    file_id?: string;
+  };
+}
 
 const todayKey = new Date().toISOString().split("T")[0];
 
@@ -86,6 +103,27 @@ export default function Plan() {
   const [activeTab, setActiveTab] = useState("today");
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [todaysTasks, setTodaysTasks] = useState<Task[]>([]);
+  const [selectData, setSelectData] = useState<Exercise | null>(null);
+  const [videoData, setVideoData] = useState<FileData[]>([]);
+  const [selectIndexTitle, setSelectIndexTitle] = useState<{
+    id: string | null;
+    title: string | null;
+  }>({
+    id: null,
+    title: null,
+  });
+  const getYouTubeEmbedUrl = (url: string) => {
+    const standardOrShortsRegExp =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?/;
+
+    const match = url.match(standardOrShortsRegExp);
+
+    if (match && match[1]) {
+      // For standard videos and shorts, use the /embed/ path
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    return url;
+  };
   const handleUpdateTaskStatus = (taskId: string, status: boolean) => {
     setTodaysTasks((prev) =>
       prev.map((task) =>
@@ -261,6 +299,54 @@ export default function Plan() {
         });
       });
   };
+  useEffect(() => {
+    const encoded_mi = localStorage.getItem("encoded_mi");
+    const fetchVideos = async () => {
+      setIsLoading(true);
+      const videoFiles = selectData?.Files?.filter(
+        (file: any) =>
+          file.Type?.split("/")[0] === "video" ||
+          file.Type === "link" ||
+          file.Type?.split("/")[0] === "image"
+      );
+
+      const videoPromises = videoFiles?.map((file: any) => {
+        if (
+          file.Type?.split("/")[0] === "video" ||
+          file.Type?.split("/")[0] === "image"
+        ) {
+          return Application.showExerciseFile({
+            file_id: file.Content.file_id,
+            encoded_mi: encoded_mi || "",
+          }).then((res) => ({
+            Title: res.data.file_name,
+            Type: res.data.file_type,
+            Content: {
+              file_id: file.Content.file_id,
+              url: res.data.base_64_data,
+            },
+          }));
+        } else if (file.Type === "link") {
+          return Promise.resolve({
+            Content: {
+              file_id: file.Content.file_id,
+              url: file.Content.url,
+            },
+            Title: file.Title,
+            Type: "link",
+          });
+        }
+      });
+
+      const videos = await Promise.all(videoPromises as Promise<FileData>[]);
+      setVideoData(videos as FileData[]);
+      setIsLoading(false);
+    };
+
+    if (selectIndexTitle.id && selectData) {
+      fetchVideos();
+    }
+  }, [selectIndexTitle.id, selectData]);
 
   const formatDateKey = (dateString: string) => {
     const date = new Date(dateString + "T00:00:00");
@@ -501,6 +587,94 @@ export default function Plan() {
                               <span>Weight: {exercise.Weight}</span>
                             )}
                           </div>
+                          {exercise.Files && exercise.Files.length > 0 && (
+                            <div
+                              onClick={() => {
+                                if (selectIndexTitle.id === exercise.task_id) {
+                                  setSelectIndexTitle({
+                                    id: null,
+                                    title: null,
+                                  });
+                                  setSelectData(null);
+                                  setVideoData([]);
+                                } else {
+                                  setSelectIndexTitle({
+                                    id: exercise.task_id,
+                                    title: exercise.Title,
+                                  });
+                                  setSelectData(exercise);
+                                }
+                              }}
+                              className="text-blue-600 dark:text-blue-400 hover:underline text-xs cursor-pointer"
+                            >
+                              View Files
+                            </div>
+                          )}
+                          {exercise.Files &&
+                            exercise.Files.length > 0 &&
+                            selectData &&
+                            selectIndexTitle.id === exercise.task_id && (
+                              <div className="space-y-2">
+                                {videoData.map((file, fileIndex: number) => {
+                                  return (
+                                    <div
+                                      key={fileIndex}
+                                      className="border border-gray-200 dark:border-gray-600 rounded-lg p-2 bg-gray-50 dark:bg-gray-800/50"
+                                    >
+                                      {file.Title && (
+                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                          {file.Title}
+                                        </div>
+                                      )}
+
+                                      {videoData?.[0]?.Type?.split("/")[0] ===
+                                      "video" ? (
+                                        <video
+                                          className="w-full h-48 rounded-md object-cover"
+                                          controls
+                                          preload="metadata"
+                                        >
+                                          <source
+                                            src={file.Content.url}
+                                            type="video/mp4"
+                                          />
+                                          Your browser does not support the
+                                          video tag.
+                                        </video>
+                                      ) : videoData?.[0]?.Type?.split(
+                                          "/"
+                                        )[0] === "image" ? (
+                                        <img
+                                          src={file.Content.url}
+                                          alt={file.Title || exercise.Title}
+                                          className="w-full h-48 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                          onClick={() =>
+                                            window.open(
+                                              file.Content.url,
+                                              "_blank"
+                                            )
+                                          }
+                                        />
+                                      ) : (
+                                        <div className="relative w-full h-48 rounded-md overflow-hidden">
+                                          <iframe
+                                            src={getYouTubeEmbedUrl(
+                                              file.Content.url || ""
+                                            )}
+                                            key={file.Content.file_id}
+                                            className="absolute inset-0 w-full h-full"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            title={file.Title || exercise.Title}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           <Button
                             variant={completed ? "default" : "outline"}
                             size="sm"

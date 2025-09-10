@@ -7,6 +7,10 @@ interface SendMessageProps {
   message_to: "ai" | "coach";
   text: string;
 }
+interface getExerciseFileProps {
+  file_id: string;
+  encoded_mi: string;
+}
 class Application extends Api {
   // static getPatients() {
   //   const response = this.get("/patients");
@@ -80,6 +84,9 @@ class Application extends Api {
     const response = this.post("/mobile/update_personal_info", data);
     return response;
   }
+  static showExerciseFile = (data: getExerciseFileProps) => {
+    return this.post("/mobile/show_exercise_file", data);
+  };
 }
 
 export default Application;
