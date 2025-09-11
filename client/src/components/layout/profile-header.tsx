@@ -135,7 +135,7 @@ export default function ProfileHeader() {
         notificationRef.current &&
         !notificationRef.current.contains(event.target as Node)
       ) {
-        setShowNotifications(false);
+        // setShowNotifications(false);
       }
     };
 
