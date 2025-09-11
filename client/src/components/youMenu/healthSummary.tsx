@@ -11,9 +11,6 @@ import {
   Pill,
 } from "lucide-react";
 
-// ————————————————————————————————————————————
-// Types
-// ————————————————————————————————————————————
 export type Biomarker = {
   chart_bounds: [
     {
@@ -42,11 +39,6 @@ export type Biomarker = {
   what_it_means: string;
 };
 
-// ————————————————————————————————————————————
-// Category meta (label, icon, gradient)
-// Keys MUST match the `subcategory` values in your data.
-// If your data uses different labels, add them here.
-// ————————————————————————————————————————————
 const CATEGORY_META: Record<
   string,
   {
@@ -115,9 +107,6 @@ const CATEGORY_ORDER = [
   "Vitamins",
 ];
 
-// ————————————————————————————————————————————
-// Utilities
-// ————————————————————————————————————————————
 function groupBySubcategory(data: Biomarker[]) {
   return data.reduce<Record<string, Biomarker[]>>((acc, item) => {
     const key = item.subcategory || "Unknown";
@@ -133,9 +122,6 @@ function formatCounts(items: Biomarker[]) {
   return { biomarkers, needsFocus };
 }
 
-// ————————————————————————————————————————————
-// Component: CategoryCards
-// ————————————————————————————————————————————
 export default function CategoryCards({ data }: { data: Biomarker[] }) {
   // Group input data by subcategory
   const groups = React.useMemo(() => groupBySubcategory(data), [data]);
@@ -184,17 +170,3 @@ export default function CategoryCards({ data }: { data: Biomarker[] }) {
     </CardContent>
   );
 }
-
-// ————————————————————————————————————————————
-// Example usage
-// ————————————————————————————————————————————
-// const exampleData: Biomarker[] = [
-//   { id: 1, name: "Hemoglobin", subcategory: "Blood", outofref: false },
-//   { id: 2, name: "WBC", subcategory: "Blood", outofref: false },
-//   { id: 3, name: "Platelets", subcategory: "Blood", outofref: true },
-//   { id: 4, name: "HDL", subcategory: "Cardiovascular Risk", outofref: false },
-//   { id: 5, name: "LDL", subcategory: "Cardiovascular Risk", outofref: true },
-//   { id: 6, name: "A1C", subcategory: "Diabetes & Glucose", outofref: false },
-// ];
-//
-// <CategoryCards data={exampleData} />

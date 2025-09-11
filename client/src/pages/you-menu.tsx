@@ -142,7 +142,7 @@ export default function YouMenu() {
   const handleGetBiomarkersData = async () => {
     Application.getBiomarkersData()
       .then((res) => {
-        setBiomarkersData(res.data);
+        setBiomarkersData(res.data.biomarkers);
       })
       .catch((res) => {
         toast({
@@ -518,7 +518,7 @@ export default function YouMenu() {
               Health Summary
             </CardTitle>
           </CardHeader>
-          {/* <CategoryCards data={biomarkersData} /> */}
+          <CategoryCards data={biomarkersData} />
         </Card>
       )}
 
