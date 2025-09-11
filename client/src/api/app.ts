@@ -87,6 +87,10 @@ class Application extends Api {
   static showExerciseFile = (data: getExerciseFileProps) => {
     return this.post("/mobile/show_exercise_file", data);
   };
+  static getAssignedQuestionaries() {
+    const response = this.post("/mobile/tasks/show_assigned_questionaries", {});
+    return response;
+  }
 }
 
 export default Application;
