@@ -44,8 +44,8 @@ export default function ProfileHeader() {
     {
       id: 1,
       type: "lab_result",
-      title: "New Lab Results Available",
-      message: "Your recent blood panel results are ready for review.",
+      title: "New Tasks, New You!",
+      message: "Your latest health action plan is ready! Check out your new tasks in the Overview section and take the next step toward a longer, healthier life.",
       time: "2 minutes ago",
       read: false,
       icon: Activity,
@@ -54,45 +54,45 @@ export default function ProfileHeader() {
     {
       id: 2,
       type: "goal",
-      title: "Goal Milestone Reached",
+      title: "Your Progress Awaits!",
       message:
-        "Congratulations! You've completed 7 days of your hydration goal.",
+        "Ready to level up your health? Complete your Health Questionnaire to help us build a more personalized and effective wellness plan just for you.",
       time: "1 hour ago",
       read: false,
       icon: Target,
       color: "blue",
     },
-    {
-      id: 3,
-      type: "insight",
-      title: "New Health Insight",
-      message:
-        "AI analysis suggests optimizing your sleep schedule for better recovery.",
-      time: "3 hours ago",
-      read: false,
-      icon: Brain,
-      color: "purple",
-    },
-    {
-      id: 4,
-      type: "reminder",
-      title: "Health Check Reminder",
-      message: "Don't forget to log your daily supplements and water intake.",
-      time: "1 day ago",
-      read: true,
-      icon: Calendar,
-      color: "orange",
-    },
-    {
-      id: 5,
-      type: "trend",
-      title: "Trend Alert",
-      message: "Your cholesterol levels have improved by 12% this month!",
-      time: "2 days ago",
-      read: true,
-      icon: TrendingUp,
-      color: "green",
-    },
+    // {
+    //   id: 3,
+    //   type: "insight",
+    //   title: "New Health Insight",
+    //   message:
+    //     "AI analysis suggests optimizing your sleep schedule for better recovery.",
+    //   time: "3 hours ago",
+    //   read: false,
+    //   icon: Brain,
+    //   color: "purple",
+    // },
+    // {
+    //   id: 4,
+    //   type: "reminder",
+    //   title: "Health Check Reminder",
+    //   message: "Don't forget to log your daily supplements and water intake.",
+    //   time: "1 day ago",
+    //   read: true,
+    //   icon: Calendar,
+    //   color: "orange",
+    // },
+    // {
+    //   id: 5,
+    //   type: "trend",
+    //   title: "Trend Alert",
+    //   message: "Your cholesterol levels have improved by 12% this month!",
+    //   time: "2 days ago",
+    //   read: true,
+    //   icon: TrendingUp,
+    //   color: "green",
+    // },
   ]);
 
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -200,7 +200,7 @@ export default function ProfileHeader() {
   };
 
   return (
-    <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
+    <div className="flex relative items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
           <img
@@ -238,16 +238,16 @@ export default function ProfileHeader() {
             <>
               {/* Background Overlay */}
               <div
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[999998]"
+                className="absolute inset-0 bg-black/20 backdrop-blur-sm z-[999998]"
                 onClick={() => setShowNotifications(false)}
               />
               {/* Notification Panel */}
-              <div className="fixed right-2 sm:right-4 top-16 w-[calc(100vw-1rem)] sm:w-96 max-w-sm bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
+              <div className="absolute right-[15%] md:right-[28%] xl:right-[35%] 2xl:right-[39%] top-16 w-[280px] sm:w-[320px]  bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
                 {/* Header */}
                 <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                   <div className="flex items-center justify-between">
                     <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-                      Notifications
+                      Notifications 
                     </h3>
                     <div className="flex items-center gap-2">
                       <Button
@@ -278,7 +278,7 @@ export default function ProfileHeader() {
                 </div>
 
                 {/* Notifications List */}
-                <div className="max-h-72 sm:max-h-80 overflow-y-auto">
+                <div className="max-h-72 sm:max-h-[200px] overflow-y-auto">
                   {notifications.length === 0 ? (
                     <div className="p-8 text-center">
                       <Bell className="w-12 h-12 text-gray-400 mx-auto mb-3" />
@@ -290,7 +290,7 @@ export default function ProfileHeader() {
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-1 p-2">
+                    <div className="space-y-1  p-2">
                       {notifications.map((notification) => {
                         const IconComponent = notification.icon;
                         return (
