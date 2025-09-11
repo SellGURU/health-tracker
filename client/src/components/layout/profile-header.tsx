@@ -97,13 +97,19 @@ export default function ProfileHeader() {
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const [clientInformation, setClientInformation] = useState<{
+    action_plan: number;
     age: number;
     coach_username: [];
     connected_wearable: boolean;
+    date_of_birth: string;
     email: string;
     id: string;
+    lab_test: number;
+    member_since: string;
     name: string;
+    pheno_age: number;
     sex: string;
+    verified_account: boolean;
   }>();
 
   const handleGetClientInformation = async () => {
