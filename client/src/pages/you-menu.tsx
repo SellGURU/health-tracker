@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -106,6 +107,11 @@ export default function YouMenu() {
       unique_id: string;
     }[]
   >([]);
+  const [biomarkersData, setBiomarkersData] = useState<Biomarker[]>([]);
+  const [encodedMi, setEncodedMi] = useState<string>("");
+  useEffect(() => {
+    setEncodedMi(localStorage.getItem("encoded_mi") || "");
+  }, []);
 
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
@@ -136,7 +142,7 @@ export default function YouMenu() {
   const handleGetBiomarkersData = async () => {
     Application.getBiomarkersData()
       .then((res) => {
-        // setBiomarkersData(res.data);
+        setBiomarkersData(res.data);
       })
       .catch((res) => {
         toast({
@@ -486,7 +492,7 @@ export default function YouMenu() {
                       variant="outline"
                       onClick={() =>
                         window.open(
-                          `https://holisticare-develop.vercel.app/surveys/${clientInformation?.id}/${questionnaire.unique_id}`
+                          `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
                         )
                       }
                       className="text-xs h-7 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
@@ -512,135 +518,7 @@ export default function YouMenu() {
               Health Summary
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Droplets className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Blood
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    3 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Heart className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Cardiovascular Risk
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    7 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Activity className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Diabetes & Glucose
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    3 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Essential Minerals
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    4 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Zap className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Hormone Health
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    3 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Liver Function
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    7 Biomarkers · 1 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Users className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Sex Hormones
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    1 Biomarker · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Waves className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Thyroid Function
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    2 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Pill className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    Vitamins
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    2 Biomarkers · 0 Needs Focus
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
+          {/* <CategoryCards data={biomarkersData} /> */}
         </Card>
       )}
 
