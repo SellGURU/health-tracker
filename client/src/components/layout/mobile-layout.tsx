@@ -47,7 +47,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="h-screen flex flex-col bg-gray-50 w-full relative dark:bg-gray-900">
       {useProfileHeader ? (
         <ProfileHeader />
       ) : (
