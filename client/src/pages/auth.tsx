@@ -387,13 +387,13 @@ export default function AuthPage() {
                   </form>
 
                   {/* Test credentials button */}
-                  <Button
+                  {/* <Button
                     type="button"
                     onClick={fillTestCredentials}
                     className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-full mt-4"
                   >
                     Fill Test Credentials
-                  </Button>
+                  </Button> */}
                 </TabsContent>
 
                 <TabsContent value="register" className="space-y-4">
