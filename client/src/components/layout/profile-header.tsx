@@ -123,19 +123,19 @@ export default function ProfileHeader() {
     handleGetClientInformation();
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target as Node)
-      ) {
-        setShowNotifications(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       notificationRef.current &&
+  //       !notificationRef.current.contains(event.target as Node)
+  //     ) {
+  //       setShowNotifications(false);
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => document.removeEventListener("mousedown", handleClickOutside);
+  // }, []);
 
   useEffect(() => {
     const unreadCount = notifications.filter((n) => !n.read).length;
@@ -238,15 +238,15 @@ export default function ProfileHeader() {
             <>
               {/* Background Overlay */}
               <div
-                className="absolute inset-0 bg-black/20 backdrop-blur-sm z-[999998]"
-                onClick={() => setShowNotifications(false)}
+                className="absolute inset-0backdrop-blur-sm z-[999998]"
+                // onClick={() => setShowNotifications(false)}
               />
               {/* Notification Panel */}
-              <div className="absolute right-[15%] md:right-[28%] xl:right-[35%] 2xl:right-[39%] top-16 w-[280px] sm:w-[320px]  bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
+              <div className="absolute right-[17%] md:right-[30%] xl:right-[37%] 2xl:right-[40%] top-16 w-[240px] sm:w-[280px]  bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
                 {/* Header */}
                 <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       Notifications 
                     </h3>
                     <div className="flex items-center gap-2">
@@ -254,7 +254,7 @@ export default function ProfileHeader() {
                         variant="ghost"
                         size="sm"
                         onClick={markAllAsRead}
-                        className="text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20"
+                        className="text-[10px] text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20"
                       >
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Mark all read
@@ -270,7 +270,7 @@ export default function ProfileHeader() {
                     </div>
                   </div>
                   {notificationCount > 0 && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                       You have {notificationCount} unread notification
                       {notificationCount !== 1 ? "s" : ""}
                     </div>
