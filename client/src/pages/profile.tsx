@@ -91,12 +91,21 @@ export default function Profile() {
     handleGetClientInformation();
   }, []);
 
+  const [showDevicesModal, setShowDevicesModal] = useState(false);
+  useEffect(() => {
+    if (showDevicesModal) {
+      fetchDevicesData();
+    }
+  }, [showDevicesModal]);
+
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [devicesData, setDevicesData] = useState<any>(null);
+  const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [editData, setEditData] = useState({
     firstName: "",
     lastName: "",
@@ -389,6 +398,55 @@ export default function Profile() {
     setShowPrivacyDialog(false);
   };
 
+  const fetchDevicesData = async () => {
+    if (!clientInformation?.email) {
+      toast({
+        title: "Error",
+        description: "User email not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingDevices(true);
+    try {
+      const response = await fetch(
+        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.email}/data_sources/authorizers`,
+        {
+          method: "GET",
+          headers: {
+            Authorization:
+              "Basic Y2xpZW50X3V1aWQ6UUg4dTE4T2pMb2ZzU1J2bUVEbUdCZ2p2MWZycDNmYXBkYkRB",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setDevicesData(data);
+
+      toast({
+        title: "Success",
+        description: "Devices data loaded successfully",
+      });
+    } catch (error) {
+      console.error("Error fetching devices data:", error);
+      toast({
+        title: "Error",
+        description: `Failed to load devices data: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDevices(false);
+    }
+  };
+
   // Device management functions with ROOK integration
 
   // Check ROOK connection status
@@ -405,11 +463,7 @@ export default function Profile() {
       icon: Watch,
       title: "Variable Devices",
       description: "Connect and manage your health devices",
-      action: () => {
-        const userEmail = clientInformation?.email || "";
-        const rookUrl = `https://connections.rook-connect.review/client_uuid/b7156f72-63a8-4697-bb4d-e5d8ab3a5b96/user_id/${userEmail}`;
-        window.open(rookUrl, "_blank");
-      },
+      action: () => setShowDevicesModal(true),
       badge:
         connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
     },
@@ -1500,6 +1554,147 @@ export default function Profile() {
                 variant="outline"
                 onClick={() => setShowHelpDialog(false)}
                 className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+              >
+                Close
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Variable Devices Modal */}
+        <Dialog open={showDevicesModal} onOpenChange={setShowDevicesModal}>
+          <DialogContent className="max-w-md bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-3">
+                <Watch className="w-5 h-5 text-blue-600" />
+                Variable Devices
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
+                Connect and manage your health devices
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {isLoadingDevices ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                    <Watch className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    Loading devices data...
+                  </p>
+                </div>
+              ) : devicesData ? (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    {/* <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Watch className="w-6 h-6 text-green-600" />
+                    </div> */}
+                    {/* <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                      Available Data Sources
+                    </p> */}
+                  </div>
+
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {devicesData.data_sources?.map(
+                      (source: any, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50"
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0">
+                              <img
+                                src={source.image}
+                                alt={source.name}
+                                className="w-12 h-12 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src =
+                                    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                  {source.name}
+                                </h4>
+                                <Badge
+                                  variant={
+                                    source.connected ? "default" : "outline"
+                                  }
+                                  className={`text-xs ${
+                                    source.connected
+                                      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                      : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                                  }`}
+                                >
+                                  {source.connected
+                                    ? "Connected"
+                                    : "Not Connected"}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+                                {source.description}
+                              </p>
+                              <Button
+                                size="sm"
+                                variant={
+                                  source.connected ? "outline" : "default"
+                                }
+                                className={`text-xs h-8 ${
+                                  source.connected
+                                    ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                                }`}
+                                onClick={() => {
+                                  if (source.connected) {
+                                    // Handle disconnect
+                                    toast({
+                                      title: "Disconnect",
+                                      description: `Disconnect from ${source.name}`,
+                                    });
+                                  } else {
+                                    // Handle connect - open authorization URL
+                                    Application.addEvent({
+                                      event_name: source.name,
+                                      event_type: "connected",
+                                    });
+                                    window.open(
+                                      source.authorization_url,
+                                      "_blank"
+                                    );
+                                    toast({
+                                      title: "Connecting",
+                                      description: `Opening ${source.name} authorization...`,
+                                    });
+                                  }
+                                }}
+                              >
+                                {source.connected ? "Disconnect" : "Connect"}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Watch className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    No devices data available
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={() => setShowDevicesModal(false)}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
               >
                 Close
               </Button>

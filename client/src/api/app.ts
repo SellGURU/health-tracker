@@ -91,6 +91,9 @@ class Application extends Api {
     const response = this.post("/mobile/tasks/show_assigned_questionaries", {});
     return response;
   }
+  static addEvent = (data: any) => {
+    return this.post("/mobile/add_event", data);
+  };
 }
 
 export default Application;
