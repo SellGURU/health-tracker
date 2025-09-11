@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { resolveAnalyseIcon } from "../help";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -321,7 +322,8 @@ export default function Trends() {
                   <div className="mb-4">
                     <div className="flex items-center gap-3 mb-3">
                       <div className={`w-10 h-10 bg-gradient-to-br  rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                        <Droplets color="red"></Droplets>
+                        {/* <Droplets color="red"></Droplets> */}
+                        <img src={resolveAnalyseIcon(biomarker.subcategory)} />
                         {/* <Icon className="w-5 h-5 text-white" /> */}
                       </div>
                       <div className="flex-1 min-w-0">
