@@ -1,15 +1,6 @@
+import { CardContent } from "@/components/ui/card";
+import { resolveAnalyseIcon } from "@/help";
 import * as React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Droplets,
-  Heart,
-  Activity,
-  Shield,
-  Zap,
-  Users,
-  Waves,
-  Pill,
-} from "lucide-react";
 
 export type Biomarker = {
   chart_bounds: [
@@ -43,54 +34,34 @@ const CATEGORY_META: Record<
   string,
   {
     label: string;
-    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    gradient: string;
   }
 > = {
   Blood: {
     label: "Blood",
-    Icon: Droplets,
-    gradient: "from-red-500 to-pink-500",
   },
   "Cardiovascular Risk": {
     label: "Cardiovascular Risk",
-    Icon: Heart,
-    gradient: "from-emerald-500 to-teal-500",
   },
   "Diabetes & Glucose": {
     label: "Diabetes & Glucose",
-    Icon: Activity,
-    gradient: "from-yellow-500 to-orange-500",
   },
   "Essential Minerals": {
     label: "Essential Minerals",
-    Icon: Shield,
-    gradient: "from-blue-500 to-indigo-500",
   },
   "Hormone Health": {
     label: "Hormone Health",
-    Icon: Zap,
-    gradient: "from-purple-500 to-pink-500",
   },
   "Liver Function": {
     label: "Liver Function",
-    Icon: Shield,
-    gradient: "from-green-500 to-emerald-500",
   },
   "Sex Hormones": {
     label: "Sex Hormones",
-    Icon: Users,
-    gradient: "from-indigo-500 to-purple-500",
   },
   "Thyroid Function": {
     label: "Thyroid Function",
-    Icon: Waves,
-    gradient: "from-cyan-500 to-blue-500",
   },
   Vitamins: {
     label: "Vitamins",
-    Icon: Pill,
-    gradient: "from-orange-500 to-red-500",
   },
 };
 
@@ -135,13 +106,11 @@ export default function CategoryCards({ data }: { data: Biomarker[] }) {
 
   return (
     <CardContent>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {orderedKeys.map((key) => {
           const items = groups[key];
           const { biomarkers, needsFocus } = formatCounts(items);
           const meta = CATEGORY_META[key];
-          const Icon = meta?.Icon ?? Shield; // fallback icon
-          const gradient = meta?.gradient ?? "from-gray-400 to-gray-600";
           const label = meta?.label ?? key;
 
           return (
@@ -150,9 +119,10 @@ export default function CategoryCards({ data }: { data: Biomarker[] }) {
               className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm"
             >
               <div
-                className={`w-8 h-8 bg-gradient-to-br ${gradient} rounded-full flex items-center justify-center flex-shrink-0`}
+                className={`w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0`}
+                style={{ boxShadow: `0 0 10px 0 rgba(0, 0, 0, 0.3)` }}
               >
-                <Icon className="w-4 h-4 text-white" />
+                <img src={resolveAnalyseIcon(label)} className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">

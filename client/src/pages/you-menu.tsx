@@ -29,9 +29,7 @@ import {
   Target,
   Thermometer,
   User,
-  Users,
   UtensilsCrossed,
-  Waves,
   Wind,
   Zap,
 } from "lucide-react";
@@ -108,6 +106,15 @@ export default function YouMenu() {
     }[]
   >([]);
   const [biomarkersData, setBiomarkersData] = useState<Biomarker[]>([]);
+  const [holisticPlanActionPlan, setHolisticPlanActionPlan] = useState<{
+    latest_deep_analysis: string;
+    num_of_interventions: number;
+    progress: number;
+  }>({
+    latest_deep_analysis: "",
+    num_of_interventions: 0,
+    progress: 0,
+  });
   const [encodedMi, setEncodedMi] = useState<string>("");
   useEffect(() => {
     setEncodedMi(localStorage.getItem("encoded_mi") || "");
@@ -152,11 +159,25 @@ export default function YouMenu() {
         });
       });
   };
+  const handleGetHolisticPlanActionPlan = async () => {
+    Application.getHolisticPlanActionPlan()
+      .then((res) => {
+        setHolisticPlanActionPlan(res.data);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
 
   useEffect(() => {
     handleGetClientInformation();
     handleGetAssignedQuestionaries();
     handleGetBiomarkersData();
+    handleGetHolisticPlanActionPlan();
   }, []);
 
   const [currentView, setCurrentView] = useState<
@@ -407,9 +428,12 @@ export default function YouMenu() {
                       fill="none"
                       stroke="url(#progressGradient)"
                       strokeWidth="3"
-                      strokeDasharray={`${2 * Math.PI * 28 * 0.6} ${
-                        2 * Math.PI * 28
-                      }`}
+                      strokeDasharray={`${
+                        2 *
+                        Math.PI *
+                        28 *
+                        (holisticPlanActionPlan.progress / 100)
+                      } ${2 * Math.PI * 28}`}
                       strokeLinecap="round"
                       className="drop-shadow-sm"
                     />
@@ -428,7 +452,7 @@ export default function YouMenu() {
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                      60%
+                      {holisticPlanActionPlan.progress}%
                     </span>
                   </div>
                 </div>
@@ -490,11 +514,13 @@ export default function YouMenu() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() =>
+                      onClick={() => {
+                        questionnaire.status = "Done";
+                        setQuestionnaires([...questionnaires]);
                         window.open(
                           `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
-                        )
-                      }
+                        );
+                      }}
                       className="text-xs h-7 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
                     >
                       Start
@@ -538,7 +564,12 @@ export default function YouMenu() {
                       Latest Deep Analysis
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 font-light">
-                      Generated Jan 15, 2025
+                      Generated{" "}
+                      {
+                        holisticPlanActionPlan.latest_deep_analysis.split(
+                          "T"
+                        )[0]
+                      }
                     </p>
                   </div>
                 </div>
@@ -550,14 +581,19 @@ export default function YouMenu() {
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-sm font-medium">
-                    12 personalized interventions
+                    {holisticPlanActionPlan.num_of_interventions} personalized
+                    interventions
                   </span>
                 </div>
               </div>
 
               <Button
                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => setLocation("/plan")}
+                onClick={() => {
+                  window.open(
+                    `https://holisticare-develop.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJHRTYU`
+                  );
+                }}
               >
                 Download PDF Report
               </Button>
