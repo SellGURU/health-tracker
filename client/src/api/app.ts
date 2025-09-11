@@ -87,6 +87,10 @@ class Application extends Api {
   static showExerciseFile = (data: getExerciseFileProps) => {
     return this.post("/mobile/show_exercise_file", data);
   };
+
+  static addEvent = (data:any) => {
+    return this.post('/mobile/add_event', data)
+  }
 }
 
 export default Application;

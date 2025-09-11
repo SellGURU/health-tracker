@@ -1561,6 +1561,10 @@ export default function Profile() {
                                   });
                                 } else {
                                   // Handle connect - open authorization URL
+                                  Application.addEvent({
+                                    event_name: source.name,
+                                    event_type:'connected'
+                                  })
                                   window.open(source.authorization_url, '_blank');
                                   toast({
                                     title: "Connecting",
