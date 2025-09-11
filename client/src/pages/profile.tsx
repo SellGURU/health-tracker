@@ -59,13 +59,19 @@ export default function Profile() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [clientInformation, setClientInformation] = useState<{
+    action_plan: number;
     age: number;
     coach_username: [];
     connected_wearable: boolean;
+    date_of_birth: string;
     email: string;
     id: string;
+    lab_test: number;
+    member_since: string;
     name: string;
+    pheno_age: number;
     sex: string;
+    verified_account: boolean;
   }>();
 
   const handleGetClientInformation = async () => {
@@ -101,7 +107,7 @@ export default function Profile() {
     setEditData({
       firstName: clientInformation?.name?.split(" ")[0] || "",
       lastName: clientInformation?.name?.split(" ")[1] || "",
-      dateOfBirth: "",
+      dateOfBirth: clientInformation?.date_of_birth || "",
       gender: clientInformation?.sex || "",
     });
   }, [clientInformation]);
@@ -137,19 +143,96 @@ export default function Profile() {
   const [connectedDevices, setConnectedDevices] = useState<any[]>([]);
   const [availableDeviceTypes, setAvailableDeviceTypes] = useState([
     // ROOK-supported devices
-    { id: "garmin", name: "Garmin", icon: Watch, description: "Garmin fitness trackers and smartwatches", provider: "garmin", supported: true },
-    { id: "fitbit", name: "Fitbit", icon: Activity, description: "Fitbit activity trackers and smartwatches", provider: "fitbit", supported: true },
-    { id: "apple_health", name: "Apple Health", icon: Smartphone, description: "Apple Health app integration", provider: "apple_health", supported: true },
-    { id: "health_connect", name: "Health Connect", icon: Smartphone, description: "Android Health Connect integration", provider: "health_connect", supported: true },
-    { id: "oura", name: "Oura Ring", icon: Watch, description: "Oura smart ring for sleep and recovery", provider: "oura", supported: true },
-    { id: "polar", name: "Polar", icon: Heart, description: "Polar heart rate monitors and fitness trackers", provider: "polar", supported: true },
-    { id: "whoop", name: "Whoop", icon: Zap, description: "Whoop fitness and recovery tracker", provider: "whoop", supported: true },
-    { id: "withings", name: "Withings", icon: Activity, description: "Withings smart scales and health devices", provider: "withings", supported: true },
-    { id: "dexcom", name: "Dexcom", icon: Heart, description: "Dexcom continuous glucose monitoring", provider: "dexcom", supported: true },
-    
+    {
+      id: "garmin",
+      name: "Garmin",
+      icon: Watch,
+      description: "Garmin fitness trackers and smartwatches",
+      provider: "garmin",
+      supported: true,
+    },
+    {
+      id: "fitbit",
+      name: "Fitbit",
+      icon: Activity,
+      description: "Fitbit activity trackers and smartwatches",
+      provider: "fitbit",
+      supported: true,
+    },
+    {
+      id: "apple_health",
+      name: "Apple Health",
+      icon: Smartphone,
+      description: "Apple Health app integration",
+      provider: "apple_health",
+      supported: true,
+    },
+    {
+      id: "health_connect",
+      name: "Health Connect",
+      icon: Smartphone,
+      description: "Android Health Connect integration",
+      provider: "health_connect",
+      supported: true,
+    },
+    {
+      id: "oura",
+      name: "Oura Ring",
+      icon: Watch,
+      description: "Oura smart ring for sleep and recovery",
+      provider: "oura",
+      supported: true,
+    },
+    {
+      id: "polar",
+      name: "Polar",
+      icon: Heart,
+      description: "Polar heart rate monitors and fitness trackers",
+      provider: "polar",
+      supported: true,
+    },
+    {
+      id: "whoop",
+      name: "Whoop",
+      icon: Zap,
+      description: "Whoop fitness and recovery tracker",
+      provider: "whoop",
+      supported: true,
+    },
+    {
+      id: "withings",
+      name: "Withings",
+      icon: Activity,
+      description: "Withings smart scales and health devices",
+      provider: "withings",
+      supported: true,
+    },
+    {
+      id: "dexcom",
+      name: "Dexcom",
+      icon: Heart,
+      description: "Dexcom continuous glucose monitoring",
+      provider: "dexcom",
+      supported: true,
+    },
+
     // Traditional devices (non-ROOK)
-    { id: "blood_pressure", name: "Blood Pressure Monitor", icon: Heart, description: "Manual blood pressure readings", provider: "manual", supported: false },
-    { id: "glucose_meter", name: "Glucose Meter", icon: Zap, description: "Manual glucose monitoring", provider: "manual", supported: false },
+    {
+      id: "blood_pressure",
+      name: "Blood Pressure Monitor",
+      icon: Heart,
+      description: "Manual blood pressure readings",
+      provider: "manual",
+      supported: false,
+    },
+    {
+      id: "glucose_meter",
+      name: "Glucose Meter",
+      icon: Zap,
+      description: "Manual glucose monitoring",
+      provider: "manual",
+      supported: false,
+    },
   ]);
   const [newDeviceData, setNewDeviceData] = useState({
     deviceType: "",
@@ -308,10 +391,7 @@ export default function Profile() {
 
   // Device management functions with ROOK integration
 
-
-
   // Check ROOK connection status
-
 
   const settingsItems = [
     {
@@ -328,9 +408,10 @@ export default function Profile() {
       action: () => {
         const userEmail = clientInformation?.email || "";
         const rookUrl = `https://connections.rook-connect.review/client_uuid/b7156f72-63a8-4697-bb4d-e5d8ab3a5b96/user_id/${userEmail}`;
-        window.open(rookUrl, '_blank');
+        window.open(rookUrl, "_blank");
       },
-      badge: connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
+      badge:
+        connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
     },
     {
       icon: Bell,
@@ -1425,7 +1506,6 @@ export default function Profile() {
             </div>
           </DialogContent>
         </Dialog>
-
       </div>
     </div>
   );
