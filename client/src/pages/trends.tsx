@@ -1,42 +1,30 @@
-import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { resolveAnalyseIcon } from "../help";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import TrendChart from "@/components/charts/trend-chart";
-import { formatRelativeDate } from "@/lib/utils";
-import { 
-  ArrowLeft, 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  Download, 
-  Activity, 
-  Target, 
-  Zap, 
-  ChevronDown, 
-  ChevronUp,
-  Info,
-  Heart,
-  Brain,
-  Droplets,
-  CheckCircle,
-  AlertTriangle,
-  X,
-  BarChart3,
-  Calendar,
-  MoreHorizontal
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
-import type { LabResult } from "@shared/schema";
 import Application from "@/api/app";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import type { LabResult } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BarChart3,
+  Brain,
+  CheckCircle,
+  Droplets,
+  Minus,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { resolveAnalyseIcon } from "../help";
 
 // Mock biomarker data for enhanced UI
 // const mockBiomarkers = [
@@ -206,44 +194,46 @@ import Application from "@/api/app";
 
 export default function Trends() {
   const { toast } = useToast();
-  const [mockBiomarkers,setMochBiomarkers] = useState<Array<any>>([])
-  const [expandedCards, setExpandedCards] = useState<{[key: string]: boolean}>({});
+  const [mockBiomarkers, setMochBiomarkers] = useState<Array<any>>([]);
+  const [expandedCards, setExpandedCards] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [selectedBiomarker, setSelectedBiomarker] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('results');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState("results");
+  const [searchQuery, setSearchQuery] = useState("");
   const resolveColor = (key: string) => {
-    if (key == 'Needs Focus' || key == 'CriticalRange') {
-      return '#B2302E';
+    if (key == "Needs Focus" || key == "CriticalRange") {
+      return "#B2302E";
     }
-    if (key == 'DiseaseRange') {
-      return '#BA5225';
+    if (key == "DiseaseRange") {
+      return "#BA5225";
     }
-    if (key == 'Ok' || key == 'BorderlineRange') {
-      return '#D8D800';
+    if (key == "Ok" || key == "BorderlineRange") {
+      return "#D8D800";
     }
-    if (key == 'Good' || key == 'HealthyRange') {
-      return '#72C13B';
+    if (key == "Good" || key == "HealthyRange") {
+      return "#72C13B";
     }
-    if (key == 'Excellent' || key == 'OptimalRange') {
-      return '#37B45E';
+    if (key == "Excellent" || key == "OptimalRange") {
+      return "#37B45E";
     }
-    return '#FBAD37';
-  };  
+    return "#FBAD37";
+  };
   useEffect(() => {
     Application.getBiomarkersData().then((res) => {
-      console.log(res)
-      setMochBiomarkers(res.data.biomarkers)
-    })
-  },[])
+      console.log(res);
+      setMochBiomarkers(res.data.biomarkers);
+    });
+  }, []);
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
   });
 
   const toggleCardExpansion = (biomarkerId: string) => {
-    setExpandedCards(prev => ({
+    setExpandedCards((prev) => ({
       ...prev,
-      [biomarkerId]: !prev[biomarkerId]
+      [biomarkerId]: !prev[biomarkerId],
     }));
   };
 
@@ -254,19 +244,33 @@ export default function Trends() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      normal: { variant: 'default', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' },
-      high: { variant: 'destructive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
-      low: { variant: 'secondary', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' },
-      critical: { variant: 'destructive', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' }
+      normal: {
+        variant: "default",
+        color:
+          "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+      },
+      high: {
+        variant: "destructive",
+        color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      },
+      low: {
+        variant: "secondary",
+        color:
+          "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+      },
+      critical: {
+        variant: "destructive",
+        color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      },
     };
     return variants[status as keyof typeof variants] || variants.normal;
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'improving':
+      case "improving":
         return <TrendingUp className="w-4 h-4 text-emerald-500" />;
-      case 'declining':
+      case "declining":
         return <TrendingDown className="w-4 h-4 text-red-500" />;
       default:
         return <Minus className="w-4 h-4 text-blue-500" />;
@@ -275,22 +279,23 @@ export default function Trends() {
 
   const filteredBiomarkers = useMemo(() => {
     if (!searchQuery) return mockBiomarkers;
-    return mockBiomarkers.filter(biomarker =>
+    return mockBiomarkers.filter((biomarker) =>
       biomarker.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery,mockBiomarkers]);
-
+  }, [searchQuery, mockBiomarkers]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
+    <div className="min-h-screen relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
       <div className="w-full max-w-none mx-auto px-4 py-6 overflow-hidden">
         {/* Your Results Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent mb-2">
             Your Results
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light mb-4">Click on any biomarker to view detailed information</p>
-          
+          <p className="text-gray-600 dark:text-gray-400 font-light mb-4">
+            Click on any biomarker to view detailed information
+          </p>
+
           {/* Search Bar */}
           <div className="relative max-w-md mx-auto">
             <Input
@@ -309,11 +314,13 @@ export default function Trends() {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
             const statusBadge = getStatusBadge(biomarker.status);
-            const optimalRange = biomarker.chart_bounds.filter((el:any) =>el.status == 'OptimalRange')[0]
+            const optimalRange = biomarker.chart_bounds.filter(
+              (el: any) => el.status == "OptimalRange"
+            )[0];
 
             return (
-              <Card 
-                key={biomarker.name} 
+              <Card
+                key={biomarker.name}
                 className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl"
                 onClick={() => openDetailModal(biomarker)}
               >
@@ -321,7 +328,9 @@ export default function Trends() {
                   {/* Card Header */}
                   <div className="mb-4">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className={`w-10 h-10 bg-gradient-to-br  rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+                      <div
+                        className={`w-10 h-10 bg-gradient-to-br  rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}
+                      >
                         {/* <Droplets color="red"></Droplets> */}
                         <img src={resolveAnalyseIcon(biomarker.subcategory)} />
                         {/* <Icon className="w-5 h-5 text-white" /> */}
@@ -334,9 +343,15 @@ export default function Trends() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Last test: {new Date(biomarker.date[0]).toLocaleDateString()}
+                        Last test:{" "}
+                        {new Date(biomarker.date[0]).toLocaleDateString()}
                       </p>
-                      <Badge style={{backgroundColor:resolveColor(biomarker.status)}} className={`text-xs flex-shrink-0`}>
+                      <Badge
+                        style={{
+                          backgroundColor: resolveColor(biomarker.status),
+                        }}
+                        className={`text-xs flex-shrink-0`}
+                      >
                         {biomarker.status}
                       </Badge>
                     </div>
@@ -356,12 +371,16 @@ export default function Trends() {
 
                   {/* Reference Range */}
                   <div className="mb-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Optimal Range</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Optimal Range
+                    </div>
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {optimalRange?.low ==null && '>'}
-                      {optimalRange?.high ==null && '<'}
-                      {optimalRange?.low??""} 
-                      {optimalRange?.low !=null && optimalRange?.high != null && "-"}
+                      {optimalRange?.low == null && ">"}
+                      {optimalRange?.high == null && "<"}
+                      {optimalRange?.low ?? ""}
+                      {optimalRange?.low != null &&
+                        optimalRange?.high != null &&
+                        "-"}
                       {optimalRange?.high}
                     </div>
                   </div>
@@ -375,7 +394,9 @@ export default function Trends() {
                       <div className="h-40 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10 rounded-lg flex items-center justify-center">
                         <div className="text-center text-gray-500 dark:text-gray-400">
                           <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm">Interactive chart showing trends over time</p>
+                          <p className="text-sm">
+                            Interactive chart showing trends over time
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -384,16 +405,35 @@ export default function Trends() {
               </Card>
             );
           })}
+          {filteredBiomarkers.length === 0 && (
+            <div className="flex flex-col items-center gap-2 mt-6">
+              <img
+                src="/icons/direct.svg"
+                alt="No biomarkers"
+                className="w-[80px] mx-auto"
+              />
+              <div className="text-center text-gray-700 dark:text-gray-400 text-base">
+                No Results Available Yet
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 font-light text-center text-sm">
+                Once your test results are uploaded, you’ll see detailed results
+                here
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Detailed Information Modal */}
       {selectedBiomarker && (
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[448px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-center gap-3">
-                <div style={{color:resolveColor(selectedBiomarker.status[0])}} className={`w-12 h-12 bg-gradient-to-br rounded-2xl flex items-center justify-center shadow-lg`}>
+                <div
+                  style={{ color: resolveColor(selectedBiomarker.status[0]) }}
+                  className={`w-12 h-12 bg-gradient-to-br rounded-2xl flex items-center justify-center shadow-lg`}
+                >
                   <Droplets></Droplets>
                 </div>
                 <div>
@@ -407,7 +447,11 @@ export default function Trends() {
               </div>
             </DialogHeader>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="mt-6"
+            >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="results">Results</TabsTrigger>
                 <TabsTrigger value="improve">How to Improve</TabsTrigger>
@@ -417,9 +461,13 @@ export default function Trends() {
               <TabsContent value="results" className="space-y-6 mt-6">
                 <div className="grid grid-cols-2 gap-6">
                   {/* Current Value Card */}
-                  <Card className={`bg-gradient-to-br ${selectedBiomarker.bgColor}`}>
+                  <Card
+                    className={`bg-gradient-to-br ${selectedBiomarker.bgColor}`}
+                  >
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-medium mb-4">Current Value</h3>
+                      <h3 className="text-lg font-medium mb-4">
+                        Current Value
+                      </h3>
                       <div className="text-center">
                         <div className="text-4xl font-thin text-gray-900 dark:text-gray-100 mb-2">
                           {selectedBiomarker.values[0].toLocaleString()}
@@ -427,7 +475,14 @@ export default function Trends() {
                         <div className="text-lg text-gray-600 dark:text-gray-400">
                           {selectedBiomarker.unit}
                         </div>
-                        <Badge style={{backgroundColor:resolveColor(selectedBiomarker.status[0])}} className={`mt-3`}>
+                        <Badge
+                          style={{
+                            backgroundColor: resolveColor(
+                              selectedBiomarker.status[0]
+                            ),
+                          }}
+                          className={`mt-3`}
+                        >
                           {selectedBiomarker.status[0].toUpperCase()}
                         </Badge>
                       </div>
@@ -437,15 +492,27 @@ export default function Trends() {
                   {/* Reference Range Card */}
                   <Card className="bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10">
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-medium mb-4">Reference Range</h3>
+                      <h3 className="text-lg font-medium mb-4">
+                        Reference Range
+                      </h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Optimal Range:</span>
-                          <span className="font-medium">{selectedBiomarker.referenceRange}</span>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            Optimal Range:
+                          </span>
+                          <span className="font-medium">
+                            {selectedBiomarker.referenceRange}
+                          </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Last Test:</span>
-                          <span className="font-medium">{new Date(selectedBiomarker.date[0]).toLocaleDateString()}</span>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            Last Test:
+                          </span>
+                          <span className="font-medium">
+                            {new Date(
+                              selectedBiomarker.date[0]
+                            ).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
                     </CardContent>
@@ -455,7 +522,9 @@ export default function Trends() {
                 {/* Description */}
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-medium mb-3">About This Biomarker</h3>
+                    <h3 className="text-lg font-medium mb-3">
+                      About This Biomarker
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                       {selectedBiomarker.more_info}
                     </p>
@@ -464,7 +533,9 @@ export default function Trends() {
               </TabsContent>
 
               <TabsContent value="improve" className="space-y-4 mt-6">
-                <h3 className="text-lg font-medium">Recommendations to Improve</h3>
+                <h3 className="text-lg font-medium">
+                  Recommendations to Improve
+                </h3>
                 <div className="grid gap-4">
                   {/* {selectedBiomarker.recommendations.map((rec: string, index: number) => (
                     <Card key={index} className="bg-gradient-to-br from-emerald-50/80 to-teal-50/60 dark:from-emerald-900/20 dark:to-teal-900/10">
@@ -478,16 +549,18 @@ export default function Trends() {
                       </CardContent>
                     </Card>
                   ))} */}
-                    <Card  className="bg-gradient-to-br from-emerald-50/80 to-teal-50/60 dark:from-emerald-900/20 dark:to-teal-900/10">
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <CheckCircle className="w-4 h-4 text-white" />
-                          </div>
-                          <p className="text-gray-700 dark:text-gray-300">{selectedBiomarker.how_to_improve}</p>
+                  <Card className="bg-gradient-to-br from-emerald-50/80 to-teal-50/60 dark:from-emerald-900/20 dark:to-teal-900/10">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <CheckCircle className="w-4 h-4 text-white" />
                         </div>
-                      </CardContent>
-                    </Card>                  
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {selectedBiomarker.how_to_improve}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 
@@ -512,16 +585,21 @@ export default function Trends() {
                         <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Brain className="w-4 h-4 text-white" />
                         </div>
-                        <p className="text-gray-700 dark:text-gray-300">{selectedBiomarker.insight}</p>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {selectedBiomarker.insight}
+                        </p>
                       </div>
                     </CardContent>
-                  </Card>                  
+                  </Card>
                 </div>
               </TabsContent>
             </Tabs>
 
             <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <Button variant="outline" onClick={() => setShowDetailModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowDetailModal(false)}
+              >
                 Close
               </Button>
             </div>
