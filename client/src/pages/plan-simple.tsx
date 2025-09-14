@@ -112,6 +112,10 @@ export default function Plan() {
     id: null,
     title: null,
   });
+  const [encodedMi, setEncodedMi] = useState<string>("");
+  useEffect(() => {
+    setEncodedMi(localStorage.getItem("encoded_mi") || "");
+  }, []);
   const getYouTubeEmbedUrl = (url: string) => {
     const standardOrShortsRegExp =
       /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?/;
@@ -764,6 +768,31 @@ export default function Plan() {
                 </div>
               )}
             </div>
+            <Button
+              variant={task.Status ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                handleUpdateTaskStatus(task.task_id, true);
+                if (!task.Status) {
+                  handleCheckTask(task.task_id);
+                }
+                window.open(
+                  `https://holisticare-develop.vercel.app/checkin/${encodedMi}/${task.task_id}`
+                );
+              }}
+              className={`w-full !mt-4 !-mb-6 ${
+                task.Status
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  : "hover:bg-green-50 dark:hover:bg-green-900/20"
+              }`}
+            >
+              {task.Status ? (
+                <CheckCircle className="w-4 h-4 mr-2" />
+              ) : (
+                <Circle className="w-4 h-4 mr-2" />
+              )}
+              {task.Status ? "Completed" : "Mark Complete"}
+            </Button>
           </div>
         );
 
@@ -844,47 +873,60 @@ export default function Plan() {
                           </div>
 
                           {/* Task Action Button */}
-                          {task.Category !== "Activity" && (
-                            <Button
-                              variant={completed ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => {
-                                handleUpdateTaskStatus(
-                                  task.task_id,
-                                  !task.Status
-                                );
-                                if (task.Category === "Lifestyle") {
-                                  handleUpdateValue(
+                          {task.Category !== "Activity" &&
+                            task.Task_Type !== "Checkin" && (
+                              <Button
+                                variant={completed ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => {
+                                  handleUpdateTaskStatus(
                                     task.task_id,
-                                    taskValues[task.task_id] || 0
+                                    !task.Status
                                   );
-                                }
-                                if (completed) {
-                                  handleUncheckTask(task.task_id);
-                                } else {
-                                  handleCheckTask(task.task_id);
-                                }
-                              }}
-                              className={`w-full ${
-                                completed
-                                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                  : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                              }`}
-                            >
-                              {completed ? (
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                              ) : (
-                                <Circle className="w-4 h-4 mr-2" />
-                              )}
-                              {completed ? "Completed" : "Mark Complete"}
-                            </Button>
-                          )}
+                                  if (task.Category === "Lifestyle") {
+                                    handleUpdateValue(
+                                      task.task_id,
+                                      taskValues[task.task_id] || 0
+                                    );
+                                  }
+                                  if (completed) {
+                                    handleUncheckTask(task.task_id);
+                                  } else {
+                                    handleCheckTask(task.task_id);
+                                  }
+                                }}
+                                className={`w-full ${
+                                  completed
+                                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                    : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                                }`}
+                              >
+                                {completed ? (
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                ) : (
+                                  <Circle className="w-4 h-4 mr-2" />
+                                )}
+                                {completed ? "Completed" : "Mark Complete"}
+                              </Button>
+                            )}
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 );
               })}
+              {todaysTasks.length === 0 && (
+                <div className="flex flex-col items-center gap-2">
+                  <img
+                    src="/icons/calendar-2.svg"
+                    alt="No tasks"
+                    className="w-[80px] mx-auto"
+                  />
+                  <div className="text-center text-gray-700 dark:text-gray-400">
+                    No tasks for today yet
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -1069,53 +1111,68 @@ export default function Plan() {
                                     </div>
 
                                     {/* Task Action Button */}
-                                    {task.Category !== "Activity" && (
-                                      <Button
-                                        variant={
-                                          completed ? "default" : "outline"
-                                        }
-                                        size="sm"
-                                        onClick={() => {
-                                          if (isCurrentDay) {
-                                            handleUpdateWeeklyTaskStatus(
-                                              task.task_id,
-                                              !task.Status
-                                            );
-                                            if (task.Category === "Lifestyle") {
-                                              handleUpdateValue(
-                                                task.task_id,
-                                                taskValues[task.task_id] || 0
-                                              );
-                                            }
-                                            if (completed) {
-                                              handleUncheckTask(task.task_id);
-                                            } else {
-                                              handleCheckTask(task.task_id);
-                                            }
+                                    {task.Category !== "Activity" &&
+                                      task.Task_Type !== "Checkin" && (
+                                        <Button
+                                          variant={
+                                            completed ? "default" : "outline"
                                           }
-                                        }}
-                                        className={`w-full ${
-                                          completed
-                                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                            : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                                        }`}
-                                      >
-                                        {completed ? (
-                                          <CheckCircle className="w-4 h-4 mr-2" />
-                                        ) : (
-                                          <Circle className="w-4 h-4 mr-2" />
-                                        )}
-                                        {completed
-                                          ? "Completed"
-                                          : "Mark Complete"}
-                                      </Button>
-                                    )}
+                                          size="sm"
+                                          onClick={() => {
+                                            if (isCurrentDay) {
+                                              handleUpdateWeeklyTaskStatus(
+                                                task.task_id,
+                                                !task.Status
+                                              );
+                                              if (
+                                                task.Category === "Lifestyle"
+                                              ) {
+                                                handleUpdateValue(
+                                                  task.task_id,
+                                                  taskValues[task.task_id] || 0
+                                                );
+                                              }
+                                              if (completed) {
+                                                handleUncheckTask(task.task_id);
+                                              } else {
+                                                handleCheckTask(task.task_id);
+                                              }
+                                            }
+                                          }}
+                                          className={`w-full ${
+                                            completed
+                                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                              : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                                          }`}
+                                        >
+                                          {completed ? (
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                          ) : (
+                                            <Circle className="w-4 h-4 mr-2" />
+                                          )}
+                                          {completed
+                                            ? "Completed"
+                                            : "Mark Complete"}
+                                        </Button>
+                                      )}
                                   </div>
                                 </div>
                               </CardContent>
                             </Card>
                           );
                         })}
+                      {selectedDayTasks.length === 0 && (
+                        <div className="flex flex-col items-center gap-2">
+                          <img
+                            src="/icons/calendar-2.svg"
+                            alt="No tasks"
+                            className="w-[80px] mx-auto"
+                          />
+                          <div className="text-center text-gray-700 dark:text-gray-400">
+                            No tasks for this date yet
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </>
                 );

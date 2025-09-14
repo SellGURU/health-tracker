@@ -100,12 +100,18 @@ export default function ChatPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<any>(null);
-  const [messageReactions, setMessageReactions] = useState<Record<number, 'liked' | 'disliked' | null>>({});
-  const [reportedMessages, setReportedMessages] = useState<Set<string>>(new Set());
+  const [messageReactions, setMessageReactions] = useState<
+    Record<number, "liked" | "disliked" | null>
+  >({});
+  const [reportedMessages, setReportedMessages] = useState<Set<string>>(
+    new Set()
+  );
   // const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportingMessageId, setReportingMessageId] = useState<number | null>(null);
+  const [reportingMessageId, setReportingMessageId] = useState<number | null>(
+    null
+  );
   const [reportReason, setReportReason] = useState("");
-  const [reportDetails, setReportDetails] = useState('');
+  const [reportDetails, setReportDetails] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -113,31 +119,31 @@ export default function ChatPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]); //  
+  }, [messages]); //
   const handleGetMessagesId = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
         setMessages(res.data.messages);
         setConversationId(res.data.conversation_id);
-        
+
         // Sync feedback state with server data
-        const feedbackState: Record<number, 'liked' | 'disliked' | null> = {};
+        const feedbackState: Record<number, "liked" | "disliked" | null> = {};
         const reportedMessagesSet = new Set<string>();
-        
+
         res.data.messages.forEach((msg: Message) => {
-          if (msg.feedback === 'like') {
-            feedbackState[msg.conversation_id] = 'liked';
-          } else if (msg.feedback === 'disliked') {
-            feedbackState[msg.conversation_id] = 'disliked';
+          if (msg.feedback === "like") {
+            feedbackState[msg.conversation_id] = "liked";
+          } else if (msg.feedback === "disliked") {
+            feedbackState[msg.conversation_id] = "disliked";
           }
-          
+
           // Add reported messages from server using unique key
           if (msg.reported) {
             const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
             reportedMessagesSet.add(messageKey);
           }
         });
-        
+
         setMessageReactions(feedbackState);
         setReportedMessages(reportedMessagesSet);
       })
@@ -175,11 +181,16 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, newMessage]);
     setMessage("");
     Application.sendMessage({
-      conversation_id: messages.filter((msg) => msg.sender_type === "ai" || msg.sender_type === 'coach').pop()?.conversation_id || 1,
+      conversation_id:
+        messages
+          .filter(
+            (msg) => msg.sender_type === "ai" || msg.sender_type === "coach"
+          )
+          .pop()?.conversation_id || 1,
       message_to: activeMode,
       text: message,
     })
-      .then((res) => {    
+      .then((res) => {
         if (res.data?.answer) {
           const newMessage: Message = {
             conversation_id: res.data.current_conversation_id,
@@ -219,20 +230,23 @@ export default function ChatPage() {
     // }, 1500);
   };
 
-  const handleMessageReaction = (conversationId: number, reaction: 'liked' | 'disliked' | null) => {
-    setMessageReactions(prev => ({
+  const handleMessageReaction = (
+    conversationId: number,
+    reaction: "liked" | "disliked" | null
+  ) => {
+    setMessageReactions((prev) => ({
       ...prev,
-      [conversationId]: prev[conversationId] === reaction ? null : reaction
+      [conversationId]: prev[conversationId] === reaction ? null : reaction,
     }));
-    
+
     // Show toast feedback
-    if (reaction === 'liked') {
+    if (reaction === "liked") {
       toast({
         title: "Thanks for the feedback!",
         description: "We're glad this response was helpful.",
       });
       Application.feeedBack("like", conversationId);
-    } else if (reaction === 'disliked') {
+    } else if (reaction === "disliked") {
       toast({
         title: "Feedback received",
         description: "We'll work to improve our responses.",
@@ -253,9 +267,9 @@ export default function ChatPage() {
   const handleRegenerateMessage = async (messageId: number) => {
     // Find the last AI message
     const lastAIMessage = messages
-      .filter(msg => msg.sender_type === "ai")
+      .filter((msg) => msg.sender_type === "ai")
       .pop();
-    
+
     if (!lastAIMessage || lastAIMessage.conversation_id !== messageId) {
       toast({
         title: "Error",
@@ -266,14 +280,15 @@ export default function ChatPage() {
     }
 
     // Find the last user message that prompted this AI response
-    const userMessages = messages.filter(msg => 
-      msg.sender_type === "patient" && 
-      messages.indexOf(msg) < messages.indexOf(lastAIMessage)
+    const userMessages = messages.filter(
+      (msg) =>
+        msg.sender_type === "patient" &&
+        messages.indexOf(msg) < messages.indexOf(lastAIMessage)
     );
-    
+
     if (userMessages.length === 0) {
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Could not find the original user message.",
         variant: "destructive",
       });
@@ -282,18 +297,20 @@ export default function ChatPage() {
 
     // Get the last user message (most recent one before the AI response)
     const userMessage = userMessages[userMessages.length - 1];
-    
+
     // Remove the last AI message
-    setMessages(prev => prev.filter(msg => {
-      if(msg.conversation_id === messageId && msg.sender_type === "ai") {
-        return false;
-      }
-      return true;
-    } ));
-    
+    setMessages((prev) =>
+      prev.filter((msg) => {
+        if (msg.conversation_id === messageId && msg.sender_type === "ai") {
+          return false;
+        }
+        return true;
+      })
+    );
+
     // Show loading state
     setIsLoading(true);
-    
+
     // Resend the user message to regenerate response
     try {
       const res = await Application.sendMessage({
@@ -301,7 +318,7 @@ export default function ChatPage() {
         message_to: activeMode,
         text: userMessage.message_text,
       });
-      
+
       if (res.data?.answer) {
         const newMessage: Message = {
           conversation_id: res.data.current_conversation_id,
@@ -316,14 +333,14 @@ export default function ChatPage() {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.detail || "Failed to regenerate message",
+        description:
+          error.response?.data?.detail || "Failed to regenerate message",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
-
 
   const handleCloseReportModal = () => {
     setShowReportModal(false);
@@ -341,33 +358,39 @@ export default function ChatPage() {
   const handleSubmitReport = () => {
     if (reportingMessageId) {
       // Find the specific message to create unique key
-      const messageToReport = messages.find(msg => msg.conversation_id === reportingMessageId);
+      const messageToReport = messages.find(
+        (msg) => msg.conversation_id === reportingMessageId
+      );
       if (messageToReport) {
         const messageKey = `${messageToReport.conversation_id}-${messageToReport.date}-${messageToReport.time}`;
-        
+
         // Add message to reported messages set
-        setReportedMessages(prev => {
+        setReportedMessages((prev) => {
           const newSet = new Set(prev);
           newSet.add(messageKey);
           return newSet;
         });
       }
-      
+
       // Show success toast
       toast({
         title: "Report submitted",
         description: "Thank you for your feedback. We'll review this message.",
       });
     }
-    
+
     setShowReportModal(false);
     setReportReason("");
     setReportDetails("");
     setReportingMessageId(null);
-    
+
     // Call API to report message
     if (reportingMessageId) {
-      Application.reportMessage(reportingMessageId, reportReason, reportDetails);
+      Application.reportMessage(
+        reportingMessageId,
+        reportReason,
+        reportDetails
+      );
     }
   };
   // const formatTimestamp = (timestamp: Date) => {
@@ -382,7 +405,10 @@ export default function ChatPage() {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Mode Toggle */}
         <div className="mb-6">
-          <Select value={activeMode} onValueChange={(value: ChatMode) => setActiveMode(value)}>
+          <Select
+            value={activeMode}
+            onValueChange={(value: ChatMode) => setActiveMode(value)}
+          >
             <SelectTrigger className="w-full bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 border border-gray-200/30 dark:border-gray-700/20 shadow-inner backdrop-blur-sm h-14">
               <SelectValue>
                 <div className="flex items-center gap-3">
@@ -404,7 +430,9 @@ export default function ChatPage() {
                       {activeMode === "ai" ? "AI Copilot" : "Human Coach"}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {activeMode === "ai" ? "Instant responses" : "Expert guidance"}
+                      {activeMode === "ai"
+                        ? "Instant responses"
+                        : "Expert guidance"}
                     </div>
                   </div>
                 </div>
@@ -418,7 +446,9 @@ export default function ChatPage() {
                   </div>
                   <div>
                     <div className="font-medium">AI Copilot</div>
-                    <div className="text-xs text-gray-500">Instant responses</div>
+                    <div className="text-xs text-gray-500">
+                      Instant responses
+                    </div>
                   </div>
                 </div>
               </SelectItem>
@@ -548,130 +578,164 @@ export default function ChatPage() {
                     const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
                     const isReported = reportedMessages.has(messageKey);
                     return (
-                    <div
-                      key={msg.conversation_id}
-                      className={`flex ${
-                        msg.sender_type === "patient"
-                          ? "justify-end"
-                          : "justify-start"
-                      } ${isReported ? "opacity-50" : ""}`}
-                    >
                       <div
-                        className={`max-w-[80%] group ${
-                          msg.sender_type === "patient" ? "order-2" : "order-1"
-                        }`}
+                        key={msg.conversation_id}
+                        className={`flex ${
+                          msg.sender_type === "patient"
+                            ? "justify-end"
+                            : "justify-start"
+                        } ${isReported ? "opacity-50" : ""}`}
                       >
                         <div
-                          className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
+                          className={`max-w-[80%] group ${
                             msg.sender_type === "patient"
-                              ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto"
-                              : activeMode === "coach"
-                              ? "bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20"
-                              : "bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20"
+                              ? "order-2"
+                              : "order-1"
                           }`}
                         >
-                          <p
-                            className={`text-sm ${
+                          <div
+                            className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
                               msg.sender_type === "patient"
-                                ? "text-white"
-                                : "text-gray-800 dark:text-gray-200"
+                                ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto"
+                                : activeMode === "coach"
+                                ? "bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20"
+                                : "bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20"
                             }`}
                           >
-                            {msg.message_text}
-                          </p>
-                          <div className="flex items-center justify-between mt-2">
                             <p
-                              className={`text-xs ${
+                              className={`text-sm ${
                                 msg.sender_type === "patient"
-                                  ? "text-blue-100"
-                                  : "text-gray-500 dark:text-gray-400"
+                                  ? "text-white"
+                                  : "text-gray-800 dark:text-gray-200"
                               }`}
                             >
-                              {msg.time}
+                              {msg.message_text}
                             </p>
-                            
-                            {/* Action buttons for AI messages */}
-                            {msg.sender_type === "ai" && !isReported && (
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 ${
-                                    messageReactions[msg.conversation_id] === 'liked' 
-                                      ? 'text-green-600 dark:text-green-400' 
-                                      : 'text-gray-400 hover:text-green-600 dark:hover:text-green-400'
-                                  }`}
-                                  onClick={() => handleMessageReaction(msg.conversation_id, 'liked')}
-                                >
-                                  <ThumbsUp className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 ${
-                                    messageReactions[msg.conversation_id] === 'disliked' 
-                                      ? 'text-red-600 dark:text-red-400' 
-                                      : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400'
-                                  }`}
-                                  onClick={() => handleMessageReaction(msg.conversation_id, 'disliked')}
-                                >
-                                  <ThumbsDown className="h-3 w-3" />
-                                </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                            <div className="flex items-center justify-between mt-2">
+                              <p
+                                className={`text-xs ${
+                                  msg.sender_type === "patient"
+                                    ? "text-blue-100"
+                                    : "text-gray-500 dark:text-gray-400"
+                                }`}
+                              >
+                                {msg.time}
+                              </p>
+
+                              {/* Action buttons for AI messages */}
+                              {msg.sender_type === "ai" && !isReported && (
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 ${
+                                      messageReactions[msg.conversation_id] ===
+                                      "liked"
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                                    }`}
+                                    onClick={() =>
+                                      handleMessageReaction(
+                                        msg.conversation_id,
+                                        "liked"
+                                      )
+                                    }
+                                  >
+                                    <ThumbsUp className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 ${
+                                      messageReactions[msg.conversation_id] ===
+                                      "disliked"
+                                        ? "text-red-600 dark:text-red-400"
+                                        : "text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                                    }`}
+                                    onClick={() =>
+                                      handleMessageReaction(
+                                        msg.conversation_id,
+                                        "disliked"
+                                      )
+                                    }
+                                  >
+                                    <ThumbsDown className="h-3 w-3" />
+                                  </Button>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                                      >
+                                        <MoreVertical className="h-3 w-3" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                      align="end"
+                                      className="w-48"
                                     >
-                                      <MoreVertical className="h-3 w-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-48">
-                                    {/* Show regenerate only for the last AI message */}
-                                    {(() => {
-                                      const lastAIMessage = messages
-                                        .filter(m => m.sender_type === "ai")
-                                        .pop();
-                                      const isLastAIMessage = lastAIMessage?.conversation_id === msg.conversation_id;
-                                      
-                                      return isLastAIMessage ? (
-                                        <DropdownMenuItem
-                                          onClick={() => handleRegenerateMessage(msg.conversation_id)}
-                                          className="text-blue-600 dark:text-blue-400 focus:text-blue-600 dark:focus:text-blue-400"
-                                        >
-                                          <RotateCcw className="h-4 w-4 mr-2" />
-                                          Regenerate
-                                        </DropdownMenuItem>
-                                      ) : null;
-                                    })()}
-                                    <DropdownMenuItem
-                                      onClick={() => handleReportMessage(msg.conversation_id)}
-                                      className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
-                                    >
-                                      <Flag className="h-4 w-4 mr-2" />
-                                      Report
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            )}
-                            
-                            {/* Show reported indicator for reported messages */}
-                            {msg.sender_type === "ai" && isReported && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
-                                  <Flag className="h-3 w-3" />
-                                  Reported
-                                </span>
-                              </div>
-                            )}
+                                      {/* Show regenerate only for the last AI message */}
+                                      {(() => {
+                                        const lastAIMessage = messages
+                                          .filter((m) => m.sender_type === "ai")
+                                          .pop();
+                                        const isLastAIMessage =
+                                          lastAIMessage?.conversation_id ===
+                                          msg.conversation_id;
+
+                                        return isLastAIMessage ? (
+                                          <DropdownMenuItem
+                                            onClick={() =>
+                                              handleRegenerateMessage(
+                                                msg.conversation_id
+                                              )
+                                            }
+                                            className="text-blue-600 dark:text-blue-400 focus:text-blue-600 dark:focus:text-blue-400"
+                                          >
+                                            <RotateCcw className="h-4 w-4 mr-2" />
+                                            Regenerate
+                                          </DropdownMenuItem>
+                                        ) : null;
+                                      })()}
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          handleReportMessage(
+                                            msg.conversation_id
+                                          )
+                                        }
+                                        className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                      >
+                                        <Flag className="h-4 w-4 mr-2" />
+                                        Report
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              )}
+
+                              {/* Show reported indicator for reported messages */}
+                              {msg.sender_type === "ai" && isReported && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+                                    <Flag className="h-3 w-3" />
+                                    Reported
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
                     );
                   })}
+                  {messages.length === 0 && (
+                    <img
+                      src="/icons/empty.svg"
+                      alt="No messages"
+                      className="w-[250px] mx-auto"
+                    />
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
                 <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
@@ -733,15 +797,21 @@ export default function ChatPage() {
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="inaccurate">Inaccurate or misleading information</SelectItem>
-                  <SelectItem value="inappropriate">Offensive, harmful, or inappropriate content</SelectItem>
-                  <SelectItem value="irrelevant">Irrelevant or nonsensical response</SelectItem>
+                  <SelectItem value="inaccurate">
+                    Inaccurate or misleading information
+                  </SelectItem>
+                  <SelectItem value="inappropriate">
+                    Offensive, harmful, or inappropriate content
+                  </SelectItem>
+                  <SelectItem value="irrelevant">
+                    Irrelevant or nonsensical response
+                  </SelectItem>
                   <SelectItem value="harassment">Harassment</SelectItem>
                   <SelectItem value="other">Other (please specify)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 Additional Details (optional)
@@ -754,7 +824,7 @@ export default function ChatPage() {
                 rows={3}
               />
             </div>
-            
+
             <Button
               onClick={handleSubmitReport}
               className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white"
@@ -767,4 +837,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
