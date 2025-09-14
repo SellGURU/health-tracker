@@ -1,5 +1,6 @@
 import Auth from "@/api/auth";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "wouter";
 // import logoImage from "@assets/logo.png";
 
 export default function AuthPage() {
@@ -40,6 +42,7 @@ export default function AuthPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    terms: false,
   });
 
   useEffect(() => {
@@ -181,6 +184,9 @@ export default function AuthPage() {
       });
       return;
     }
+    if (!registerData.terms) {
+      return;
+    }
     CallRegisterAuthApi();
   };
 
@@ -319,7 +325,7 @@ export default function AuthPage() {
                             email: "",
                           });
                         }}
-                        className="mt-1 bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg"
+                        className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
                         placeholder="Enter your email"
                       />
                       {errorsLogin.email && (
@@ -352,7 +358,7 @@ export default function AuthPage() {
                               password: "",
                             });
                           }}
-                          className="bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg pr-10"
+                          className="bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg pr-10"
                           placeholder="Enter your password"
                         />
                         <Button
@@ -425,7 +431,7 @@ export default function AuthPage() {
                             email: "",
                           });
                         }}
-                        className="mt-1 bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg"
+                        className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
                         placeholder="Enter your email"
                       />
                       {errorsRegister.email && (
@@ -458,7 +464,7 @@ export default function AuthPage() {
                               password: "",
                             });
                           }}
-                          className="bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg pr-10"
+                          className="bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg pr-10"
                           placeholder="Create a secure password"
                         />
                         <Button
@@ -505,7 +511,7 @@ export default function AuthPage() {
                               confirmPassword: "",
                             });
                           }}
-                          className="bg-green-300 border-0 text-gray-600 placeholder-gray-500 rounded-lg pr-10"
+                          className="bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg pr-10"
                           placeholder="Confirm your password"
                         />
                         <Button
@@ -529,6 +535,40 @@ export default function AuthPage() {
                           {errorsRegister.confirmPassword}
                         </p>
                       )}
+                    </div>
+
+                    <div className="text-left flex items-center gap-2">
+                      <Checkbox
+                        id="register-terms"
+                        checked={registerData.terms}
+                        onCheckedChange={() => {
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            terms: !prev.terms,
+                          }));
+                        }}
+                        required
+                        className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
+                      />
+                      <Label
+                        htmlFor="register-terms"
+                        className="text-white text-xs flex items-center gap-1 text-nowrap"
+                      >
+                        I accept the{" "}
+                        <Link
+                          href="https://holisticare.io/privacy-policy/"
+                          style={{ textDecoration: "underline" }}
+                        >
+                          Privacy Policy
+                        </Link>
+                        and{" "}
+                        <Link
+                          href="https://holisticare.io/terms-of-service/"
+                          style={{ textDecoration: "underline" }}
+                        >
+                          Terms of Service
+                        </Link>
+                      </Label>
                     </div>
 
                     <Button
