@@ -2,6 +2,7 @@ import Application from "@/api/app";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RookConfig } from 'capacitor-rook-sdk';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -433,6 +434,16 @@ export default function Profile() {
         title: "Success",
         description: "Devices data loaded successfully",
       });
+
+      RookConfig.initRook({
+        environment: 'production',
+        clientUUID: 'c2f4961b-9d3c-4ff0-915e-f70655892b89',
+        password: 'QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA',
+        enableBackgroundSync: true,
+        enableEventsBackgroundSync: true,
+      })
+        .then(() => console.log('Initialized'))
+        .catch((e: any) => console.log('error', e));   
     } catch (error) {
       console.error("Error fetching devices data:", error);
       toast({
