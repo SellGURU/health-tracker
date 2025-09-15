@@ -117,9 +117,7 @@ export default function Profile() {
     shareDataWithDoctors: true,
     anonymousAnalytics: true,
     shareHealthInsights: false,
-    publicProfile: false,
     dataRetention: '2_years',
-    thirdPartyIntegrations: true,
   });
   
 
@@ -863,19 +861,6 @@ export default function Profile() {
                       onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, shareHealthInsights: checked }))}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
-                    <div className="flex items-center gap-3">
-                      <Globe className="w-4 h-4 text-purple-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Public Profile</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Make your health journey visible to others</div>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={privacySettings.publicProfile}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, publicProfile: checked }))}
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -895,19 +880,6 @@ export default function Profile() {
                     <Switch
                       checked={privacySettings.anonymousAnalytics}
                       onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, anonymousAnalytics: checked }))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
-                    <div className="flex items-center gap-3">
-                      <Zap className="w-4 h-4 text-gray-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Third-party Integrations</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Allow connections to fitness apps and devices</div>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={privacySettings.thirdPartyIntegrations}
-                      onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, thirdPartyIntegrations: checked }))}
                     />
                   </div>
                 </div>
