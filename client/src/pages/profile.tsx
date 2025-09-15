@@ -1000,27 +1000,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">App Information</h3>
-                <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50/60 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Version</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">2.1.0</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Last Updated</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">Jan 28, 2025</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Platform</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">Web App</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
             </div>
           </DialogContent>
