@@ -42,7 +42,8 @@ import {
   TrendingUp,
   Globe,
   Lock,
-  Smartphone
+  Smartphone,
+  FileText
 } from "lucide-react";
 
 export default function Profile() {
@@ -57,6 +58,7 @@ export default function Profile() {
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editData, setEditData] = useState({
     firstName: "",
@@ -118,6 +120,14 @@ export default function Profile() {
     anonymousAnalytics: true,
     shareHealthInsights: false,
     dataRetention: '2_years',
+  });
+
+  // Export data options
+  const [exportOptions, setExportOptions] = useState({
+    personalData: true,
+    questionnaires: true,
+    biomarkers: true,
+    actionPlans: true,
   });
   
 
@@ -203,20 +213,54 @@ export default function Profile() {
     });
   };
   
-  const handleExportData = async () => {
+  const handleExportData = () => {
+    setShowExportModal(true);
+  };
+
+  const performExport = async () => {
     setIsExporting(true);
     try {
       // Simulate data export
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Create a mock data export
-      const exportData = {
-        profile: user,
-        labResults: 'Lab results data...',
-        actionPlans: 'Action plans data...',
-        healthInsights: 'Health insights data...',
+      // Create export data based on selected options
+      const exportData: any = {
         exportDate: new Date().toISOString(),
       };
+
+      if (exportOptions.personalData) {
+        exportData.personalData = {
+          profile: user,
+          email: user?.email,
+          fullName: user?.fullName,
+          // Add other profile data here
+        };
+      }
+
+      if (exportOptions.questionnaires) {
+        // Only include if questionnaires are completed
+        exportData.questionnaires = {
+          onboarding: 'Questionnaire responses data...', // Get from home page data
+          healthAssessment: 'Health assessment responses...',
+        };
+      }
+
+      if (exportOptions.biomarkers) {
+        // Get biomarkers data from second page (monitor page)
+        exportData.biomarkers = {
+          labResults: 'Lab results and biomarker data...',
+          healthScores: 'Health score data...',
+        };
+      }
+
+      if (exportOptions.actionPlans) {
+        // Get action plans data from fourth page (plan page)  
+        exportData.actionPlans = {
+          activePlans: 'Active action plans data...',
+          goals: 'Health goals data...',
+          challenges: 'Wellness challenges data...',
+        };
+      }
       
       const dataStr = JSON.stringify(exportData, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -232,8 +276,10 @@ export default function Profile() {
       
       toast({
         title: "Data exported",
-        description: "Your health data has been downloaded successfully.",
+        description: "Your selected health data has been downloaded successfully.",
       });
+      
+      setShowExportModal(false);
     } catch (error) {
       toast({
         title: "Export failed",
@@ -968,6 +1014,109 @@ export default function Profile() {
               </div>
 
 
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Export Data Modal */}
+        <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
+          <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-3">
+                <Download className="w-5 h-5 text-blue-600" />
+                Export Data
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
+                Select the data you want to include in your export
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
+                  <div className="flex items-center gap-3">
+                    <User className="w-4 h-4 text-emerald-600" />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Personal Data</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Profile information and account details</div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={exportOptions.personalData}
+                    onCheckedChange={(checked) => setExportOptions(prev => ({ ...prev, personalData: checked }))}
+                    data-testid="switch-export-personal"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-4 h-4 text-purple-600" />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Questionnaire Responses</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Health assessments and onboarding data</div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={exportOptions.questionnaires}
+                    onCheckedChange={(checked) => setExportOptions(prev => ({ ...prev, questionnaires: checked }))}
+                    data-testid="switch-export-questionnaires"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30">
+                  <div className="flex items-center gap-3">
+                    <Activity className="w-4 h-4 text-orange-600" />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Biomarkers</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Lab results and health monitoring data</div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={exportOptions.biomarkers}
+                    onCheckedChange={(checked) => setExportOptions(prev => ({ ...prev, biomarkers: checked }))}
+                    data-testid="switch-export-biomarkers"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-teal-50/50 to-white/50 dark:from-teal-900/20 dark:to-gray-800/30">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-4 h-4 text-teal-600" />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Action Plans</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Goals, challenges, and wellness plans</div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={exportOptions.actionPlans}
+                    onCheckedChange={(checked) => setExportOptions(prev => ({ ...prev, actionPlans: checked }))}
+                    data-testid="switch-export-action-plans"
+                  />
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-700/30 p-3 rounded-lg">
+                Your selected data will be exported as a JSON file that you can save or import into other applications.
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  onClick={performExport}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
+                  disabled={isExporting || (!exportOptions.personalData && !exportOptions.questionnaires && !exportOptions.biomarkers && !exportOptions.actionPlans)}
+                  data-testid="button-export-data"
+                >
+                  {isExporting ? "Exporting..." : "Export Selected Data"}
+                </Button>
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  onClick={() => setShowExportModal(false)}
+                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                  data-testid="button-export-cancel"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
