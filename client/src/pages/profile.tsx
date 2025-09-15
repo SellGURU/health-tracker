@@ -1100,26 +1100,14 @@ export default function Profile() {
                   Your message will be sent to support@holisticare.com along with your account information to help us assist you better.
                 </div>
                 
-                <div className="flex gap-3 pt-4">
+                <div className="pt-4">
                   <Button 
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
+                    className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
                     disabled={sendSupportMessage.isPending}
                     data-testid="button-support-send"
                   >
                     {sendSupportMessage.isPending ? "Sending..." : "Send Message"}
-                  </Button>
-                  <Button 
-                    type="button"
-                    variant="outline" 
-                    onClick={() => {
-                      supportForm.reset();
-                      setShowEmailModal(false);
-                    }}
-                    className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                    data-testid="button-support-cancel"
-                  >
-                    Cancel
                   </Button>
                 </div>
               </form>
