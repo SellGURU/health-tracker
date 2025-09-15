@@ -2,7 +2,7 @@ package com.innovatifyltd;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import com.example.plugins.SahhaPlugin;
+import com.innovatifyltd.plugins.SahhaPlugin;
 
 
 public class MainActivity extends BridgeActivity {
