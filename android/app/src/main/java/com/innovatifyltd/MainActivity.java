@@ -1,4 +1,4 @@
-package com.example.app;
+package com.innovatifyltd;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
