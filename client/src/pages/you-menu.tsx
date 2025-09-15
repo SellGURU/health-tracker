@@ -100,9 +100,9 @@ export default function YouMenu() {
     sex: string;
     verified_account: boolean;
   }>();
+  const { token, notifications } = usePushNotifications();
   useEffect(() => {
     if(Capacitor.isNativePlatform()){
-      const { token, notifications } = usePushNotifications();
       if(token){
         NotificationApi.registerToken(token).then((res) => {
           console.log(res);
