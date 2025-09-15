@@ -74,7 +74,6 @@ export default function Profile() {
   const supportForm = useForm<SupportMessage>({
     resolver: zodResolver(supportMessageSchema),
     defaultValues: {
-      subject: "",
       message: "",
     },
   });
@@ -1096,27 +1095,6 @@ export default function Profile() {
             
             <Form {...supportForm}>
               <form onSubmit={supportForm.handleSubmit((data) => sendSupportMessage.mutate(data))} className="space-y-4">
-                <FormField
-                  control={supportForm.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Subject
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Brief description of your issue"
-                          className="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                          data-testid="input-support-subject"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
                 <FormField
                   control={supportForm.control}
                   name="message"

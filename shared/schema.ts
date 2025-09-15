@@ -548,7 +548,7 @@ export type LoginCredentials = z.infer<typeof loginSchema>;
 
 // Support message schema (not persisted, but follows form validation patterns)
 export const supportMessageSchema = z.object({
-  subject: z.string().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
+  subject: z.string().optional(),
   message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message must be less than 2000 characters"),
 });
 

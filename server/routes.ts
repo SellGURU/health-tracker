@@ -598,7 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In a real application, you would send an email here
       // For now, we'll just simulate the email being sent
       console.log(`Support email from user ${userId}:`, {
-        subject: validatedData.subject,
+        subject: validatedData.subject || "Support Request",
         message: validatedData.message,
         timestamp: new Date().toISOString()
       });
