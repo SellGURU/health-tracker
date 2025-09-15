@@ -4,10 +4,12 @@ import "./index.css";
 import { mockAuth } from "./lib/mock-auth";
 import { createMockApiInterceptor } from "./lib/mock-api";
 import './api/axios';
+
 // Enable mock mode in development
 if (import.meta.env.DEV) {
   mockAuth.enableMockMode();
   createMockApiInterceptor();
 }
+
 
 createRoot(document.getElementById("root")!).render(<App />);

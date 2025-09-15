@@ -1,4 +1,5 @@
 import Application from "@/api/app";
+import NotificationApi from "@/api/notification";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
+import { usePushNotifications } from "@/hooks/use-pushNotification";
 import { useToast } from "@/hooks/use-toast";
+import { Capacitor } from "@capacitor/core";
 import {
   Activity,
   ArrowLeft,
@@ -97,6 +100,16 @@ export default function YouMenu() {
     sex: string;
     verified_account: boolean;
   }>();
+  const { token, notifications } = usePushNotifications();
+  useEffect(() => {
+    if(Capacitor.isNativePlatform()){
+      if(token){
+        NotificationApi.registerToken(token).then((res) => {
+          // console.log(res);
+        });
+      }
+    }
+  }, [token]);
   const [questionnaires, setQuestionnaires] = useState<
     {
       Estimated_time: string;
