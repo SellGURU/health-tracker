@@ -947,39 +947,6 @@ export default function Profile() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Quick Help</h3>
-                <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50/60 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30 hover:from-blue-100/60 hover:to-blue-50/50 dark:hover:from-blue-900/30 dark:hover:to-blue-900/20 transition-all duration-300 group">
-                    <Brain className="w-5 h-5 text-blue-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">User Guide</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Learn how to use all features</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors duration-300 ml-auto" />
-                  </button>
-                  
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50/60 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30 hover:from-emerald-100/60 hover:to-emerald-50/50 dark:hover:from-emerald-900/30 dark:hover:to-emerald-900/20 transition-all duration-300 group">
-                    <Activity className="w-5 h-5 text-emerald-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Health Data FAQ</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Common questions about lab results</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors duration-300 ml-auto" />
-                  </button>
-                  
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-50/60 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30 hover:from-purple-100/60 hover:to-purple-50/50 dark:hover:from-purple-900/30 dark:hover:to-purple-900/20 transition-all duration-300 group">
-                    <Shield className="w-5 h-5 text-purple-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Privacy Policy</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">How we protect your data</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors duration-300 ml-auto" />
-                  </button>
-                </div>
-              </div>
-
-              <Separator />
 
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">Contact Support</h3>
