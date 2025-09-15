@@ -109,7 +109,7 @@ export default function YouMenu() {
         });
       }
     }
-  }, []);
+  }, [token]);
   const [questionnaires, setQuestionnaires] = useState<
     {
       Estimated_time: string;
