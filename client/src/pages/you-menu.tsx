@@ -105,7 +105,7 @@ export default function YouMenu() {
     if(Capacitor.isNativePlatform()){
       if(token){
         NotificationApi.registerToken(token).then((res) => {
-          console.log(res);
+          // console.log(res);
         });
       }
     }
