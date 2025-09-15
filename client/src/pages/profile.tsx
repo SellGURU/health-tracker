@@ -7,12 +7,18 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { authService } from "@/lib/auth";
+import { supportMessageSchema, type SupportMessage } from "@shared/schema";
 import { useLocation } from "wouter";
 import { 
   User,
@@ -50,6 +56,7 @@ export default function Profile() {
   const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editData, setEditData] = useState({
     firstName: "",
@@ -61,6 +68,37 @@ export default function Profile() {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+  });
+
+  // Support message form
+  const supportForm = useForm<SupportMessage>({
+    resolver: zodResolver(supportMessageSchema),
+    defaultValues: {
+      subject: "",
+      message: "",
+    },
+  });
+
+  // Support message mutation
+  const sendSupportMessage = useMutation({
+    mutationFn: async (data: SupportMessage) => {
+      return apiRequest("POST", "/api/support/email", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Message sent!",
+        description: "We've received your message and will respond within 24 hours.",
+      });
+      supportForm.reset();
+      setShowEmailModal(false);
+    },
+    onError: () => {
+      toast({
+        title: "Failed to send message",
+        description: "Please try again later or contact us directly.",
+        variant: "destructive",
+      });
+    },
   });
   
   // Notification preferences
@@ -975,11 +1013,15 @@ export default function Profile() {
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">Contact Support</h3>
                 <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/60 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30 hover:from-orange-100/60 hover:to-orange-50/50 dark:hover:from-orange-900/30 dark:hover:to-orange-900/20 transition-all duration-300 group">
+                  <button 
+                    onClick={() => setShowEmailModal(true)}
+                    className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/60 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30 hover:from-orange-100/60 hover:to-orange-50/50 dark:hover:from-orange-900/30 dark:hover:to-orange-900/20 transition-all duration-300 group"
+                    data-testid="link-email-support"
+                  >
                     <Mail className="w-5 h-5 text-orange-600" />
                     <div className="text-left">
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Support</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">support@holisticare.com</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Send message to our support team</div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors duration-300 ml-auto" />
                   </button>
@@ -1031,6 +1073,100 @@ export default function Profile() {
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Email Support Modal */}
+        <Dialog open={showEmailModal} onOpenChange={(open) => {
+          setShowEmailModal(open);
+          if (!open) {
+            supportForm.reset();
+          }
+        }}>
+          <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-orange-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-orange-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-orange-800 dark:from-white dark:to-orange-200 bg-clip-text text-transparent flex items-center gap-3">
+                <Mail className="w-5 h-5 text-orange-600" />
+                Contact Support
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
+                Send a message to our support team and we'll get back to you within 24 hours
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Form {...supportForm}>
+              <form onSubmit={supportForm.handleSubmit((data) => sendSupportMessage.mutate(data))} className="space-y-4">
+                <FormField
+                  control={supportForm.control}
+                  name="subject"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Subject
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Brief description of your issue"
+                          className="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                          data-testid="input-support-subject"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={supportForm.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Message
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Please describe your issue or question in detail..."
+                          className="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50 min-h-[120px] resize-none"
+                          rows={5}
+                          data-testid="textarea-support-message"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-700/30 p-3 rounded-lg">
+                  Your message will be sent to support@holisticare.com along with your account information to help us assist you better.
+                </div>
+                
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
+                    disabled={sendSupportMessage.isPending}
+                    data-testid="button-support-send"
+                  >
+                    {sendSupportMessage.isPending ? "Sending..." : "Send Message"}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    onClick={() => {
+                      supportForm.reset();
+                      setShowEmailModal(false);
+                    }}
+                    className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                    data-testid="button-support-cancel"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </div>
