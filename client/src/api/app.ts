@@ -98,6 +98,7 @@ class Application extends Api {
     const response = this.post("/mobile/holistic_plan_action_plan", {});
     return response;
   };
+
 }
 
 export default Application;
