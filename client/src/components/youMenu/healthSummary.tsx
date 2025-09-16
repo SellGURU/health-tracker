@@ -125,7 +125,10 @@ export default function CategoryCards({ data }: { data: Biomarker[] }) {
                 <img src={resolveAnalyseIcon(label)} className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                <div
+                  className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate"
+                  title={label}
+                >
                   {label}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
