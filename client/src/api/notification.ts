@@ -77,6 +77,14 @@ class NotificationApi extends Api {
       { time: timeToSend },
       { noPending: true }
     ).finally(() => {
+      try {
+        // Always advance last check time to "now" regardless of response
+        const now = Date.now();
+        this.lastUsed = new Date(now);
+        localStorage.setItem("lastNotif", JSON.stringify(now));
+      } catch (err) {
+        console.error("Failed to persist lastNotif after check:", err);
+      }
       this.isChecking = false;
     });
   }

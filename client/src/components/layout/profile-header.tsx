@@ -42,7 +42,7 @@ export default function ProfileHeader() {
   const { logout } = useAuth();
   const [, navigate] = useLocation();
   const [notifications, setNotifications] = useState<any[]>([]);
-const [isUnReadNotif, setIsUnReadNotif] = useState(false);
+  const [isUnReadNotif, setIsUnReadNotif] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const [clientInformation, setClientInformation] = useState<{
@@ -99,13 +99,13 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
           setIsUnReadNotif(true);
         }
       } catch (error) {
-        console.error('Error checking for new notifications:', error);
+        console.error("Error checking for new notifications:", error);
       }
     };
 
     checkNewNotifications();
 
-    const intervalId = setInterval(checkNewNotifications, 120000);
+    const intervalId = setInterval(checkNewNotifications, 30000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -113,7 +113,7 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
     const unreadCount = notifications.filter((n) => !n.read_status).length;
     setNotificationCount(unreadCount);
   }, [notifications]);
- const fetchNotifications = async () => {
+  const fetchNotifications = async () => {
     try {
       const res = await NotificationApi.getNotification();
       const notifData = res.data.map((n: any) => ({
@@ -157,7 +157,9 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
     setNotifications((prev) => prev.map((n) => ({ ...n, read_status: true })));
     try {
       await Promise.all(
-        notifications.map((n) => NotificationApi.mark_read({ notification_id: n.id }))
+        notifications.map((n) =>
+          NotificationApi.mark_read({ notification_id: n.id })
+        )
       );
     } catch (err) {
       console.error("Failed to mark all as read", err);
@@ -232,15 +234,26 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={() => {
+              setShowNotifications((prev) => {
+                const next = !prev;
+                if (next) {
+                  fetchNotifications();
+                }
+                return next;
+              });
+            }}
             className="relative w-10 h-10 rounded-full bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:shadow-lg transition-all duration-300"
           >
             <Bell className="w-5 h-5" />
-            {notificationCount > 0 && (
+
+            {notificationCount > 0 ? (
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-medium text-white shadow-lg animate-pulse">
                 {notificationCount}
               </div>
-            )}
+            ) : isUnReadNotif ? (
+              <div className="absolute rounded-full top-3 right-3 size-[6px] bg-red-500"></div>
+            ) : null}
           </Button>
         </div>
 
@@ -259,7 +272,7 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
                 <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                   <div className="flex items-center justify-between">
                     <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-                      Notifications 
+                      Notifications
                     </h3>
                     <div className="flex items-center gap-2">
                       <Button
@@ -317,7 +330,8 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
                                 : ""
                             }`}
                             onClick={() =>
-                              !notification.read_status && markAsRead(notification.id)
+                              !notification.read_status &&
+                              markAsRead(notification.id)
                             }
                           >
                             <div className="flex items-start gap-2 sm:gap-3">
@@ -351,7 +365,7 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
                                     </h4>
                                     <div
                                       className={`text-xs leading-relaxed ${
-                                      notification.read_status
+                                        notification.read_status
                                           ? "text-gray-500 dark:text-gray-500"
                                           : "text-gray-700 dark:text-gray-300"
                                       }`}
@@ -371,7 +385,7 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
                                   </div>
 
                                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {!notification.read_status&& (
+                                    {!notification.read_status && (
                                       <Button
                                         variant="ghost"
                                         size="icon"
