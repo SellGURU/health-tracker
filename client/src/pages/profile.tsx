@@ -2,7 +2,6 @@ import Application from "@/api/app";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RookConfig } from 'capacitor-rook-sdk';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -24,8 +23,8 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/lib/auth";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { RookConfig } from "capacitor-rook-sdk";
 import {
   Activity,
   Award,
@@ -44,22 +43,19 @@ import {
   Smartphone,
   Target,
   User,
-  Zap,
   Watch,
   Bluetooth,
   Wifi,
   Plus,
   Trash2,
   ClipboardList,
+  Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const queryClient = useQueryClient();
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
@@ -219,135 +215,6 @@ export default function Profile() {
 
   // Device settings with ROOK integration
   const [connectedDevices, setConnectedDevices] = useState<any[]>([]);
-  const [availableDeviceTypes, setAvailableDeviceTypes] = useState([
-    // ROOK-supported devices
-    {
-      id: "garmin",
-      name: "Garmin",
-      icon: Watch,
-      description: "Garmin fitness trackers and smartwatches",
-      provider: "garmin",
-      supported: true,
-    },
-    {
-      id: "fitbit",
-      name: "Fitbit",
-      icon: Activity,
-      description: "Fitbit activity trackers and smartwatches",
-      provider: "fitbit",
-      supported: true,
-    },
-    {
-      id: "apple_health",
-      name: "Apple Health",
-      icon: Smartphone,
-      description: "Apple Health app integration",
-      provider: "apple_health",
-      supported: true,
-    },
-    {
-      id: "health_connect",
-      name: "Health Connect",
-      icon: Smartphone,
-      description: "Android Health Connect integration",
-      provider: "health_connect",
-      supported: true,
-    },
-    {
-      id: "oura",
-      name: "Oura Ring",
-      icon: Watch,
-      description: "Oura smart ring for sleep and recovery",
-      provider: "oura",
-      supported: true,
-    },
-    {
-      id: "polar",
-      name: "Polar",
-      icon: Heart,
-      description: "Polar heart rate monitors and fitness trackers",
-      provider: "polar",
-      supported: true,
-    },
-    {
-      id: "whoop",
-      name: "Whoop",
-      icon: Zap,
-      description: "Whoop fitness and recovery tracker",
-      provider: "whoop",
-      supported: true,
-    },
-    {
-      id: "withings",
-      name: "Withings",
-      icon: Activity,
-      description: "Withings smart scales and health devices",
-      provider: "withings",
-      supported: true,
-    },
-    {
-      id: "dexcom",
-      name: "Dexcom",
-      icon: Heart,
-      description: "Dexcom continuous glucose monitoring",
-      provider: "dexcom",
-      supported: true,
-    },
-
-    // Traditional devices (non-ROOK)
-    {
-      id: "blood_pressure",
-      name: "Blood Pressure Monitor",
-      icon: Heart,
-      description: "Manual blood pressure readings",
-      provider: "manual",
-      supported: false,
-    },
-    {
-      id: "glucose_meter",
-      name: "Glucose Meter",
-      icon: Zap,
-      description: "Manual glucose monitoring",
-      provider: "manual",
-      supported: false,
-    },
-  ]);
-  const [newDeviceData, setNewDeviceData] = useState({
-    deviceType: "",
-    deviceName: "",
-    connectionMethod: "bluetooth",
-  });
-  const [isCheckingRookStatus, setIsCheckingRookStatus] = useState(false);
-
-  const { data: stats } = useQuery({
-    queryKey: ["/api/profile/stats"],
-    queryFn: async () => {
-      // Get aggregated stats
-      const [labResults, actionPlans, insights, healthScore] =
-        await Promise.all([
-          fetch("/api/lab-results", {
-            headers: authService.getAuthHeaders(),
-          }).then((r) => r.json()),
-          fetch("/api/action-plans", {
-            headers: authService.getAuthHeaders(),
-          }).then((r) => r.json()),
-          fetch("/api/insights", {
-            headers: authService.getAuthHeaders(),
-          }).then((r) => r.json()),
-          fetch("/api/health-score", {
-            headers: authService.getAuthHeaders(),
-          }).then((r) => r.json()),
-        ]);
-
-      return {
-        totalTests: labResults.length || 0,
-        activePlans:
-          actionPlans.filter((p: any) => p.status === "active").length || 0,
-        healthScore: healthScore?.overallScore || 0,
-        insights: insights.length || 0,
-      };
-    },
-  });
 
   const [isUpdatingPersonalInfo, setIsUpdatingPersonalInfo] = useState(false);
 
@@ -575,14 +442,14 @@ export default function Profile() {
       });
 
       RookConfig.initRook({
-        environment: 'production',
-        clientUUID: 'c2f4961b-9d3c-4ff0-915e-f70655892b89',
-        password: 'QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA',
+        environment: "production",
+        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
         enableBackgroundSync: true,
         enableEventsBackgroundSync: true,
       })
-        .then(() => console.log('Initialized'))
-        .catch((e: any) => console.log('error', e));   
+        .then(() => console.log("Initialized"))
+        .catch((e: any) => console.log("error", e));
     } catch (error) {
       console.error("Error fetching devices data:", error);
       toast({
@@ -682,26 +549,11 @@ export default function Profile() {
 
   const getMembershipDuration = () => {
     // Calculate membership duration
-    const joinDate = new Date("2024-06-01"); // Example join date
+    const joinDate = new Date(clientInformation?.member_since || ""); // Example join date
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - joinDate.getTime());
     const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30));
     return `${diffMonths} months`;
-  };
-
-  const calculateAge = (dateOfBirth: string | undefined) => {
-    if (!dateOfBirth) return null;
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-    return age;
   };
 
   return (
@@ -778,13 +630,13 @@ export default function Profile() {
                 </div>
 
                 {/* Health stats */}
-                <div className="space-y-2 text-sm pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
+                <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
                       Lab Tests:
                     </span>
                     <span className="font-semibold text-blue-600 dark:text-blue-400">
-                      {stats?.totalTests || 5}
+                      {clientInformation?.lab_test || 5}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -792,7 +644,7 @@ export default function Profile() {
                       Active Plans:
                     </span>
                     <span className="font-semibold text-green-600 dark:text-green-400">
-                      {stats?.activePlans || 2}
+                      {clientInformation?.action_plan || 2}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -800,7 +652,9 @@ export default function Profile() {
                       Account:
                     </span>
                     <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      Verified
+                      {clientInformation?.verified_account
+                        ? "Verified"
+                        : "Unverified"}
                     </span>
                   </div>
                 </div>
