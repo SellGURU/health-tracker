@@ -971,20 +971,6 @@ export default function Profile() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-4 h-4 text-purple-600" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Questionnaire Responses</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Health assessments and onboarding data</div>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={exportOptions.questionnaires}
-                    onCheckedChange={(checked) => setExportOptions(prev => ({ ...prev, questionnaires: checked }))}
-                    data-testid="switch-export-questionnaires"
-                  />
-                </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-orange-50/50 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30">
                   <div className="flex items-center gap-3">
@@ -1025,7 +1011,7 @@ export default function Profile() {
                 <Button 
                   onClick={performExport}
                   className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
-                  disabled={isExporting || (!exportOptions.personalData && !exportOptions.questionnaires && !exportOptions.biomarkers && !exportOptions.actionPlans)}
+                  disabled={isExporting || (!exportOptions.personalData && !exportOptions.biomarkers && !exportOptions.actionPlans)}
                   data-testid="button-export-data"
                 >
                   {isExporting ? "Exporting..." : "Export Selected Data"}
