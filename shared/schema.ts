@@ -545,3 +545,11 @@ export type InsertDeepAnalysis = z.infer<typeof insertDeepAnalysisSchema>;
 export type CoachingSession = typeof coachingSessions.$inferSelect;
 export type InsertCoachingSession = z.infer<typeof insertCoachingSessionSchema>;
 export type LoginCredentials = z.infer<typeof loginSchema>;
+
+// Support message schema (not persisted, but follows form validation patterns)
+export const supportMessageSchema = z.object({
+  subject: z.string().optional(),
+  message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message must be less than 2000 characters"),
+});
+
+export type SupportMessage = z.infer<typeof supportMessageSchema>;

@@ -15,7 +15,8 @@ import {
   insertCoachingSessionSchema,
   insertHealthGoalSchema,
   insertHolisticPlanSchema,
-  insertWellnessChallengeSchema
+  insertWellnessChallengeSchema,
+  supportMessageSchema
 } from "@shared/schema";
 import multer from "multer";
 import path from "path";
@@ -580,6 +581,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Failed to create challenge" });
       }
+    }
+  });
+
+  // Support email endpoint
+  app.post("/api/support/email", async (req, res) => {
+    try {
+      const userId = isAuthenticated(req);
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      // Validate request body
+      const validatedData = supportMessageSchema.parse(req.body);
+      
+      // In a real application, you would send an email here
+      // For now, we'll just simulate the email being sent
+      console.log(`Support email from user ${userId}:`, {
+        subject: validatedData.subject || "Support Request",
+        message: validatedData.message,
+        timestamp: new Date().toISOString()
+      });
+
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      res.json({ 
+        success: true, 
+        message: "Support email sent successfully" 
+      });
+    } catch (error) {
+      console.error("Support email error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid request data", 
+          details: error.errors 
+        });
+      }
+      res.status(500).json({ error: "Failed to send support email" });
     }
   });
 
