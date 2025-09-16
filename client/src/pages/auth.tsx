@@ -74,7 +74,15 @@ export default function AuthPage() {
   };
   const CallLoginAuthApi = async (isRegister = false) => {
     setIsLoadingLogin(true);
-    Auth.login(loginData.email, loginData.password)
+    const data = {
+      email: loginData.email,
+      password: loginData.password,
+    };
+    if (isRegister) {
+      data.email = registerData.email;
+      data.password = registerData.password;
+    }
+    Auth.login(data.email, data.password)
       .then((res) => {
         localStorage.setItem("health_session", res.data.access_token);
         localStorage.setItem("token", res.data.access_token);

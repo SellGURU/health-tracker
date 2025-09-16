@@ -777,7 +777,7 @@ export default function Plan() {
                   handleCheckTask(task.task_id);
                 }
                 window.open(
-                  `https://holisticare-develop.vercel.app/checkin/${encodedMi}/${task.task_id}`
+                  `https://holisticare.vercel.app/checkin/${encodedMi}/${task.task_id}`
                 );
               }}
               className={`w-full !mt-4 !-mb-6 ${
