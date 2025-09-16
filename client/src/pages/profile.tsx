@@ -770,7 +770,7 @@ export default function Profile() {
                     <div className="flex items-center gap-3">
                       <FileText className="w-4 h-4 text-emerald-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">New Health Assessment Assigned</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Questionnaire Assigned</div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">New health assessments to complete</div>
                       </div>
                     </div>
