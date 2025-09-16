@@ -212,8 +212,8 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
   };
 
   return (
-    <div className="flex relative items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
-      <div className="flex items-center gap-2">
+    <div className="flex relative items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30  shadow-lg">
+      <div className="flex items-center gap-2 pt-4">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
           <img
             src={"./logo.png"}
@@ -226,7 +226,7 @@ const [isUnReadNotif, setIsUnReadNotif] = useState(false);
         </h1>
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 pt-4">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <Button
