@@ -313,27 +313,39 @@ export default function Profile() {
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: typeof passwordData) => {
-      // This would typically be a POST /api/auth/change-password endpoint
-      // For now, we'll simulate the update
-      return data;
+      const payload = {
+        current_password: data.currentPassword,
+        new_password: data.newPassword,
+        confirm_password: data.confirmPassword,
+      };
+      const res = await Application.changePassword(payload);
+      return res;
     },
-    onSuccess: () => {
-      toast({
-        title: "Password changed",
-        description: "Your password has been updated successfully.",
-      });
-      setShowPasswordDialog(false);
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+    onSuccess: (res: any) => {
+      if (res?.status === 200) {
+        toast({
+          title: "Password changed",
+          description: "Your password has been updated successfully.",
+        });
+        setShowPasswordDialog(false);
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        toast({
+          title: "Password change failed",
+          description: res?.data?.detail || "Unexpected server response.",
+          variant: "destructive",
+        });
+      }
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.detail;
       toast({
         title: "Password change failed",
-        description:
-          error instanceof Error ? error.message : "Please try again.",
+        description: serverMessage || (error instanceof Error ? error.message : "Please try again."),
         variant: "destructive",
       });
     },

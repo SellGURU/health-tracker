@@ -98,6 +98,10 @@ class Application extends Api {
     const response = this.post("/mobile/holistic_plan_action_plan", {});
     return response;
   };
+  static changePassword(data:any) {
+    const response = this.post("/mobile/auth/change_password", data);
+    return response;
+  };
 
 }
 
