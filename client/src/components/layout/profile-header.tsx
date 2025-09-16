@@ -33,67 +33,16 @@ import {
 import Auth from "@/api/auth";
 import Application from "@/api/app";
 import { toast } from "@/hooks/use-toast";
+import NotificationApi from "@/api/notification";
 // import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
 
 export default function ProfileHeader() {
-  const [notificationCount, setNotificationCount] = useState(5);
+  const [notificationCount, setNotificationCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const { logout } = useAuth();
   const [, navigate] = useLocation();
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "lab_result",
-      title: "New Tasks, New You!",
-      message: "Your latest health action plan is ready! Check out your new tasks in the Overview section and take the next step toward a longer, healthier life.",
-      time: "2 minutes ago",
-      read: false,
-      icon: Activity,
-      color: "emerald",
-    },
-    {
-      id: 2,
-      type: "goal",
-      title: "Your Progress Awaits!",
-      message:
-        "Ready to level up your health? Complete your Health Questionnaire to help us build a more personalized and effective wellness plan just for you.",
-      time: "1 hour ago",
-      read: false,
-      icon: Target,
-      color: "blue",
-    },
-    // {
-    //   id: 3,
-    //   type: "insight",
-    //   title: "New Health Insight",
-    //   message:
-    //     "AI analysis suggests optimizing your sleep schedule for better recovery.",
-    //   time: "3 hours ago",
-    //   read: false,
-    //   icon: Brain,
-    //   color: "purple",
-    // },
-    // {
-    //   id: 4,
-    //   type: "reminder",
-    //   title: "Health Check Reminder",
-    //   message: "Don't forget to log your daily supplements and water intake.",
-    //   time: "1 day ago",
-    //   read: true,
-    //   icon: Calendar,
-    //   color: "orange",
-    // },
-    // {
-    //   id: 5,
-    //   type: "trend",
-    //   title: "Trend Alert",
-    //   message: "Your cholesterol levels have improved by 12% this month!",
-    //   time: "2 days ago",
-    //   read: true,
-    //   icon: TrendingUp,
-    //   color: "green",
-    // },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+const [isUnReadNotif, setIsUnReadNotif] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const [clientInformation, setClientInformation] = useState<{
@@ -142,20 +91,77 @@ export default function ProfileHeader() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   useEffect(() => {
-    const unreadCount = notifications.filter((n) => !n.read).length;
+    const checkNewNotifications = async () => {
+      try {
+        const response = await NotificationApi.checkNotification();
+        if (response && response.data && response.data.new_notifications) {
+          setIsUnReadNotif(true);
+        }
+      } catch (error) {
+        console.error('Error checking for new notifications:', error);
+      }
+    };
+
+    checkNewNotifications();
+
+    const intervalId = setInterval(checkNewNotifications, 120000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+  useEffect(() => {
+    const unreadCount = notifications.filter((n) => !n.read_status).length;
     setNotificationCount(unreadCount);
   }, [notifications]);
-
-  const markAsRead = (id: number) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+ const fetchNotifications = async () => {
+    try {
+      const res = await NotificationApi.getNotification();
+      const notifData = res.data.map((n: any) => ({
+        ...n,
+        read_status: n.read_status || false,
+        icon:
+          n.type === "lab_result"
+            ? Activity
+            : n.type === "goal"
+            ? Target
+            : n.type === "insight"
+            ? Brain
+            : n.type === "reminder"
+            ? Calendar
+            : n.type === "trend"
+            ? TrendingUp
+            : Activity,
+        color: n.color || "blue",
+      }));
+      setNotifications(notifData);
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+  const markAsRead = async (id: string | number) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read_status: true } : n))
+    );
+    try {
+      await NotificationApi.mark_read({ notification_id: id });
+    } catch (err) {
+      console.error("Failed to mark notification as read", err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read_status: true })));
+    try {
+      await Promise.all(
+        notifications.map((n) => NotificationApi.mark_read({ notification_id: n.id }))
+      );
+    } catch (err) {
+      console.error("Failed to mark all as read", err);
+    }
   };
 
   const removeNotification = (id: number) => {
@@ -304,27 +310,27 @@ export default function ProfileHeader() {
                             key={notification.id}
                             className={`p-2 sm:p-3 rounded-xl transition-all duration-300 cursor-pointer group ${getColorClasses(
                               notification.color,
-                              notification.read
+                              notification.read_status
                             )} ${
-                              !notification.read
+                              !notification.read_status
                                 ? "border-l-4 border-blue-500"
                                 : ""
                             }`}
                             onClick={() =>
-                              !notification.read && markAsRead(notification.id)
+                              !notification.read_status && markAsRead(notification.id)
                             }
                           >
                             <div className="flex items-start gap-2 sm:gap-3">
                               <div
                                 className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  notification.read
+                                  notification.read_status
                                     ? "bg-gray-200/50 dark:bg-gray-700/50"
                                     : `bg-gradient-to-br from-${notification.color}-500/20 to-${notification.color}-600/20 dark:from-${notification.color}-400/20 dark:to-${notification.color}-500/20`
                                 }`}
                               >
                                 <IconComponent
                                   className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                                    notification.read
+                                    notification.read_status
                                       ? "text-gray-500"
                                       : getIconColor(notification.color)
                                   }`}
@@ -336,7 +342,7 @@ export default function ProfileHeader() {
                                   <div className="flex-1">
                                     <h4
                                       className={`text-xs sm:text-sm font-medium mb-1 ${
-                                        notification.read
+                                        notification.read_status
                                           ? "text-gray-600 dark:text-gray-400"
                                           : "text-gray-900 dark:text-gray-100"
                                       }`}
@@ -345,27 +351,27 @@ export default function ProfileHeader() {
                                     </h4>
                                     <div
                                       className={`text-xs leading-relaxed ${
-                                        notification.read
+                                      notification.read_status
                                           ? "text-gray-500 dark:text-gray-500"
                                           : "text-gray-700 dark:text-gray-300"
                                       }`}
                                     >
                                       {notification.message}
                                     </div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
+                                    {/* <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
                                       <div
                                         className={`w-1 h-1 rounded-full ${
-                                          notification.read
+                                        notification.read_status
                                             ? "bg-gray-400"
                                             : "bg-blue-500 animate-pulse"
                                         }`}
                                       />
                                       {notification.time}
-                                    </div>
+                                    </div> */}
                                   </div>
 
                                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {!notification.read && (
+                                    {!notification.read_status&& (
                                       <Button
                                         variant="ghost"
                                         size="icon"
