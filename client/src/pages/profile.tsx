@@ -890,19 +890,12 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="pt-4">
                 <Button 
                   onClick={savePrivacySettings}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
                 >
                   Save Settings
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowPrivacyDialog(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Cancel
                 </Button>
               </div>
             </div>
