@@ -427,7 +427,7 @@ export default function ChatPage() {
                   </div>
                   <div className="text-left">
                     <div className="font-medium">
-                      {activeMode === "ai" ? "AI Copilot" : "Human Coach"}
+                      {activeMode === "ai" ? "AI Copilot" : "Coach"}
                     </div>
                     <div className="text-xs text-gray-500">
                       {activeMode === "ai"
@@ -458,7 +458,7 @@ export default function ChatPage() {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium">Human Coach</div>
+                    <div className="font-medium">Coach</div>
                     <div className="text-xs text-gray-500">Expert guidance</div>
                   </div>
                 </div>
@@ -749,7 +749,7 @@ export default function ChatPage() {
                             ? "Ask your health coach anything..."
                             : "Ask your AI copilot anything..."
                         }
-                        className="!min-h-[40px] !h-[40px] resize-none bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
+                        className="!min-h-[40px] !h-[40px] resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
                         onKeyPress={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();

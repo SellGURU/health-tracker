@@ -1,4 +1,4 @@
-package com.innovatifyltd.plugins;
+package com.example.plugins;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
