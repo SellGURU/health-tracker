@@ -124,6 +124,10 @@ class Application extends Api {
     const response = this.post("/mobile/save_notification_settings", data);
     return response;
   };
+  static sendSupport(data:any) {
+    const response = this.post("/mobile/support", data);
+    return response;
+  };
 
 }
 

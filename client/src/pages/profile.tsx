@@ -105,6 +105,9 @@ export default function Profile() {
   const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
+  const [showSupportForm, setShowSupportForm] = useState(false);
+  const [supportMessage, setSupportMessage] = useState("");
+  const [isSendingSupport, setIsSendingSupport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [devicesData, setDevicesData] = useState<any>(null);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
@@ -642,7 +645,7 @@ export default function Profile() {
       icon: HelpCircle,
       title: "Help & Support",
       description: "Get help and contact support",
-      action: () => setShowHelpDialog(true),
+      action: () => { setShowSupportForm(true); setShowHelpDialog(true); },
       badge: null,
     },
     {
@@ -1593,142 +1596,92 @@ export default function Profile() {
         </Dialog>
 
         {/* Help & Support Dialog */}
-        <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
+        <Dialog open={showHelpDialog} onOpenChange={(open) => { setShowHelpDialog(open); if (!open) { setShowSupportForm(false); setSupportMessage(""); } else { setShowSupportForm(true); } }}>
           <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-orange-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-orange-900/20 backdrop-blur-xl border-0 shadow-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-orange-800 dark:from-white dark:to-orange-200 bg-clip-text text-transparent flex items-center gap-3">
-                <HelpCircle className="w-5 h-5 text-orange-600" />
-                Help & Support
+              {showSupportForm ?    <Mail className="w-5 h-5 text-orange-600" /> :   <HelpCircle className="w-5 h-5 text-orange-600" />}
+             
+                {showSupportForm ? "Contact Support" : "Help & Support"}
               </DialogTitle>
-              <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
-                Get help with using HolistiCare and contact our support team
-              </DialogDescription>
+              {!showSupportForm && (
+                <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
+                  Get help with using HolistiCare and contact our support team
+                </DialogDescription>
+              )}
             </DialogHeader>
             <div className="space-y-6 max-h-[55vh] overflow-y-auto">
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                  Quick Help
-                </h3>
-                <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50/60 to-white/50 dark:from-blue-900/20 dark:to-gray-800/30 hover:from-blue-100/60 hover:to-blue-50/50 dark:hover:from-blue-900/30 dark:hover:to-blue-900/20 transition-all duration-300 group">
-                    <Brain className="w-5 h-5 text-blue-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        User Guide
+              {!showSupportForm ? (
+                <div className="space-y-4">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Contact Support</h3>
+                  <div className="space-y-3">
+                    <button
+                      className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/60 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30 hover:from-orange-100/60 hover:to-orange-50/50 dark:hover:from-orange-900/30 dark:hover:to-orange-900/20 transition-all duration-300 group"
+                      onClick={() => setShowSupportForm(true)}
+                    >
+                      <Mail className="w-5 h-5 text-orange-600" />
+                      <div className="text-left">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Contact Support</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Send a message to our support team</div>
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Learn how to use all features
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors duration-300 ml-auto" />
-                  </button>
-
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50/60 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30 hover:from-emerald-100/60 hover:to-emerald-50/50 dark:hover:from-emerald-900/30 dark:hover:to-emerald-900/20 transition-all duration-300 group">
-                    <Activity className="w-5 h-5 text-emerald-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        Health Data FAQ
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Common questions about lab results
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors duration-300 ml-auto" />
-                  </button>
-
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-50/60 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30 hover:from-purple-100/60 hover:to-purple-50/50 dark:hover:from-purple-900/30 dark:hover:to-purple-900/20 transition-all duration-300 group">
-                    <Shield className="w-5 h-5 text-purple-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        Privacy Policy
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        How we protect your data
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors duration-300 ml-auto" />
-                  </button>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                  Contact Support
-                </h3>
-                <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/60 to-white/50 dark:from-orange-900/20 dark:to-gray-800/30 hover:from-orange-100/60 hover:to-orange-50/50 dark:hover:from-orange-900/30 dark:hover:to-orange-900/20 transition-all duration-300 group">
-                    <Mail className="w-5 h-5 text-orange-600" />
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        Email Support
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        support@holisticare.com
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors duration-300 ml-auto" />
-                  </button>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                  App Information
-                </h3>
-                <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50/60 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Version
-                      </span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">
-                        2.1.0
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Last Updated
-                      </span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">
-                        Jan 28, 2025
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Platform
-                      </span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">
-                        Web App
-                      </span>
-                    </div>
+                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors duration-300 ml-auto" />
+                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex gap-3 pt-4">
-              <Button
-                onClick={() => {
-                  toast({
-                    title: "Support contacted",
-                    description: "We'll get back to you within 24 hours.",
-                  });
-                  setShowHelpDialog(false);
-                }}
-                className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
-              >
-                Contact Support
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowHelpDialog(false)}
-                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-              >
-                Close
-              </Button>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 text-center dark:text-gray-400">Send a message to our support team and we’ll get <br /> back to you within 24 hours.</p>
+                  <div>
+                    <Label htmlFor="support-message" className="text-gray-700 dark:text-gray-300 font-medium">Message</Label>
+                    <textarea
+                      id="support-message"
+                      rows={5}
+                      value={supportMessage}
+                      onChange={(e) => setSupportMessage(e.target.value)}
+                      placeholder="Please describe your issue or question in detail..."
+                      className="mt-2 w-full resize-none rounded-md border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-3 text-sm text-gray-900 dark:text-gray-100 shadow-inner "
+                    />
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Your message will be sent to support@holisticare.com along with your account information to help us assist you better.</p>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <Button
+                      onClick={async () => {
+                        if (!supportMessage.trim()) {
+                          toast({ title: "Message required", description: "Please enter a message before sending.", variant: "destructive" });
+                          return;
+                        }
+                        try {
+                          setIsSendingSupport(true);
+                          await Application.sendSupport({
+                            name: clientInformation?.name || "",
+                            email: clientInformation?.email || "",
+                            message: supportMessage.trim(),
+                          });
+                          toast({ title: "Message sent", description: "Thanks! Our team will get back to you soon." });
+                          setShowHelpDialog(false);
+                          setShowSupportForm(false);
+                          setSupportMessage("");
+                        } catch (error: any) {
+                          toast({ title: "Failed to send message", description: error?.response?.data?.detail || (error instanceof Error ? error.message : "Please try again."), variant: "destructive" });
+                        } finally {
+                          setIsSendingSupport(false);
+                        }
+                      }}
+                      disabled={isSendingSupport}
+                      className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg"
+                    >
+                      {isSendingSupport ? "Sending..." : "Send Message"}
+                    </Button>
+                    {/* <Button
+                      variant="outline"
+                      onClick={() => { if (!isSendingSupport) { setShowSupportForm(false); } }}
+                      className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                    >
+                      Back
+                    </Button> */}
+                  </div>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
