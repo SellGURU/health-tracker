@@ -784,19 +784,12 @@ export default function Profile() {
 
 
             </div>
-            <div className="flex gap-3 pt-4 mt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+            <div className="pt-4 mt-4 border-t border-gray-200/50 dark:border-gray-700/50">
               <Button 
                 onClick={saveNotificationSettings}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
+                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
               >
                 Save Preferences
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowNotificationsDialog(false)}
-                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-              >
-                Cancel
               </Button>
             </div>
           </DialogContent>
