@@ -50,6 +50,7 @@ import {
   Wifi,
   Plus,
   Trash2,
+  ClipboardList,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
@@ -135,9 +136,47 @@ export default function Profile() {
     goalReminders: true,
     weeklyReports: true,
     chatMessages: true,
+    questionnaire_assigned: false,
     systemUpdates: false,
     marketingEmails: false,
   });
+
+  // Load notification settings when dialog opens
+  const loadNotificationSettings = async () => {
+    try {
+      const res = await Application.showNotifications({});
+      const data = res?.data || {};
+      const channels = data.channels || {};
+      const content = data.content_types || {};
+      setNotificationSettings((prev) => ({
+        ...prev,
+        emailNotifications: Boolean(channels.email),
+        pushNotifications: Boolean(channels.push),
+        chatMessages: Boolean(content.chat_messages),
+        questionnaire_assigned: Boolean(content.questionnaire_assigned),
+        // Map available content types to existing toggles if present
+        // labResults: Boolean(content.lab_results ?? prev.labResults),
+        // goalReminders: Boolean(content.goal_reminders ?? prev.goalReminders),
+        // weeklyReports: Boolean(content.weekly_reports ?? prev.weeklyReports),
+        // systemUpdates: Boolean(content.system_updates ?? prev.systemUpdates),
+        // marketingEmails: Boolean(content.marketing_emails ?? prev.marketingEmails),
+      }));
+    } catch (error: any) {
+      toast({
+        title: "Failed to load notification settings",
+        description:
+          error?.response?.data?.detail ||
+          (error instanceof Error ? error.message : "Please try again."),
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (showNotificationsDialog) {
+      loadNotificationSettings();
+    }
+  }, [showNotificationsDialog]);
 
   // Privacy settings
   const [privacySettings, setPrivacySettings] = useState({
@@ -426,12 +465,46 @@ export default function Profile() {
     }
   };
 
-  const saveNotificationSettings = () => {
-    toast({
-      title: "Notifications updated",
-      description: "Your notification preferences have been saved.",
-    });
-    setShowNotificationsDialog(false);
+  const saveNotificationSettings = async () => {
+    try {
+      const payload = {
+        channels: {
+          email: !!notificationSettings.emailNotifications,
+          push: !!notificationSettings.pushNotifications,
+        },
+        content_types: {
+          chat_messages: !!notificationSettings.chatMessages,
+          questionnaire_assigned: !!notificationSettings.questionnaire_assigned,
+          // lab_results: !!notificationSettings.labResults,
+          // goal_reminders: !!notificationSettings.goalReminders,
+          // weekly_reports: !!notificationSettings.weeklyReports,
+          // system_updates: !!notificationSettings.systemUpdates,
+          // marketing_emails: !!notificationSettings.marketingEmails,
+        },
+      };
+      const res = await Application.saveNotifications(payload);
+      if (res?.status === 200) {
+        toast({
+          title: "Notifications updated",
+          description: "Your notification preferences have been saved.",
+        });
+        setShowNotificationsDialog(false);
+      } else {
+        toast({
+          title: "Failed to save notifications",
+          description: res?.data?.detail || "Unexpected server response.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Failed to save notifications",
+        description:
+          error?.response?.data?.detail ||
+          (error instanceof Error ? error.message : "Please try again."),
+        variant: "destructive",
+      });
+    }
   };
 
   const savePrivacySettings = async () => {
@@ -1137,7 +1210,7 @@ export default function Profile() {
                   Content Preferences
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
+                  {/* <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Activity className="w-4 h-4 text-emerald-600" />
                       <div>
@@ -1158,8 +1231,8 @@ export default function Profile() {
                         }))
                       }
                     />
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
+                  </div> */}
+                  {/* <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Target className="w-4 h-4 text-emerald-600" />
                       <div>
@@ -1180,8 +1253,8 @@ export default function Profile() {
                         }))
                       }
                     />
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
+                  </div> */}
+                  {/* <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Heart className="w-4 h-4 text-emerald-600" />
                       <div>
@@ -1202,7 +1275,7 @@ export default function Profile() {
                         }))
                       }
                     />
-                  </div>
+                  </div> */}
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Brain className="w-4 h-4 text-purple-600" />
@@ -1225,12 +1298,34 @@ export default function Profile() {
                       }
                     />
                   </div>
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
+                    <div className="flex items-center gap-3">
+                      <ClipboardList className="w-4 h-4 text-emerald-600" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Questionnaire Assigned
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          New health assessments to complete
+                        </div>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={notificationSettings.questionnaire_assigned}
+                      onCheckedChange={(checked) =>
+                        setNotificationSettings((prev) => ({
+                          ...prev,
+                          questionnaire_assigned: checked,
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
               <Separator />
 
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">
                   Other
                 </h3>
@@ -1280,7 +1375,7 @@ export default function Profile() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
             <div className="flex gap-3 pt-4">
               <Button
@@ -1362,7 +1457,7 @@ export default function Profile() {
                       }
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
+                  {/* <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-purple-600" />
                       <div>
@@ -1383,7 +1478,7 @@ export default function Profile() {
                         }))
                       }
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -1416,7 +1511,7 @@ export default function Profile() {
                       }
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
+                  {/* <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Zap className="w-4 h-4 text-gray-600" />
                       <div>
@@ -1437,7 +1532,7 @@ export default function Profile() {
                         }))
                       }
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
 

@@ -112,6 +112,19 @@ class Application extends Api {
     return response;
   };
 
+  static saveNotifications(data:any) {
+    const response = this.post("/mobile/save_notification_settings", data);
+    return response;
+  };
+  static showNotifications(data:any = {}) {
+    const response = this.post("/mobile/show_notification_settings", data);
+    return response;
+  };
+  static saveNotifSettings(data:any) {
+    const response = this.post("/mobile/save_notification_settings", data);
+    return response;
+  };
+
 }
 
 export default Application;
