@@ -380,8 +380,9 @@ export default function Trends() {
                       {optimalRange?.low ?? ""}
                       {optimalRange?.low != null &&
                         optimalRange?.high != null &&
+                        optimalRange?.low !== optimalRange?.high &&
                         "-"}
-                      {optimalRange?.high}
+                      {optimalRange?.low !== optimalRange?.high && optimalRange?.high}
                     </div>
                   </div>
 
@@ -459,7 +460,7 @@ export default function Trends() {
               </TabsList>
 
               <TabsContent value="results" className="space-y-6 mt-6">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   {/* Current Value Card */}
                   <Card
                     className={`bg-gradient-to-br ${selectedBiomarker.bgColor}`}
