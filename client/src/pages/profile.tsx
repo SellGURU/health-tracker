@@ -106,12 +106,8 @@ export default function Profile() {
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
-    labResults: true,
-    goalReminders: true,
-    weeklyReports: true,
     chatMessages: true,
-    systemUpdates: false,
-    marketingEmails: false,
+    questionnaireAssigned: true,
   });
   
   // Privacy settings
@@ -709,8 +705,8 @@ export default function Profile() {
 
         {/* Notifications Dialog */}
         <Dialog open={showNotificationsDialog} onOpenChange={setShowNotificationsDialog}>
-          <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
+          <DialogContent className="max-w-md w-[95vw] max-h-[90vh] bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader className="pb-2">
               <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-3">
                 <Bell className="w-5 h-5 text-blue-600" />
                 Notification Preferences
@@ -719,7 +715,7 @@ export default function Profile() {
                 Manage how you receive notifications from HolistiCare
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="overflow-y-auto max-h-[60vh] pr-2 space-y-6">
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">Communication Methods</h3>
                 <div className="space-y-3">
@@ -757,45 +753,6 @@ export default function Profile() {
               <div className="space-y-4">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">Content Preferences</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
-                    <div className="flex items-center gap-3">
-                      <Activity className="w-4 h-4 text-emerald-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Lab Results</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">New test results and analysis</div>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.labResults}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, labResults: checked }))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
-                    <div className="flex items-center gap-3">
-                      <Target className="w-4 h-4 text-emerald-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Goal Reminders</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Daily and weekly goal check-ins</div>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.goalReminders}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, goalReminders: checked }))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
-                    <div className="flex items-center gap-3">
-                      <Heart className="w-4 h-4 text-emerald-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Weekly Reports</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Summary of your health progress</div>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.weeklyReports}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, weeklyReports: checked }))}
-                    />
-                  </div>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-purple-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
                       <Brain className="w-4 h-4 text-purple-600" />
@@ -809,58 +766,38 @@ export default function Profile() {
                       onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, chatMessages: checked }))}
                     />
                   </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">Other</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50/50 to-white/50 dark:from-emerald-900/20 dark:to-gray-800/30">
                     <div className="flex items-center gap-3">
-                      <Settings className="w-4 h-4 text-gray-600" />
+                      <FileText className="w-4 h-4 text-emerald-600" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">System Updates</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">App updates and maintenance</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Questionnaire Assigned</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">New health assessments to complete</div>
                       </div>
                     </div>
                     <Switch
-                      checked={notificationSettings.systemUpdates}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, systemUpdates: checked }))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30">
-                    <div className="flex items-center gap-3">
-                      <Award className="w-4 h-4 text-gray-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Marketing Emails</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Product updates and tips</div>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.marketingEmails}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, marketingEmails: checked }))}
+                      checked={notificationSettings.questionnaireAssigned}
+                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, questionnaireAssigned: checked }))}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <Button 
-                  onClick={saveNotificationSettings}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
-                >
-                  Save Preferences
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowNotificationsDialog(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Cancel
-                </Button>
-              </div>
+
+            </div>
+            <div className="flex gap-3 pt-4 mt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+              <Button 
+                onClick={saveNotificationSettings}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
+              >
+                Save Preferences
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowNotificationsDialog(false)}
+                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+              >
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
