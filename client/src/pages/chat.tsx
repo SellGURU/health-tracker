@@ -117,9 +117,9 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]); //
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]); //
   const handleGetMessagesId = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
@@ -201,6 +201,7 @@ export default function ChatPage() {
             reported: false,
           };
           setMessages((prev) => [...prev, newMessage]);
+          // scrollToBottom()
         }
       })
       .catch((res) => {
