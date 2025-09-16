@@ -100,16 +100,16 @@ export default function YouMenu() {
     sex: string;
     verified_account: boolean;
   }>();
-  const { token, notifications } = usePushNotifications();
-  useEffect(() => {
-    if(Capacitor.isNativePlatform()){
-      if(token){
-        NotificationApi.registerToken(token).then((res) => {
-          // console.log(res);
-        });
-      }
-    }
-  }, [token]);
+  // const { token, notifications } = usePushNotifications();
+  // useEffect(() => {
+  //   if(Capacitor.isNativePlatform()){
+  //     if(token){
+  //       NotificationApi.registerToken(token).then((res) => {
+  //         // console.log(res);
+  //       });
+  //     }
+  //   }
+  // }, [token]);
   const [questionnaires, setQuestionnaires] = useState<
     {
       Estimated_time: string;
