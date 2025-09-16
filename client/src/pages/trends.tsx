@@ -20,6 +20,7 @@ import {
   CheckCircle,
   Droplets,
   Minus,
+  Search,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
@@ -297,13 +298,13 @@ export default function Trends() {
           </p>
 
           {/* Search Bar */}
-          <div className="relative max-w-md mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 z-[1] transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              type="text"
               placeholder="Search biomarkers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-4 pr-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl"
+              className="pl-10 pr-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl"
             />
           </div>
         </div>
@@ -382,7 +383,8 @@ export default function Trends() {
                         optimalRange?.high != null &&
                         optimalRange?.low !== optimalRange?.high &&
                         "-"}
-                      {optimalRange?.low !== optimalRange?.high && optimalRange?.high}
+                      {optimalRange?.low !== optimalRange?.high &&
+                        optimalRange?.high}
                     </div>
                   </div>
 
@@ -428,7 +430,7 @@ export default function Trends() {
       {/* Detailed Information Modal */}
       {selectedBiomarker && (
         <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-          <DialogContent className="max-w-[448px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[448px]">
             <DialogHeader>
               <div className="flex items-center gap-3">
                 <div
@@ -451,7 +453,7 @@ export default function Trends() {
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className="mt-6"
+              className="mt-6 max-h-[60vh] overflow-y-auto"
             >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="results">Results</TabsTrigger>
