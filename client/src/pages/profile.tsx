@@ -149,6 +149,35 @@ export default function Profile() {
     thirdPartyIntegrations: true,
   });
 
+  // Load privacy settings from API when dialog opens
+  const loadPrivacySettings = async () => {
+    try {
+      const res = await Application.showPrivacy({});
+      const data = res?.data || {};
+      setPrivacySettings((prev) => ({
+        ...prev,
+        shareDataWithDoctors: Boolean(data.share_with_doctors),
+        shareHealthInsights: Boolean(data.health_insights_sharing),
+        anonymousAnalytics: Boolean(data.anonymous_analytics),
+        dataRetention: data.data_retention_period || prev.dataRetention,
+      }));
+    } catch (error: any) {
+      toast({
+        title: "Failed to load privacy settings",
+        description:
+          error?.response?.data?.detail ||
+          (error instanceof Error ? error.message : "Please try again."),
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (showPrivacyDialog) {
+      loadPrivacySettings();
+    }
+  }, [showPrivacyDialog]);
+
   // Device settings with ROOK integration
   const [connectedDevices, setConnectedDevices] = useState<any[]>([]);
   const [availableDeviceTypes, setAvailableDeviceTypes] = useState([
@@ -298,6 +327,8 @@ export default function Profile() {
             "Your profile information has been updated successfully.",
         });
         setShowEditDialog(false);
+        // Refresh client information so changes reflect immediately
+        handleGetClientInformation();
       })
       .catch((res) => {
         toast({
@@ -403,12 +434,35 @@ export default function Profile() {
     setShowNotificationsDialog(false);
   };
 
-  const savePrivacySettings = () => {
-    toast({
-      title: "Privacy settings updated",
-      description: "Your privacy preferences have been saved.",
-    });
-    setShowPrivacyDialog(false);
+  const savePrivacySettings = async () => {
+    try {
+      const payload = {
+        share_with_doctors: privacySettings.shareDataWithDoctors,
+        health_insights_sharing: privacySettings.shareHealthInsights,
+        anonymous_analytics: privacySettings.anonymousAnalytics,
+        data_retention_period: privacySettings.dataRetention,
+      };
+      const res = await Application.savePrivacy(payload);
+      if (res?.status === 200) {
+        toast({
+          title: "Privacy settings updated",
+          description: "Your privacy preferences have been saved.",
+        });
+        setShowPrivacyDialog(false);
+      } else {
+        toast({
+          title: "Failed to save privacy settings",
+          description: res?.data?.detail || "Unexpected server response.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Failed to save privacy settings",
+        description: error?.response?.data?.detail || (error instanceof Error ? error.message : "Please try again."),
+        variant: "destructive",
+      });
+    }
   };
 
   const fetchDevicesData = async () => {

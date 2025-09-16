@@ -103,6 +103,15 @@ class Application extends Api {
     return response;
   };
 
+  static savePrivacy(data:any) {
+    const response = this.post("/mobile/save_privacy_settings", data);
+    return response;
+  };
+  static showPrivacy(data:any) {
+    const response = this.post("/mobile/show_privacy_settings", data);
+    return response;
+  };
+
 }
 
 export default Application;
