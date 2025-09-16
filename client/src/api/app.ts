@@ -98,6 +98,32 @@ class Application extends Api {
     const response = this.post("/mobile/holistic_plan_action_plan", {});
     return response;
   };
+  static changePassword(data:any) {
+    const response = this.post("/mobile/auth/change_password", data);
+    return response;
+  };
+
+  static savePrivacy(data:any) {
+    const response = this.post("/mobile/save_privacy_settings", data);
+    return response;
+  };
+  static showPrivacy(data:any) {
+    const response = this.post("/mobile/show_privacy_settings", data);
+    return response;
+  };
+
+  static saveNotifications(data:any) {
+    const response = this.post("/mobile/save_notification_settings", data);
+    return response;
+  };
+  static showNotifications(data:any = {}) {
+    const response = this.post("/mobile/show_notification_settings", data);
+    return response;
+  };
+  static saveNotifSettings(data:any) {
+    const response = this.post("/mobile/save_notification_settings", data);
+    return response;
+  };
 
 }
 
