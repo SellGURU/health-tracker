@@ -114,7 +114,16 @@ export default function ChatPage() {
   const [reportDetails, setReportDetails] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      // Use setTimeout to ensure DOM is updated
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: "smooth",
+          block: "end",
+          inline: "nearest"
+        });
+      }, 100);
+    }
   };
 
   useEffect(() => {
@@ -165,6 +174,16 @@ export default function ChatPage() {
     setConversationId(0);
     setIsLoading(true);
     handleGetMessagesId();
+  }, [activeMode]);
+
+  // Auto-refresh messages every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleGetMessagesId();
+    }, 15000); // 15 seconds
+
+    // Cleanup interval on component unmount or when activeMode changes
+    return () => clearInterval(interval);
   }, [activeMode]);
 
   const sendMessage = () => {
@@ -572,8 +591,8 @@ export default function ChatPage() {
                 </div>
               </CardHeader>
 
-              <CardContent className="flex-1 p-0">
-                <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
+              <CardContent className="flex-1 p-0 flex flex-col">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-480px)] sm:max-h-[calc(100vh-520px)]">
                   {messages.map((msg) => {
                     // Use unique key for reported messages
                     const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
@@ -739,7 +758,7 @@ export default function ChatPage() {
                   )}
                   <div ref={messagesEndRef} />
                 </div>
-                <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
+                <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm flex-shrink-0">
                   <div className="flex gap-3">
                     <div className="flex-1 relative">
                       <Textarea
