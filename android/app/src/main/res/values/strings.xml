@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Holisticare</string>
-    <string name="title_activity_main">Holisticare</string>
+    <string name="app_name">Holosticare</string>
+    <string name="title_activity_main">Holosticare</string>
     <string name="package_name">com.innovatifyltd</string>
     <string name="custom_url_scheme">com.innovatifyltd</string>
 </resources>
