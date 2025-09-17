@@ -239,9 +239,13 @@ export default function Trends() {
   };
 
   const openDetailModal = (biomarker: any) => {
+    console.log("biomarker => ", biomarker);
     setSelectedBiomarker(biomarker);
     setShowDetailModal(true);
   };
+  const optimalRange = selectedBiomarker?.chart_bounds?.filter(
+    (el: any) => el.status == "OptimalRange"
+  )[0];
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -376,8 +380,8 @@ export default function Trends() {
                       Optimal Range
                     </div>
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {optimalRange?.low == null && ">"}
-                      {optimalRange?.high == null && "<"}
+                      {optimalRange?.low == null && "<"}
+                      {optimalRange?.high == null && ">"}
                       {optimalRange?.low ?? ""}
                       {optimalRange?.low != null &&
                         optimalRange?.high != null &&
@@ -504,7 +508,15 @@ export default function Trends() {
                             Optimal Range:
                           </span>
                           <span className="font-medium">
-                            {selectedBiomarker.referenceRange}
+                            {optimalRange?.low == null && "<"}
+                            {optimalRange?.high == null && ">"}
+                            {optimalRange?.low ?? ""}
+                            {optimalRange?.low != null &&
+                              optimalRange?.high != null &&
+                              optimalRange?.low !== optimalRange?.high &&
+                              "-"}
+                            {optimalRange?.low !== optimalRange?.high &&
+                              optimalRange?.high}
                           </span>
                         </div>
                         <div className="flex justify-between">
