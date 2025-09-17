@@ -419,7 +419,7 @@ export default function ProfileHeader() {
                 </div>
 
                 {/* Footer */}
-                {notifications.length > 0 && (
+                {/* {notifications.length > 0 && (
                   <div className="p-3 border-t border-gray-200/30 dark:border-gray-700/30">
                     <Button
                       variant="ghost"
@@ -432,7 +432,7 @@ export default function ProfileHeader() {
                       View all notifications
                     </Button>
                   </div>
-                )}
+                )} */}
               </div>
             </>,
             document.body
