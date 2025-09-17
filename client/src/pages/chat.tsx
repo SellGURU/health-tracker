@@ -93,7 +93,7 @@ const coaches: Coach[] = [
 
 export default function ChatPage() {
   const [activeMode, setActiveMode] = useState<ChatMode>("ai");
-  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
+  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationId, setConversationId] = useState<number>(0);
@@ -409,7 +409,17 @@ export default function ChatPage() {
             value={activeMode}
             onValueChange={(value: ChatMode) => setActiveMode(value)}
           >
-            <SelectTrigger className="w-full bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 border border-gray-200/30 dark:border-gray-700/20 shadow-inner backdrop-blur-sm h-14">
+            <SelectTrigger
+              className=" group relative h-14 w-full pr-10
+    bg-gradient-to-r from-gray-100/80 to-blue-100/50
+    dark:from-gray-800/80 dark:to-blue-900/30
+    border border-gray-200/30 dark:border-gray-700/20
+    shadow-inner backdrop-blur-sm
+    [&>[data-slot='select-icon']]:hidden
+    [&>span[data-slot='select-icon']]:hidden
+    [&>svg[data-slot='select-icon']]:hidden
+    [&>svg:last-child]:hidden"
+            >
               <SelectValue>
                 <div className="flex items-center gap-3">
                   <div
@@ -437,6 +447,13 @@ export default function ChatPage() {
                   </div>
                 </div>
               </SelectValue>
+              <ChevronDown
+                className="
+        pointer-events-none absolute right-3 top-1/2 -translate-y-1/2
+        h-4 w-4 opacity-60 transition-transform duration-200
+        group-data-[state=open]:rotate-180
+      "
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ai">
@@ -469,7 +486,7 @@ export default function ChatPage() {
 
         <div className="flex flex-col gap-6">
           {/* Sidebar - Coach Selection */}
-          {activeMode === "coach" && selectedCoach === null && (
+          {/* {activeMode === "coach" && selectedCoach === null && (
             <div className="lg:col-span-1 space-y-4 w-full">
               <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
                 <CardHeader className="pb-4">
@@ -505,7 +522,7 @@ export default function ChatPage() {
                   </div>
                 </CardContent>
               </Card>
-              {/* 
+              
               <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
                 <CardContent className="p-4">
                   <Button
@@ -516,265 +533,261 @@ export default function ChatPage() {
                     Book Session
                   </Button>
                 </CardContent>
-              </Card> */}
+              </Card>
             </div>
-          )}
+          )} */}
 
           {/* Chat Messages */}
-          {(activeMode === "coach" && selectedCoach) || activeMode === "ai" ? (
-            <Card
-              className={`${
-                activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
-              } bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}
-            >
-              <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {activeMode === "coach" ? (
-                      <Avatar className="w-10 h-10 ring-2 ring-emerald-200 shadow-lg">
-                        <AvatarImage src={selectedCoach?.avatar} />
-                        <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                          {selectedCoach?.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                        <Bot className="w-5 h-5 text-white" />
-                      </div>
-                    )}
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {activeMode === "coach"
-                          ? selectedCoach?.name
-                          : "AI Health Copilot"}
-                      </div>
-                      <div className="text-sm text-emerald-600 dark:text-emerald-400">
+          {/* {(activeMode === "coach" && selectedCoach) || activeMode === "ai" ? ( */}
+          <Card
+            className={`${
+              activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
+            } bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}
+          >
+            <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {activeMode === "coach" ? (
+                    <Avatar className="w-10 h-10 ring-2 ring-emerald-200 shadow-lg">
+                      <AvatarImage src={selectedCoach?.avatar} />
+                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+                        {selectedCoach?.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Bot className="w-5 h-5 text-white" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {activeMode === "coach"
+                        ? selectedCoach?.name
+                        : "AI Health Copilot"}
+                    </div>
+                    {/* <div className="text-sm text-emerald-600 dark:text-emerald-400">
                         {activeMode === "coach"
                           ? "Human Expert"
                           : "AI Assistant"}
-                      </div>
-                    </div>
+                      </div> */}
                   </div>
-                  <Badge
-                    variant={activeMode === "coach" ? "default" : "secondary"}
-                    className={
-                      activeMode === "coach"
-                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                        : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                    }
-                  >
-                    {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
-                  </Badge>
                 </div>
-              </CardHeader>
+                <Badge
+                  variant={activeMode === "coach" ? "default" : "secondary"}
+                  className={
+                    activeMode === "coach"
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                  }
+                >
+                  {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
+                </Badge>
+              </div>
+            </CardHeader>
 
-              <CardContent className="flex-1 p-0">
-                <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
-                  {messages.map((msg) => {
-                    // Use unique key for reported messages
-                    const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
-                    const isReported = reportedMessages.has(messageKey);
-                    return (
+            <CardContent className="flex-1 p-0">
+              <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
+                {messages.map((msg) => {
+                  // Use unique key for reported messages
+                  const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
+                  const isReported = reportedMessages.has(messageKey);
+                  return (
+                    <div
+                      key={msg.conversation_id}
+                      className={`flex ${
+                        msg.sender_type === "patient"
+                          ? "justify-end"
+                          : "justify-start"
+                      } ${isReported ? "opacity-50" : ""}`}
+                    >
                       <div
-                        key={msg.conversation_id}
-                        className={`flex ${
-                          msg.sender_type === "patient"
-                            ? "justify-end"
-                            : "justify-start"
-                        } ${isReported ? "opacity-50" : ""}`}
+                        className={`max-w-[80%] group ${
+                          msg.sender_type === "patient" ? "order-2" : "order-1"
+                        }`}
                       >
                         <div
-                          className={`max-w-[80%] group ${
+                          className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
                             msg.sender_type === "patient"
-                              ? "order-2"
-                              : "order-1"
+                              ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto"
+                              : activeMode === "coach"
+                              ? "bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20"
+                              : "bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20"
                           }`}
                         >
-                          <div
-                            className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
+                          <p
+                            className={`text-sm ${
                               msg.sender_type === "patient"
-                                ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto"
-                                : activeMode === "coach"
-                                ? "bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20"
-                                : "bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20"
+                                ? "text-white"
+                                : "text-gray-800 dark:text-gray-200"
                             }`}
                           >
+                            {msg.message_text}
+                          </p>
+                          <div className="flex items-center justify-between mt-2">
                             <p
-                              className={`text-sm ${
+                              className={`text-xs ${
                                 msg.sender_type === "patient"
-                                  ? "text-white"
-                                  : "text-gray-800 dark:text-gray-200"
+                                  ? "text-blue-100"
+                                  : "text-gray-500 dark:text-gray-400"
                               }`}
                             >
-                              {msg.message_text}
+                              {msg.time}
                             </p>
-                            <div className="flex items-center justify-between mt-2">
-                              <p
-                                className={`text-xs ${
-                                  msg.sender_type === "patient"
-                                    ? "text-blue-100"
-                                    : "text-gray-500 dark:text-gray-400"
-                                }`}
-                              >
-                                {msg.time}
-                              </p>
 
-                              {/* Action buttons for AI messages */}
-                              {msg.sender_type === "ai" && !isReported && (
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 ${
-                                      messageReactions[msg.conversation_id] ===
+                            {/* Action buttons for AI messages */}
+                            {msg.sender_type === "ai" && !isReported && (
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 ${
+                                    messageReactions[msg.conversation_id] ===
+                                    "liked"
+                                      ? "text-green-600 dark:text-green-400"
+                                      : "text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                                  }`}
+                                  onClick={() =>
+                                    handleMessageReaction(
+                                      msg.conversation_id,
                                       "liked"
-                                        ? "text-green-600 dark:text-green-400"
-                                        : "text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-                                    }`}
-                                    onClick={() =>
-                                      handleMessageReaction(
-                                        msg.conversation_id,
-                                        "liked"
-                                      )
-                                    }
-                                  >
-                                    <ThumbsUp className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 ${
-                                      messageReactions[msg.conversation_id] ===
+                                    )
+                                  }
+                                >
+                                  <ThumbsUp className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 ${
+                                    messageReactions[msg.conversation_id] ===
+                                    "disliked"
+                                      ? "text-red-600 dark:text-red-400"
+                                      : "text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                                  }`}
+                                  onClick={() =>
+                                    handleMessageReaction(
+                                      msg.conversation_id,
                                       "disliked"
-                                        ? "text-red-600 dark:text-red-400"
-                                        : "text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                                    }`}
-                                    onClick={() =>
-                                      handleMessageReaction(
-                                        msg.conversation_id,
-                                        "disliked"
-                                      )
-                                    }
-                                  >
-                                    <ThumbsDown className="h-3 w-3" />
-                                  </Button>
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50"
-                                      >
-                                        <MoreVertical className="h-3 w-3" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                      align="end"
-                                      className="w-48"
+                                    )
+                                  }
+                                >
+                                  <ThumbsDown className="h-3 w-3" />
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50"
                                     >
-                                      {/* Show regenerate only for the last AI message */}
-                                      {(() => {
-                                        const lastAIMessage = messages
-                                          .filter((m) => m.sender_type === "ai")
-                                          .pop();
-                                        const isLastAIMessage =
-                                          lastAIMessage?.conversation_id ===
-                                          msg.conversation_id;
+                                      <MoreVertical className="h-3 w-3" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent
+                                    align="end"
+                                    className="w-48"
+                                  >
+                                    {/* Show regenerate only for the last AI message */}
+                                    {(() => {
+                                      const lastAIMessage = messages
+                                        .filter((m) => m.sender_type === "ai")
+                                        .pop();
+                                      const isLastAIMessage =
+                                        lastAIMessage?.conversation_id ===
+                                        msg.conversation_id;
 
-                                        return isLastAIMessage ? (
-                                          <DropdownMenuItem
-                                            onClick={() =>
-                                              handleRegenerateMessage(
-                                                msg.conversation_id
-                                              )
-                                            }
-                                            className="text-blue-600 dark:text-blue-400 focus:text-blue-600 dark:focus:text-blue-400"
-                                          >
-                                            <RotateCcw className="h-4 w-4 mr-2" />
-                                            Regenerate
-                                          </DropdownMenuItem>
-                                        ) : null;
-                                      })()}
-                                      <DropdownMenuItem
-                                        onClick={() =>
-                                          handleReportMessage(
-                                            msg.conversation_id
-                                          )
-                                        }
-                                        className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
-                                      >
-                                        <Flag className="h-4 w-4 mr-2" />
-                                        Report
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
-                              )}
+                                      return isLastAIMessage ? (
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            handleRegenerateMessage(
+                                              msg.conversation_id
+                                            )
+                                          }
+                                          className="text-blue-600 dark:text-blue-400 focus:text-blue-600 dark:focus:text-blue-400"
+                                        >
+                                          <RotateCcw className="h-4 w-4 mr-2" />
+                                          Regenerate
+                                        </DropdownMenuItem>
+                                      ) : null;
+                                    })()}
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleReportMessage(msg.conversation_id)
+                                      }
+                                      className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                    >
+                                      <Flag className="h-4 w-4 mr-2" />
+                                      Report
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            )}
 
-                              {/* Show reported indicator for reported messages */}
-                              {msg.sender_type === "ai" && isReported && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
-                                    <Flag className="h-3 w-3" />
-                                    Reported
-                                  </span>
-                                </div>
-                              )}
-                            </div>
+                            {/* Show reported indicator for reported messages */}
+                            {msg.sender_type === "ai" && isReported && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+                                  <Flag className="h-3 w-3" />
+                                  Reported
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                  {messages.length === 0 && (
-                    <img
-                      src="/icons/empty.svg"
-                      alt="No messages"
-                      className="w-[250px] mx-auto"
-                    />
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-                <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
-                  <div className="flex gap-3">
-                    <div className="flex-1 relative">
-                      <Textarea
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder={
-                          activeMode === "coach"
-                            ? "Ask your health coach anything..."
-                            : "Ask your AI copilot anything..."
-                        }
-                        className="!min-h-[40px] !h-[40px] resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            sendMessage();
-                          }
-                        }}
-                      />
                     </div>
-                    <Button
-                      onClick={sendMessage}
-                      disabled={!message.trim()}
-                      className={`px-6 shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                  );
+                })}
+                {messages.length === 0 && (
+                  <img
+                    src="/icons/empty.svg"
+                    alt="No messages"
+                    className="w-[150px] mx-auto"
+                  />
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
+                <div className="flex gap-3">
+                  <div className="flex-1 relative">
+                    <Textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder={
                         activeMode === "coach"
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
-                          : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                      }`}
-                    >
-                      <Send className="w-4 h-4 mr-2" />
-                      Send
-                    </Button>
+                          ? "Ask your health coach anything..."
+                          : "Ask your AI copilot anything..."
+                      }
+                      className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
+                    />
                   </div>
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!message.trim()}
+                    className={`px-6 shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                      activeMode === "coach"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
+                        : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+                    }`}
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Send
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ) : null}
+              </div>
+            </CardContent>
+          </Card>
+          {/* ) : null} */}
         </div>
       </div>
 
