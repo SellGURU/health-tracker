@@ -314,7 +314,7 @@ export default function YouMenu() {
             })
           }
         >
-          <CardContent className="p-6 text-center relative z-10">
+          <CardContent className="p-6 text-center relative z-10 h-full">
             {/* Animated background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
@@ -349,7 +349,7 @@ export default function YouMenu() {
             })
           }
         >
-          <CardContent className="p-6 text-center relative z-10">
+          <CardContent className="p-6 text-center relative z-10 h-full">
             {/* Animated background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-pink-400/5 to-rose-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-300/20 to-transparent rounded-full blur-xl animate-pulse"></div>
