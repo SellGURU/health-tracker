@@ -766,7 +766,7 @@ export default function ChatPage() {
                   <img
                     src="/icons/empty.svg"
                     alt="No messages"
-                    className="w-[150px] mx-auto"
+                    className="w-[190px] mx-auto"
                   />
                 )}
                 <div ref={messagesEndRef} />
