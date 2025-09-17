@@ -440,7 +440,7 @@ export default function Plan() {
       case "Diet":
         return (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-justify">
               {task.Instruction}
             </p>
             {task.Total_macros && (
@@ -490,7 +490,7 @@ export default function Plan() {
                 {task.Dose}
               </span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-justify">
               {task.Instruction}
             </p>
             {task.Description && (
@@ -504,7 +504,7 @@ export default function Plan() {
       case "Lifestyle":
         return (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-justify">
               {task.Instruction}
             </p>
             {task.Value && (
@@ -548,7 +548,7 @@ export default function Plan() {
       case "Activity":
         return (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-justify">
               {task.Instruction}
             </p>
             {task.Sections &&
