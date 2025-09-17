@@ -97,6 +97,7 @@ export default function ProfileHeader() {
         const response = await NotificationApi.checkNotification();
         if (response && response.data && response.data.new_notifications) {
           setIsUnReadNotif(true);
+          fetchNotifications()
         }
       } catch (error) {
         console.error('Error checking for new notifications:', error);
@@ -142,6 +143,11 @@ export default function ProfileHeader() {
   useEffect(() => {
     fetchNotifications();
   }, []);
+  useEffect(() => {
+    if(notifications.filter((n) => n.read_status === false).length == 0) {
+      setIsUnReadNotif(false);
+    }    
+  }, [notifications]);
   const markAsRead = async (id: string | number) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read_status: true } : n))
