@@ -176,6 +176,14 @@ export default function ChatPage() {
     handleGetMessagesId();
   }, [activeMode]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleGetMessagesId();
+    }, 15000); // 15 seconds
+
+    // Cleanup interval on component unmount or when activeMode changes
+    return () => clearInterval(interval);
+  }, [activeMode]);
   // Auto-refresh messages every 15 seconds
   useEffect(() => {
     const interval = setInterval(() => {
