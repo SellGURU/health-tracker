@@ -243,9 +243,17 @@ export default function Trends() {
     setSelectedBiomarker(biomarker);
     setShowDetailModal(true);
   };
-  const optimalRange = selectedBiomarker?.chart_bounds?.filter(
+  const optimalRanges = selectedBiomarker?.chart_bounds?.filter(
     (el: any) => el.status == "OptimalRange"
-  )[0];
+  );
+  if(optimalRanges?.length == 0) {
+    selectedBiomarker?.chart_bounds?.filter(
+        (el: any) => el.status == "HealthyRange"
+      ).map((el: any) => {
+        optimalRanges.push(el);
+
+      })    
+  }
   
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -337,7 +345,14 @@ export default function Trends() {
             const optimalRanges = biomarker.chart_bounds.filter(
               (el: any) => el.status == "OptimalRange"
             );
+            if(optimalRanges?.length == 0) {
+              selectedBiomarker?.chart_bounds?.filter(
+                  (el: any) => el.status == "HealthyRange"
+                ).map((el: any) => {
+                  optimalRanges.push(el);
 
+                })    
+            }
             return (
               <Card
                 key={biomarker.name}
@@ -533,17 +548,19 @@ export default function Trends() {
                           <span className="text-gray-600 dark:text-gray-400">
                             Optimal Range:
                           </span>
-                          <span className="font-medium">
-                            {optimalRange?.low == null && "<"}
-                            {optimalRange?.high == null && ">"}
-                            {optimalRange?.low ?? ""}
-                            {optimalRange?.low != null &&
-                              optimalRange?.high != null &&
-                              optimalRange?.low !== optimalRange?.high &&
-                              "-"}
-                            {optimalRange?.low !== optimalRange?.high &&
-                              optimalRange?.high}
-                          </span>
+                          {optimalRanges.map((el: any,index:number) => {
+                            return (
+                              <div key={el.status} className="flex items-center">
+                                {(optimalRanges.length-1 == index && index != 0) &&
+                                  <div className=" mr-4">
+                                  -
+                                  </div>
+                                }
+                                {resolveOptimalRange(el)}
+                                {/* <div className="ml-2"></div> */}
+                              </div>
+                            )
+                          })}
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600 dark:text-gray-400">
