@@ -114,7 +114,7 @@ export default function Plan() {
   });
   const [encodedMi, setEncodedMi] = useState<string>("");
   const dateScrollRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     setEncodedMi(localStorage.getItem("encoded_mi") || "");
   }, []);
@@ -130,10 +130,16 @@ export default function Plan() {
     }
     return url;
   };
-  const handleUpdateTaskStatus = (taskId: string, status: boolean) => {
+  const handleUpdateTaskStatus = (
+    taskId: string,
+    status: boolean,
+    value?: number
+  ) => {
     setTodaysTasks((prev) =>
       prev.map((task) =>
-        task.task_id === taskId ? { ...task, Status: status } : task
+        task.task_id === taskId
+          ? { ...task, Status: status, Temp_value: value }
+          : task
       )
     );
   };
@@ -258,12 +264,16 @@ export default function Plan() {
 
   // Scroll to center when weekly tasks are loaded
   useEffect(() => {
-    if (activeTab === "calendar" && weeklyTasks.length > 0 && dateScrollRef.current) {
+    if (
+      activeTab === "calendar" &&
+      weeklyTasks.length > 0 &&
+      dateScrollRef.current
+    ) {
       const scrollContainer = dateScrollRef.current;
       const scrollWidth = scrollContainer.scrollWidth;
       const clientWidth = scrollContainer.clientWidth;
       const scrollTo = (scrollWidth - clientWidth) / 2;
-      scrollContainer.scrollTo({ left: scrollTo, behavior: 'smooth' });
+      scrollContainer.scrollTo({ left: scrollTo, behavior: "smooth" });
     }
   }, [weeklyTasks, activeTab]);
 
@@ -458,29 +468,50 @@ export default function Plan() {
             </p>
             {task.Total_macros && (
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded">
-                  <div className="font-medium text-green-800 dark:text-green-300">
-                    Fats
+                <div className="bg-orange-100 dark:bg-orange-900/20 p-2 rounded flex items-start justify-between">
+                  <div>
+                    <div className="font-medium text-orange-800 dark:text-orange-300">
+                      Carbs
+                    </div>
+                    <div className="text-orange-600 dark:text-orange-400">
+                      {task.Total_macros.Carbs}g
+                    </div>
                   </div>
-                  <div className="text-green-600 dark:text-green-400">
-                    {task.Total_macros.Fats}g
-                  </div>
+                  <img
+                    src="/icons/carbs-preview.svg"
+                    alt=""
+                    className="w-6 h-6"
+                  />
                 </div>
-                <div className="bg-orange-100 dark:bg-orange-900/20 p-2 rounded">
-                  <div className="font-medium text-orange-800 dark:text-orange-300">
-                    Carbs
+                <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded flex items-start justify-between">
+                  <div>
+                    <div className="font-medium text-blue-800 dark:text-blue-300">
+                      Protein
+                    </div>
+                    <div className="text-blue-600 dark:text-blue-400">
+                      {task.Total_macros.Protein}g
+                    </div>
                   </div>
-                  <div className="text-orange-600 dark:text-orange-400">
-                    {task.Total_macros.Carbs}g
-                  </div>
+                  <img
+                    src="/icons/proteins-preview.svg"
+                    alt=""
+                    className="w-6 h-6"
+                  />
                 </div>
-                <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded">
-                  <div className="font-medium text-blue-800 dark:text-blue-300">
-                    Protein
+                <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded flex items-start justify-between">
+                  <div>
+                    <div className="font-medium text-green-800 dark:text-green-300">
+                      Fats
+                    </div>
+                    <div className="text-green-600 dark:text-green-400">
+                      {task.Total_macros.Fats}g
+                    </div>
                   </div>
-                  <div className="text-blue-600 dark:text-blue-400">
-                    {task.Total_macros.Protein}g
-                  </div>
+                  <img
+                    src="/icons/fats-preview.svg"
+                    alt=""
+                    className="w-6 h-6"
+                  />
                 </div>
               </div>
             )}
@@ -590,19 +621,15 @@ export default function Plan() {
                             {exercise.Description}
                           </div>
                           <div className="text-xs">
-                            {exercise.Reps && (
-                              <span className="mr-3">
-                                Reps: {exercise.Reps}
-                              </span>
-                            )}
-                            {exercise.Rest && (
-                              <span className="mr-3">
-                                Rest: {exercise.Rest}s
-                              </span>
-                            )}
-                            {exercise.Weight && (
-                              <span>Weight: {exercise.Weight}</span>
-                            )}
+                            <span className="mr-3">
+                              Reps: {exercise.Reps || "-"}
+                            </span>
+
+                            <span className="mr-3">
+                              Rest: {exercise.Rest ? exercise.Rest + "s" : "-"}
+                            </span>
+
+                            <span>Weight: {exercise.Weight || "-"}</span>
                           </div>
                           {exercise.Files && exercise.Files.length > 0 && (
                             <div
@@ -695,7 +722,7 @@ export default function Plan() {
                           <Button
                             variant={completed ? "default" : "outline"}
                             size="sm"
-                            disabled={completed}
+                            disabled={!isCurrentDay}
                             onClick={() => {
                               if (isCurrentDay) {
                                 if (activeTab === "today") {
@@ -785,7 +812,7 @@ export default function Plan() {
             <Button
               variant={task.Status ? "default" : "outline"}
               size="sm"
-              disabled={task.Status}
+              disabled={task.Status || !isCurrentDay}
               onClick={() => {
                 handleUpdateTaskStatus(task.task_id, true);
                 if (!task.Status) {
@@ -806,7 +833,7 @@ export default function Plan() {
               ) : (
                 <Circle className="w-4 h-4 mr-2" />
               )}
-              {task.Status ? "Completed" : "Mark Complete"}
+              {task.Status ? "Completed" : "Start Check-in"}
             </Button>
           </div>
         );
@@ -894,20 +921,51 @@ export default function Plan() {
                                 variant={completed ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => {
-                                  handleUpdateTaskStatus(
-                                    task.task_id,
-                                    !task.Status
-                                  );
+                                  if (
+                                    (task.Category === "Lifestyle" &&
+                                      taskValues[task.task_id] ===
+                                        task.Value) ||
+                                    task.Category !== "Lifestyle"
+                                  ) {
+                                    handleUpdateTaskStatus(
+                                      task.task_id,
+                                      !task.Status,
+                                      taskValues[task.task_id] || 0
+                                    );
+                                  } else if (
+                                    task.Category === "Lifestyle" &&
+                                    completed &&
+                                    taskValues[task.task_id] !== task.Value
+                                  ) {
+                                    handleUpdateTaskStatus(
+                                      task.task_id,
+                                      !task.Status,
+                                      taskValues[task.task_id] || 0
+                                    );
+                                  }
                                   if (task.Category === "Lifestyle") {
                                     handleUpdateValue(
                                       task.task_id,
                                       taskValues[task.task_id] || 0
                                     );
                                   }
-                                  if (completed) {
+                                  if (
+                                    (task.Category === "Lifestyle" &&
+                                      taskValues[task.task_id] ===
+                                        task.Value) ||
+                                    task.Category !== "Lifestyle"
+                                  ) {
+                                    if (completed) {
+                                      handleUncheckTask(task.task_id);
+                                    } else {
+                                      handleCheckTask(task.task_id);
+                                    }
+                                  } else if (
+                                    task.Category === "Lifestyle" &&
+                                    completed &&
+                                    taskValues[task.task_id] !== task.Value
+                                  ) {
                                     handleUncheckTask(task.task_id);
-                                  } else {
-                                    handleCheckTask(task.task_id);
                                   }
                                 }}
                                 className={`w-full ${
@@ -921,7 +979,11 @@ export default function Plan() {
                                 ) : (
                                   <Circle className="w-4 h-4 mr-2" />
                                 )}
-                                {completed ? "Completed" : "Mark Complete"}
+                                {completed
+                                  ? "Completed"
+                                  : task.Category === "Lifestyle"
+                                  ? "Save Value"
+                                  : "Mark Complete"}
                               </Button>
                             )}
                         </div>
@@ -951,7 +1013,14 @@ export default function Plan() {
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 text-center">
                 Select a Date
               </h3>
-              <div ref={dateScrollRef} className="flex gap-2 hiddenScrollBar overflow-x-auto pb-2 justify-start">
+              <div
+                ref={dateScrollRef}
+                className="flex gap-2 overflow-x-auto overflow-y-hidden pb-2 justify-start touch-pan-x cursor-grab select-none"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#E5E5E5 transparent",
+                }}
+              >
                 {getDateRange().map((dateInfo) => {
                   const isCurrentDay = isToday(dateInfo.key);
                   const isSelected = selectedDate === dateInfo.key;
@@ -1133,25 +1202,55 @@ export default function Plan() {
                                             completed ? "default" : "outline"
                                           }
                                           size="sm"
+                                          disabled={!isCurrentDay}
                                           onClick={() => {
-                                            if (isCurrentDay) {
-                                              handleUpdateWeeklyTaskStatus(
+                                            if (
+                                              (task.Category === "Lifestyle" &&
+                                                taskValues[task.task_id] ===
+                                                  task.Value) ||
+                                              task.Category !== "Lifestyle"
+                                            ) {
+                                              handleUpdateTaskStatus(
                                                 task.task_id,
-                                                !task.Status
+                                                !task.Status,
+                                                taskValues[task.task_id] || 0
                                               );
-                                              if (
-                                                task.Category === "Lifestyle"
-                                              ) {
-                                                handleUpdateValue(
-                                                  task.task_id,
-                                                  taskValues[task.task_id] || 0
-                                                );
-                                              }
+                                            } else if (
+                                              task.Category === "Lifestyle" &&
+                                              completed &&
+                                              taskValues[task.task_id] !==
+                                                task.Value
+                                            ) {
+                                              handleUpdateTaskStatus(
+                                                task.task_id,
+                                                !task.Status,
+                                                taskValues[task.task_id] || 0
+                                              );
+                                            }
+                                            if (task.Category === "Lifestyle") {
+                                              handleUpdateValue(
+                                                task.task_id,
+                                                taskValues[task.task_id] || 0
+                                              );
+                                            }
+                                            if (
+                                              (task.Category === "Lifestyle" &&
+                                                taskValues[task.task_id] ===
+                                                  task.Value) ||
+                                              task.Category !== "Lifestyle"
+                                            ) {
                                               if (completed) {
                                                 handleUncheckTask(task.task_id);
                                               } else {
                                                 handleCheckTask(task.task_id);
                                               }
+                                            } else if (
+                                              task.Category === "Lifestyle" &&
+                                              completed &&
+                                              taskValues[task.task_id] !==
+                                                task.Value
+                                            ) {
+                                              handleUncheckTask(task.task_id);
                                             }
                                           }}
                                           className={`w-full ${
@@ -1167,6 +1266,8 @@ export default function Plan() {
                                           )}
                                           {completed
                                             ? "Completed"
+                                            : task.Category === "Lifestyle"
+                                            ? "Save Value"
                                             : "Mark Complete"}
                                         </Button>
                                       )}
