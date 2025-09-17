@@ -329,9 +329,9 @@ export default function Trends() {
                 className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl"
                 onClick={() => openDetailModal(biomarker)}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-6 flex flex-col items-start w-full">
                   {/* Card Header */}
-                  <div className="mb-4">
+                  <div className="mb-4 w-full">
                     <div className="flex items-center gap-3 mb-3">
                       <div
                         className={`w-10 h-10 bg-gradient-to-br  rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}
@@ -346,7 +346,7 @@ export default function Trends() {
                         </h3>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between w-full">
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Last test:{" "}
                         {new Date(biomarker.date[0]).toLocaleDateString()}
@@ -375,7 +375,7 @@ export default function Trends() {
                   </div>
 
                   {/* Reference Range */}
-                  <div className="mb-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="mb-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                       Optimal Range
                     </div>
