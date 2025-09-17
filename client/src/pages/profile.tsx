@@ -481,13 +481,13 @@ export default function Profile() {
   // Check ROOK connection status
 
   const settingsItems = [
-    {
-      icon: User,
-      title: "Personal Information",
-      description: "Update your profile details",
-      action: () => setShowEditDialog(true),
-      badge: null,
-    },
+    // {
+    //   icon: User,
+    //   title: "Personal Information",
+    //   description: "Update your profile details",
+    //   action: () => setShowEditDialog(true),
+    //   badge: null,
+    // },
     {
       icon: Watch,
       title: "Variable Devices",
