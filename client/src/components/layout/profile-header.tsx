@@ -172,6 +172,7 @@ export default function ProfileHeader() {
   const handleLogout = async () => {
     Auth.logOut();
     localStorage.clear();
+    navigate("/");
     window.location.reload();
   };
 

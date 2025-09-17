@@ -484,34 +484,34 @@ export default function Profile() {
       badge:
         connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
     },
-    {
-      icon: Bell,
-      title: "Notifications",
-      description: "Manage your notification preferences",
-      action: () => setShowNotificationsDialog(true),
-      badge: null,
-    },
-    {
-      icon: Shield,
-      title: "Privacy & Data",
-      description: "Control your data sharing preferences",
-      action: () => setShowPrivacyDialog(true),
-      badge: null,
-    },
-    {
-      icon: Download,
-      title: "Export Data",
-      description: "Download your health data",
-      action: () => handleExportData(),
-      badge: null,
-    },
-    {
-      icon: HelpCircle,
-      title: "Help & Support",
-      description: "Get help and contact support",
-      action: () => setShowHelpDialog(true),
-      badge: null,
-    },
+    // {
+    //   icon: Bell,
+    //   title: "Notifications",
+    //   description: "Manage your notification preferences",
+    //   action: () => setShowNotificationsDialog(true),
+    //   badge: null,
+    // },
+    // {
+    //   icon: Shield,
+    //   title: "Privacy & Data",
+    //   description: "Control your data sharing preferences",
+    //   action: () => setShowPrivacyDialog(true),
+    //   badge: null,
+    // },
+    // {
+    //   icon: Download,
+    //   title: "Export Data",
+    //   description: "Download your health data",
+    //   action: () => handleExportData(),
+    //   badge: null,
+    // },
+    // {
+    //   icon: HelpCircle,
+    //   title: "Help & Support",
+    //   description: "Get help and contact support",
+    //   action: () => setShowHelpDialog(true),
+    //   badge: null,
+    // },
     {
       icon: Lock,
       title: "Change Password",
@@ -723,7 +723,8 @@ export default function Profile() {
           </Card>
 
           {/* Preferences & Security */}
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
+          <div className="my-4"></div>
+          {/* <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-purple-800 dark:from-white dark:to-purple-200 bg-clip-text text-transparent flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -766,7 +767,7 @@ export default function Profile() {
                 </button>
               ))}
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Edit Profile Dialog */}
