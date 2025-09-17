@@ -528,6 +528,18 @@ export default function Profile() {
       badge: null,
     },
   ];
+  useEffect(() => {
+    if (devicesData?.data_sources) {
+      devicesData?.data_sources?.forEach((el:any) => {
+        if (el.connected) {
+          Application.addEvent({
+            event_name: el.name,
+            event_type: "connected",
+          });
+        }
+      });
+    }
+  }, [devicesData?.data_sources]);
 
   const getSubscriptionBadge = (tier: string) => {
     switch (tier) {
@@ -1751,10 +1763,7 @@ export default function Profile() {
                                     });
                                   } else {
                                     // Handle connect - open authorization URL
-                                    Application.addEvent({
-                                      event_name: source.name,
-                                      event_type: "connected",
-                                    });
+
                                     window.open(
                                       source.authorization_url,
                                       "_blank"
