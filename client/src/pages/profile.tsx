@@ -290,7 +290,9 @@ export default function Profile() {
       const serverMessage = error?.response?.data?.detail;
       toast({
         title: "Password change failed",
-        description: serverMessage || (error instanceof Error ? error.message : "Please try again."),
+        description:
+          serverMessage ||
+          (error instanceof Error ? error.message : "Please try again."),
         variant: "destructive",
       });
     },
@@ -407,7 +409,9 @@ export default function Profile() {
     } catch (error: any) {
       toast({
         title: "Failed to save privacy settings",
-        description: error?.response?.data?.detail || (error instanceof Error ? error.message : "Please try again."),
+        description:
+          error?.response?.data?.detail ||
+          (error instanceof Error ? error.message : "Please try again."),
         variant: "destructive",
       });
     }
@@ -649,7 +653,7 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Active Plans:
+                      Action Plan:
                     </span>
                     <span className="font-semibold text-green-600 dark:text-green-400">
                       {clientInformation?.action_plan || 2}
