@@ -8,7 +8,6 @@ import {
   BookOpen,
   FileText,
   Headphones,
-  Play,
   Search,
   Video
 } from "lucide-react";
@@ -315,13 +314,13 @@ export default function EducationalPage() {
                         }}
                         className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium transition-all duration-300"
                       >
-                        <Play className="w-4 h-4 mr-2" />
+                        <BookOpen className="w-4 h-4 mr-2" />
                         {/* {content.title === "video"
                           ? "Watch"
                           : content.title === "podcast"
                           ? "Listen"
                           : "Read"} */}
-                        Watch
+                        Read more
                       </Button>
                     </div>
                   </div>

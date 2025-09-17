@@ -621,7 +621,7 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Member since:
+                      Member Since:
                     </span>
                     <span className="font-medium text-gray-900 dark:text-gray-100">
                       {getMembershipDuration()}
