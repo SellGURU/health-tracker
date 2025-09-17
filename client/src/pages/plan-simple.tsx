@@ -15,7 +15,7 @@ import {
   Pill,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface Filters {
   Type: string[];
@@ -113,6 +113,8 @@ export default function Plan() {
     title: null,
   });
   const [encodedMi, setEncodedMi] = useState<string>("");
+  const dateScrollRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     setEncodedMi(localStorage.getItem("encoded_mi") || "");
   }, []);
@@ -253,6 +255,17 @@ export default function Plan() {
       handleGetTodayTasks();
     }
   }, [activeTab]);
+
+  // Scroll to center when weekly tasks are loaded
+  useEffect(() => {
+    if (activeTab === "calendar" && weeklyTasks.length > 0 && dateScrollRef.current) {
+      const scrollContainer = dateScrollRef.current;
+      const scrollWidth = scrollContainer.scrollWidth;
+      const clientWidth = scrollContainer.clientWidth;
+      const scrollTo = (scrollWidth - clientWidth) / 2;
+      scrollContainer.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  }, [weeklyTasks, activeTab]);
 
   const handleCheckTask = (taskId: string) => {
     Application.checkTask({ task_id: taskId })
@@ -682,6 +695,7 @@ export default function Plan() {
                           <Button
                             variant={completed ? "default" : "outline"}
                             size="sm"
+                            disabled={completed}
                             onClick={() => {
                               if (isCurrentDay) {
                                 if (activeTab === "today") {
@@ -704,7 +718,7 @@ export default function Plan() {
                             }}
                             className={`w-full ${
                               completed
-                                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                ? "bg-emerald-500 hover:bg-emerald-600 text-white opacity-50 cursor-not-allowed"
                                 : "hover:bg-green-50 dark:hover:bg-green-900/20"
                             }`}
                             style={{ marginBottom: "5px" }}
@@ -771,6 +785,7 @@ export default function Plan() {
             <Button
               variant={task.Status ? "default" : "outline"}
               size="sm"
+              disabled={task.Status}
               onClick={() => {
                 handleUpdateTaskStatus(task.task_id, true);
                 if (!task.Status) {
@@ -782,7 +797,7 @@ export default function Plan() {
               }}
               className={`w-full !mt-4 !-mb-6 ${
                 task.Status
-                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white opacity-50 cursor-not-allowed"
                   : "hover:bg-green-50 dark:hover:bg-green-900/20"
               }`}
             >
@@ -936,7 +951,7 @@ export default function Plan() {
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 text-center">
                 Select a Date
               </h3>
-              <div className="flex gap-2 overflow-x-auto pb-2 justify-start">
+              <div ref={dateScrollRef} className="flex gap-2 hiddenScrollBar overflow-x-auto pb-2 justify-start">
                 {getDateRange().map((dateInfo) => {
                   const isCurrentDay = isToday(dateInfo.key);
                   const isSelected = selectedDate === dateInfo.key;

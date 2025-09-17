@@ -572,19 +572,21 @@ export default function YouMenu() {
                   <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
                     <Brain className="w-7 h-7 text-white" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100">
-                      Latest Deep Analysis
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-light">
-                      Generated{" "}
-                      {
-                        holisticPlanActionPlan.latest_deep_analysis.split(
-                          "T"
-                        )[0]
-                      }
-                    </p>
-                  </div>
+                  { holisticPlanActionPlan.latest_deep_analysis &&
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100">
+                        Latest Deep Analysis
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 font-light">
+                        Generated{" "}
+                        {
+                          holisticPlanActionPlan.latest_deep_analysis.split(
+                            "T"
+                          )[0]
+                        }
+                      </p>
+                    </div>
+                  }
                 </div>
               </div>
 

@@ -211,3 +211,13 @@
 .animate-shimmer {
   animation: shimmer 2s ease-in-out infinite;
 }
+
+
+.hiddenScrollBar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hiddenScrollBar::-webkit-scrollbar {
+  display: none;
+}
