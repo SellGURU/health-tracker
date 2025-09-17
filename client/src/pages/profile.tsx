@@ -860,10 +860,10 @@ export default function Profile() {
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer-not-to-say">
+                      {/* <SelectItem value="other">Other</SelectItem> */}
+                      {/* <SelectItem value="prefer-not-to-say">
                         Prefer not to say
-                      </SelectItem>
+                      </SelectItem> */}
                     </SelectContent>
                   </Select>
                 </div>
