@@ -490,7 +490,7 @@ export default function Profile() {
     // },
     {
       icon: Watch,
-      title: "Variable Devices",
+      title: "Wearable Devices",
       description: "Connect and manage your health devices",
       action: () => setShowDevicesModal(true),
       badge:
