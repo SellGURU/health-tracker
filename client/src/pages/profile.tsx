@@ -541,10 +541,7 @@ export default function Profile() {
             event_type: "connected",
           });
         }else{
-          Application.addEvent({
-            event_name: el.name,
-            event_type: "disconnected",
-          });
+          Application.disConnectVariable(el.name);
         }
       });
     }
