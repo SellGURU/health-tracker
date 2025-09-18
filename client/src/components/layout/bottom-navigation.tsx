@@ -20,8 +20,8 @@ export default function BottomNavigation() {
   const [location] = useLocation();
 
   return (
-    <div className="bg-gradient-to-r fixed bottom-0 left-0 right-0 z-50 from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-t border-gray-200/30 dark:border-gray-700/30 shadow-lg">
-      <div className="max-w-md mx-auto px-2 sm:px-6 py-2 sm:py-3">
+    <div className="dient-to-r sticky bottom-0  from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-t border-gray-200/30 dark:border-gray-700/30 px-2 sm:px-6 py-2 sm:py-3 shadow-lg">
+      {/* <div className="max-w-md mx-auto px-2 sm:px-6 py-2 sm:py-3"> */}
         <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -62,7 +62,7 @@ export default function BottomNavigation() {
           );
         })}
         </div>
-      </div>
+      {/* </div> */}
     </div>
   );
 }
