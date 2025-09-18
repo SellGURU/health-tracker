@@ -3629,7 +3629,7 @@ caniuse-lite@^1.0.30001646, caniuse-lite@^1.0.30001741:
 
 capacitor-rook-sdk@^0.5.0:
   version "0.5.0"
-  resolved "https://registry.npmjs.org/capacitor-rook-sdk/-/capacitor-rook-sdk-0.5.0.tgz"
+  resolved "https://registry.yarnpkg.com/capacitor-rook-sdk/-/capacitor-rook-sdk-0.5.0.tgz#001506049bb26bf983933d0b5e27dd52160fc06b"
   integrity sha512-bSQhqmQ5na1d7sPnYgLLT9XC6nTghEAF+7G5goTz5XmyBW/dqHzjpbfJFn9B5ueSo7Eze+WLcG+kpQqf8Ezmeg==
 
 chalk@2.4.2:

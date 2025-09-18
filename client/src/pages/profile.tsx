@@ -460,7 +460,7 @@ export default function Profile() {
         enableBackgroundSync: true,
         enableEventsBackgroundSync: true,
       })
-        .then(() => console.log("Initialized"))
+        .then(() => console.log("Initialized rook"))
         .catch((e: any) => console.log("error", e));
     } catch (error) {
       console.error("Error fetching devices data:", error);
