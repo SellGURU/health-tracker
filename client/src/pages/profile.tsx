@@ -464,7 +464,9 @@ export default function Profile() {
       })
         .then(() => {
           console.log("Initialized rook")
-          RookPermissions.requestAllHealthConnectPermissions();
+          RookPermissions.requestAllHealthConnectPermissions().then((e) => {
+            console.log("e", e)
+          });
         })
         .catch((e: any) => console.log("error", e));
     } catch (error) {
