@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -7,6 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
 import ProfileHeader from "./profile-header";
+import { usePushNotifications } from "@/hooks/use-pushNotification";
+import NotificationApi from "@/api/notification";
+import { Capacitor } from "@capacitor/core";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -18,7 +21,16 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   const [showSearch, setShowSearch] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const { token, notifications } = usePushNotifications();
+  useEffect(() => {
+    if(Capacitor.isNativePlatform()){
+      if(token){
+        NotificationApi.registerToken(token).then((res) => {
+          // console.log(res);
+        });
+      }
+    }
+  }, [token]);
   // Pages that should use the ProfileHeader instead of the default global header
   const useProfileHeader = true; // Use ProfileHeader for all pages for consistency
 
