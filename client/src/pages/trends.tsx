@@ -228,23 +228,23 @@ export default function Trends() {
     });
   }, []);
     // console.log(data);
-    return data.sort((a: any, b: any) => {
-      const lowA = parseFloat(a.low ?? '');
-      const lowB = parseFloat(b.low ?? '');
+    // return data.sort((a: any, b: any) => {
+    //   const lowA = parseFloat(a.low ?? '');
+    //   const lowB = parseFloat(b.low ?? '');
 
-      const aLow = isNaN(lowA) ? -Infinity : lowA;
-      const bLow = isNaN(lowB) ? -Infinity : lowB;
+    //   const aLow = isNaN(lowA) ? -Infinity : lowA;
+    //   const bLow = isNaN(lowB) ? -Infinity : lowB;
 
-      if (aLow !== bLow) return aLow - bLow;
+    //   if (aLow !== bLow) return aLow - bLow;
 
-      const highA = parseFloat(a.high ?? '');
-      const highB = parseFloat(b.high ?? '');
+    //   const highA = parseFloat(a.high ?? '');
+    //   const highB = parseFloat(b.high ?? '');
 
-      const aHigh = isNaN(highA) ? Infinity : highA;
-      const bHigh = isNaN(highB) ? Infinity : highB;
+    //   const aHigh = isNaN(highA) ? Infinity : highA;
+    //   const bHigh = isNaN(highB) ? Infinity : highB;
 
-      return aHigh - bHigh;
-    });
+    //   return aHigh - bHigh;
+    // });
 
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
