@@ -235,7 +235,7 @@ export default function Trends() {
       const low = bound.low !== null ? parseFloat(bound.low as string) : -Infinity;
       const high = bound.high !== null ? parseFloat(bound.high as string) : Infinity;
 
-      if (value >= low && value < high && bound.status === status) {
+      if (value >= low && value <= high && bound.status === status) {
         return bound.label && bound.label.trim() !== "" 
           ? bound.label 
           : bound.status;
