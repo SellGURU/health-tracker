@@ -61,6 +61,8 @@ export default function Profile() {
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
+    active_client:boolean;
+    plan?:string;
     coach_username: [];
     connected_wearable: boolean;
     date_of_birth: string;
@@ -493,7 +495,7 @@ export default function Profile() {
     // },
     {
       icon: Watch,
-      title: "Variable Devices",
+      title: "Wearable Devices",
       description: "Connect and manage your health devices",
       action: () => setShowDevicesModal(true),
       badge:
@@ -689,14 +691,21 @@ export default function Profile() {
                 </div>
 
                 <div className="flex items-center gap-2 pt-2">
-                  {getSubscriptionBadge(user?.subscriptionTier || "free")}
-                  <Badge
-                    variant="outline"
-                    className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
-                  >
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active User
-                  </Badge>
+                  {/* {clientInformation.plan} */}
+                  {clientInformation?.plan &&
+                  <>
+                  {getSubscriptionBadge(clientInformation?.plan?clientInformation.plan:"")}
+                  </>
+                  }
+                  {clientInformation?.active_client &&
+                    <Badge
+                      variant="outline"
+                      className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
+                    >
+                      <Activity className="w-3 h-3 mr-1" />
+                      Active User
+                    </Badge>
+                  }
                 </div>
               </div>
             </div>

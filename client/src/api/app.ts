@@ -98,7 +98,7 @@ class Application extends Api {
     return this.post("/mobile/settings/disconnect_device",{
       disconnected_device:device
     })
-  }
+  }  
   static getHolisticPlanActionPlan() {
     const response = this.post("/mobile/holistic_plan_action_plan", {});
     return response;

@@ -510,7 +510,8 @@ export default function Trends() {
                   style={{ color: resolveColor(selectedBiomarker.status[0]) }}
                   className={`w-12 h-12 bg-gradient-to-br rounded-2xl flex items-center justify-center shadow-lg`}
                 >
-                  <Droplets></Droplets>
+                  {/* <Droplets></Droplets> */}
+                  <img src={resolveAnalyseIcon(selectedBiomarker.subcategory)} />
                 </div>
                 <div>
                   <DialogTitle className="text-2xl font-thin">
