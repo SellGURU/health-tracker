@@ -387,8 +387,8 @@ export default function Trends() {
                         }}
                         className={`text-xs flex-shrink-0`}
                       >
-                        {biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0].label !=''?
-                      biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0].label:
+                        {biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0]?.label !=''?
+                      biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0]?.label:
                       biomarker.status[0].toUpperCase()
                       }
                       </Badge>
@@ -528,8 +528,8 @@ export default function Trends() {
                           }}
                           className={`mt-3`}
                         >
-                        {selectedBiomarker.chart_bounds.filter((el:any) => el.status == selectedBiomarker.status[0])[0].label!=''?
-                          selectedBiomarker.chart_bounds.filter((el:any) => el.status == selectedBiomarker.status[0])[0].label:
+                        {selectedBiomarker.chart_bounds.filter((el:any) => el.status == selectedBiomarker.status[0])[0]?.label!=''?
+                          selectedBiomarker.chart_bounds.filter((el:any) => el.status == selectedBiomarker.status[0])[0]?.label:
                           selectedBiomarker.status[0].toUpperCase()
                           }
                         </Badge>
