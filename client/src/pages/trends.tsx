@@ -227,6 +227,42 @@ export default function Trends() {
       setMochBiomarkers(res.data.biomarkers);
     });
   }, []);
+  const findMatchingLabel = (obj: any) => {
+    const value = parseFloat(obj.values[obj.values.length - 1]); // آخرین مقدار
+    const status = obj.status[obj.status.length - 1];            // آخرین استاتوس
+
+    for (const bound of obj.chart_bounds) {
+      const low = bound.low !== null ? parseFloat(bound.low as string) : -Infinity;
+      const high = bound.high !== null ? parseFloat(bound.high as string) : Infinity;
+
+      if (value >= low && value <= high && bound.status === status) {
+        return bound.label && bound.label.trim() !== "" 
+          ? bound.label 
+          : bound.status;
+      }
+    }
+
+    return null; // اگر چیزی پیدا نشد
+  }  
+    // console.log(data);
+    // return data.sort((a: any, b: any) => {
+    //   const lowA = parseFloat(a.low ?? '');
+    //   const lowB = parseFloat(b.low ?? '');
+
+    //   const aLow = isNaN(lowA) ? -Infinity : lowA;
+    //   const bLow = isNaN(lowB) ? -Infinity : lowB;
+
+    //   if (aLow !== bLow) return aLow - bLow;
+
+    //   const highA = parseFloat(a.high ?? '');
+    //   const highB = parseFloat(b.high ?? '');
+
+    //   const aHigh = isNaN(highA) ? Infinity : highA;
+    //   const bHigh = isNaN(highB) ? Infinity : highB;
+
+    //   return aHigh - bHigh;
+    // });
+
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
   });
@@ -243,17 +279,14 @@ export default function Trends() {
     setSelectedBiomarker(biomarker);
     setShowDetailModal(true);
   };
-  const optimalRanges = selectedBiomarker?.chart_bounds?.filter(
-    (el: any) => el.status == "OptimalRange"
-  );
-  if(optimalRanges?.length == 0) {
-    selectedBiomarker?.chart_bounds?.filter(
-        (el: any) => el.status == "HealthyRange"
-      ).map((el: any) => {
-        optimalRanges.push(el);
-
-      })    
+  const resolveOptimalRangesSelectedBiomarker = (biomarker: any) => {
+    console.log("biomarker => ", biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange"));
+    if(biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange").length > 0){
+      return biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange")
+    }
+    return biomarker?.chart_bounds?.filter((el: any) => el.status == "HealthyRange")
   }
+
   
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -342,17 +375,17 @@ export default function Trends() {
             const Icon = biomarker.icon;
             const isExpanded = expandedCards[biomarker.id];
             const statusBadge = getStatusBadge(biomarker.status);
-            const optimalRanges = biomarker.chart_bounds.filter(
-              (el: any) => el.status == "OptimalRange"
-            );
-            if(optimalRanges?.length == 0) {
-              selectedBiomarker?.chart_bounds?.filter(
-                  (el: any) => el.status == "HealthyRange"
-                ).map((el: any) => {
-                  optimalRanges.push(el);
+            // const optimalRanges = biomarker.chart_bounds.filter(
+            //   (el: any) => el.status == "OptimalRange"
+            // );
+            // if(optimalRanges?.length == 0) {
+            //   selectedBiomarker?.chart_bounds?.filter(
+            //       (el: any) => el.status == "HealthyRange"
+            //     ).map((el: any) => {
+            //       optimalRanges.push(el);
 
-                })    
-            }
+            //     })    
+            // }
             return (
               <Card
                 key={biomarker.name}
@@ -387,10 +420,8 @@ export default function Trends() {
                         }}
                         className={`text-xs flex-shrink-0`}
                       >
-                        {biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0]?.label !=''?
-                      biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0]?.label:
-                      biomarker.status[0].toUpperCase()
-                      }
+                        {findMatchingLabel(biomarker)}
+                      
                       </Badge>
                     </div>
                   </div>
@@ -413,10 +444,10 @@ export default function Trends() {
                       Optimal Range
                     </div>
                     <div className="text-sm flex flex-wrap gap-4 font-medium text-gray-700 dark:text-gray-300">
-                      {optimalRanges.map((el: any,index:number) => {
+                      {resolveOptimalRangesSelectedBiomarker(biomarker).map((el: any,index:number) => {
                         return (
                           <div key={el.status} className="flex items-center">
-                            {(optimalRanges.length-1 == index && index != 0) &&
+                            {(resolveOptimalRangesSelectedBiomarker(biomarker).length-1 == index && index != 0) &&
                               <div className=" mr-4">
                               -
                               </div>
@@ -548,10 +579,10 @@ export default function Trends() {
                           <span className="text-gray-600 dark:text-gray-400">
                             Optimal Range:
                           </span>
-                          {optimalRanges.map((el: any,index:number) => {
+                          {resolveOptimalRangesSelectedBiomarker(selectedBiomarker).map((el: any,index:number) => {
                             return (
                               <div key={el.status} className="flex items-center">
-                                {(optimalRanges.length-1 == index && index != 0) &&
+                                {(resolveOptimalRangesSelectedBiomarker(selectedBiomarker).length-1 == index && index != 0) &&
                                   <div className=" mr-4">
                                   -
                                   </div>
