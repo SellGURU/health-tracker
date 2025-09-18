@@ -227,6 +227,23 @@ export default function Trends() {
       setMochBiomarkers(res.data.biomarkers);
     });
   }, []);
+  const findMatchingLabel = (obj: any) => {
+    const value = parseFloat(obj.values[obj.values.length - 1]); // آخرین مقدار
+    const status = obj.status[obj.status.length - 1];            // آخرین استاتوس
+
+    for (const bound of obj.chart_bounds) {
+      const low = bound.low !== null ? parseFloat(bound.low as string) : -Infinity;
+      const high = bound.high !== null ? parseFloat(bound.high as string) : Infinity;
+
+      if (value >= low && value < high && bound.status === status) {
+        return bound.label && bound.label.trim() !== "" 
+          ? bound.label 
+          : bound.status;
+      }
+    }
+
+    return null; // اگر چیزی پیدا نشد
+  }  
     // console.log(data);
     // return data.sort((a: any, b: any) => {
     //   const lowA = parseFloat(a.low ?? '');
@@ -403,10 +420,8 @@ export default function Trends() {
                         }}
                         className={`text-xs flex-shrink-0`}
                       >
-                        {biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0]?.label !=''?
-                      biomarker.chart_bounds.filter((el:any) => el.status == biomarker.status[0])[0]?.label:
-                      biomarker.status[0].toUpperCase()
-                      }
+                        {findMatchingLabel(biomarker)}
+                      
                       </Badge>
                     </div>
                   </div>
