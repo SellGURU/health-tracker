@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { RookConfig } from "capacitor-rook-sdk";
+import { RookConfig, RookPermissions } from "capacitor-rook-sdk";
 import {
   Activity,
   Award,
@@ -460,7 +460,10 @@ export default function Profile() {
         enableBackgroundSync: true,
         enableEventsBackgroundSync: true,
       })
-        .then(() => console.log("Initialized rook"))
+        .then(() => {
+          console.log("Initialized rook")
+          RookPermissions.requestAllHealthConnectPermissions();
+        })
         .catch((e: any) => console.log("error", e));
     } catch (error) {
       console.error("Error fetching devices data:", error);
