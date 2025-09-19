@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: "com.innovatifyltd",
-  appName: 'Holosticare',
+  appName: 'holisticare',
   webDir: 'dist/public',
   plugins: {
     PushNotifications: {
