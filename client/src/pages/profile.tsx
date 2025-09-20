@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { RookConfig, RookPermissions } from "capacitor-rook-sdk";
+import { RookConfig, RookHealthConnect, RookPermissions, RookSummaries } from "capacitor-rook-sdk";
 import {
   Activity,
   Award,
@@ -418,7 +418,6 @@ export default function Profile() {
       });
     }
   };
-
   const fetchDevicesData = async () => {
     if (!clientInformation?.email) {
       toast({
@@ -467,6 +466,10 @@ export default function Profile() {
           RookPermissions.requestAllHealthConnectPermissions().then((e) => {
             console.log("e", e)
           });
+          RookPermissions.requestAndroidPermissions().then((e) => console.log("e2", e));
+          RookHealthConnect.scheduleYesterdaySync({
+            doOnEnd:"oldest"
+          });
         })
         .catch((e: any) => console.log("error", e));
     } catch (error) {
@@ -483,6 +486,21 @@ export default function Profile() {
     }
   };
 
+  const connectSdk = () =>{
+    RookConfig.initRook({
+      environment: "production",
+      clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+      password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+      enableBackgroundSync: true,
+      enableEventsBackgroundSync: true,
+    })
+    .then(() => {
+      console.log("Initialized rook")
+      RookPermissions.requestAllHealthConnectPermissions().then((e) => {
+        console.log("e", e)
+      });
+    })
+  }
   // Device management functions with ROOK integration
 
   // Check ROOK connection status
