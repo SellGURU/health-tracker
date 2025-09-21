@@ -109,7 +109,7 @@ export default function Profile() {
   const [isExporting, setIsExporting] = useState(false);
   const [devicesData, setDevicesData] = useState<any>(true);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [editData, setEditData] = useState({
     firstName: "",
     lastName: "",
@@ -489,7 +489,7 @@ export default function Profile() {
   };
 
   const connectSdk = () =>{
-    setIsConnecting(true);
+    setIsConnecting('connecting');
     const initRook = async () => {
       try {
         await RookConfig.initRook({
@@ -502,7 +502,7 @@ export default function Profile() {
         console.log("Initialized rook");
 
         // ثبت یوزر در ROOK
-        const userId = "user-123";
+        const userId = clientInformation?.email;
         if ((RookConfig as any).updateUserID) {
           await (RookConfig as any).updateUserID(userId);
         } else {
@@ -521,8 +521,9 @@ export default function Profile() {
         await RookHealthConnect.scheduleYesterdaySync({
           doOnEnd:'oldest',
         });
-        setIsConnecting(false);
+        setIsConnecting('connected');
       } catch (e) {
+        setIsConnecting('disconnected');
         console.error("Error initializing Rook:", e);
       }
     };
@@ -530,7 +531,7 @@ export default function Profile() {
   }
 
   const handleConnect = async () => {
-    setIsConnecting(true);
+    // setIsConnecting(true);
     try {
       await connectSdk();
       toast({
@@ -544,7 +545,7 @@ export default function Profile() {
         variant: "destructive",
       });
     } finally {
-      setIsConnecting(false);
+      // setIsConnecting(false);
     }
   };
   // Device management functions with ROOK integration
@@ -1780,13 +1781,17 @@ export default function Profile() {
                   <div className="space-y-3 my-8 max-h-96 overflow-y-auto">
                     <Button
                       onClick={connectSdk}
-                      disabled={isConnecting}
+                      disabled={isConnecting === 'connecting'}
                       className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg disabled:opacity-50"
                     >
-                      {isConnecting ? (
+                      {isConnecting==='connecting' ? (
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           Connecting...
+                        </div>
+                      ) : isConnecting==='connected' ? (
+                        <div className="flex items-center gap-2">
+                          Connected
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
