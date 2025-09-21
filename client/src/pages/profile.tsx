@@ -489,24 +489,44 @@ export default function Profile() {
   };
 
   const connectSdk = () =>{
-      RookConfig.initRook({
-        environment: "production",
-        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-        enableBackgroundSync: true,
-        enableEventsBackgroundSync: true,
-      })
-        .then(() => {
-          console.log("Initialized rook")
-          RookPermissions.requestAllHealthConnectPermissions().then((e) => {
-            console.log("e", e)
-          });
-          RookPermissions.requestAndroidPermissions().then((e) => console.log("e2", e));
-          RookHealthConnect.scheduleYesterdaySync({
-            doOnEnd:"oldest"
-          });
-        })
-        .catch((e: any) => console.log("error", e));
+    setIsConnecting(true);
+    const initRook = async () => {
+      try {
+        await RookConfig.initRook({
+          environment: "production",
+          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+          enableBackgroundSync: true,
+          enableEventsBackgroundSync: true,
+        });
+        console.log("Initialized rook");
+
+        // ثبت یوزر در ROOK
+        const userId = "user-123";
+        if ((RookConfig as any).updateUserID) {
+          await (RookConfig as any).updateUserID(userId);
+        } else {
+          await (RookConfig as any).updateUserId(userId);
+        }
+        console.log("User registered:", userId);
+
+        // گرفتن مجوزها
+        const perms = await RookPermissions.requestAllHealthConnectPermissions();
+        console.log("HealthConnect permissions:", perms);
+
+        const androidPerms = await RookPermissions.requestAndroidPermissions();
+        console.log("Android permissions:", androidPerms);
+
+        // اجرای sync دیروز
+        await RookHealthConnect.scheduleYesterdaySync({
+          doOnEnd:'oldest',
+        });
+        setIsConnecting(false);
+      } catch (e) {
+        console.error("Error initializing Rook:", e);
+      }
+    };
+    initRook();
   }
 
   const handleConnect = async () => {
@@ -1759,7 +1779,7 @@ export default function Profile() {
 
                   <div className="space-y-3 my-8 max-h-96 overflow-y-auto">
                     <Button
-                      onClick={handleConnect}
+                      onClick={connectSdk}
                       disabled={isConnecting}
                       className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg disabled:opacity-50"
                     >
