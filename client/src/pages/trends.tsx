@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { resolveAnalyseIcon } from "../help";
+import BiomarkerChart from "@/components/trends/biomarkerChart";
+import Toggle from "@/components/trends/Toggle";
 
 // Mock biomarker data for enhanced UI
 // const mockBiomarkers = [
@@ -329,6 +331,16 @@ export default function Trends() {
       biomarker.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery, mockBiomarkers]);
+  const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+
+  const handleToggleChange = (biomarkerName: string, value: boolean) => {
+    setToggleStates((prevState) => ({
+      ...prevState,
+      [biomarkerName]: value,
+    }));
+  };
 
   const resolveOptimalRange = (Range: any) => {
     return (
@@ -371,18 +383,10 @@ export default function Trends() {
 
         {/* Biomarker Cards - Single Column */}
         <div className="space-y-3">
-          {filteredBiomarkers.map((biomarker) => {
-            const Icon = biomarker.icon;
-            const isExpanded = expandedCards[biomarker.id];
-            const statusBadge = getStatusBadge(biomarker.status);
-            // const optimalRanges = biomarker.chart_bounds.filter(
-            //   (el: any) => el.status == "OptimalRange"
-            // );
-            // if(optimalRanges?.length == 0) {
-            //   selectedBiomarker?.chart_bounds?.filter(
-            //       (el: any) => el.status == "HealthyRange"
-            //     ).map((el: any) => {
-            //       optimalRanges.push(el);
+          {filteredBiomarkers.map((biomarker: any) => {
+            const optimalRange = biomarker.chart_bounds.filter(
+              (el: any) => el.status == "OptimalRange"
+            )[0];
 
             //     })    
             // }
@@ -400,13 +404,30 @@ export default function Trends() {
                         className={`w-8 h-8 bg-gradient-to-br rounded-lg flex items-center justify-center shadow-lg flex-shrink-0`}
                       >
                         {/* <Droplets color="red"></Droplets> */}
-                        <img src={resolveAnalyseIcon(biomarker.subcategory)} className="w-4 h-4" />
+                        <img
+                          src={resolveAnalyseIcon(biomarker.subcategory)}
+                          className="w-4 h-4"
+                        />
                         {/* <Icon className="w-5 h-5 text-white" /> */}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between w-full">
                         <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
                           {biomarker.name}
                         </h3>
+                        <div className="flex gap-2 justify-end items-center">
+                          <div className="text-[12px] font-medium text-[#383838]">
+                            Historical Chart
+                          </div>
+                          <Toggle
+                            setChecked={(value: boolean) => {
+                              handleToggleChange(biomarker.name, value);
+                            }}
+                            checked={toggleStates[biomarker.name] || false}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          ></Toggle>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between w-full">
@@ -439,7 +460,7 @@ export default function Trends() {
                   </div>
 
                   {/* Reference Range */}
-                  <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg p-2">
+                  <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                       Optimal Range
                     </div>
@@ -461,21 +482,30 @@ export default function Trends() {
                     </div>
                   </div>
 
-                  {/* Expanded Graph View */}
-                  {isExpanded && (
-                    <div className="mt-3 p-3 bg-white/30 dark:bg-gray-800/30 rounded-lg backdrop-blur-sm">
-                      <h4 className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-2">
-                        Trend Chart
-                      </h4>
-                      <div className="h-32 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10 rounded-lg flex items-center justify-center">
-                        <div className="text-center text-gray-500 dark:text-gray-400">
-                          <BarChart3 className="w-8 h-8 mx-auto mb-1 opacity-50" />
-                          <p className="text-xs">
-                            Interactive chart showing trends over time
-                          </p>
+                  {biomarker.chart_bounds.length > 0 ? (
+                    <>
+                      <div className="w-full">
+                        <BiomarkerChart
+                          biomarker={biomarker}
+                          isCheced={toggleStates[biomarker.name] || false}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-center items-center mt-10 w-full">
+                        <div className="flex flex-col items-center justify-center">
+                          <img
+                            src="/icons/Empty/detailAnalyseEmpty.svg"
+                            alt=""
+                            className="w-[180px]"
+                          />
+                          <div className="text-Text-Primary text-center mt-[-30px] text-sm font-medium">
+                            No Detailed Analysis Available Yet!
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
@@ -528,11 +558,17 @@ export default function Trends() {
               value={activeTab}
               onValueChange={setActiveTab}
               className="mt-4 h-[60vh] overflow-y-auto"
-            >◘
+            >
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="results" className="text-xs">Results</TabsTrigger>
-                <TabsTrigger value="improve" className="text-xs">How to Improve</TabsTrigger>
-                <TabsTrigger value="insights" className="text-xs">Insights</TabsTrigger>
+                <TabsTrigger value="results" className="text-xs">
+                  Results
+                </TabsTrigger>
+                <TabsTrigger value="improve" className="text-xs">
+                  How to Improve
+                </TabsTrigger>
+                <TabsTrigger value="insights" className="text-xs">
+                  Insights
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="results" className="space-y-4 mt-4">
