@@ -301,9 +301,9 @@ export default function YouMenu() {
   const hasHealthData = hasRequiredData;
 
   const renderMainView = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Age Cards - Prominent Display */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <Card
           className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
           onClick={() =>
@@ -314,25 +314,25 @@ export default function YouMenu() {
             })
           }
         >
-          <CardContent className="p-6 text-center relative z-10 h-full">
+          <CardContent className="p-4 text-center relative z-10 h-full">
             {/* Animated background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
 
             <div className="relative">
               {/* Simple icon */}
-              <div className="relative mx-auto mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                  <Activity className="w-10 h-10 text-white" />
+              <div className="relative mx-auto flex justify-center mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                  <Activity className="w-8 h-8 text-white" />
                 </div>
               </div>
 
               {/* Age display */}
-              <div className="mb-3">
-                <div className="text-5xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
+              <div className="mb-2">
+                <div className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
                   {clientInformation?.pheno_age}
                 </div>
-                <div className="text-lg font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">
+                <div className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">
                   Phenotypic Age
                 </div>
               </div>
@@ -349,25 +349,25 @@ export default function YouMenu() {
             })
           }
         >
-          <CardContent className="p-6 text-center relative z-10 h-full">
+          <CardContent className="p-4 text-center relative z-10 h-full">
             {/* Animated background elements */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-pink-400/5 to-rose-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-300/20 to-transparent rounded-full blur-xl animate-pulse"></div>
+            <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-purple-300/20 to-transparent rounded-full blur-xl animate-pulse"></div>
 
             <div className="relative">
               {/* Age icon */}
-              <div className="relative mx-auto mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-3xl">🎂</span>
+              <div className="relative flex justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl">🎂</span>
                 </div>
               </div>
 
               {/* Age display */}
-              <div className="mb-3">
-                <div className="text-5xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm">
+              <div className="mb-2">
+                <div className="text-4xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm">
                   {clientInformation?.age}
                 </div>
-                <div className="text-lg font-thin text-purple-700 dark:text-purple-300 tracking-wide">
+                <div className="text-sm font-thin text-purple-700 dark:text-purple-300 tracking-wide">
                   Chronological Age
                 </div>
               </div>
@@ -379,17 +379,17 @@ export default function YouMenu() {
       {/* Complete Profile CTA if data missing */}
       {!hasRequiredData && (
         <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <CardContent className="p-4 text-center">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+          <CardContent className="p-3 text-center">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 text-sm">
               Complete your Health Profile
             </h3>
-            <p className="text-blue-700 dark:text-blue-300 text-sm mb-4">
+            <p className="text-blue-700 dark:text-blue-300 text-xs mb-3">
               We need your date of birth, height, weight, and some health data
               to calculate your phenotypic age
             </p>
             <Button
               onClick={() => setCurrentView("health-profile")}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 text-sm min-h-[44px]"
             >
               Complete Profile
             </Button>
@@ -403,26 +403,26 @@ export default function YouMenu() {
           className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-teal-50/50 via-white/50 to-cyan-50/50 dark:from-teal-900/20 dark:via-gray-800/50 dark:to-cyan-900/20 border-0 shadow-xl backdrop-blur-lg"
           onClick={() => setLocation("/plan")}
         >
-          <CardContent className="p-6 relative">
+          <CardContent className="p-4 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-lg"></div>
             <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Target className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Target className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100 mb-1">
+                  <h3 className="font-thin text-base text-gray-900 dark:text-gray-100 mb-1">
                     Your Plan
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 font-light">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
                     Goals, challenges & action plans
                   </p>
                 </div>
               </div>
               <div className="relative">
-                <div className="w-20 h-20 relative">
+                <div className="w-16 h-16 relative">
                   <svg
-                    className="w-20 h-20 transform -rotate-90"
+                    className="w-16 h-16 transform -rotate-90"
                     viewBox="0 0 64 64"
                   >
                     <circle
@@ -464,7 +464,7 @@ export default function YouMenu() {
                     </defs>
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                    <span className="text-sm font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
                       {holisticPlanActionPlan.progress}%
                     </span>
                   </div>
@@ -477,37 +477,37 @@ export default function YouMenu() {
 
       {/* Assigned Questionnaires Section */}
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-thin flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-white" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-thin flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
+              <BookOpen className="w-3 h-3 text-white" />
             </div>
             Assigned Questionnaires
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="space-y-2">
+          <div className="space-y-1">
             {questionnaires.map((questionnaire) => (
               <div
                 key={questionnaire.unique_id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm"
+                className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm"
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                       questionnaire.status === "Done"
                         ? "bg-gradient-to-br from-emerald-500 to-teal-500"
                         : "bg-gradient-to-br from-orange-500 to-amber-500"
                     }`}
                   >
                     {questionnaire.status === "Done" ? (
-                      <CheckCircle className="w-4 h-4 text-white" />
+                      <CheckCircle className="w-3 h-3 text-white" />
                     ) : (
-                      <Calendar className="w-4 h-4 text-white" />
+                      <Calendar className="w-3 h-3 text-white" />
                     )}
                   </div>
-                  <div className="flex-1 min-w-0 pr-2">
-                    <div className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
+                  <div className="flex-1 min-w-0 pr-1">
+                    <div className="font-medium text-gray-900 dark:text-gray-100 text-xs truncate">
                       {questionnaire.title}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -534,7 +534,7 @@ export default function YouMenu() {
                           `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
                         );
                       }}
-                      className="text-xs h-7 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
+                      className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
                     >
                       Start
                     </Button>
@@ -549,10 +549,10 @@ export default function YouMenu() {
       {/* Health Summary Card */}
       {hasHealthData && (
         <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-thin flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
-                <Heart className="w-4 h-4 text-white" />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-thin flex items-center gap-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+                <Heart className="w-3 h-3 text-white" />
               </div>
               Health Summary
             </CardTitle>
@@ -564,20 +564,20 @@ export default function YouMenu() {
       {/* Latest Deep Analysis Card */}
       {hasHealthData && (
         <Card className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-purple-50/50 via-white/50 to-indigo-50/50 dark:from-purple-900/20 dark:via-gray-800/50 dark:to-indigo-900/20 border-0 shadow-xl backdrop-blur-lg">
-          <CardContent className="p-6 relative">
+          <CardContent className="p-4 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-lg"></div>
             <div className="relative">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
-                    <Brain className="w-7 h-7 text-white" />
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Brain className="w-6 h-6 text-white" />
                   </div>
                   { holisticPlanActionPlan.latest_deep_analysis &&
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-thin text-lg text-gray-900 dark:text-gray-100">
+                      <h3 className="font-thin text-base text-gray-900 dark:text-gray-100">
                         Latest Deep Analysis
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 font-light">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
                         Generated{" "}
                         {
                           holisticPlanActionPlan.latest_deep_analysis.split(
@@ -590,12 +590,12 @@ export default function YouMenu() {
                 </div>
               </div>
 
-              <div className="space-y-3 mb-5">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 backdrop-blur-sm">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-500/10 backdrop-blur-sm">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-3 h-3 text-white" />
                   </div>
-                  <span className="text-sm font-medium">
+                  <span className="text-xs font-medium">
                     {holisticPlanActionPlan.num_of_interventions} personalized
                     interventions
                   </span>
@@ -603,7 +603,7 @@ export default function YouMenu() {
               </div>
 
               <Button
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
                 onClick={() => {
                   window.open(
                     `https://holisticare.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJHRTYU`
@@ -620,9 +620,9 @@ export default function YouMenu() {
   );
 
   const renderDeletedSubscriptionsView = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-4">
         <Button
           variant="ghost"
           size="sm"
@@ -630,61 +630,61 @@ export default function YouMenu() {
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <h1 className="text-xl font-bold ml-4">Subscription Plans</h1>
+        <h1 className="text-lg font-bold ml-3">Subscription Plans</h1>
       </div>
 
       {/* Plans */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <Card className="border-2 border-blue-200 bg-blue-50 dark:bg-blue-900/20 relative">
-          <div className="absolute -top-3 left-4">
-            <Badge className="bg-orange-500 text-white">POPULAR</Badge>
+          <div className="absolute -top-2 left-3">
+            <Badge className="bg-orange-500 text-white text-xs">POPULAR</Badge>
           </div>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   12-Month Plan
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Best value for committed users
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                   $199
                 </div>
-                <div className="text-sm text-gray-500">$16.58/month</div>
+                <div className="text-xs text-gray-500">$16.58/month</div>
               </div>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-1 mb-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">
                   Weekly coaching sessions (bookable)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">
                   Deep Analysis every 3 months (quarterly)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">Priority booking and support</span>
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">Priority booking and support</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">Unlimited chat with AI copilot</span>
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">Unlimited chat with AI copilot</span>
               </div>
             </div>
 
-            <Button className="w-full bg-blue-600 hover:bg-blue-700" size="lg">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-sm min-h-[44px]">
               Purchase Plan
             </Button>
 
-            <div className="mt-4 text-center">
+            <div className="mt-3 text-center">
               <p className="text-xs text-gray-500">
                 12 weekly coaching sessions remaining
               </p>
@@ -696,44 +696,44 @@ export default function YouMenu() {
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   3-Month Plan
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Perfect for getting started
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                   $79
                 </div>
-                <div className="text-sm text-gray-500">$26.33/month</div>
+                <div className="text-xs text-gray-500">$26.33/month</div>
               </div>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-1 mb-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">One comprehensive Deep Analysis</span>
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">One comprehensive Deep Analysis</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">
                   Chat with Copilot & coach booking
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs">
                   Full access to educational content
                 </span>
               </div>
             </div>
 
-            <Button variant="outline" className="w-full" size="lg">
+            <Button variant="outline" className="w-full text-sm min-h-[44px]">
               Purchase Plan
             </Button>
           </CardContent>
@@ -851,9 +851,9 @@ export default function YouMenu() {
   );
 
   const renderHealthProfile = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-4">
         <Button
           variant="ghost"
           size="sm"
@@ -861,14 +861,14 @@ export default function YouMenu() {
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <h1 className="text-xl font-bold ml-4">Health Profile</h1>
+        <h1 className="text-lg font-bold ml-3">Health Profile</h1>
       </div>
 
       {/* User Avatar and Progress */}
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-3">
         <div className="relative inline-block">
-          <div className="w-24 h-24 rounded-full border-4 border-blue-200 flex items-center justify-center">
-            <Avatar className="w-20 h-20">
+          <div className="w-20 h-20 rounded-full border-4 border-blue-200 flex items-center justify-center">
+            <Avatar className="w-16 h-16">
               <AvatarImage src="/placeholder-avatar.jpg" />
               <AvatarFallback>RZ</AvatarFallback>
             </Avatar>
@@ -879,22 +879,22 @@ export default function YouMenu() {
           />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">rezi</h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h2 className="text-base font-semibold">rezi</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Your profile is 20% complete
           </p>
         </div>
       </div>
 
       {/* Completed Progress */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
-              <span className="font-medium">Basic survey complete</span>
+              <span className="font-medium text-sm">Basic survey complete</span>
               <Badge
                 variant="secondary"
-                className="bg-green-100 text-green-700"
+                className="bg-green-100 text-green-700 text-xs"
               >
                 +10%
               </Badge>
@@ -903,12 +903,12 @@ export default function YouMenu() {
         </Card>
 
         <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
-              <span className="font-medium">Health app connected</span>
+              <span className="font-medium text-sm">Health app connected</span>
               <Badge
                 variant="secondary"
-                className="bg-green-100 text-green-700"
+                className="bg-green-100 text-green-700 text-xs"
               >
                 +10%
               </Badge>
@@ -919,7 +919,7 @@ export default function YouMenu() {
 
       {/* What to do next */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">What to do next?</h3>
+        <h3 className="text-base font-semibold mb-3">What to do next?</h3>
 
         {/* Body System Surveys */}
         <Card className="mb-4">
@@ -1444,8 +1444,8 @@ export default function YouMenu() {
         );
       case "see-all":
         return (
-          <div className="space-y-6">
-            <div className="flex items-center mb-6">
+          <div className="space-y-4">
+            <div className="flex items-center mb-4">
               <Button
                 variant="ghost"
                 size="sm"
@@ -1453,9 +1453,9 @@ export default function YouMenu() {
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <h1 className="text-xl font-bold ml-4">All Health Modules</h1>
+              <h1 className="text-lg font-bold ml-3">All Health Modules</h1>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {healthModules.map((module) => {
                 const IconComponent = module.icon;
                 return (
@@ -1463,14 +1463,14 @@ export default function YouMenu() {
                     key={module.id}
                     className="cursor-pointer hover:shadow-md transition-shadow"
                   >
-                    <CardContent className="p-4 text-center">
+                    <CardContent className="p-3 text-center">
                       <IconComponent
-                        className={`w-8 h-8 mx-auto mb-2 ${module.color}`}
+                        className={`w-6 h-6 mx-auto mb-1 ${module.color}`}
                       />
-                      <h3 className="font-medium text-sm">{module.name}</h3>
+                      <h3 className="font-medium text-xs">{module.name}</h3>
                       {module.progress && (
-                        <div className="mt-2">
-                          <Progress value={module.progress} className="h-2" />
+                        <div className="mt-1">
+                          <Progress value={module.progress} className="h-1" />
                           <p className="text-xs text-gray-500 mt-1">
                             {module.progress}% complete
                           </p>
@@ -1489,8 +1489,8 @@ export default function YouMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="max-w-md mx-auto">{renderCurrentView()}</div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3">
+      <div className="max-w-sm mx-auto">{renderCurrentView()}</div>
     </div>
   );
 }
