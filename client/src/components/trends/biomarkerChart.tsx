@@ -6,27 +6,15 @@ import HistoricalChart from "./HistoricalChart";
 interface biomarkerChartProps {
   biomarker: any;
   isCheced: boolean;
-  setIsCheced: (value: boolean) => void;
 }
 
-const BiomarkerChart = ({
-  biomarker,
-  isCheced,
-  setIsCheced,
-}: biomarkerChartProps) => {
-  const [activeBox, setActiveBox] = useState<any>(
-    biomarker.name ? biomarker.name : ""
-  );
+const BiomarkerChart = ({ biomarker, isCheced }: biomarkerChartProps) => {
   const [active, setActive] = useState<any>(biomarker);
   useEffect(() => {
     if (biomarker != null) {
-      setActiveBox(biomarker.name ? biomarker.name : "");
       setActive(biomarker);
     }
   }, [biomarker]);
-  useEffect(() => {
-    setIsCheced(false);
-  }, [activeBox]);
   return (
     <>
       <div className="flex-grow gap-2 relative flex items-center justify-center">

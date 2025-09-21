@@ -327,7 +327,7 @@ export default function Trends() {
 
         {/* Biomarker Cards - Single Column */}
         <div className="space-y-3">
-          {filteredBiomarkers.map((biomarker) => {
+          {filteredBiomarkers.map((biomarker: any) => {
             const optimalRange = biomarker.chart_bounds.filter(
               (el: any) => el.status == "OptimalRange"
             )[0];
@@ -424,9 +424,6 @@ export default function Trends() {
                         <BiomarkerChart
                           biomarker={biomarker}
                           isCheced={toggleStates[biomarker.name] || false}
-                          setIsCheced={(value: boolean) => {
-                            handleToggleChange(biomarker.name, value);
-                          }}
                         />
                       </div>
                     </>
