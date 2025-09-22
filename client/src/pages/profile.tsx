@@ -74,7 +74,7 @@ export default function Profile() {
     pheno_age: number;
     sex: string;
     verified_account: boolean;
-    plan:string
+    // plan:string
   }>();
 
   const handleGetClientInformation = async () => {
