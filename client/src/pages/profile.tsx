@@ -503,7 +503,7 @@ export default function Profile() {
         console.log("Initialized rook");
 
         // ثبت یوزر در ROOK
-        const userId = clientInformation?.email;
+        const userId = clientInformation?.id;
         if ((RookConfig as any).updateUserID) {
           await (RookConfig as any).updateUserID(userId);
           console.log("User registered:", userId);
