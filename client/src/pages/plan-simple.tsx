@@ -566,7 +566,7 @@ export default function Plan() {
                           : parseInt(e.target.value)
                       )
                     }
-                    className="flex-1 h-9 text-sm"
+                    className="flex-1 h-9 text-xs placeholder:text-xs  placeholder:font-normal"
                     disabled={task.Status}
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
