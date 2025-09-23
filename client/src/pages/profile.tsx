@@ -117,6 +117,7 @@ export default function Profile() {
     dateOfBirth: "",
     gender: "",
   });
+  
   useEffect(() => {
     setEditData({
       firstName: clientInformation?.name?.split(" ")[0] || "",
@@ -492,7 +493,7 @@ export default function Profile() {
   const connectSdk = () => {
     setIsConnecting("connecting");
 
-    const initRook = async () => {
+    const initRook = async (userId: string) => {
       try {
         // 1. Init SDK
         await RookConfig.initRook({
@@ -505,21 +506,21 @@ export default function Profile() {
         console.log("✅ Initialized Rook SDK");
 
         // 2. آماده‌سازی User ID
-        let userId = clientInformation?.id // طول مجاز 1 تا 50
-        if (!userId) {
-          console.error("❌ User ID is missing. Cannot register with Rook.");
-          setIsConnecting("disconnected");
-          return;
-        }
-
+        // let userId = clientInformation?.id // طول مجاز 1 تا 50
+        // if (!userId) {
+        //   console.error("❌ User ID is missing. Cannot register with Rook.");
+        //   setIsConnecting("disconnected");
+        //   return;
+        // }
+        setIsConnecting("connected");
         // 3. ایجاد کاربر (در صورت وجود نداشتن)
         if (RookConfig.updateUserId) {
           await RookConfig.updateUserId({
-            userId: 'amirTest',
+            userId: userId,
           });
           console.log("✅ User created:", userId);
         }
-        console.log("✅ User created2:", userId)
+        // console.log("✅ User created2:", )
 
 
         // 5. درخواست مجوزهای Health Connect
@@ -542,7 +543,9 @@ export default function Profile() {
     };
 
     // اجرای initRook یکبار
-    initRook();
+    if (clientInformation?.id) {
+      initRook(clientInformation?.id);
+    }
   };
 
 
