@@ -489,53 +489,58 @@ export default function Profile() {
     }
   };
 
-  const connectSdk = () =>{
-    setIsConnecting('connecting');
+  const connectSdk = () => {
+    setIsConnecting("connecting");
+
     const initRook = async () => {
       try {
+        // 1. Init SDK
         await RookConfig.initRook({
-          environment: "production",
+          environment: "production", // or "sandbox" if testing
           clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
           password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
           enableBackgroundSync: true,
           enableEventsBackgroundSync: true,
         });
-        console.log("Initialized rook");
+        console.log("✅ Initialized Rook SDK");
 
-        // ثبت یوزر در ROOK
+        // 2. Register user
         const userId = clientInformation?.id;
+        if (!userId) {
+          console.error("❌ User ID is missing. Cannot register with Rook.");
+          setIsConnecting("disconnected");
+          return;
+        }
+
         if ((RookConfig as any).updateUserID) {
           await (RookConfig as any).updateUserID(userId);
-          console.log("User registered:", userId);
-        } else {
+        } else if ((RookConfig as any).updateUserId) {
           await (RookConfig as any).updateUserId(userId);
-          console.log("User registered2:", userId);
         }
-        console.log("User registered3:", userId);
+        console.log("✅ User registered with Rook:", userId);
 
-        // گرفتن مجوزها
+        // 3. Request Health Connect permissions
         const perms = await RookPermissions.requestAllHealthConnectPermissions();
-        console.log("HealthConnect permissions:", perms);
+        console.log("✅ HealthConnect permissions:", perms);
 
+        // 4. Request Android permissions
         const androidPerms = await RookPermissions.requestAndroidPermissions();
-        console.log("Android permissions:", androidPerms);
+        console.log("✅ Android permissions:", androidPerms);
 
-        // اجرای sync دیروز
-        await RookHealthConnect.scheduleYesterdaySync({
-          doOnEnd:'oldest',
-        });
-        setIsConnecting('connected');
+        // 5. Schedule yesterday sync
+        await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
+        console.log("✅ Yesterday sync scheduled");
+
+        setIsConnecting("connected");
       } catch (e) {
-        setIsConnecting('disconnected');
-        console.error("Error initializing Rook:", e);
+        console.error("❌ Error initializing Rook:", e);
+        setIsConnecting("disconnected");
       }
-      initRook();
-    };    
-    setTimeout(() => {
-        initRook();
-    },1000)
+    };
 
-  }
+    // Run initRook once
+    initRook();
+  };
 
   const handleConnect = async () => {
     // setIsConnecting(true);
