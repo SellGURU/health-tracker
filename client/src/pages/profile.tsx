@@ -1815,27 +1815,40 @@ export default function Profile() {
                 <div className="space-y-4">
 
                   <div className="space-y-3 my-8 max-h-96 overflow-y-auto">
-                    <Button
-                      onClick={connectSdk}
-                      disabled={isConnecting === 'connecting'}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg disabled:opacity-50"
-                    >
-                      {isConnecting==='connecting' ? (
+                    {isConnecting === 'connected' ? (
+                      // حالت کانکت شده - فقط نمایش وضعیت
+                      <div className="w-full p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-400">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="font-medium">Connected</span>
+                        </div>
+                        <p className="text-sm text-green-600 dark:text-green-500 text-center mt-2">
+                          Your health devices are connected and syncing data
+                        </p>
+                      </div>
+                    ) : isConnecting === 'connecting' ? (
+                      // حالت در حال اتصال
+                      <Button
+                        disabled
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg opacity-75"
+                      >
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           Connecting...
                         </div>
-                      ) : isConnecting==='connected' ? (
+                      </Button>
+                    ) : (
+                      // حالت قطع شده - دکمه اتصال
+                      <Button
+                        onClick={connectSdk}
+                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
+                      >
                         <div className="flex items-center gap-2">
-                          Connected
+                          <Bluetooth className="w-4 h-4" />
+                          Connect Devices
                         </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          {/* <Bluetooth className="w-4 h-4" /> */}
-                          Connect
-                        </div>
-                      )}
-                    </Button>
+                      </Button>
+                    )}
                     
                     {isConnecting === 'connected' && (
                       <Button
@@ -1845,7 +1858,7 @@ export default function Profile() {
                       >
                         <div className="flex items-center gap-2">
                           <Trash2 className="w-4 h-4" />
-                          disConnect
+                          Disconnect
                         </div>
                       </Button>
                     )}
