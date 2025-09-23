@@ -505,7 +505,7 @@ export default function Profile() {
         console.log("✅ Initialized Rook SDK");
 
         // 2. آماده‌سازی User ID
-        let userId = "27cb3b7343".trim().substring(0, 50); // طول مجاز 1 تا 50
+        let userId = clientInformation?.id // طول مجاز 1 تا 50
         if (!userId) {
           console.error("❌ User ID is missing. Cannot register with Rook.");
           setIsConnecting("disconnected");
@@ -513,16 +513,12 @@ export default function Profile() {
         }
 
         // 3. ایجاد کاربر (در صورت وجود نداشتن)
-        if ((RookConfig as any).createUser) {
-          await (RookConfig as any).createUser({ user_id: userId });
+        if ((RookConfig as any).updateUserId) {
+          await RookConfig.updateUserId({ userId: userId });
           console.log("✅ User created:", userId);
         }
+        console.log("✅ User created2:", userId)
 
-        // 4. بروزرسانی User ID در صورت نیاز
-        if ((RookConfig as any).updateUserId) {
-          await (RookConfig as any).updateUserId(userId);
-          console.log("✅ User ID updated:", userId);
-        }
 
         // 5. درخواست مجوزهای Health Connect
         const perms = await RookPermissions.requestAllHealthConnectPermissions();
