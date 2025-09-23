@@ -505,7 +505,7 @@ export default function Profile() {
         console.log("✅ Initialized Rook SDK");
 
         // 2. Register user
-        const userId = clientInformation?.id;
+        const userId = "27cb3b7343";
         if (!userId) {
           console.error("❌ User ID is missing. Cannot register with Rook.");
           setIsConnecting("disconnected");
