@@ -513,8 +513,10 @@ export default function Profile() {
         }
 
         // 3. ایجاد کاربر (در صورت وجود نداشتن)
-        if ((RookConfig as any).updateUserId) {
-          await RookConfig.updateUserId({ userId: userId });
+        if (RookConfig.updateUserId) {
+          await RookConfig.updateUserId({
+            userId: 'demoUserId',
+          });
           console.log("✅ User created:", userId);
         }
         console.log("✅ User created2:", userId)
