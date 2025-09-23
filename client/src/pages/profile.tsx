@@ -496,7 +496,7 @@ export default function Profile() {
       try {
         // 1. Init SDK
         await RookConfig.initRook({
-          environment: "production", // or "sandbox" if testing
+          environment: "production", // یا "sandbox" برای تست
           clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
           password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
           enableBackgroundSync: true,
@@ -504,30 +504,35 @@ export default function Profile() {
         });
         console.log("✅ Initialized Rook SDK");
 
-        // 2. Register user
-        const userId = "27cb3b7343";
+        // 2. آماده‌سازی User ID
+        let userId = "27cb3b7343".trim().substring(0, 50); // طول مجاز 1 تا 50
         if (!userId) {
           console.error("❌ User ID is missing. Cannot register with Rook.");
           setIsConnecting("disconnected");
           return;
         }
 
-        if ((RookConfig as any).updateUserID) {
-          await (RookConfig as any).updateUserID(userId);
-        } else if ((RookConfig as any).updateUserId) {
-          await (RookConfig as any).updateUserId(userId);
+        // 3. ایجاد کاربر (در صورت وجود نداشتن)
+        if ((RookConfig as any).createUser) {
+          await (RookConfig as any).createUser({ user_id: userId });
+          console.log("✅ User created:", userId);
         }
-        console.log("✅ User registered with Rook:", userId);
 
-        // 3. Request Health Connect permissions
+        // 4. بروزرسانی User ID در صورت نیاز
+        if ((RookConfig as any).updateUserId) {
+          await (RookConfig as any).updateUserId(userId);
+          console.log("✅ User ID updated:", userId);
+        }
+
+        // 5. درخواست مجوزهای Health Connect
         const perms = await RookPermissions.requestAllHealthConnectPermissions();
         console.log("✅ HealthConnect permissions:", perms);
 
-        // 4. Request Android permissions
+        // 6. درخواست مجوزهای Android
         const androidPerms = await RookPermissions.requestAndroidPermissions();
         console.log("✅ Android permissions:", androidPerms);
 
-        // 5. Schedule yesterday sync
+        // 7. برنامه‌ریزی همگام‌سازی داده‌های دیروز
         await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
         console.log("✅ Yesterday sync scheduled");
 
@@ -538,9 +543,10 @@ export default function Profile() {
       }
     };
 
-    // Run initRook once
+    // اجرای initRook یکبار
     initRook();
   };
+
 
   const handleConnect = async () => {
     // setIsConnecting(true);
