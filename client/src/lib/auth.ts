@@ -90,6 +90,7 @@ class AuthService {
     localStorage.removeItem("health_user");
     localStorage.removeItem("health_session");
     localStorage.removeItem("health_session_expires");
+    localStorage.removeItem("health_device_connection_state");
   }
 
   async login(credentials: LoginCredentials): Promise<AuthUser> {

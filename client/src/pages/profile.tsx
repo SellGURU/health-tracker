@@ -126,6 +126,29 @@ export default function Profile() {
       gender: clientInformation?.sex || "",
     });
   }, [clientInformation]);
+
+  // Restore connection state from localStorage on component mount
+  useEffect(() => {
+    const savedConnectionState = localStorage.getItem('health_device_connection_state');
+    if (savedConnectionState) {
+      setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
+    }
+  }, []);
+
+  // Save connection state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('health_device_connection_state', isConnecting);
+  }, [isConnecting]);
+
+  // Function to clear connection state (for testing or manual reset)
+  const clearConnectionState = () => {
+    setIsConnecting('disconnected');
+    localStorage.removeItem('health_device_connection_state');
+    toast({
+      title: "Connection Reset",
+      description: "Device connection state has been cleared.",
+    });
+  };
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -1813,6 +1836,19 @@ export default function Profile() {
                         </div>
                       )}
                     </Button>
+                    
+                    {isConnecting === 'connected' && (
+                      <Button
+                        onClick={clearConnectionState}
+                        variant="outline"
+                        className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Trash2 className="w-4 h-4" />
+                          disConnect
+                        </div>
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : (
