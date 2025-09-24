@@ -531,7 +531,7 @@ export default function YouMenu() {
                         questionnaire.status = "Done";
                         setQuestionnaires([...questionnaires]);
                         window.open(
-                          `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
+                          `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
                         );
                       }}
                       className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
@@ -606,7 +606,7 @@ export default function YouMenu() {
                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
                 onClick={() => {
                   window.open(
-                    `https://holisticare.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJH`
+                    `https://holisticare-develop.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJH`
                   );
                 }}
               >
