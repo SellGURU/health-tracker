@@ -131,7 +131,9 @@ export default function Profile() {
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
     if (savedConnectionState) {
-      setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
+      if(savedConnectionState != 'connecting'){
+        setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
+      }
     }
   }, []);
 
