@@ -1844,7 +1844,7 @@ export default function Profile() {
                         className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
                       >
                         <div className="flex items-center gap-2">
-                          <Bluetooth className="w-4 h-4" />
+                          {/* <Bluetooth className="w-4 h-4" /> */}
                           Connect Devices
                         </div>
                       </Button>
