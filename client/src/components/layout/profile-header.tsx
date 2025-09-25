@@ -34,6 +34,14 @@ import Auth from "@/api/auth";
 import Application from "@/api/app";
 import { toast } from "@/hooks/use-toast";
 import NotificationApi from "@/api/notification";
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from "../ui/dialog";
+import { subscribe } from "@/lib/event";
 // import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
 
 export default function ProfileHeader() {
@@ -45,6 +53,7 @@ export default function ProfileHeader() {
   const [isUnReadNotif, setIsUnReadNotif] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
@@ -97,10 +106,10 @@ export default function ProfileHeader() {
         const response = await NotificationApi.checkNotification();
         if (response && response.data && response.data.new_notifications) {
           setIsUnReadNotif(true);
-          fetchNotifications()
+          fetchNotifications();
         }
       } catch (error) {
-        console.error('Error checking for new notifications:', error);
+        console.error("Error checking for new notifications:", error);
       }
     };
 
@@ -114,7 +123,7 @@ export default function ProfileHeader() {
     const unreadCount = notifications.filter((n) => !n.read_status).length;
     setNotificationCount(unreadCount);
   }, [notifications]);
- const fetchNotifications = async () => {
+  const fetchNotifications = async () => {
     try {
       const res = await NotificationApi.getNotification();
       const notifData = res.data.map((n: any) => ({
@@ -144,9 +153,9 @@ export default function ProfileHeader() {
     fetchNotifications();
   }, []);
   useEffect(() => {
-    if(notifications.filter((n) => n.read_status === false).length == 0) {
+    if (notifications.filter((n) => n.read_status === false).length == 0) {
       setIsUnReadNotif(false);
-    }    
+    }
   }, [notifications]);
   const markAsRead = async (id: string | number) => {
     setNotifications((prev) =>
@@ -164,7 +173,9 @@ export default function ProfileHeader() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read_status: true })));
     try {
       await Promise.all(
-        notifications.map((n) => NotificationApi.mark_read({ notification_id: n.id }))
+        notifications.map((n) =>
+          NotificationApi.mark_read({ notification_id: n.id })
+        )
       );
     } catch (err) {
       console.error("Failed to mark all as read", err);
@@ -218,6 +229,19 @@ export default function ProfileHeader() {
         return "text-gray-600 dark:text-gray-400";
     }
   };
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
+  subscribe("brand_info", (data: any) => {
+    setBrandInfo(data.detail.information);
+  });
 
   return (
     <div className="flex relative items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30  shadow-lg">
@@ -241,7 +265,7 @@ export default function ProfileHeader() {
             variant="ghost"
             size="icon"
             onClick={() => {
-              setShowNotifications(!showNotifications)
+              setShowNotifications(!showNotifications);
             }}
             className="relative w-10 h-10 rounded-full bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:shadow-lg transition-all duration-300"
           >
@@ -269,10 +293,10 @@ export default function ProfileHeader() {
                 <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                   <div className="flex items-center justify-between">
                     <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-                      Notifications 
+                      Notifications
                     </h3>
                     <div className="flex items-center gap-2">
-                      {isUnReadNotif &&
+                      {isUnReadNotif && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -282,7 +306,7 @@ export default function ProfileHeader() {
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Mark all read
                         </Button>
-                      }
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -329,7 +353,8 @@ export default function ProfileHeader() {
                                 : ""
                             }`}
                             onClick={() =>
-                              !notification.read_status && markAsRead(notification.id)
+                              !notification.read_status &&
+                              markAsRead(notification.id)
                             }
                           >
                             <div className="flex items-start gap-2 sm:gap-3">
@@ -363,7 +388,7 @@ export default function ProfileHeader() {
                                     </h4>
                                     <div
                                       className={`text-xs leading-relaxed ${
-                                      notification.read_status
+                                        notification.read_status
                                           ? "text-gray-500 dark:text-gray-500"
                                           : "text-gray-700 dark:text-gray-300"
                                       }`}
@@ -383,7 +408,7 @@ export default function ProfileHeader() {
                                   </div>
 
                                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {!notification.read_status&& (
+                                    {!notification.read_status && (
                                       <Button
                                         variant="ghost"
                                         size="icon"
@@ -447,8 +472,19 @@ export default function ProfileHeader() {
             >
               <Avatar className="h-10 w-10 shadow-lg">
                 <AvatarImage src="/placeholder-avatar.jpg" />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-medium">
-                  U
+                <AvatarFallback
+                  className="text-white font-medium text-[10px]"
+                  style={{
+                    background: `linear-gradient(to right, ${
+                      brandInfo ? brandInfo?.primary_color : `#3b82f6`
+                    }, ${
+                      brandInfo ? brandInfo?.secondary_color : `#a855f7`
+                    })`,
+                  }}
+                >
+                  {(
+                    clientInformation?.name?.split(" ")[0] || ""
+                  ).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -484,12 +520,34 @@ export default function ProfileHeader() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onTouchEnd={handleLogout} onClick={handleLogout}>
+            <DropdownMenuItem
+              onTouchEnd={() => setShowLogoutDialog(true)}
+              onClick={() => setShowLogoutDialog(true)}
+              className="cursor-pointer"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle>Are you sure you want to sign out?</DialogTitle>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={handleLogout} className="bg-red-500 text-white">
+                Sign out
+              </Button>
+              <Button
+                onClick={() => setShowLogoutDialog(false)}
+                className="bg-gray-500 text-white"
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
