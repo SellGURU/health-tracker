@@ -117,10 +117,10 @@ export default function ChatPage() {
     if (messagesEndRef.current) {
       // Use setTimeout to ensure DOM is updated
       setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ 
+        messagesEndRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
-          inline: "nearest"
+          inline: "nearest",
         });
       }, 100);
     }
@@ -617,7 +617,10 @@ export default function ChatPage() {
             </CardHeader>
 
             <CardContent className="flex-1 p-0">
-              <div className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4">
+              <div
+                className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4"
+                style={{ scrollbarWidth: "thin" }}
+              >
                 {messages.map((msg) => {
                   // Use unique key for reported messages
                   const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
