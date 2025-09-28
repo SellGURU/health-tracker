@@ -564,14 +564,14 @@ export default function AuthPage() {
                       >
                         I accept the{" "}
                         <Link
-                          href="https://holisticare.io/privacy-policy/"
+                          href="https://holisticare.io/legal/patients-privacy-policy/"
                           style={{ textDecoration: "underline" }}
                         >
                           Privacy Policy
                         </Link>
                         and{" "}
                         <Link
-                          href="https://holisticare.io/terms-of-service/"
+                          href="https://holisticare.io/legal/patients-terms-of-service/"
                           style={{ textDecoration: "underline" }}
                         >
                           Terms of Service
