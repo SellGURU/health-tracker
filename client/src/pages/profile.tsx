@@ -72,7 +72,7 @@ export default function Profile() {
     pheno_age: number;
     sex: string;
     verified_account: boolean;
-    plan:string
+    plan: string;
   }>();
 
   const handleGetClientInformation = async () => {
@@ -83,7 +83,7 @@ export default function Profile() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
@@ -248,7 +248,7 @@ export default function Profile() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       })
@@ -419,10 +419,10 @@ export default function Profile() {
   };
 
   const fetchDevicesData = async () => {
-    if (!clientInformation?.email) {
+    if (!clientInformation?.id) {
       toast({
         title: "Error",
-        description: "User email not found",
+        description: "User id not found",
         variant: "destructive",
       });
       return;
@@ -431,7 +431,7 @@ export default function Profile() {
     setIsLoadingDevices(true);
     try {
       const response = await fetch(
-        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.email}/data_sources/authorizers`,
+        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
         {
           method: "GET",
           headers: {
@@ -542,7 +542,7 @@ export default function Profile() {
             Plus Plan
           </Badge>
         );
-      
+
       case "professional":
         return (
           <Badge className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 text-purple-700 border-purple-200/50 dark:text-purple-300 dark:border-purple-800/30 backdrop-blur-sm">
