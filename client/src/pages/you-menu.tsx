@@ -141,7 +141,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
@@ -154,7 +154,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
@@ -167,7 +167,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
@@ -180,7 +180,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
@@ -572,7 +572,7 @@ export default function YouMenu() {
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
                     <Brain className="w-6 h-6 text-white" />
                   </div>
-                  { holisticPlanActionPlan.latest_deep_analysis &&
+                  {holisticPlanActionPlan.latest_deep_analysis && (
                     <div className="flex-1 min-w-0">
                       <h3 className="font-thin text-base text-gray-900 dark:text-gray-100">
                         Latest Deep Analysis
@@ -586,7 +586,7 @@ export default function YouMenu() {
                         }
                       </p>
                     </div>
-                  }
+                  )}
                 </div>
               </div>
 

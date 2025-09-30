@@ -105,7 +105,17 @@ export default function Profile() {
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [devicesData, setDevicesData] = useState<any>(null);
+  const [devicesData, setDevicesData] = useState<{
+    client_name: string;
+    is_connection_page_active: boolean;
+    data_sources: {
+      authorization_url: string;
+      connected: boolean;
+      description: string;
+      image: string;
+      name: string;
+    }[];
+  }>();
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [editData, setEditData] = useState({
     firstName: "",
@@ -447,6 +457,18 @@ export default function Profile() {
       }
 
       const data = await response.json();
+      console.log("data", data);
+      data?.data_sources?.map((item: any) => {
+        if (item.connected) {
+          Application.connectDevice({
+            connected_device: item.name,
+          });
+        } else {
+          Application.disconnectDevice({
+            disconnected_device: item.name,
+          });
+        }
+      });
       setDevicesData(data);
 
       toast({
