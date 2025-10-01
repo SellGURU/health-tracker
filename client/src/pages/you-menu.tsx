@@ -12,6 +12,7 @@ import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
 import { usePushNotifications } from "@/hooks/use-pushNotification";
 import { useToast } from "@/hooks/use-toast";
+import { subscribe } from "@/lib/event";
 import { Capacitor } from "@capacitor/core";
 import {
   Activity,
@@ -85,6 +86,19 @@ const surveyIcons = {
 };
 
 export default function YouMenu() {
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
+  subscribe("brand_info", (data: any) => {
+    setBrandInfo(data.detail.information);
+  });
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
@@ -572,7 +586,7 @@ export default function YouMenu() {
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
                     <Brain className="w-6 h-6 text-white" />
                   </div>
-                  { holisticPlanActionPlan.latest_deep_analysis &&
+                  {holisticPlanActionPlan.latest_deep_analysis && (
                     <div className="flex-1 min-w-0">
                       <h3 className="font-thin text-base text-gray-900 dark:text-gray-100">
                         Latest Deep Analysis
@@ -586,7 +600,7 @@ export default function YouMenu() {
                         }
                       </p>
                     </div>
-                  }
+                  )}
                 </div>
               </div>
 
@@ -603,7 +617,12 @@ export default function YouMenu() {
               </div>
 
               <Button
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                className="w-full text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                style={{
+                  background: `linear-gradient(to right, ${
+                    brandInfo ? brandInfo?.primary_color : `#3b82f6`
+                  }, ${brandInfo ? brandInfo?.secondary_color : `#a855f7`})`,
+                }}
                 onClick={() => {
                   window.open(
                     `https://holisticare.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJHRTYU`
