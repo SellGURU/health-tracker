@@ -539,10 +539,11 @@ export default function Profile() {
     if (devicesData?.data_sources) {
       devicesData?.data_sources?.forEach((el:any) => {
         if (el.connected) {
-          Application.addEvent({
-            event_name: el.name,
-            event_type: "connected",
-          });
+          Application.connectVariable(el.name);
+          // Application.addEvent({
+          //   event_name: el.name,
+          //   event_type: "connected",
+          // });
         }else{
           Application.disConnectVariable(el.name);
         }

@@ -94,6 +94,11 @@ class Application extends Api {
   static addEvent = (data: any) => {
     return this.post("/mobile/add_event", data);
   };
+  static connectVariable = (device:string) => {
+    return this.post("/mobile/settings/connect_device",{
+      connected_device:device
+    })
+  }  
   static disConnectVariable = (device:string) => {
     return this.post("/mobile/settings/disconnect_device",{
       disconnected_device:device
