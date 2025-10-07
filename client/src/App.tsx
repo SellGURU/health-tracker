@@ -20,11 +20,27 @@ import PlanPage from "@/pages/plan-simple";
 import ActionPlanPage from "@/pages/action-plan";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
+// import { usePushNotifications } from "./hooks/use-pushNotification";
+import { useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
+import { StatusBar } from "@capacitor/status-bar";
 
 function Router() {
   const { isAuthenticated } = useAuth();
-  const isOnboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
+  const isOnboardingCompleted =
+    localStorage.getItem("onboardingCompleted") === "true";
+  // const { token, notifications } = usePushNotifications();
+  // useEffect(() => {
+  //   alert(notifications[notifications.length -1].title)
+  // },[notifications])
 
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      // اینجا مطمئن میشیم اپ روی موبایل ران شده
+      StatusBar.setOverlaysWebView({ overlay: false });
+      StatusBar.setBackgroundColor({ color: "#ffffff" });
+    }
+  }, []);
   if (!isAuthenticated) {
     return (
       <Switch>

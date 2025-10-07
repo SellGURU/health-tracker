@@ -47,7 +47,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="h-svh overflow-y-hidden flex flex-col bg-gray-50 w-full relative dark:bg-gray-900">
       {useProfileHeader ? (
         <ProfileHeader />
       ) : (
@@ -79,7 +79,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
         </header>
       )}
 
-      <div className="flex-1 overflow-y-auto">
+      <div className=" flex-1 overflow-y-auto pb-20">
         {useProfileHeader ? (
           children
         ) : (
