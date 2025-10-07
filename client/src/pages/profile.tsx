@@ -1685,7 +1685,7 @@ export default function Profile() {
             <DialogHeader>
               <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
                 <Watch className="w-4 h-4 text-blue-600" />
-                Variable Devices
+                Wearable Devices
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
                 Connect and manage your health devices
