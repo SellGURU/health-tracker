@@ -241,7 +241,6 @@ export default function Trends() {
   };
 
   const openDetailModal = (biomarker: any) => {
-    console.log("biomarker => ", biomarker);
     setSelectedBiomarker(biomarker);
     setShowDetailModal(true);
   };
@@ -468,7 +467,13 @@ export default function Trends() {
 
       {/* Detailed Information Modal */}
       {selectedBiomarker && (
-        <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+        <Dialog
+          open={showDetailModal}
+          onOpenChange={() => {
+            setShowDetailModal(false);
+            setActiveTab("results");
+          }}
+        >
           <DialogContent className="max-w-sm mx- ">
             <DialogHeader>
               <div className="flex items-center gap-2">
@@ -654,7 +659,10 @@ export default function Trends() {
             <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <Button
                 variant="outline"
-                onClick={() => setShowDetailModal(false)}
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setActiveTab("results");
+                }}
                 className="text-sm min-h-[44px]"
               >
                 Close
