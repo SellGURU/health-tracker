@@ -231,39 +231,41 @@ export default function Trends() {
   }, []);
   const findMatchingLabel = (obj: any) => {
     const value = parseFloat(obj.values[obj.values.length - 1]); // آخرین مقدار
-    const status = obj.status[obj.status.length - 1];            // آخرین استاتوس
+    const status = obj.status[obj.status.length - 1]; // آخرین استاتوس
 
     for (const bound of obj.chart_bounds) {
-      const low = bound.low !== null ? parseFloat(bound.low as string) : -Infinity;
-      const high = bound.high !== null ? parseFloat(bound.high as string) : Infinity;
+      const low =
+        bound.low !== null ? parseFloat(bound.low as string) : -Infinity;
+      const high =
+        bound.high !== null ? parseFloat(bound.high as string) : Infinity;
 
       if (value >= low && value <= high && bound.status === status) {
-        return bound.label && bound.label.trim() !== "" 
-          ? bound.label 
+        return bound.label && bound.label.trim() !== ""
+          ? bound.label
           : bound.status;
       }
     }
 
     return status; // اگر چیزی پیدا نشد
-  }  
-    // console.log(data);
-    // return data.sort((a: any, b: any) => {
-    //   const lowA = parseFloat(a.low ?? '');
-    //   const lowB = parseFloat(b.low ?? '');
+  };
+  // console.log(data);
+  // return data.sort((a: any, b: any) => {
+  //   const lowA = parseFloat(a.low ?? '');
+  //   const lowB = parseFloat(b.low ?? '');
 
-    //   const aLow = isNaN(lowA) ? -Infinity : lowA;
-    //   const bLow = isNaN(lowB) ? -Infinity : lowB;
+  //   const aLow = isNaN(lowA) ? -Infinity : lowA;
+  //   const bLow = isNaN(lowB) ? -Infinity : lowB;
 
-    //   if (aLow !== bLow) return aLow - bLow;
+  //   if (aLow !== bLow) return aLow - bLow;
 
-    //   const highA = parseFloat(a.high ?? '');
-    //   const highB = parseFloat(b.high ?? '');
+  //   const highA = parseFloat(a.high ?? '');
+  //   const highB = parseFloat(b.high ?? '');
 
-    //   const aHigh = isNaN(highA) ? Infinity : highA;
-    //   const bHigh = isNaN(highB) ? Infinity : highB;
+  //   const aHigh = isNaN(highA) ? Infinity : highA;
+  //   const bHigh = isNaN(highB) ? Infinity : highB;
 
-    //   return aHigh - bHigh;
-    // });
+  //   return aHigh - bHigh;
+  // });
 
   const { data: labResults = [] } = useQuery<LabResult[]>({
     queryKey: ["/api/lab-results", { limit: 100 }],
@@ -281,14 +283,23 @@ export default function Trends() {
     setShowDetailModal(true);
   };
   const resolveOptimalRangesSelectedBiomarker = (biomarker: any) => {
-    console.log("biomarker => ", biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange"));
-    if(biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange").length > 0){
-      return biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange")
+    console.log(
+      "biomarker => ",
+      biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange")
+    );
+    if (
+      biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange")
+        .length > 0
+    ) {
+      return biomarker?.chart_bounds?.filter(
+        (el: any) => el.status == "OptimalRange"
+      );
     }
-    return biomarker?.chart_bounds?.filter((el: any) => el.status == "HealthyRange")
-  }
+    return biomarker?.chart_bounds?.filter(
+      (el: any) => el.status == "HealthyRange"
+    );
+  };
 
-  
   const getStatusBadge = (status: string) => {
     const variants = {
       normal: {
@@ -343,18 +354,17 @@ export default function Trends() {
 
   const resolveOptimalRange = (Range: any) => {
     return (
-    <>
-      {Range?.low == null && "<"}
-      {Range?.high == null && ">"}
-      {Range?.low ?? ""}
-      {Range?.low != null &&
-        Range?.high != null &&
-        Range?.low !== Range?.high &&
-        "-"}
-      {Range?.low !== Range?.high &&
-        Range?.high}
-    </>      
-    )
+      <>
+        {Range?.low == null && "<"}
+        {Range?.high == null && ">"}
+        {Range?.low ?? ""}
+        {Range?.low != null &&
+          Range?.high != null &&
+          Range?.low !== Range?.high &&
+          "-"}
+        {Range?.low !== Range?.high && Range?.high}
+      </>
+    );
   };
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
@@ -387,7 +397,7 @@ export default function Trends() {
               (el: any) => el.status == "OptimalRange"
             )[0];
 
-            //     })    
+            //     })
             // }
             return (
               <Card
@@ -441,13 +451,12 @@ export default function Trends() {
                         className={`text-xs flex-shrink-0 px-2 py-1`}
                       >
                         {findMatchingLabel(biomarker)}
-                      
                       </Badge>
                     </div>
                   </div>
 
-                  {/* Current Value */}
-                  <div className="mb-3">
+                  <div className="w-full flex justify-between items-center mb-1">
+                    {/* Current Value */}
                     <div className="flex items-baseline gap-2">
                       <span className="text-base font-bold text-gray-900 dark:text-gray-100">
                         {biomarker.values[0].toLocaleString()}
@@ -456,28 +465,33 @@ export default function Trends() {
                         {biomarker.unit}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Reference Range */}
-                  <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Optimal Range
-                    </div>
-                    <div className="text-sm flex flex-wrap gap-4 font-medium text-gray-700 dark:text-gray-300">
-                      {resolveOptimalRangesSelectedBiomarker(biomarker).map((el: any,index:number) => {
-                        return (
-                          <div key={el.status} className="flex items-center">
-                            {(resolveOptimalRangesSelectedBiomarker(biomarker).length-1 == index && index != 0) &&
-                              <div className=" mr-4">
-                              -
+                    {/* Reference Range */}
+                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        Optimal Range
+                      </div>
+                      <div className="text-sm flex flex-wrap gap-4 font-medium text-gray-700 dark:text-gray-300">
+                        {resolveOptimalRangesSelectedBiomarker(biomarker).map(
+                          (el: any, index: number) => {
+                            return (
+                              <div
+                                key={el.status}
+                                className="flex items-center"
+                              >
+                                {resolveOptimalRangesSelectedBiomarker(
+                                  biomarker
+                                ).length -
+                                  1 ==
+                                  index &&
+                                  index != 0 && <div className=" mr-4">-</div>}
+                                {resolveOptimalRange(el)}
+                                {/* <div className="ml-2"></div> */}
                               </div>
-                            }
-                            {resolveOptimalRange(el)}
-                            {/* <div className="ml-2"></div> */}
-                          </div>
-                        )
-                      })}
-                      
+                            );
+                          }
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -546,7 +560,9 @@ export default function Trends() {
                   className={`w-10 h-10 bg-gradient-to-br rounded-lg flex items-center justify-center shadow-lg`}
                 >
                   {/* <Droplets></Droplets> */}
-                  <img src={resolveAnalyseIcon(selectedBiomarker.subcategory)} />
+                  <img
+                    src={resolveAnalyseIcon(selectedBiomarker.subcategory)}
+                  />
                 </div>
                 <div>
                   <DialogTitle className="text-lg font-thin">
@@ -601,10 +617,15 @@ export default function Trends() {
                           }}
                           className={`mt-2 text-xs`}
                         >
-                        {selectedBiomarker.chart_bounds.filter((el:any) => el.status == selectedBiomarker.status[0])[0]?.label!=''?
-                          selectedBiomarker.chart_bounds.filter((el:any) => el.status == selectedBiomarker.status[0])[0]?.label:
-                          selectedBiomarker.status[0].toUpperCase()
-                          }
+                          {selectedBiomarker.chart_bounds.filter(
+                            (el: any) =>
+                              el.status == selectedBiomarker.status[0]
+                          )[0]?.label != ""
+                            ? selectedBiomarker.chart_bounds.filter(
+                                (el: any) =>
+                                  el.status == selectedBiomarker.status[0]
+                              )[0]?.label
+                            : selectedBiomarker.status[0].toUpperCase()}
                         </Badge>
                       </div>
                     </CardContent>
@@ -621,18 +642,24 @@ export default function Trends() {
                           <span className="text-sm text-gray-600 dark:text-gray-400">
                             Optimal Range:
                           </span>
-                          {resolveOptimalRangesSelectedBiomarker(selectedBiomarker).map((el: any,index:number) => {
+                          {resolveOptimalRangesSelectedBiomarker(
+                            selectedBiomarker
+                          ).map((el: any, index: number) => {
                             return (
-                              <div key={el.status} className="flex items-center">
-                                {(resolveOptimalRangesSelectedBiomarker(selectedBiomarker).length-1 == index && index != 0) &&
-                                  <div className=" mr-4">
-                                  -
-                                  </div>
-                                }
+                              <div
+                                key={el.status}
+                                className="flex items-center"
+                              >
+                                {resolveOptimalRangesSelectedBiomarker(
+                                  selectedBiomarker
+                                ).length -
+                                  1 ==
+                                  index &&
+                                  index != 0 && <div className=" mr-4">-</div>}
                                 {resolveOptimalRange(el)}
                                 {/* <div className="ml-2"></div> */}
                               </div>
-                            )
+                            );
                           })}
                         </div>
                         <div className="flex justify-between">
@@ -656,7 +683,7 @@ export default function Trends() {
                     <h3 className="text-base font-medium mb-2">
                       About This Biomarker
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed text-justify">
                       {selectedBiomarker.more_info}
                     </p>
                   </CardContent>
@@ -686,7 +713,7 @@ export default function Trends() {
                         <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <CheckCircle className="w-3 h-3 text-white" />
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 text-justify">
                           {selectedBiomarker.how_to_improve}
                         </p>
                       </div>
@@ -716,7 +743,7 @@ export default function Trends() {
                         <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Brain className="w-3 h-3 text-white" />
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 text-justify">
                           {selectedBiomarker.insight}
                         </p>
                       </div>

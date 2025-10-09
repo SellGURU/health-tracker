@@ -1783,7 +1783,7 @@ export default function Profile() {
                                     : "Not Connected"}
                                 </Badge>
                               </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
                                 {source.description}
                               </p>
                               <Button
