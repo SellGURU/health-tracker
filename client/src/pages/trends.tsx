@@ -356,7 +356,7 @@ export default function Trends() {
                         <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
                           {biomarker.name}
                         </h3>
-                        <div className="flex gap-2 justify-end items-center">
+                        {/* <div className="flex gap-2 justify-end items-center">
                           <div className="text-[12px] font-medium text-[#383838]">
                             Historical Chart
                           </div>
@@ -369,7 +369,7 @@ export default function Trends() {
                               e.stopPropagation();
                             }}
                           ></Toggle>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                     <div className="flex items-center justify-between w-full">
