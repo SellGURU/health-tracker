@@ -563,19 +563,31 @@ export default function AuthPage() {
                         className="text-white text-xs flex items-center gap-1 text-nowrap"
                       >
                         I accept the{" "}
-                        <Link
-                          href="https://holisticare.io/legal/patients-privacy-policy/"
-                          style={{ textDecoration: "underline" }}
+                        <div
+                          onClick={() => {
+                            window.open(
+                              "https://holisticare.io/legal/patients-privacy-policy/",
+                              "_blank"
+                            );
+                          }}
+                          // href="https://holisticare.io/legal/patients-privacy-policy/"
+                          style={{ textDecoration: "underline",cursor: "pointer" }}
                         >
                           Privacy Policy
-                        </Link>
+                        </div>
                         and{" "}
-                        <Link
-                          href="https://holisticare.io/legal/patients-terms-of-service/"
-                          style={{ textDecoration: "underline" }}
+                        <div
+                          onClick={() => {
+                            window.open(
+                              "https://holisticare.io/legal/patients-terms-of-service/",
+                              "_blank"
+                            );
+                          }}
+                          // href="https://holisticare.io/legal/patients-terms-of-service/"
+                          style={{ textDecoration: "underline",cursor: "pointer" }}
                         >
                           Terms of Service
-                        </Link>
+                        </div>
                       </Label>
                     </div>
 

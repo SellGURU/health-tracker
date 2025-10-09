@@ -595,174 +595,180 @@ export default function Plan() {
             <p className="text-sm text-gray-600 dark:text-gray-400 text-justify">
               {task.Instruction}
             </p>
-            {task.Sections &&
-              task.Sections.map((section: Section, index: number) => (
-                <div
-                  key={index}
-                  className="border border-orange-200 dark:border-orange-700/30 rounded-lg p-3"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h5 className="font-medium text-orange-800 dark:text-orange-300">
-                      {section.Section}
-                    </h5>
-                    <Badge variant="secondary" className="text-xs">
-                      {section.Sets} sets
-                    </Badge>
-                  </div>
-                  {section.Exercises.map(
-                    (exercise: Exercise, exIndex: number) => {
-                      const completed = exercise.Status;
-                      return (
-                        <div key={exIndex} className="ml-2 space-y-1">
-                          <div className="font-medium text-sm">
-                            {exercise.Title}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            {exercise.Description}
-                          </div>
-                          <div className="text-xs">
-                            <span className="mr-3">
-                              Reps: {exercise.Reps || "-"}
-                            </span>
-
-                            <span className="mr-3">
-                              Rest: {exercise.Rest ? exercise.Rest + "s" : "-"}
-                            </span>
-
-                            <span>Weight: {exercise.Weight || "-"}</span>
-                          </div>
-                          {exercise.Files && exercise.Files.length > 0 && (
-                            <div
-                              onClick={() => {
-                                if (selectIndexTitle.id === exercise.task_id) {
-                                  setSelectIndexTitle({
-                                    id: null,
-                                    title: null,
-                                  });
-                                  setSelectData(null);
-                                  setVideoData([]);
-                                } else {
-                                  setSelectIndexTitle({
-                                    id: exercise.task_id,
-                                    title: exercise.Title,
-                                  });
-                                  setSelectData(exercise);
-                                }
-                              }}
-                              className="text-blue-600 dark:text-blue-400 hover:underline text-xs cursor-pointer"
-                            >
-                              View Files
+            {task.Sections
+              ? task.Sections.map((section: Section, index: number) => (
+                  <div
+                    key={index}
+                    className="border border-orange-200 dark:border-orange-700/30 rounded-lg p-3"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium text-orange-800 dark:text-orange-300">
+                        {section.Section}
+                      </h5>
+                      <Badge variant="secondary" className="text-xs">
+                        {section.Sets} sets
+                      </Badge>
+                    </div>
+                    {section.Exercises.map(
+                      (exercise: Exercise, exIndex: number) => {
+                        const completed = exercise.Status;
+                        return (
+                          <div key={exIndex} className="ml-2 space-y-1">
+                            <div className="font-medium text-sm">
+                              {exercise.Title}
                             </div>
-                          )}
-                          {exercise.Files &&
-                            exercise.Files.length > 0 &&
-                            selectData &&
-                            selectIndexTitle.id === exercise.task_id && (
-                              <div className="space-y-2">
-                                {videoData.map((file, fileIndex: number) => {
-                                  return (
-                                    <div
-                                      key={fileIndex}
-                                      className="border border-gray-200 dark:border-gray-600 rounded-lg p-2 bg-gray-50 dark:bg-gray-800/50"
-                                    >
-                                      {file.Title && (
-                                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                          {file.Title}
-                                        </div>
-                                      )}
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              {exercise.Description}
+                            </div>
+                            <div className="text-xs">
+                              <span className="mr-3">
+                                Reps: {exercise.Reps || "-"}
+                              </span>
 
-                                      {videoData?.[0]?.Type?.split("/")[0] ===
-                                      "video" ? (
-                                        <video
-                                          className="w-full h-48 rounded-md object-cover"
-                                          controls
-                                          preload="metadata"
-                                        >
-                                          <source
-                                            src={file.Content.url}
-                                            type="video/mp4"
-                                          />
-                                          Your browser does not support the
-                                          video tag.
-                                        </video>
-                                      ) : videoData?.[0]?.Type?.split(
-                                          "/"
-                                        )[0] === "image" ? (
-                                        <img
-                                          src={file.Content.url}
-                                          alt={file.Title || exercise.Title}
-                                          className="w-full h-48 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                          onClick={() =>
-                                            window.open(
-                                              file.Content.url,
-                                              "_blank"
-                                            )
-                                          }
-                                        />
-                                      ) : (
-                                        <div className="relative w-full h-48 rounded-md overflow-hidden">
-                                          <iframe
-                                            src={getYouTubeEmbedUrl(
-                                              file.Content.url || ""
-                                            )}
-                                            key={file.Content.file_id}
-                                            className="absolute inset-0 w-full h-full"
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                            title={file.Title || exercise.Title}
-                                          />
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
+                              <span className="mr-3">
+                                Rest:{" "}
+                                {exercise.Rest ? exercise.Rest + "s" : "-"}
+                              </span>
+
+                              <span>Weight: {exercise.Weight || "-"}</span>
+                            </div>
+                            {exercise.Files && exercise.Files.length > 0 && (
+                              <div
+                                onClick={() => {
+                                  if (
+                                    selectIndexTitle.id === exercise.task_id
+                                  ) {
+                                    setSelectIndexTitle({
+                                      id: null,
+                                      title: null,
+                                    });
+                                    setSelectData(null);
+                                    setVideoData([]);
+                                  } else {
+                                    setSelectIndexTitle({
+                                      id: exercise.task_id,
+                                      title: exercise.Title,
+                                    });
+                                    setSelectData(exercise);
+                                  }
+                                }}
+                                className="text-blue-600 dark:text-blue-400 hover:underline text-xs cursor-pointer"
+                              >
+                                View Files
                               </div>
                             )}
-                          <Button
-                            variant={completed ? "default" : "outline"}
-                            size="sm"
-                            disabled={!isCurrentDay}
-                            onClick={() => {
-                              if (isCurrentDay) {
-                                if (activeTab === "today") {
-                                  handleUpdateExerciseTaskStatus(
-                                    exercise.task_id,
-                                    !exercise.Status
-                                  );
-                                } else {
-                                  handleUpdateWeeklyExerciseTaskStatus(
-                                    exercise.task_id,
-                                    !exercise.Status
-                                  );
+                            {exercise.Files &&
+                              exercise.Files.length > 0 &&
+                              selectData &&
+                              selectIndexTitle.id === exercise.task_id && (
+                                <div className="space-y-2">
+                                  {videoData.map((file, fileIndex: number) => {
+                                    return (
+                                      <div
+                                        key={fileIndex}
+                                        className="border border-gray-200 dark:border-gray-600 rounded-lg p-2 bg-gray-50 dark:bg-gray-800/50"
+                                      >
+                                        {file.Title && (
+                                          <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            {file.Title}
+                                          </div>
+                                        )}
+
+                                        {videoData?.[0]?.Type?.split("/")[0] ===
+                                        "video" ? (
+                                          <video
+                                            className="w-full h-48 rounded-md object-cover"
+                                            controls
+                                            preload="metadata"
+                                          >
+                                            <source
+                                              src={file.Content.url}
+                                              type="video/mp4"
+                                            />
+                                            Your browser does not support the
+                                            video tag.
+                                          </video>
+                                        ) : videoData?.[0]?.Type?.split(
+                                            "/"
+                                          )[0] === "image" ? (
+                                          <img
+                                            src={file.Content.url}
+                                            alt={file.Title || exercise.Title}
+                                            className="w-full h-48 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                            onClick={() =>
+                                              window.open(
+                                                file.Content.url,
+                                                "_blank"
+                                              )
+                                            }
+                                          />
+                                        ) : (
+                                          <div className="relative w-full h-48 rounded-md overflow-hidden">
+                                            <iframe
+                                              src={getYouTubeEmbedUrl(
+                                                file.Content.url || ""
+                                              )}
+                                              key={file.Content.file_id}
+                                              className="absolute inset-0 w-full h-full"
+                                              frameBorder="0"
+                                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                              allowFullScreen
+                                              title={
+                                                file.Title || exercise.Title
+                                              }
+                                            />
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            <Button
+                              variant={completed ? "default" : "outline"}
+                              size="sm"
+                              disabled={!isCurrentDay}
+                              onClick={() => {
+                                if (isCurrentDay) {
+                                  if (activeTab === "today") {
+                                    handleUpdateExerciseTaskStatus(
+                                      exercise.task_id,
+                                      !exercise.Status
+                                    );
+                                  } else {
+                                    handleUpdateWeeklyExerciseTaskStatus(
+                                      exercise.task_id,
+                                      !exercise.Status
+                                    );
+                                  }
+                                  if (completed) {
+                                    handleUncheckTask(exercise.task_id);
+                                  } else {
+                                    handleCheckTask(exercise.task_id);
+                                  }
                                 }
-                                if (completed) {
-                                  handleUncheckTask(exercise.task_id);
-                                } else {
-                                  handleCheckTask(exercise.task_id);
-                                }
-                              }
-                            }}
-                            className={`w-full ${
-                              completed
-                                ? "bg-emerald-500 hover:bg-emerald-600 text-white opacity-50 cursor-not-allowed"
-                                : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                            }`}
-                            style={{ marginBottom: "5px" }}
-                          >
-                            {completed ? (
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Circle className="w-4 h-4 mr-2" />
-                            )}
-                            {completed ? "Completed" : "Mark Complete"}
-                          </Button>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              ))}
+                              }}
+                              className={`w-full ${
+                                completed
+                                  ? "bg-emerald-500 hover:bg-emerald-600 text-white opacity-50 cursor-not-allowed"
+                                  : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                              }`}
+                              style={{ marginBottom: "5px" }}
+                            >
+                              {completed ? (
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                              ) : (
+                                <Circle className="w-4 h-4 mr-2" />
+                              )}
+                              {completed ? "Completed" : "Mark Complete"}
+                            </Button>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                ))
+              : ""}
             {task.Activity_Location && (
               <div className="flex gap-1">
                 {task.Activity_Location.map(

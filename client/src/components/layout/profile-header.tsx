@@ -69,7 +69,7 @@ export default function ProfileHeader() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
