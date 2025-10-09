@@ -62,6 +62,8 @@ export default function Profile() {
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
+    active_client:boolean;
+    plan?:string;
     coach_username: [];
     connected_wearable: boolean;
     date_of_birth: string;
@@ -73,7 +75,7 @@ export default function Profile() {
     pheno_age: number;
     sex: string;
     verified_account: boolean;
-    plan: string;
+    // plan: string;
   }>();
 
   const handleGetClientInformation = async () => {
@@ -84,7 +86,7 @@ export default function Profile() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       });
@@ -249,7 +251,7 @@ export default function Profile() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: res?.response?.data?.detail,
           variant: "destructive",
         });
       })
@@ -420,10 +422,10 @@ export default function Profile() {
   };
 
   const fetchDevicesData = async () => {
-    if (!clientInformation?.email) {
+    if (!clientInformation?.id) {
       toast({
         title: "Error",
-        description: "User email not found",
+        description: "User id not found",
         variant: "destructive",
       });
       return;
@@ -432,7 +434,7 @@ export default function Profile() {
     setIsLoadingDevices(true);
     try {
       const response = await fetch(
-        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.email}/data_sources/authorizers`,
+        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
         {
           method: "GET",
           headers: {
@@ -477,22 +479,53 @@ export default function Profile() {
       setIsLoadingDevices(false);
     }
   };
+  async function revokeRookDataSource( sourceOrId:string) {
+    // Encode client_uuid:secret_key to Base64
+    // const credentials = btoa(`${clientUuid}:${secretKey}`);
+    const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
+    // Choose body key based on type
+    const body = { data_source: sourceOrId };
 
+    const url = `https://api.rook-connect.com/api/v1/user_id/${clientInformation?.id}/data_sources/revoke_auth`;
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Basic ${encodedCreds}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Rook revoke failed: ${res.status} ${res.statusText} — ${text}`);
+      }
+
+      const json = await res.json().catch(() => ({}));
+      console.log("✅ Revoke success:", json);
+      return json;
+    } catch (err) {
+      // console.error("❌ Revoke error:", err.message);
+      // return { error: err.message };
+    }
+  }
   // Device management functions with ROOK integration
 
   // Check ROOK connection status
 
   const settingsItems = [
-    {
-      icon: User,
-      title: "Personal Information",
-      description: "Update your profile details",
-      action: () => setShowEditDialog(true),
-      badge: null,
-    },
+    // {
+    //   icon: User,
+    //   title: "Personal Information",
+    //   description: "Update your profile details",
+    //   action: () => setShowEditDialog(true),
+    //   badge: null,
+    // },
     {
       icon: Watch,
-      title: "Variable Devices",
+      title: "Wearable Devices",
       description: "Connect and manage your health devices",
       action: () => setShowDevicesModal(true),
       badge:
@@ -534,6 +567,21 @@ export default function Profile() {
       badge: null,
     },
   ];
+  useEffect(() => {
+    if (devicesData?.data_sources) {
+      devicesData?.data_sources?.forEach((el:any) => {
+        if (el.connected) {
+          Application.connectVariable(el.name);
+          // Application.addEvent({
+          //   event_name: el.name,
+          //   event_type: "connected",
+          // });
+        }else{
+          Application.disConnectVariable(el.name);
+        }
+      });
+    }
+  }, [devicesData?.data_sources]);
 
   const getSubscriptionBadge = (tier: string) => {
     switch (tier) {
@@ -1693,7 +1741,7 @@ export default function Profile() {
             <DialogHeader>
               <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
                 <Watch className="w-4 h-4 text-blue-600" />
-                Variable Devices
+                Wearable Devices
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
                 Connect and manage your health devices
@@ -1776,16 +1824,17 @@ export default function Profile() {
                                 onClick={() => {
                                   if (source.connected) {
                                     // Handle disconnect
-                                    toast({
-                                      title: "Disconnect",
-                                      description: `Disconnect from ${source.name}`,
+                                    revokeRookDataSource(source.name).then(() => {
+                                        toast({
+                                          title: "Disconnect",
+                                          description: `Disconnect from ${source.name}`,
+                                        });
+                                        fetchDevicesData();
                                     });
+
                                   } else {
                                     // Handle connect - open authorization URL
-                                    Application.addEvent({
-                                      event_name: source.name,
-                                      event_type: "connected",
-                                    });
+
                                     window.open(
                                       source.authorization_url,
                                       "_blank"

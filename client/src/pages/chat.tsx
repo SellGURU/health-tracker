@@ -177,22 +177,25 @@ export default function ChatPage() {
   }, [activeMode]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      handleGetMessagesId();
-    }, 15000); // 15 seconds
+    if(activeMode == 'coach'){
+      const interval = setInterval(() => {
+        handleGetMessagesId();
+      }, 15000); // 15 seconds
+      return () => clearInterval(interval);
+
+    }
 
     // Cleanup interval on component unmount or when activeMode changes
-    return () => clearInterval(interval);
   }, [activeMode]);
   // Auto-refresh messages every 15 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleGetMessagesId();
-    }, 15000); // 15 seconds
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     handleGetMessagesId();
+  //   }, 15000); // 15 seconds
 
-    // Cleanup interval on component unmount or when activeMode changes
-    return () => clearInterval(interval);
-  }, [activeMode]);
+  //   // Cleanup interval on component unmount or when activeMode changes
+  //   return () => clearInterval(interval);
+  // }, [activeMode]);
 
   const sendMessage = () => {
     if (!message.trim()) return;

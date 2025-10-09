@@ -26,6 +26,7 @@ import {
   Download,
   Droplets,
   Heart,
+  Loader2,
   Moon,
   Pill,
   Shield,
@@ -313,6 +314,38 @@ export default function YouMenu() {
 
   // For showing health-related cards - using hasRequiredData as indicator
   const hasHealthData = hasRequiredData;
+  const [loadingHtmlReport, setLoadingHtmlReport] = useState(false);
+  const handleGetHtmlReport = () => {
+    if (!holisticPlanActionPlan.latest_deep_analysis) return;
+
+    setLoadingHtmlReport(true);
+
+    Application.getHtmlReport()
+      .then((res) => {
+        try {
+          const blobUrl = res.data;
+
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = "HolisticPlanReport";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (error: any) {
+          console.error("Error downloading file:", error);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setLoadingHtmlReport(false);
+      });
+  };
 
   const renderMainView = () => (
     <div className="space-y-4">
@@ -617,19 +650,14 @@ export default function YouMenu() {
               </div>
 
               <Button
-                className="w-full text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
-                style={{
-                  background: `linear-gradient(to right, ${
-                    brandInfo ? brandInfo?.primary_color : `#3b82f6`
-                  }, ${brandInfo ? brandInfo?.secondary_color : `#a855f7`})`,
-                }}
-                onClick={() => {
-                  window.open(
-                    `https://holisticare.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJHRTYU`
-                  );
-                }}
+                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                onClick={handleGetHtmlReport}
               >
-                Download PDF Report
+                {loadingHtmlReport ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Download PDF Report"
+                )}
               </Button>
             </div>
           </CardContent>

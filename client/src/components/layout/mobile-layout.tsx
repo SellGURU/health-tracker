@@ -113,12 +113,14 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
         </header>
       )}
 
-      <div
-        className={`flex-1 pb-28 ${
-          location === "/chat" ? "overflow-hidden" : "overflow-y-auto"
-        }`}
-      >
-        {useProfileHeader ? children : <main className="p-4">{children}</main>}
+      <div className=" flex-1 overflow-y-auto pb-20">
+        {useProfileHeader ? (
+          children
+        ) : (
+          <main className="p-4">
+            {children}
+          </main>
+        )}
       </div>
 
       {/* Search Dialog */}

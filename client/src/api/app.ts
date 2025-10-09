@@ -94,6 +94,16 @@ class Application extends Api {
   static addEvent = (data: any) => {
     return this.post("/mobile/add_event", data);
   };
+  static connectVariable = (device:string) => {
+    return this.post("/mobile/settings/connect_device",{
+      connected_device:device
+    })
+  }  
+  static disConnectVariable = (device:string) => {
+    return this.post("/mobile/settings/disconnect_device",{
+      disconnected_device:device
+    })
+  }  
   static getHolisticPlanActionPlan() {
     const response = this.post("/mobile/holistic_plan_action_plan", {});
     return response;
@@ -126,6 +136,10 @@ class Application extends Api {
   }
   static getBrandInfo() {
     const response = this.post("/mobile/show_brand_info", {});
+    return response;
+  }
+  static getHtmlReport() {
+    const response = this.post("/mobile/get_html_report", {});
     return response;
   }
 }
