@@ -90,41 +90,54 @@ class Application extends Api {
   static getAssignedQuestionaries() {
     const response = this.post("/mobile/tasks/show_assigned_questionaries", {});
     return response;
-  };
+  }
   static addEvent = (data: any) => {
     return this.post("/mobile/add_event", data);
   };
+  static connectVariable = (device:string) => {
+    return this.post("/mobile/settings/connect_device",{
+      connected_device:device
+    })
+  }  
+  static disConnectVariable = (device:string) => {
+    return this.post("/mobile/settings/disconnect_device",{
+      disconnected_device:device
+    })
+  }  
   static getHolisticPlanActionPlan() {
     const response = this.post("/mobile/holistic_plan_action_plan", {});
     return response;
-  };
-  static changePassword(data:any) {
+  }
+  static changePassword(data: any) {
     const response = this.post("/mobile/auth/change_password", data);
     return response;
-  };
+  }
 
-  static savePrivacy(data:any) {
+  static savePrivacy(data: any) {
     const response = this.post("/mobile/save_privacy_settings", data);
     return response;
-  };
-  static showPrivacy(data:any) {
+  }
+  static showPrivacy(data: any) {
     const response = this.post("/mobile/show_privacy_settings", data);
     return response;
-  };
+  }
 
-  static saveNotifications(data:any) {
+  static saveNotifications(data: any) {
     const response = this.post("/mobile/save_notification_settings", data);
     return response;
-  };
-  static showNotifications(data:any = {}) {
+  }
+  static showNotifications(data: any = {}) {
     const response = this.post("/mobile/show_notification_settings", data);
     return response;
-  };
-  static saveNotifSettings(data:any) {
+  }
+  static saveNotifSettings(data: any) {
     const response = this.post("/mobile/save_notification_settings", data);
     return response;
-  };
-
+  }
+  static getHtmlReport() {
+    const response = this.post("/mobile/get_html_report", {});
+    return response;
+  }
 }
 
 export default Application;

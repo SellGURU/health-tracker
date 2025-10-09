@@ -25,6 +25,7 @@ import {
   Download,
   Droplets,
   Heart,
+  Loader2,
   Moon,
   Pill,
   Shield,
@@ -299,6 +300,38 @@ export default function YouMenu() {
 
   // For showing health-related cards - using hasRequiredData as indicator
   const hasHealthData = hasRequiredData;
+  const [loadingHtmlReport, setLoadingHtmlReport] = useState(false);
+  const handleGetHtmlReport = () => {
+    if (!holisticPlanActionPlan.latest_deep_analysis) return;
+
+    setLoadingHtmlReport(true);
+
+    Application.getHtmlReport()
+      .then((res) => {
+        try {
+          const blobUrl = res.data;
+
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = "HolisticPlanReport";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (error: any) {
+          console.error("Error downloading file:", error);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setLoadingHtmlReport(false);
+      });
+  };
 
   const renderMainView = () => (
     <div className="space-y-4">
@@ -572,7 +605,7 @@ export default function YouMenu() {
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
                     <Brain className="w-6 h-6 text-white" />
                   </div>
-                  { holisticPlanActionPlan.latest_deep_analysis &&
+                  {holisticPlanActionPlan.latest_deep_analysis && (
                     <div className="flex-1 min-w-0">
                       <h3 className="font-thin text-base text-gray-900 dark:text-gray-100">
                         Latest Deep Analysis
@@ -586,7 +619,7 @@ export default function YouMenu() {
                         }
                       </p>
                     </div>
-                  }
+                  )}
                 </div>
               </div>
 
@@ -604,13 +637,13 @@ export default function YouMenu() {
 
               <Button
                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
-                onClick={() => {
-                  window.open(
-                    `https://holisticare.vercel.app/share/${clientInformation?.id}/ZXCVMNBBASDFLKJHRTYU`
-                  );
-                }}
+                onClick={handleGetHtmlReport}
               >
-                Download PDF Report
+                {loadingHtmlReport ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Download PDF Report"
+                )}
               </Button>
             </div>
           </CardContent>
