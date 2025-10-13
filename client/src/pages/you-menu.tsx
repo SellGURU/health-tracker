@@ -369,17 +369,38 @@ export default function YouMenu() {
             <div className="relative">
               {/* Simple icon */}
               <div className="relative mx-auto flex justify-center mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <div
+                  className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
+                  style={{
+                    background: `${
+                      brandInfo ? brandInfo?.primary_color : undefined
+                    }`,
+                  }}
+                >
                   <Activity className="w-8 h-8 text-white" />
                 </div>
               </div>
 
               {/* Age display */}
               <div className="mb-2">
-                <div className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
+                <div
+                  className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm"
+                  style={{
+                    color: `${
+                      brandInfo ? brandInfo?.primary_color : undefined
+                    }`,
+                  }}
+                >
                   {clientInformation?.pheno_age}
                 </div>
-                <div className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">
+                <div
+                  className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide"
+                  style={{
+                    color: `${
+                      brandInfo ? brandInfo?.primary_color : undefined
+                    }`,
+                  }}
+                >
                   Phenotypic Age
                 </div>
               </div>
@@ -404,17 +425,38 @@ export default function YouMenu() {
             <div className="relative">
               {/* Age icon */}
               <div className="relative flex justify-center mx-auto mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <div
+                  className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
+                  style={{
+                    background: `${
+                      brandInfo ? brandInfo?.secondary_color : undefined
+                    }`,
+                  }}
+                >
                   <span className="text-2xl">🎂</span>
                 </div>
               </div>
 
               {/* Age display */}
               <div className="mb-2">
-                <div className="text-4xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm">
+                <div
+                  className="text-4xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm"
+                  style={{
+                    color: `${
+                      brandInfo ? brandInfo?.secondary_color : undefined
+                    }`,
+                  }}
+                >
                   {clientInformation?.age}
                 </div>
-                <div className="text-sm font-thin text-purple-700 dark:text-purple-300 tracking-wide">
+                <div
+                  className="text-sm font-thin text-purple-700 dark:text-purple-300 tracking-wide"
+                  style={{
+                    color: `${
+                      brandInfo ? brandInfo?.secondary_color : undefined
+                    }`,
+                  }}
+                >
                   Chronological Age
                 </div>
               </div>
@@ -526,7 +568,14 @@ export default function YouMenu() {
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-thin flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div
+              className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center"
+              style={{
+                background: `${
+                  brandInfo ? brandInfo?.secondary_color : undefined
+                }`,
+              }}
+            >
               <BookOpen className="w-3 h-3 text-white" />
             </div>
             Assigned Questionnaires
@@ -598,7 +647,14 @@ export default function YouMenu() {
         <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-thin flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+              <div
+                className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center"
+                style={{
+                  background: `${
+                    brandInfo ? brandInfo?.primary_color : undefined
+                  }`,
+                }}
+              >
                 <Heart className="w-3 h-3 text-white" />
               </div>
               Health Summary

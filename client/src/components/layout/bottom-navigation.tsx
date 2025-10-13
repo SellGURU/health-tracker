@@ -65,9 +65,7 @@ export default function BottomNavigation() {
                         ? `linear-gradient(to right, ${
                             brandInfo ? brandInfo?.primary_color : `#3b82f6`
                           }, ${
-                            brandInfo
-                              ? brandInfo?.secondary_color
-                              : `#a855f7`
+                            brandInfo ? brandInfo?.secondary_color : `#a855f7`
                           })`
                         : "",
                     }}
@@ -90,6 +88,9 @@ export default function BottomNavigation() {
                         ? "text-blue-600 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400"
                     )}
+                    style={{
+                      color: isActive ? brandInfo?.primary_color : undefined,
+                    }}
                   >
                     {item.label}
                   </span>
