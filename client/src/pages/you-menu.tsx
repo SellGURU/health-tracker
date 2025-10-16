@@ -350,63 +350,70 @@ export default function YouMenu() {
   const renderMainView = () => (
     <div className="space-y-4">
       {/* Age Cards - Prominent Display */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card
-          className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
-          onClick={() =>
-            toast({
-              title: "Phenotypic Age",
-              description:
-                "Phenotypic Age (PhenoAge) is an estimate of how old your body seems based on health markers—rather than just your chronological age.",
-            })
-          }
-        >
-          <CardContent className="p-4 text-center relative z-10 h-full">
-            {/* Animated background glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
+      <div
+        className={`grid grid-cols-2 gap-3 ${
+          clientInformation?.pheno_age ? "grid-cols-2" : "grid-cols-1"
+        }`}
+      >
+        {clientInformation?.pheno_age && (
+          <Card
+            className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+            onClick={() =>
+              toast({
+                title: "Phenotypic Age",
+                description:
+                  "Phenotypic Age (PhenoAge) is an estimate of how old your body seems based on health markers—rather than just your chronological age.",
+              })
+            }
+          >
+            <CardContent className="p-4 text-center relative z-10 h-full">
+              {/* Animated background glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
 
-            <div className="relative">
-              {/* Simple icon */}
-              <div className="relative mx-auto flex justify-center mb-4">
-                <div
-                  className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
-                  style={{
-                    background: `${
-                      brandInfo ? brandInfo?.primary_color : undefined
-                    }`,
-                  }}
-                >
-                  <Activity className="w-8 h-8 text-white" />
+              <div className="relative">
+                {/* Simple icon */}
+                <div className="relative mx-auto flex justify-center mb-4">
+                  <div
+                    className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                    }}
+                  >
+                    <Activity className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+
+                {/* Age display */}
+
+                <div className="mb-2">
+                  <div
+                    className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm"
+                    style={{
+                      color: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                    }}
+                  >
+                    {clientInformation?.pheno_age}
+                  </div>
+                  <div
+                    className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide"
+                    style={{
+                      color: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                    }}
+                  >
+                    Phenotypic Age
+                  </div>
                 </div>
               </div>
-
-              {/* Age display */}
-              <div className="mb-2">
-                <div
-                  className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm"
-                  style={{
-                    color: `${
-                      brandInfo ? brandInfo?.primary_color : undefined
-                    }`,
-                  }}
-                >
-                  {clientInformation?.pheno_age}
-                </div>
-                <div
-                  className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide"
-                  style={{
-                    color: `${
-                      brandInfo ? brandInfo?.primary_color : undefined
-                    }`,
-                  }}
-                >
-                  Phenotypic Age
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         <Card
           className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
