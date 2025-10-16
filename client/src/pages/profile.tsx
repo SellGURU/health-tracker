@@ -128,14 +128,14 @@ export default function Profile() {
   }, [clientInformation]);
 
   // Restore connection state from localStorage on component mount
-  useEffect(() => {
-    const savedConnectionState = localStorage.getItem('health_device_connection_state');
-    if (savedConnectionState) {
-      if(savedConnectionState != 'connecting'){
-        setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedConnectionState = localStorage.getItem('health_device_connection_state');
+  //   if (savedConnectionState) {
+  //     if(savedConnectionState != 'connecting'){
+  //       setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
+  //     }
+  //   }
+  // }, []);
 
   // Save connection state to localStorage whenever it changes
   // useEffect(() => {
