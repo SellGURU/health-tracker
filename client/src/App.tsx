@@ -24,6 +24,7 @@ import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
 import { StatusBar } from "@capacitor/status-bar";
+// import { profile } from "console";
 
 function Router() {
   const { isAuthenticated } = useAuth();

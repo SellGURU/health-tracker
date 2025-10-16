@@ -128,19 +128,19 @@ export default function Profile() {
   }, [clientInformation]);
 
   // Restore connection state from localStorage on component mount
-  // useEffect(() => {
-  //   const savedConnectionState = localStorage.getItem('health_device_connection_state');
-  //   if (savedConnectionState) {
-  //     if(savedConnectionState != 'connecting'){
-  //       setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
-  //     }
-  //   }
-  // }, []);
+  useEffect(() => {
+    const savedConnectionState = localStorage.getItem('health_device_connection_state');
+    if (savedConnectionState) {
+      if(savedConnectionState != 'connecting'){
+        setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
+      }
+    }
+  }, []);
 
   // Save connection state to localStorage whenever it changes
-  // useEffect(() => {
-  //   localStorage.setItem('health_device_connection_state', isConnecting);
-  // }, [isConnecting]);
+  useEffect(() => {
+    localStorage.setItem('health_device_connection_state', isConnecting);
+  }, [isConnecting]);
 
   // Function to clear connection state (for testing or manual reset)
   const clearConnectionState = () => {
@@ -520,7 +520,7 @@ export default function Profile() {
     const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
     // Choose body key based on type
     const body = { data_source: sourceOrId };
-
+  }
   const connectSdk = () => {
     setIsConnecting("connecting");
 
@@ -654,21 +654,21 @@ export default function Profile() {
       badge: null,
     },
   ];
-  // useEffect(() => {
-  //   if (devicesData?.data_sources) {
-  //     devicesData?.data_sources?.forEach((el:any) => {
-  //       if (el.connected) {
-  //         Application.connectVariable(el.name);
-  //         // Application.addEvent({
-  //         //   event_name: el.name,
-  //         //   event_type: "connected",
-  //         // });
-  //       }else{
-  //         Application.disConnectVariable(el.name);
-  //       }
-  //     });
-  //   }
-  // }, [devicesData?.data_sources]);
+  useEffect(() => {
+    if (devicesData?.data_sources) {
+      devicesData?.data_sources?.forEach((el:any) => {
+        if (el.connected) {
+          Application.connectVariable(el.name);
+          // Application.addEvent({
+          //   event_name: el.name,
+          //   event_type: "connected",
+          // });
+        }else{
+          Application.disConnectVariable(el.name);
+        }
+      });
+    }
+  }, [devicesData?.data_sources]);
 
   const getSubscriptionBadge = (tier: string) => {
     switch (tier) {
@@ -1897,4 +1897,4 @@ export default function Profile() {
       </div>
     </div>
   );
-} }
+} 
