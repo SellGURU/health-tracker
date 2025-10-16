@@ -1,0 +1,47 @@
+PODS:
+  - Capacitor (7.4.3):
+    - CapacitorCordova
+  - CapacitorCordova (7.4.3)
+  - CapacitorPushNotifications (7.0.2):
+    - Capacitor
+  - CapacitorRookSdk (0.5.0):
+    - Capacitor
+    - RookSDK (= 1.7.6)
+  - CapacitorStatusBar (7.0.3):
+    - Capacitor
+  - RookSDK (1.7.6)
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - CapacitorRookSdk (from `../../node_modules/capacitor-rook-sdk`)
+  - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+
+SPEC REPOS:
+  trunk:
+    - RookSDK
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorPushNotifications:
+    :path: "../../node_modules/@capacitor/push-notifications"
+  CapacitorRookSdk:
+    :path: "../../node_modules/capacitor-rook-sdk"
+  CapacitorStatusBar:
+    :path: "../../node_modules/@capacitor/status-bar"
+
+SPEC CHECKSUMS:
+  Capacitor: b4741ca7affb32c1b70debd03df92cbf522d8a80
+  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
+  CapacitorPushNotifications: 6ffcf5df95f17d71a1b02893549bc4727f80540c
+  CapacitorRookSdk: 3bd6f26126bf820ac1bf3340b0d119feded79414
+  CapacitorStatusBar: 7d8fcbd6768db014bd721d75e246590b014928e8
+  RookSDK: cf4d82e45e2d788645794f091a1cf701f9b1f8c5
+
+PODFILE CHECKSUM: fefa77c0d1fccf3a2598f756c8bb333c1e752190
+
+COCOAPODS: 1.16.2
