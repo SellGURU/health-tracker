@@ -138,9 +138,9 @@ export default function Profile() {
   }, []);
 
   // Save connection state to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('health_device_connection_state', isConnecting);
-  }, [isConnecting]);
+  // useEffect(() => {
+  //   localStorage.setItem('health_device_connection_state', isConnecting);
+  // }, [isConnecting]);
 
   // Function to clear connection state (for testing or manual reset)
   const clearConnectionState = () => {
@@ -654,21 +654,21 @@ export default function Profile() {
       badge: null,
     },
   ];
-  useEffect(() => {
-    if (devicesData?.data_sources) {
-      devicesData?.data_sources?.forEach((el:any) => {
-        if (el.connected) {
-          Application.connectVariable(el.name);
-          // Application.addEvent({
-          //   event_name: el.name,
-          //   event_type: "connected",
-          // });
-        }else{
-          Application.disConnectVariable(el.name);
-        }
-      });
-    }
-  }, [devicesData?.data_sources]);
+  // useEffect(() => {
+  //   if (devicesData?.data_sources) {
+  //     devicesData?.data_sources?.forEach((el:any) => {
+  //       if (el.connected) {
+  //         Application.connectVariable(el.name);
+  //         // Application.addEvent({
+  //         //   event_name: el.name,
+  //         //   event_type: "connected",
+  //         // });
+  //       }else{
+  //         Application.disConnectVariable(el.name);
+  //       }
+  //     });
+  //   }
+  // }, [devicesData?.data_sources]);
 
   const getSubscriptionBadge = (tier: string) => {
     switch (tier) {
