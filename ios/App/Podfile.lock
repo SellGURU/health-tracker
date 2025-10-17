@@ -4,12 +4,12 @@ PODS:
   - CapacitorCordova (7.4.3)
   - CapacitorPushNotifications (7.0.2):
     - Capacitor
-  - CapacitorRookSdk (0.5.0):
+  - CapacitorRookSdk (0.5.1):
     - Capacitor
-    - RookSDK (= 1.7.6)
+    - RookSDK (= 1.7.8)
   - CapacitorStatusBar (7.0.3):
     - Capacitor
-  - RookSDK (1.7.6)
+  - RookSDK (1.7.8)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -38,9 +38,9 @@ SPEC CHECKSUMS:
   Capacitor: b4741ca7affb32c1b70debd03df92cbf522d8a80
   CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
   CapacitorPushNotifications: 6ffcf5df95f17d71a1b02893549bc4727f80540c
-  CapacitorRookSdk: 3bd6f26126bf820ac1bf3340b0d119feded79414
+  CapacitorRookSdk: fafa546a9f15026ff0871f19c62de3df39c2e6f1
   CapacitorStatusBar: 7d8fcbd6768db014bd721d75e246590b014928e8
-  RookSDK: cf4d82e45e2d788645794f091a1cf701f9b1f8c5
+  RookSDK: 880f9471caa7d4c435d62c3ece2107bd5383b737
 
 PODFILE CHECKSUM: fefa77c0d1fccf3a2598f756c8bb333c1e752190
 

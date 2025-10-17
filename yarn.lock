@@ -3627,10 +3627,10 @@ caniuse-lite@^1.0.30001646, caniuse-lite@^1.0.30001741:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001743.tgz"
   integrity sha512-e6Ojr7RV14Un7dz6ASD0aZDmQPT/A+eZU+nuTNfjqmRrmkmQlnTNWH0SKmqagx9PeW87UVqapSurtAXifmtdmw==
 
-capacitor-rook-sdk@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.npmjs.org/capacitor-rook-sdk/-/capacitor-rook-sdk-0.5.0.tgz"
-  integrity sha512-bSQhqmQ5na1d7sPnYgLLT9XC6nTghEAF+7G5goTz5XmyBW/dqHzjpbfJFn9B5ueSo7Eze+WLcG+kpQqf8Ezmeg==
+capacitor-rook-sdk@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/capacitor-rook-sdk/-/capacitor-rook-sdk-0.5.1.tgz#fc3eb5d90361b3d9f7aaf62d56755081334acb66"
+  integrity sha512-NTYg387Uyd0Fyx8ycvC0JI268VzMcB01mNjE7CZD8FQ6IT1Pi9KkuDrvvrv86jClOlU3H0UEQraAPKAldwp9Dw==
 
 chalk@2.4.2:
   version "2.4.2"
