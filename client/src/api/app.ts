@@ -134,6 +134,10 @@ class Application extends Api {
     const response = this.post("/mobile/save_notification_settings", data);
     return response;
   }
+  static getBrandInfo() {
+    const response = this.post("/mobile/show_brand_info", {});
+    return response;
+  }
   static getHtmlReport() {
     const response = this.post("/mobile/get_html_report", {});
     return response;

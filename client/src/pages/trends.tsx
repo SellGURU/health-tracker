@@ -427,7 +427,7 @@ export default function Trends() {
                               e.stopPropagation();
                             }}
                           ></Toggle>
-                        </div>
+                        </div> 
                       </div>
                     </div>
                     <div className="flex items-center justify-between w-full">
