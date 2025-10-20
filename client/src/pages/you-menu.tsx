@@ -351,7 +351,7 @@ export default function YouMenu() {
     <div className="space-y-4">
       {/* Age Cards - Prominent Display */}
       <div
-        className={`grid grid-cols-2 gap-3 ${
+        className={`grid gap-3 ${
           clientInformation?.pheno_age ? "grid-cols-2" : "grid-cols-1"
         }`}
       >

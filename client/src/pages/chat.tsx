@@ -177,12 +177,11 @@ export default function ChatPage() {
   }, [activeMode]);
 
   useEffect(() => {
-    if(activeMode == 'coach'){
+    if (activeMode == "coach") {
       const interval = setInterval(() => {
         handleGetMessagesId();
       }, 15000); // 15 seconds
       return () => clearInterval(interval);
-
     }
 
     // Cleanup interval on component unmount or when activeMode changes
@@ -433,9 +432,9 @@ export default function ChatPage() {
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-2">
         {/* Mode Toggle */}
-        <div className="mb-6">
+        <div className="mb-2">
           <Select
             value={activeMode}
             onValueChange={(value: ChatMode) => setActiveMode(value)}
@@ -575,7 +574,7 @@ export default function ChatPage() {
               activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
             } bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}
           >
-            <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
+            <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20 !px-6 !py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {activeMode === "coach" ? (
@@ -621,7 +620,7 @@ export default function ChatPage() {
 
             <CardContent className="flex-1 p-0">
               <div
-                className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4"
+                className="h-[calc(100vh-398px)] overflow-y-auto p-4 space-y-4"
                 style={{ scrollbarWidth: "thin" }}
               >
                 {messages.map((msg) => {
@@ -785,7 +784,7 @@ export default function ChatPage() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
+              <div className="px-4 py-2 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
                 <div className="flex gap-3">
                   <div className="flex-1 relative">
                     <Textarea
@@ -808,7 +807,7 @@ export default function ChatPage() {
                   <Button
                     onClick={sendMessage}
                     disabled={!message.trim()}
-                    className={`px-6 shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                    className={`px-6 h-[40px] shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
                       activeMode === "coach"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
                         : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
