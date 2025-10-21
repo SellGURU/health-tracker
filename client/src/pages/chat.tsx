@@ -96,10 +96,15 @@ export default function ChatPage() {
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [displayedMessages, setDisplayedMessages] = useState<
+    Record<number, string>
+  >({});
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [previousCount, setPreviousCount] = useState(0);
+  console.log("messages => ", messages);
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<any>(null);
   const [messageReactions, setMessageReactions] = useState<
     Record<number, "liked" | "disliked" | null>
   >({});
@@ -200,7 +205,7 @@ export default function ChatPage() {
     if (!message.trim()) return;
 
     const newMessage: Message = {
-      conversation_id: conversationId,
+      conversation_id: 0,
       date: new Date().toISOString(),
       message_text: message,
       sender_type: "patient",
@@ -423,6 +428,48 @@ export default function ChatPage() {
       );
     }
   };
+  useEffect(() => {
+    if (!messages.length) return;
+    if (previousCount === 0) {
+      const initMessages: Record<number, string> = {};
+      messages.forEach((msg) => {
+        initMessages[msg.conversation_id] = msg.message_text;
+      });
+      setDisplayedMessages(initMessages);
+      setPreviousCount(messages.length);
+      return;
+    }
+
+    const lastMsg = messages[messages.length - 1];
+    const isNewMessage = messages.length > previousCount;
+
+    if (isNewMessage && lastMsg.sender_type === "ai") {
+      let i = 0;
+      const text = lastMsg.message_text;
+
+      const interval = setInterval(() => {
+        i++;
+        setDisplayedMessages((prev) => ({
+          ...prev,
+          [lastMsg.conversation_id]: text.slice(0, i),
+        }));
+
+        if (i >= text.length) clearInterval(interval);
+      }, 20);
+
+      setPreviousCount(messages.length);
+    } else if (isNewMessage) {
+      setDisplayedMessages((prev) => ({
+        ...prev,
+        [lastMsg.conversation_id]: lastMsg.message_text,
+      }));
+      setPreviousCount(messages.length);
+    }
+  }, [messages]);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, displayedMessages]);
+
   // const formatTimestamp = (timestamp: Date) => {
   //   return timestamp.toLocaleTimeString([], {
   //     hour: "2-digit",
@@ -572,12 +619,12 @@ export default function ChatPage() {
           <Card
             className={`${
               activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
-            } bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}
+            } !bg-transparent !border-none !shadow-none`}
           >
-            <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20 !px-6 !py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {activeMode === "coach" ? (
+            {/* <CardHeader className="!px-6 !py-3"> */}
+            {/* <div className="flex items-center justify-between"> */}
+            {/* <div className="flex items-center gap-3"> */}
+            {/* {activeMode === "coach" ? (
                     <Avatar className="w-10 h-10 ring-2 ring-emerald-200 shadow-lg">
                       <AvatarImage src={selectedCoach?.avatar} />
                       <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
@@ -591,21 +638,21 @@ export default function ChatPage() {
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
                       <Bot className="w-5 h-5 text-white" />
                     </div>
-                  )}
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                  )} */}
+            {/* <div> */}
+            {/* <div className="font-medium text-gray-900 dark:text-gray-100">
                       {activeMode === "coach"
                         ? selectedCoach?.name
                         : "AI Health Copilot"}
-                    </div>
-                    {/* <div className="text-sm text-emerald-600 dark:text-emerald-400">
+                    </div> */}
+            {/* <div className="text-sm text-emerald-600 dark:text-emerald-400">
                         {activeMode === "coach"
                           ? "Human Expert"
                           : "AI Assistant"}
                       </div> */}
-                  </div>
-                </div>
-                <Badge
+            {/* </div> */}
+            {/* </div> */}
+            {/* <Badge
                   variant={activeMode === "coach" ? "default" : "secondary"}
                   className={
                     activeMode === "coach"
@@ -614,13 +661,13 @@ export default function ChatPage() {
                   }
                 >
                   {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
-                </Badge>
-              </div>
-            </CardHeader>
+                </Badge> */}
+            {/* </div> */}
+            {/* </CardHeader> */}
 
             <CardContent className="flex-1 p-0">
               <div
-                className="h-[calc(100vh-398px)] overflow-y-auto p-4 space-y-4"
+                className="h-[calc(100vh-325px)] overflow-y-auto p-4 space-y-4"
                 style={{ scrollbarWidth: "thin" }}
               >
                 {messages.map((msg) => {
@@ -657,7 +704,9 @@ export default function ChatPage() {
                                 : "text-gray-800 dark:text-gray-200"
                             }`}
                           >
-                            {msg.message_text}
+                            {msg.sender_type === "ai"
+                              ? displayedMessages[msg.conversation_id] || ""
+                              : msg.message_text}
                           </p>
                           <div className="flex items-center justify-between mt-2">
                             <p
@@ -784,7 +833,7 @@ export default function ChatPage() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="px-4 py-2 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
+              <div className="px-4 py-2 bg-transparent">
                 <div className="flex gap-3">
                   <div className="flex-1 relative">
                     <Textarea
@@ -807,14 +856,13 @@ export default function ChatPage() {
                   <Button
                     onClick={sendMessage}
                     disabled={!message.trim()}
-                    className={`px-6 h-[40px] shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                    className={`h-[40px] shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
                       activeMode === "coach"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
                         : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
                     }`}
                   >
-                    <Send className="w-4 h-4 mr-2" />
-                    Send
+                    <Send className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
