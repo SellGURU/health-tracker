@@ -208,6 +208,23 @@ export default function YouMenu() {
     handleGetHolisticPlanActionPlan();
   }, []);
 
+  // Auto-scroll to download report button when ?downloadReport is in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('downloadReport') === 'true') {
+      // Small delay to ensure the element is rendered
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);
+    }
+  }, []);
+
   const [currentView, setCurrentView] = useState<
     | "main"
     | "avatar-edit"
@@ -713,6 +730,7 @@ export default function YouMenu() {
               </div>
 
               <Button
+                id="download-pdf-report-Box"
                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
                 onClick={handleGetHtmlReport}
               >
