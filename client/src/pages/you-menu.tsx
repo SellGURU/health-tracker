@@ -220,7 +220,15 @@ export default function YouMenu() {
       const url = new URL(urlOpen.url);
       const key = url.searchParams.get('key');
       if (key === 'downloadReport') {
-        
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);        
       }
     });    
   }, []);
