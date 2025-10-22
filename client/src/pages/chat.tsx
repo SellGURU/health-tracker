@@ -1,23 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import Application from "@/api/app";
+import SimpleModeSelect from "@/components/chat/simple-mode-select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,29 +9,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Send,
-  Calendar,
-  Clock,
-  MessageCircle,
-  Bot,
-  User,
-  Phone,
-  Star,
-  Heart,
-  Zap,
-  Brain,
-  Settings,
-  Activity,
-  ChevronDown,
-  ThumbsUp,
-  ThumbsDown,
-  MoreVertical,
   Flag,
+  MoreVertical,
   RotateCcw,
+  Send,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
-import Application from "@/api/app";
+import { useEffect, useRef, useState } from "react";
 
 type ChatMode = "coach" | "ai";
 
@@ -478,89 +463,13 @@ export default function ChatPage() {
   // };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
       <div className="max-w-7xl mx-auto px-4 py-2">
         {/* Mode Toggle */}
-        <div className="mb-2">
-          <Select
-            value={activeMode}
-            onValueChange={(value: ChatMode) => setActiveMode(value)}
-          >
-            <SelectTrigger
-              className=" group relative h-14 w-full pr-10
-    bg-gradient-to-r from-gray-100/80 to-blue-100/50
-    dark:from-gray-800/80 dark:to-blue-900/30
-    border border-gray-200/30 dark:border-gray-700/20
-    shadow-inner backdrop-blur-sm
-    [&>[data-slot='select-icon']]:hidden
-    [&>span[data-slot='select-icon']]:hidden
-    [&>svg[data-slot='select-icon']]:hidden
-    [&>svg:last-child]:hidden"
-            >
-              <SelectValue>
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                      activeMode === "ai"
-                        ? "bg-gradient-to-br from-blue-500 to-cyan-500"
-                        : "bg-gradient-to-br from-emerald-500 to-teal-500"
-                    }`}
-                  >
-                    {activeMode === "ai" ? (
-                      <Bot className="w-4 h-4 text-white" />
-                    ) : (
-                      <User className="w-4 h-4 text-white" />
-                    )}
-                  </div>
-                  <div className="text-left">
-                    <div className="font-medium">
-                      {activeMode === "ai" ? "AI Copilot" : "Coach"}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {activeMode === "ai"
-                        ? "Instant responses"
-                        : "Expert guidance"}
-                    </div>
-                  </div>
-                </div>
-              </SelectValue>
-              <ChevronDown
-                className="
-        pointer-events-none absolute right-3 top-1/2 -translate-y-1/2
-        h-4 w-4 opacity-60 transition-transform duration-200
-        group-data-[state=open]:rotate-180
-      "
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ai">
-                <div className="flex items-center gap-3 py-2">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
-                    <Bot className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium">AI Copilot</div>
-                    <div className="text-xs text-gray-500">
-                      Instant responses
-                    </div>
-                  </div>
-                </div>
-              </SelectItem>
-              <SelectItem value="coach">
-                <div className="flex items-center gap-3 py-2">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-500">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Coach</div>
-                    <div className="text-xs text-gray-500">Expert guidance</div>
-                  </div>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
+        <SimpleModeSelect
+          activeMode={activeMode}
+          setActiveMode={setActiveMode}
+        />
         <div className="flex flex-col gap-6">
           {/* Sidebar - Coach Selection */}
           {/* {activeMode === "coach" && selectedCoach === null && (
@@ -667,7 +576,7 @@ export default function ChatPage() {
 
             <CardContent className="flex-1 p-0">
               <div
-                className="h-[calc(100vh-325px)] overflow-y-auto p-4 space-y-4"
+                className="h-[calc(100vh-355px)] md:h-[calc(100vh-335px)] overflow-y-auto p-4 space-y-4"
                 style={{ scrollbarWidth: "thin" }}
               >
                 {messages.map((msg) => {
@@ -833,42 +742,42 @@ export default function ChatPage() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="px-4 py-2 bg-transparent">
-                <div className="flex gap-3">
-                  <div className="flex-1 relative">
-                    <Textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder={
-                        activeMode === "coach"
-                          ? "Ask your health coach anything..."
-                          : "Ask your AI copilot anything..."
-                      }
-                      className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                    />
-                  </div>
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!message.trim()}
-                    className={`h-[40px] shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
-                      activeMode === "coach"
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
-                        : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                    }`}
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
           {/* ) : null} */}
+        </div>
+        <div className="px-4 py-2 bg-transparent fixed bottom-16 md:bottom-[108px] left-0 right-0 z-10 max-w-md mx-auto w-full">
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={
+                  activeMode === "coach"
+                    ? "Ask your health coach anything..."
+                    : "Ask your AI copilot anything..."
+                }
+                className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+            </div>
+            <Button
+              onClick={sendMessage}
+              disabled={!message.trim()}
+              className={`h-[40px] w-[40px] rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                activeMode === "coach"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
+                  : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+              }`}
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
