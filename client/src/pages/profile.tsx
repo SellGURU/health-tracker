@@ -589,13 +589,13 @@ export default function Profile() {
       action: () => setShowPasswordDialog(true),
       badge: null,
     },
-    {
-      icon: Trash2,
-      title: "Delete Account",
-      description: "Permanently delete your account and data",
-      action: () => setShowDeleteAccountDialog(true),
-      badge: null,
-    },    
+    // {
+    //   icon: Trash2,
+    //   title: "Delete Account",
+    //   description: "Permanently delete your account and data",
+    //   action: () => setShowDeleteAccountDialog(true),
+    //   badge: null,
+    // },    
   ];
   useEffect(() => {
     if (devicesData?.data_sources) {
