@@ -101,6 +101,7 @@ export default function YouMenu() {
     setBrandInfo(data.detail.information);
   });
   const [clientInformation, setClientInformation] = useState<{
+    show_phenoage: boolean;
     action_plan: number;
     age: number;
     coach_username: [];
@@ -206,6 +207,23 @@ export default function YouMenu() {
     handleGetAssignedQuestionaries();
     handleGetBiomarkersData();
     handleGetHolisticPlanActionPlan();
+  }, []);
+
+  // Auto-scroll to download report button when ?downloadReport is in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('downloadReport') === 'true') {
+      // Small delay to ensure the element is rendered
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);
+    }
   }, []);
 
   const [currentView, setCurrentView] = useState<
@@ -352,10 +370,10 @@ export default function YouMenu() {
       {/* Age Cards - Prominent Display */}
       <div
         className={`grid gap-3 ${
-          clientInformation?.pheno_age ? "grid-cols-2" : "grid-cols-1"
+          clientInformation?.show_phenoage ==true ? "grid-cols-2" : "grid-cols-1"
         }`}
       >
-        {clientInformation?.pheno_age && (
+        {clientInformation?.show_phenoage ==true && (
           <Card
             className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
             onClick={() =>
@@ -416,7 +434,7 @@ export default function YouMenu() {
         )}
 
         <Card
-          className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+          className="cursor-pointer  hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
           onClick={() =>
             toast({
               title: "Chronological Age",
@@ -713,6 +731,7 @@ export default function YouMenu() {
               </div>
 
               <Button
+                id="download-pdf-report-Box"
                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
                 onClick={handleGetHtmlReport}
               >
