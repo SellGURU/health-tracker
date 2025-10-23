@@ -1618,7 +1618,7 @@ export default function YouMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 pb-10">
       <div className="max-w-sm mx-auto">{renderCurrentView()}</div>
     </div>
   );
