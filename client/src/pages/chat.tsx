@@ -464,6 +464,8 @@ export default function ChatPage() {
                   </p>
                 </div>
               </div>
+            </div>
+            <div className="flex items-center justify-end mt-2 w-full">
               <Button
                 onClick={handleDismissDisclaimer}
                 size="sm"
@@ -471,6 +473,7 @@ export default function ChatPage() {
               >
                 OK, I Understand
               </Button>
+
             </div>
           </div>
         </div>
