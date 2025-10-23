@@ -12,6 +12,12 @@ interface getExerciseFileProps {
   encoded_mi: string;
 }
 class Application extends Api {
+  static deleteAccount(confirmation_text: string) {
+    const response = this.post("/mobile/delete_account", {
+      confirmation_text: confirmation_text,
+    });
+    return response;
+  }
   // static getPatients() {
   //   const response = this.get("/patients");
   //   return response;
