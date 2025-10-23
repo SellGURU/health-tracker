@@ -103,6 +103,7 @@ export default function ChatPage() {
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       // Use setTimeout to ensure DOM is updated
@@ -165,6 +166,14 @@ export default function ChatPage() {
     setIsLoading(true);
     handleGetMessagesId();
   }, [activeMode]);
+
+  // Check if disclaimer has been shown before
+  useEffect(() => {
+    const hasSeenDisclaimer = localStorage.getItem('chat-disclaimer-seen');
+    if (!hasSeenDisclaimer) {
+      setShowDisclaimer(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (activeMode == "coach") {
@@ -351,6 +360,11 @@ export default function ChatPage() {
     });
   };
 
+  const handleDismissDisclaimer = () => {
+    setShowDisclaimer(false);
+    localStorage.setItem('chat-disclaimer-seen', 'true');
+  };
+
   const handleSubmitReport = () => {
     if (reportingMessageId) {
       // Find the specific message to create unique key
@@ -433,6 +447,35 @@ export default function ChatPage() {
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
+      {/* Disclaimer Toast */}
+      {showDisclaimer && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-b border-amber-200 dark:border-amber-800 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">!</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    For wellness purposes only — not medical advice.
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handleDismissDisclaimer}
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                OK, I Understand
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto px-4 py-2">
         {/* Mode Toggle */}
         <SimpleModeSelect
