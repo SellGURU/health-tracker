@@ -153,6 +153,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logged out successfully" });
   });
 
+  // Delete account
+  app.delete("/api/auth/delete-account", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      // Delete user account and all associated data
+      await storage.deleteUser(userId);
+      
+      // Clear session
+      const sessionId = req.headers.authorization?.replace('Bearer ', '');
+      if (sessionId) {
+        sessions.delete(sessionId);
+      }
+      
+      res.json({ message: "Account deleted successfully" });
+    } catch (error) {
+      console.error('Delete account error:', error);
+      res.status(500).json({ message: "Failed to delete account" });
+    }
+  });
+
   // Get current user
   app.get("/api/auth/me", async (req, res) => {
     const userId = isAuthenticated(req);
