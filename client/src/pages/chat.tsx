@@ -31,6 +31,7 @@ import {
   Send,
   ThumbsDown,
   ThumbsUp,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -50,6 +51,10 @@ interface Message {
   sender_type: "patient" | "coach" | "ai" | "user";
   time: string;
   message_id?: number; // Add unique message ID
+  references?: Array<{
+    text: string;
+    filename: string;
+  }>;
 }
 
 interface Coach {
@@ -84,9 +89,10 @@ export default function ChatPage() {
   const [displayedMessages, setDisplayedMessages] = useState<
     Record<number, string>
   >({});
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [previousCount, setPreviousCount] = useState(0);
-  console.log("messages => ", messages);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageIdRef = useRef<number | null>(null);
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -104,6 +110,11 @@ export default function ChatPage() {
   const [reportDetails, setReportDetails] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showReferencesModal, setShowReferencesModal] = useState(false);
+  const [selectedReferences, setSelectedReferences] = useState<Array<{
+    text: string;
+    filename: string;
+  }>>([]);
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       // Use setTimeout to ensure DOM is updated
@@ -169,7 +180,7 @@ export default function ChatPage() {
 
   // Check if disclaimer has been shown before
   useEffect(() => {
-    const hasSeenDisclaimer = localStorage.getItem('chat-disclaimer-seen');
+    const hasSeenDisclaimer = localStorage.getItem("chat-disclaimer-seen");
     if (!hasSeenDisclaimer) {
       setShowDisclaimer(true);
     }
@@ -218,6 +229,7 @@ export default function ChatPage() {
             sender_type: activeMode,
             time: new Date().toLocaleTimeString(),
             reported: false,
+            references: res.data.references || [],
           };
           setMessages((prev) => [...prev, newMessage]);
           // scrollToBottom()
@@ -268,9 +280,7 @@ export default function ChatPage() {
     setReportingMessageId(messageId);
     setShowReportModal(true);
   };
-
   const handleRegenerateMessage = async (messageId: number) => {
-    // Find the last AI message
     const lastAIMessage = messages
       .filter((msg) => msg.sender_type === "ai")
       .pop();
@@ -284,7 +294,6 @@ export default function ChatPage() {
       return;
     }
 
-    // Find the last user message that prompted this AI response
     const userMessages = messages.filter(
       (msg) =>
         msg.sender_type === "patient" &&
@@ -300,23 +309,19 @@ export default function ChatPage() {
       return;
     }
 
-    // Get the last user message (most recent one before the AI response)
     const userMessage = userMessages[userMessages.length - 1];
 
-    // Remove the last AI message
+    setIsRegenerating(true);
+
     setMessages((prev) =>
-      prev.filter((msg) => {
-        if (msg.conversation_id === messageId && msg.sender_type === "ai") {
-          return false;
-        }
-        return true;
-      })
+      prev.filter(
+        (msg) =>
+          !(msg.conversation_id === messageId && msg.sender_type === "ai")
+      )
     );
 
-    // Show loading state
     setIsLoading(true);
 
-    // Resend the user message to regenerate response
     try {
       const res = await Application.sendMessage({
         conversation_id: userMessage.conversation_id,
@@ -332,6 +337,7 @@ export default function ChatPage() {
           sender_type: activeMode,
           time: new Date().toLocaleTimeString(),
           reported: false,
+          references: res.data.references || [],
         };
         setMessages((prev) => [...prev, newMessage]);
       }
@@ -362,7 +368,12 @@ export default function ChatPage() {
 
   const handleDismissDisclaimer = () => {
     setShowDisclaimer(false);
-    localStorage.setItem('chat-disclaimer-seen', 'true');
+    localStorage.setItem("chat-disclaimer-seen", "true");
+  };
+
+  const handleShowReferences = (references: Array<{text: string; filename: string}>) => {
+    setSelectedReferences(references);
+    setShowReferencesModal(true);
   };
 
   const handleSubmitReport = () => {
@@ -405,6 +416,22 @@ export default function ChatPage() {
   };
   useEffect(() => {
     if (!messages.length) return;
+
+    const lastMsg = messages[messages.length - 1];
+    const isNewMessage = messages.length > previousCount;
+
+    if (
+      lastMsg.sender_type === "ai" &&
+      lastMessageIdRef.current === lastMsg.conversation_id &&
+      !isRegenerating
+    ) {
+      setDisplayedMessages((prev) => ({
+        ...prev,
+        [lastMsg.conversation_id]: lastMsg.message_text,
+      }));
+      return;
+    }
+
     if (previousCount === 0) {
       const initMessages: Record<number, string> = {};
       messages.forEach((msg) => {
@@ -412,15 +439,20 @@ export default function ChatPage() {
       });
       setDisplayedMessages(initMessages);
       setPreviousCount(messages.length);
+      lastMessageIdRef.current = lastMsg.conversation_id;
       return;
     }
 
-    const lastMsg = messages[messages.length - 1];
-    const isNewMessage = messages.length > previousCount;
-
-    if (isNewMessage && lastMsg.sender_type === "ai") {
+    if (
+      (isNewMessage && lastMsg.sender_type === "ai") ||
+      (isRegenerating && lastMsg.sender_type === "ai")
+    ) {
       let i = 0;
       const text = lastMsg.message_text;
+      setDisplayedMessages((prev) => ({
+        ...prev,
+        [lastMsg.conversation_id]: "",
+      }));
 
       const interval = setInterval(() => {
         i++;
@@ -429,18 +461,24 @@ export default function ChatPage() {
           [lastMsg.conversation_id]: text.slice(0, i),
         }));
 
-        if (i >= text.length) clearInterval(interval);
+        if (i >= text.length) {
+          clearInterval(interval);
+          setIsRegenerating(false);
+        }
       }, 20);
 
       setPreviousCount(messages.length);
+      lastMessageIdRef.current = lastMsg.conversation_id;
     } else if (isNewMessage) {
       setDisplayedMessages((prev) => ({
         ...prev,
         [lastMsg.conversation_id]: lastMsg.message_text,
       }));
       setPreviousCount(messages.length);
+      lastMessageIdRef.current = lastMsg.conversation_id;
     }
-  }, [messages]);
+  }, [messages, isRegenerating]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, displayedMessages]);
@@ -455,7 +493,9 @@ export default function ChatPage() {
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">!</span>
+                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">
+                      !
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -464,6 +504,8 @@ export default function ChatPage() {
                   </p>
                 </div>
               </div>
+            </div>
+            <div className="flex items-center justify-end mt-2 w-full">
               <Button
                 onClick={handleDismissDisclaimer}
                 size="sm"
@@ -475,7 +517,7 @@ export default function ChatPage() {
           </div>
         </div>
       )}
-      
+
       <div className="max-w-7xl mx-auto px-4 py-2">
         {/* Mode Toggle */}
         <SimpleModeSelect
@@ -546,6 +588,18 @@ export default function ChatPage() {
                             {/* Action buttons for AI messages */}
                             {msg.sender_type === "ai" && !isReported && (
                               <div className="flex items-center gap-1">
+                                {/* References button - only show if references exist */}
+                                {msg.references && msg.references.length > 0 && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                    onClick={() => handleShowReferences(msg.references!)}
+                                    title="View References"
+                                  >
+                                    <BookOpen className="h-3 w-3" />
+                                  </Button>
+                                )}
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -748,6 +802,48 @@ export default function ChatPage() {
             >
               Submit Report
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* References Modal */}
+      <Dialog open={showReferencesModal} onOpenChange={setShowReferencesModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-blue-600" />
+              References
+            </DialogTitle>
+            <DialogDescription>
+              Sources and references used in this response
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedReferences.map((reference, index) => (
+              <div
+                key={index}
+                className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Source {index + 1}:
+                    </span>
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                      {reference.filename}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {reference.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {selectedReferences.length === 0 && (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No references available
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
