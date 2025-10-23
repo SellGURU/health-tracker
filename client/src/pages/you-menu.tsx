@@ -101,6 +101,7 @@ export default function YouMenu() {
     setBrandInfo(data.detail.information);
   });
   const [clientInformation, setClientInformation] = useState<{
+    show_phenoage: boolean;
     action_plan: number;
     age: number;
     coach_username: [];
@@ -368,11 +369,11 @@ export default function YouMenu() {
     <div className="space-y-4">
       {/* Age Cards - Prominent Display */}
       <div
-        className={`grid grid-cols-2 gap-3 ${
-          clientInformation?.pheno_age ? "grid-cols-2" : "grid-cols-1"
+        className={`grid gap-3 ${
+          clientInformation?.show_phenoage ==true ? "grid-cols-2" : "grid-cols-1"
         }`}
       >
-        {clientInformation?.pheno_age && (
+        {clientInformation?.show_phenoage ==true && (
           <Card
             className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
             onClick={() =>
@@ -433,7 +434,7 @@ export default function YouMenu() {
         )}
 
         <Card
-          className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+          className="cursor-pointer  hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
           onClick={() =>
             toast({
               title: "Chronological Age",
@@ -1617,7 +1618,7 @@ export default function YouMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 pb-10">
       <div className="max-w-sm mx-auto">{renderCurrentView()}</div>
     </div>
   );
