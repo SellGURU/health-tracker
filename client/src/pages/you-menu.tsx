@@ -652,7 +652,7 @@ export default function YouMenu() {
                         questionnaire.status = "Done";
                         setQuestionnaires([...questionnaires]);
                         window.open(
-                          `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
+                          `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
                         );
                       }}
                       className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
