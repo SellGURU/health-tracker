@@ -12,6 +12,12 @@ interface getExerciseFileProps {
   encoded_mi: string;
 }
 class Application extends Api {
+  static deleteAccount(confirmation_text: string) {
+    const response = this.post("/mobile/delete_account", {
+      confirmation_text: confirmation_text,
+    });
+    return response;
+  }
   // static getPatients() {
   //   const response = this.get("/patients");
   //   return response;
@@ -132,6 +138,10 @@ class Application extends Api {
   }
   static saveNotifSettings(data: any) {
     const response = this.post("/mobile/save_notification_settings", data);
+    return response;
+  }
+  static getBrandInfo() {
+    const response = this.post("/mobile/show_brand_info", {});
     return response;
   }
   static getHtmlReport() {

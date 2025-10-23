@@ -1,21 +1,29 @@
-import { ReactNode, useEffect, useState } from "react";
+// import { ReactNode, useEffect, useState } from "react";
+import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, Bell, Moon, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Bell, Moon, Search, Sun } from "lucide-react";
+import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
 import ProfileHeader from "./profile-header";
 import { usePushNotifications } from "@/hooks/use-pushNotification";
 import NotificationApi from "@/api/notification";
+import { publish } from "@/lib/event";
 import { Capacitor } from "@capacitor/core";
-
 interface MobileLayoutProps {
   children: ReactNode;
 }
 
-export default function MobileLayout({ children }: MobileLayoutProps) {
+export default function MobileLayout({ children }:MobileLayoutProps ) {
   const { toast } = useToast();
   const [location] = useLocation();
   const [showSearch, setShowSearch] = useState(false);
@@ -31,15 +39,32 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       }
     }
   }, [token]);
+  const getBrandInfo = async () => {
+    Application.getBrandInfo()
+      .then((res) => {
+        publish("brand_info", { information: res.data.brand_elements });
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res?.response?.data?.detail,
+          variant: "destructive",
+        });
+      });
+  };
+  useEffect(() => {
+    getBrandInfo();
+  }, []);
+
   // Pages that should use the ProfileHeader instead of the default global header
   const useProfileHeader = true; // Use ProfileHeader for all pages for consistency
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     if (isDarkMode) {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     } else {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     }
     toast({
       title: isDarkMode ? "Light mode enabled" : "Dark mode enabled",
@@ -66,13 +91,19 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
         /* Global Header */
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-10">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">HolistiCare</h1>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              HolistiCare
+            </h1>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setShowSearch(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSearch(true)}
+              >
                 <Search className="w-4 h-4" />
               </Button>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => {
                   toast({
@@ -84,7 +115,11 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
                 <Bell className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={toggleDarkMode}>
-                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {isDarkMode ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
               </Button>
             </div>
           </div>
@@ -115,7 +150,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
               placeholder="Search biomarkers, plans, insights..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             />
             <div className="flex gap-2">
               <Button onClick={handleSearch} className="flex-1">

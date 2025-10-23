@@ -1,5 +1,6 @@
 import Application from "@/api/app";
 import NotificationApi from "@/api/notification";
+import { App as CapacitorApp } from "@capacitor/app";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
 import { usePushNotifications } from "@/hooks/use-pushNotification";
 import { useToast } from "@/hooks/use-toast";
+import { subscribe } from "@/lib/event";
 import { Capacitor } from "@capacitor/core";
 import {
   Activity,
@@ -86,7 +88,21 @@ const surveyIcons = {
 };
 
 export default function YouMenu() {
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
+  subscribe("brand_info", (data: any) => {
+    setBrandInfo(data.detail.information);
+  });
   const [clientInformation, setClientInformation] = useState<{
+    show_phenoage: boolean;
     action_plan: number;
     age: number;
     coach_username: [];
@@ -183,6 +199,39 @@ export default function YouMenu() {
     handleGetAssignedQuestionaries();
     handleGetBiomarkersData();
     handleGetHolisticPlanActionPlan();
+  }, []);
+
+  // Auto-scroll to download report button when ?downloadReport is in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('downloadReport') === 'true') {
+      // Small delay to ensure the element is rendered
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);
+    }
+
+    CapacitorApp.addListener('appUrlOpen', (urlOpen) => {
+      const url = new URL(urlOpen.url);
+      const key = url.searchParams.get('key');
+      if (key === 'downloadReport') {
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);        
+      }
+    });    
   }, []);
 
   const [currentView, setCurrentView] = useState<
@@ -327,45 +376,73 @@ export default function YouMenu() {
   const renderMainView = () => (
     <div className="space-y-4">
       {/* Age Cards - Prominent Display */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card
-          className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
-          onClick={() =>
-            toast({
-              title: "Phenotypic Age",
-              description:
-                "Phenotypic Age (PhenoAge) is an estimate of how old your body seems based on health markers—rather than just your chronological age.",
-            })
-          }
-        >
-          <CardContent className="p-4 text-center relative z-10 h-full">
-            {/* Animated background glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
+      <div
+        className={`grid gap-3 ${
+          clientInformation?.show_phenoage ==true ? "grid-cols-2" : "grid-cols-1"
+        }`}
+      >
+        {clientInformation?.show_phenoage ==true && (
+          <Card
+            className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+            onClick={() =>
+              toast({
+                title: "Phenotypic Age",
+                description:
+                  "Phenotypic Age (PhenoAge) is an estimate of how old your body seems based on health markers—rather than just your chronological age.",
+              })
+            }
+          >
+            <CardContent className="p-4 text-center relative z-10 h-full">
+              {/* Animated background glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
 
-            <div className="relative">
-              {/* Simple icon */}
-              <div className="relative mx-auto flex justify-center mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                  <Activity className="w-8 h-8 text-white" />
+              <div className="relative">
+                {/* Simple icon */}
+                <div className="relative mx-auto flex justify-center mb-4">
+                  <div
+                    className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                    }}
+                  >
+                    <Activity className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+
+                {/* Age display */}
+
+                <div className="mb-2">
+                  <div
+                    className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm"
+                    style={{
+                      color: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                    }}
+                  >
+                    {clientInformation?.pheno_age}
+                  </div>
+                  <div
+                    className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide"
+                    style={{
+                      color: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                    }}
+                  >
+                    Phenotypic Age
+                  </div>
                 </div>
               </div>
-
-              {/* Age display */}
-              <div className="mb-2">
-                <div className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm">
-                  {clientInformation?.pheno_age}
-                </div>
-                <div className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide">
-                  Phenotypic Age
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         <Card
-          className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+          className="cursor-pointer  hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
           onClick={() =>
             toast({
               title: "Chronological Age",
@@ -381,17 +458,38 @@ export default function YouMenu() {
             <div className="relative">
               {/* Age icon */}
               <div className="relative flex justify-center mx-auto mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <div
+                  className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
+                  style={{
+                    background: `${
+                      brandInfo ? brandInfo?.secondary_color : undefined
+                    }`,
+                  }}
+                >
                   <span className="text-2xl">🎂</span>
                 </div>
               </div>
 
               {/* Age display */}
               <div className="mb-2">
-                <div className="text-4xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm">
+                <div
+                  className="text-4xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm"
+                  style={{
+                    color: `${
+                      brandInfo ? brandInfo?.secondary_color : undefined
+                    }`,
+                  }}
+                >
                   {clientInformation?.age}
                 </div>
-                <div className="text-sm font-thin text-purple-700 dark:text-purple-300 tracking-wide">
+                <div
+                  className="text-sm font-thin text-purple-700 dark:text-purple-300 tracking-wide"
+                  style={{
+                    color: `${
+                      brandInfo ? brandInfo?.secondary_color : undefined
+                    }`,
+                  }}
+                >
                   Chronological Age
                 </div>
               </div>
@@ -503,7 +601,14 @@ export default function YouMenu() {
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-thin flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div
+              className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center"
+              style={{
+                background: `${
+                  brandInfo ? brandInfo?.secondary_color : undefined
+                }`,
+              }}
+            >
               <BookOpen className="w-3 h-3 text-white" />
             </div>
             Assigned Questionnaires
@@ -555,7 +660,7 @@ export default function YouMenu() {
                         questionnaire.status = "Done";
                         setQuestionnaires([...questionnaires]);
                         window.open(
-                          `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
+                          `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
                         );
                       }}
                       className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
@@ -575,7 +680,14 @@ export default function YouMenu() {
         <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-thin flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+              <div
+                className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center"
+                style={{
+                  background: `${
+                    brandInfo ? brandInfo?.primary_color : undefined
+                  }`,
+                }}
+              >
                 <Heart className="w-3 h-3 text-white" />
               </div>
               Health Summary
@@ -627,6 +739,7 @@ export default function YouMenu() {
               </div>
 
               <Button
+                id="download-pdf-report-Box"
                 className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
                 onClick={handleGetHtmlReport}
               >
@@ -1513,7 +1626,7 @@ export default function YouMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 pb-10">
       <div className="max-w-sm mx-auto">{renderCurrentView()}</div>
     </div>
   );
