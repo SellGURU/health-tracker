@@ -31,6 +31,7 @@ import {
   Send,
   ThumbsDown,
   ThumbsUp,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -50,6 +51,10 @@ interface Message {
   sender_type: "patient" | "coach" | "ai" | "user";
   time: string;
   message_id?: number; // Add unique message ID
+  references?: Array<{
+    text: string;
+    filename: string;
+  }>;
 }
 
 interface Coach {
@@ -105,6 +110,11 @@ export default function ChatPage() {
   const [reportDetails, setReportDetails] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showReferencesModal, setShowReferencesModal] = useState(false);
+  const [selectedReferences, setSelectedReferences] = useState<Array<{
+    text: string;
+    filename: string;
+  }>>([]);
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       // Use setTimeout to ensure DOM is updated
@@ -219,6 +229,7 @@ export default function ChatPage() {
             sender_type: activeMode,
             time: new Date().toLocaleTimeString(),
             reported: false,
+            references: res.data.references || [],
           };
           setMessages((prev) => [...prev, newMessage]);
           // scrollToBottom()
@@ -326,6 +337,7 @@ export default function ChatPage() {
           sender_type: activeMode,
           time: new Date().toLocaleTimeString(),
           reported: false,
+          references: res.data.references || [],
         };
         setMessages((prev) => [...prev, newMessage]);
       }
@@ -357,6 +369,11 @@ export default function ChatPage() {
   const handleDismissDisclaimer = () => {
     setShowDisclaimer(false);
     localStorage.setItem("chat-disclaimer-seen", "true");
+  };
+
+  const handleShowReferences = (references: Array<{text: string; filename: string}>) => {
+    setSelectedReferences(references);
+    setShowReferencesModal(true);
   };
 
   const handleSubmitReport = () => {
@@ -571,6 +588,18 @@ export default function ChatPage() {
                             {/* Action buttons for AI messages */}
                             {msg.sender_type === "ai" && !isReported && (
                               <div className="flex items-center gap-1">
+                                {/* References button - only show if references exist */}
+                                {msg.references && msg.references.length > 0 && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                    onClick={() => handleShowReferences(msg.references!)}
+                                    title="View References"
+                                  >
+                                    <BookOpen className="h-3 w-3" />
+                                  </Button>
+                                )}
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -773,6 +802,48 @@ export default function ChatPage() {
             >
               Submit Report
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* References Modal */}
+      <Dialog open={showReferencesModal} onOpenChange={setShowReferencesModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-blue-600" />
+              References
+            </DialogTitle>
+            <DialogDescription>
+              Sources and references used in this response
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedReferences.map((reference, index) => (
+              <div
+                key={index}
+                className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Source {index + 1}:
+                    </span>
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                      {reference.filename}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {reference.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {selectedReferences.length === 0 && (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No references available
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
