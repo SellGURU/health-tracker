@@ -1,23 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import Application from "@/api/app";
+import SimpleModeSelect from "@/components/chat/simple-mode-select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,29 +9,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Send,
-  Calendar,
-  Clock,
-  MessageCircle,
-  Bot,
-  User,
-  Phone,
-  Star,
-  Heart,
-  Zap,
-  Brain,
-  Settings,
-  Activity,
-  ChevronDown,
-  ThumbsUp,
-  ThumbsDown,
-  MoreVertical,
   Flag,
+  MoreVertical,
   RotateCcw,
+  Send,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
-import Application from "@/api/app";
+import { useEffect, useRef, useState } from "react";
 
 type ChatMode = "coach" | "ai";
 
@@ -96,10 +81,15 @@ export default function ChatPage() {
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [displayedMessages, setDisplayedMessages] = useState<
+    Record<number, string>
+  >({});
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [previousCount, setPreviousCount] = useState(0);
+  console.log("messages => ", messages);
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<any>(null);
   const [messageReactions, setMessageReactions] = useState<
     Record<number, "liked" | "disliked" | null>
   >({});
@@ -113,6 +103,7 @@ export default function ChatPage() {
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       // Use setTimeout to ensure DOM is updated
@@ -176,32 +167,30 @@ export default function ChatPage() {
     handleGetMessagesId();
   }, [activeMode]);
 
+  // Check if disclaimer has been shown before
   useEffect(() => {
-    if(activeMode == 'coach'){
+    const hasSeenDisclaimer = localStorage.getItem('chat-disclaimer-seen');
+    if (!hasSeenDisclaimer) {
+      setShowDisclaimer(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeMode == "coach") {
       const interval = setInterval(() => {
         handleGetMessagesId();
       }, 15000); // 15 seconds
       return () => clearInterval(interval);
-
     }
 
     // Cleanup interval on component unmount or when activeMode changes
   }, [activeMode]);
-  // Auto-refresh messages every 15 seconds
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     handleGetMessagesId();
-  //   }, 15000); // 15 seconds
-
-  //   // Cleanup interval on component unmount or when activeMode changes
-  //   return () => clearInterval(interval);
-  // }, [activeMode]);
 
   const sendMessage = () => {
     if (!message.trim()) return;
 
     const newMessage: Message = {
-      conversation_id: conversationId,
+      conversation_id: 0,
       date: new Date().toISOString(),
       message_text: message,
       sender_type: "patient",
@@ -244,21 +233,6 @@ export default function ChatPage() {
       .finally(() => {
         setIsLoading(false);
       });
-
-    // Simulate response
-    // setTimeout(() => {
-    //   const responseMessage: Message = {
-    //     id: (Date.now() + 1).toString(),
-    //     content:
-    //       activeMode === "ai"
-    //         ? "I understand your question. Based on your health data and goals, here are my recommendations..."
-    //         : "Thanks for reaching out! I'll analyze your question and provide detailed guidance. Let me review your recent health data.",
-    //     sender: activeMode,
-    //     timestamp: new Date(),
-    //     type: "text",
-    //   };
-    //   setMessages((prev) => [...prev, responseMessage]);
-    // }, 1500);
   };
 
   const handleMessageReaction = (
@@ -386,6 +360,11 @@ export default function ChatPage() {
     });
   };
 
+  const handleDismissDisclaimer = () => {
+    setShowDisclaimer(false);
+    localStorage.setItem('chat-disclaimer-seen', 'true');
+  };
+
   const handleSubmitReport = () => {
     if (reportingMessageId) {
       // Find the specific message to create unique key
@@ -424,204 +403,95 @@ export default function ChatPage() {
       );
     }
   };
-  // const formatTimestamp = (timestamp: Date) => {
-  //   return timestamp.toLocaleTimeString([], {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   });
-  // };
+  useEffect(() => {
+    if (!messages.length) return;
+    if (previousCount === 0) {
+      const initMessages: Record<number, string> = {};
+      messages.forEach((msg) => {
+        initMessages[msg.conversation_id] = msg.message_text;
+      });
+      setDisplayedMessages(initMessages);
+      setPreviousCount(messages.length);
+      return;
+    }
+
+    const lastMsg = messages[messages.length - 1];
+    const isNewMessage = messages.length > previousCount;
+
+    if (isNewMessage && lastMsg.sender_type === "ai") {
+      let i = 0;
+      const text = lastMsg.message_text;
+
+      const interval = setInterval(() => {
+        i++;
+        setDisplayedMessages((prev) => ({
+          ...prev,
+          [lastMsg.conversation_id]: text.slice(0, i),
+        }));
+
+        if (i >= text.length) clearInterval(interval);
+      }, 20);
+
+      setPreviousCount(messages.length);
+    } else if (isNewMessage) {
+      setDisplayedMessages((prev) => ({
+        ...prev,
+        [lastMsg.conversation_id]: lastMsg.message_text,
+      }));
+      setPreviousCount(messages.length);
+    }
+  }, [messages]);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, displayedMessages]);
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Mode Toggle */}
-        <div className="mb-6">
-          <Select
-            value={activeMode}
-            onValueChange={(value: ChatMode) => setActiveMode(value)}
-          >
-            <SelectTrigger
-              className=" group relative h-14 w-full pr-10
-    bg-gradient-to-r from-gray-100/80 to-blue-100/50
-    dark:from-gray-800/80 dark:to-blue-900/30
-    border border-gray-200/30 dark:border-gray-700/20
-    shadow-inner backdrop-blur-sm
-    [&>[data-slot='select-icon']]:hidden
-    [&>span[data-slot='select-icon']]:hidden
-    [&>svg[data-slot='select-icon']]:hidden
-    [&>svg:last-child]:hidden"
-            >
-              <SelectValue>
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                      activeMode === "ai"
-                        ? "bg-gradient-to-br from-blue-500 to-cyan-500"
-                        : "bg-gradient-to-br from-emerald-500 to-teal-500"
-                    }`}
-                  >
-                    {activeMode === "ai" ? (
-                      <Bot className="w-4 h-4 text-white" />
-                    ) : (
-                      <User className="w-4 h-4 text-white" />
-                    )}
-                  </div>
-                  <div className="text-left">
-                    <div className="font-medium">
-                      {activeMode === "ai" ? "AI Copilot" : "Coach"}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {activeMode === "ai"
-                        ? "Instant responses"
-                        : "Expert guidance"}
-                    </div>
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
+      {/* Disclaimer Toast */}
+      {showDisclaimer && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-b border-amber-200 dark:border-amber-800 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">!</span>
                   </div>
                 </div>
-              </SelectValue>
-              <ChevronDown
-                className="
-        pointer-events-none absolute right-3 top-1/2 -translate-y-1/2
-        h-4 w-4 opacity-60 transition-transform duration-200
-        group-data-[state=open]:rotate-180
-      "
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ai">
-                <div className="flex items-center gap-3 py-2">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
-                    <Bot className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium">AI Copilot</div>
-                    <div className="text-xs text-gray-500">
-                      Instant responses
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    For wellness purposes only — not medical advice.
+                  </p>
                 </div>
-              </SelectItem>
-              <SelectItem value="coach">
-                <div className="flex items-center gap-3 py-2">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-500">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Coach</div>
-                    <div className="text-xs text-gray-500">Expert guidance</div>
-                  </div>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-6">
-          {/* Sidebar - Coach Selection */}
-          {/* {activeMode === "coach" && selectedCoach === null && (
-            <div className="lg:col-span-1 space-y-4 w-full">
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-thin text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    Available Coaches
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div
-                    className="cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30"
-                    onClick={() => {
-                      if (selectedCoach) {
-                        setSelectedCoach(null);
-                      } else {
-                        setSelectedCoach(coaches[0]);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-10 h-10 ring-2 ring-white shadow-md">
-                        <AvatarImage src={coaches[0].avatar} />
-                        <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                          {coaches[0].name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {coaches[0].name}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardContent className="p-4">
-                  <Button
-                    onClick={bookSession}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Session
-                  </Button>
-                </CardContent>
-              </Card>
+              </div>
+              <Button
+                onClick={handleDismissDisclaimer}
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                OK, I Understand
+              </Button>
             </div>
-          )} */}
-
+          </div>
+        </div>
+      )}
+      
+      <div className="max-w-7xl mx-auto px-4 py-2">
+        {/* Mode Toggle */}
+        <SimpleModeSelect
+          activeMode={activeMode}
+          setActiveMode={setActiveMode}
+        />
+        <div className="flex flex-col gap-6">
           {/* Chat Messages */}
-          {/* {(activeMode === "coach" && selectedCoach) || activeMode === "ai" ? ( */}
           <Card
             className={`${
               activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
-            } bg-gradient-to-br from-white/95 via-white/90 to-gray-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-900/20 border-0 shadow-2xl backdrop-blur-xl`}
+            } !bg-transparent !border-none !shadow-none`}
           >
-            <CardHeader className="border-b border-gray-200/30 dark:border-gray-700/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {activeMode === "coach" ? (
-                    <Avatar className="w-10 h-10 ring-2 ring-emerald-200 shadow-lg">
-                      <AvatarImage src={selectedCoach?.avatar} />
-                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                        {selectedCoach?.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                      <Bot className="w-5 h-5 text-white" />
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {activeMode === "coach"
-                        ? selectedCoach?.name
-                        : "AI Health Copilot"}
-                    </div>
-                    {/* <div className="text-sm text-emerald-600 dark:text-emerald-400">
-                        {activeMode === "coach"
-                          ? "Human Expert"
-                          : "AI Assistant"}
-                      </div> */}
-                  </div>
-                </div>
-                <Badge
-                  variant={activeMode === "coach" ? "default" : "secondary"}
-                  className={
-                    activeMode === "coach"
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                  }
-                >
-                  {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
-                </Badge>
-              </div>
-            </CardHeader>
-
             <CardContent className="flex-1 p-0">
               <div
-                className="h-[calc(100vh-482px)] overflow-y-auto p-4 space-y-4"
+                className="h-[calc(100vh-355px)] md:h-[calc(100vh-335px)] overflow-y-auto space-y-4"
                 style={{ scrollbarWidth: "thin" }}
               >
                 {messages.map((msg) => {
@@ -658,7 +528,9 @@ export default function ChatPage() {
                                 : "text-gray-800 dark:text-gray-200"
                             }`}
                           >
-                            {msg.message_text}
+                            {msg.sender_type === "ai"
+                              ? displayedMessages[msg.conversation_id] || ""
+                              : msg.message_text}
                           </p>
                           <div className="flex items-center justify-between mt-2">
                             <p
@@ -785,43 +657,41 @@ export default function ChatPage() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="p-4 border-t border-gray-200/30 dark:border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 backdrop-blur-sm">
-                <div className="flex gap-3">
-                  <div className="flex-1 relative">
-                    <Textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder={
-                        activeMode === "coach"
-                          ? "Ask your health coach anything..."
-                          : "Ask your AI copilot anything..."
-                      }
-                      className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                    />
-                  </div>
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!message.trim()}
-                    className={`px-6 shadow-lg font-medium transition-all duration-300 hover:shadow-xl hover:scale-105 ${
-                      activeMode === "coach"
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
-                        : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                    }`}
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Send
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
-          {/* ) : null} */}
+        </div>
+        <div className="px-4 py-2 bg-transparent fixed bottom-16 md:bottom-[108px] left-0 right-0 z-10 max-w-md mx-auto w-full">
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={
+                  activeMode === "coach"
+                    ? "Ask your health coach anything..."
+                    : "Ask your AI copilot anything..."
+                }
+                className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+            </div>
+            <Button
+              onClick={sendMessage}
+              disabled={!message.trim()}
+              className={`h-[40px] w-[40px] rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                activeMode === "coach"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
+                  : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+              }`}
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
