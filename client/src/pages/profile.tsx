@@ -329,7 +329,8 @@ export default function Profile() {
   });
 
   const handleDeleteAccount = () => {
-    if (deleteConfirmation === "delete my account") {
+    const requiredText = `DELETE/${user?.fullName || 'User'}`;
+    if (deleteConfirmation === requiredText) {
       deleteAccountMutation.mutate();
       setShowDeleteAccountDialog(false);
       setDeleteConfirmation("");
@@ -442,7 +443,7 @@ export default function Profile() {
               <div className="relative flex-shrink-0">
                 <Avatar className="w-16 h-16 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
                   <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-medium">
-                    {((user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')).toUpperCase() || 'U'}
+                    {user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
@@ -466,7 +467,7 @@ export default function Profile() {
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Age:</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {calculateAge(editData?.dateOfBirth || user?.dateOfBirth) || 'N/A'}
+                        {(editData?.dateOfBirth ? calculateAge(editData.dateOfBirth) : user?.age) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -1158,13 +1159,13 @@ export default function Profile() {
 
               <div>
                 <Label htmlFor="delete-confirmation" className="text-gray-700 dark:text-gray-300 font-medium">
-                  Type <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-sm">delete my account</span> to confirm
+                  Type <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-sm">DELETE/{user?.fullName || 'User'}</span> to confirm
                 </Label>
                 <Input
                   id="delete-confirmation"
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder="delete my account"
+                  placeholder={`DELETE/${user?.fullName || 'User'}`}
                   className="mt-2 bg-white/80 dark:bg-gray-700/80 border-red-200/50 dark:border-red-800/30 focus:border-red-500 dark:focus:border-red-500"
                   data-testid="input-delete-confirmation"
                 />
@@ -1178,7 +1179,7 @@ export default function Profile() {
                 <Button 
                   onClick={handleDeleteAccount}
                   className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg"
-                  disabled={deleteConfirmation !== "delete my account" || deleteAccountMutation.isPending}
+                  disabled={deleteConfirmation !== `DELETE/${user?.fullName || 'User'}` || deleteAccountMutation.isPending}
                   data-testid="button-delete-account"
                 >
                   {deleteAccountMutation.isPending ? "Deleting Account..." : "Delete My Account Permanently"}
