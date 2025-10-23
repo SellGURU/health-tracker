@@ -55,9 +55,9 @@ class AuthService {
 
   private restoreSession() {
     try {
-      const userData = localStorage.getItem('health_user');
-      const sessionId = localStorage.getItem('health_session');
-      const expires = localStorage.getItem('health_session_expires');
+      const userData = localStorage.getItem("health_user");
+      const sessionId = localStorage.getItem("health_session");
+      const expires = localStorage.getItem("health_session_expires");
 
       if (userData && sessionId && expires) {
         const expiresDate = new Date(expires);
@@ -69,7 +69,7 @@ class AuthService {
         }
       }
     } catch (error) {
-      console.error('Error restoring session:', error);
+      console.error("Error restoring session:", error);
       this.clearSession();
     }
   }
@@ -77,48 +77,51 @@ class AuthService {
   private saveSession(response: AuthResponse) {
     this.currentUser = response.user;
     this.sessionId = response.sessionId;
-    
-    localStorage.setItem('health_user', JSON.stringify(response.user));
-    localStorage.setItem('health_session', response.sessionId);
-    localStorage.setItem('health_session_expires', response.expires);
+
+    localStorage.setItem("health_user", JSON.stringify(response.user));
+    localStorage.setItem("health_session", response.sessionId);
+    localStorage.setItem("health_session_expires", response.expires);
   }
 
   private clearSession() {
     this.currentUser = null;
     this.sessionId = null;
-    
-    localStorage.removeItem('health_user');
-    localStorage.removeItem('health_session');
-    localStorage.removeItem('health_session_expires');
+
+    localStorage.removeItem("health_user");
+    localStorage.removeItem("health_session");
+    localStorage.removeItem("health_session_expires");
   }
 
   async login(credentials: LoginCredentials): Promise<AuthUser> {
     // Check if mock mode is enabled for UI testing
     if (mockAuth.isMockModeEnabled()) {
       try {
-        const user = await mockAuth.mockLogin(credentials.email, credentials.password);
+        const user = await mockAuth.mockLogin(
+          credentials.email,
+          credentials.password
+        );
         this.currentUser = user;
-        this.sessionId = 'mock-session-123';
+        this.sessionId = "mock-session-123";
         // Store mock session
-        localStorage.setItem('health_user', JSON.stringify(user));
-        localStorage.setItem('health_session', 'mock-session-123');
+        localStorage.setItem("health_user", JSON.stringify(user));
+        localStorage.setItem("health_session", "mock-session-123");
         return user;
       } catch (error) {
-        throw new Error('Invalid credentials');
+        throw new Error("Invalid credentials");
       }
     }
 
-    const response = await apiRequest('POST', '/api/auth/login', credentials);
+    const response = await apiRequest("POST", "/api/auth/login", credentials);
     const data: AuthResponse = await response.json();
-    
+
     this.saveSession(data);
     return data.user;
   }
 
   async register(userData: RegisterData): Promise<AuthUser> {
-    const response = await apiRequest('POST', '/api/auth/register', userData);
+    const response = await apiRequest("POST", "/api/auth/register", userData);
     const data: AuthResponse = await response.json();
-    
+
     this.saveSession(data);
     return data.user;
   }
@@ -129,12 +132,12 @@ class AuthService {
       mockAuth.logout();
     } else if (this.sessionId) {
       try {
-        await apiRequest('POST', '/api/auth/logout', {});
+        await apiRequest("POST", "/api/auth/logout", {});
       } catch (error) {
-        console.error('Error during logout:', error);
+        console.error("Error during logout:", error);
       }
     }
-    
+
     this.clearSession();
   }
 
@@ -144,7 +147,7 @@ class AuthService {
       const user = mockAuth.getCurrentUser();
       if (user) {
         this.currentUser = user;
-        this.sessionId = 'mock-session-123';
+        this.sessionId = "mock-session-123";
         return user;
       }
     }
@@ -154,9 +157,9 @@ class AuthService {
     }
 
     try {
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch("/api/auth/me", {
         headers: {
-          'Authorization': `Bearer ${this.sessionId}`,
+          Authorization: `Bearer ${this.sessionId}`,
         },
       });
 
@@ -169,7 +172,7 @@ class AuthService {
         return null;
       }
     } catch (error) {
-      console.error('Error fetching current user:', error);
+      console.error("Error fetching current user:", error);
     }
 
     return this.currentUser;
@@ -185,24 +188,23 @@ class AuthService {
 
   isAuthenticated(): boolean {
     // Check mock mode
-    if (mockAuth.isMockModeEnabled()) {
-      return mockAuth.getCurrentUser() !== null;
+    if (localStorage.getItem("token")) {
+      return true;
     }
-    
-    return this.currentUser !== null && this.sessionId !== null;
+    return false;
   }
 
-  hasSubscription(tier: 'plus' | 'professional'): boolean {
+  hasSubscription(tier: "plus" | "professional"): boolean {
     if (!this.currentUser) return false;
-    
+
     const userTier = this.currentUser.subscriptionTier;
-    if (tier === 'plus') {
-      return userTier === 'plus' || userTier === 'professional';
+    if (tier === "plus") {
+      return userTier === "plus" || userTier === "professional";
     }
-    if (tier === 'professional') {
-      return userTier === 'professional';
+    if (tier === "professional") {
+      return userTier === "professional";
     }
-    
+
     return false;
   }
 
@@ -210,7 +212,7 @@ class AuthService {
   getAuthHeaders(): Record<string, string> {
     if (this.sessionId) {
       return {
-        'Authorization': `Bearer ${this.sessionId}`,
+        Authorization: `Bearer ${this.sessionId}`,
       };
     }
     return {};
