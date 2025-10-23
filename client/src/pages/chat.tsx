@@ -84,9 +84,10 @@ export default function ChatPage() {
   const [displayedMessages, setDisplayedMessages] = useState<
     Record<number, string>
   >({});
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [previousCount, setPreviousCount] = useState(0);
-  console.log("messages => ", messages);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageIdRef = useRef<number | null>(null);
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -169,7 +170,7 @@ export default function ChatPage() {
 
   // Check if disclaimer has been shown before
   useEffect(() => {
-    const hasSeenDisclaimer = localStorage.getItem('chat-disclaimer-seen');
+    const hasSeenDisclaimer = localStorage.getItem("chat-disclaimer-seen");
     if (!hasSeenDisclaimer) {
       setShowDisclaimer(true);
     }
@@ -268,9 +269,7 @@ export default function ChatPage() {
     setReportingMessageId(messageId);
     setShowReportModal(true);
   };
-
   const handleRegenerateMessage = async (messageId: number) => {
-    // Find the last AI message
     const lastAIMessage = messages
       .filter((msg) => msg.sender_type === "ai")
       .pop();
@@ -284,7 +283,6 @@ export default function ChatPage() {
       return;
     }
 
-    // Find the last user message that prompted this AI response
     const userMessages = messages.filter(
       (msg) =>
         msg.sender_type === "patient" &&
@@ -300,23 +298,19 @@ export default function ChatPage() {
       return;
     }
 
-    // Get the last user message (most recent one before the AI response)
     const userMessage = userMessages[userMessages.length - 1];
 
-    // Remove the last AI message
+    setIsRegenerating(true);
+
     setMessages((prev) =>
-      prev.filter((msg) => {
-        if (msg.conversation_id === messageId && msg.sender_type === "ai") {
-          return false;
-        }
-        return true;
-      })
+      prev.filter(
+        (msg) =>
+          !(msg.conversation_id === messageId && msg.sender_type === "ai")
+      )
     );
 
-    // Show loading state
     setIsLoading(true);
 
-    // Resend the user message to regenerate response
     try {
       const res = await Application.sendMessage({
         conversation_id: userMessage.conversation_id,
@@ -362,7 +356,7 @@ export default function ChatPage() {
 
   const handleDismissDisclaimer = () => {
     setShowDisclaimer(false);
-    localStorage.setItem('chat-disclaimer-seen', 'true');
+    localStorage.setItem("chat-disclaimer-seen", "true");
   };
 
   const handleSubmitReport = () => {
@@ -405,6 +399,22 @@ export default function ChatPage() {
   };
   useEffect(() => {
     if (!messages.length) return;
+
+    const lastMsg = messages[messages.length - 1];
+    const isNewMessage = messages.length > previousCount;
+
+    if (
+      lastMsg.sender_type === "ai" &&
+      lastMessageIdRef.current === lastMsg.conversation_id &&
+      !isRegenerating
+    ) {
+      setDisplayedMessages((prev) => ({
+        ...prev,
+        [lastMsg.conversation_id]: lastMsg.message_text,
+      }));
+      return;
+    }
+
     if (previousCount === 0) {
       const initMessages: Record<number, string> = {};
       messages.forEach((msg) => {
@@ -412,15 +422,20 @@ export default function ChatPage() {
       });
       setDisplayedMessages(initMessages);
       setPreviousCount(messages.length);
+      lastMessageIdRef.current = lastMsg.conversation_id;
       return;
     }
 
-    const lastMsg = messages[messages.length - 1];
-    const isNewMessage = messages.length > previousCount;
-
-    if (isNewMessage && lastMsg.sender_type === "ai") {
+    if (
+      (isNewMessage && lastMsg.sender_type === "ai") ||
+      (isRegenerating && lastMsg.sender_type === "ai")
+    ) {
       let i = 0;
       const text = lastMsg.message_text;
+      setDisplayedMessages((prev) => ({
+        ...prev,
+        [lastMsg.conversation_id]: "",
+      }));
 
       const interval = setInterval(() => {
         i++;
@@ -429,18 +444,24 @@ export default function ChatPage() {
           [lastMsg.conversation_id]: text.slice(0, i),
         }));
 
-        if (i >= text.length) clearInterval(interval);
+        if (i >= text.length) {
+          clearInterval(interval);
+          setIsRegenerating(false);
+        }
       }, 20);
 
       setPreviousCount(messages.length);
+      lastMessageIdRef.current = lastMsg.conversation_id;
     } else if (isNewMessage) {
       setDisplayedMessages((prev) => ({
         ...prev,
         [lastMsg.conversation_id]: lastMsg.message_text,
       }));
       setPreviousCount(messages.length);
+      lastMessageIdRef.current = lastMsg.conversation_id;
     }
-  }, [messages]);
+  }, [messages, isRegenerating]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, displayedMessages]);
@@ -455,7 +476,9 @@ export default function ChatPage() {
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">!</span>
+                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">
+                      !
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -473,12 +496,11 @@ export default function ChatPage() {
               >
                 OK, I Understand
               </Button>
-
             </div>
           </div>
         </div>
       )}
-      
+
       <div className="max-w-7xl mx-auto px-4 py-2">
         {/* Mode Toggle */}
         <SimpleModeSelect
