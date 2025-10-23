@@ -176,15 +176,6 @@ export default function ChatPage() {
 
     // Cleanup interval on component unmount or when activeMode changes
   }, [activeMode]);
-  // Auto-refresh messages every 15 seconds
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     handleGetMessagesId();
-  //   }, 15000); // 15 seconds
-
-  //   // Cleanup interval on component unmount or when activeMode changes
-  //   return () => clearInterval(interval);
-  // }, [activeMode]);
 
   const sendMessage = () => {
     if (!message.trim()) return;
@@ -233,21 +224,6 @@ export default function ChatPage() {
       .finally(() => {
         setIsLoading(false);
       });
-
-    // Simulate response
-    // setTimeout(() => {
-    //   const responseMessage: Message = {
-    //     id: (Date.now() + 1).toString(),
-    //     content:
-    //       activeMode === "ai"
-    //         ? "I understand your question. Based on your health data and goals, here are my recommendations..."
-    //         : "Thanks for reaching out! I'll analyze your question and provide detailed guidance. Let me review your recent health data.",
-    //     sender: activeMode,
-    //     timestamp: new Date(),
-    //     type: "text",
-    //   };
-    //   setMessages((prev) => [...prev, responseMessage]);
-    // }, 1500);
   };
 
   const handleMessageReaction = (
@@ -455,13 +431,6 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, displayedMessages]);
 
-  // const formatTimestamp = (timestamp: Date) => {
-  //   return timestamp.toLocaleTimeString([], {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //   });
-  // };
-
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
       <div className="max-w-7xl mx-auto px-4 py-2">
@@ -471,112 +440,15 @@ export default function ChatPage() {
           setActiveMode={setActiveMode}
         />
         <div className="flex flex-col gap-6">
-          {/* Sidebar - Coach Selection */}
-          {/* {activeMode === "coach" && selectedCoach === null && (
-            <div className="lg:col-span-1 space-y-4 w-full">
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-thin text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    Available Coaches
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div
-                    className="cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 shadow-lg border border-emerald-200/50 dark:border-emerald-800/30"
-                    onClick={() => {
-                      if (selectedCoach) {
-                        setSelectedCoach(null);
-                      } else {
-                        setSelectedCoach(coaches[0]);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-10 h-10 ring-2 ring-white shadow-md">
-                        <AvatarImage src={coaches[0].avatar} />
-                        <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                          {coaches[0].name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {coaches[0].name}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg">
-                <CardContent className="p-4">
-                  <Button
-                    onClick={bookSession}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg text-white font-medium transition-all duration-300 hover:shadow-xl"
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Session
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )} */}
-
           {/* Chat Messages */}
-          {/* {(activeMode === "coach" && selectedCoach) || activeMode === "ai" ? ( */}
           <Card
             className={`${
               activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
             } !bg-transparent !border-none !shadow-none`}
           >
-            {/* <CardHeader className="!px-6 !py-3"> */}
-            {/* <div className="flex items-center justify-between"> */}
-            {/* <div className="flex items-center gap-3"> */}
-            {/* {activeMode === "coach" ? (
-                    <Avatar className="w-10 h-10 ring-2 ring-emerald-200 shadow-lg">
-                      <AvatarImage src={selectedCoach?.avatar} />
-                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                        {selectedCoach?.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                      <Bot className="w-5 h-5 text-white" />
-                    </div>
-                  )} */}
-            {/* <div> */}
-            {/* <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {activeMode === "coach"
-                        ? selectedCoach?.name
-                        : "AI Health Copilot"}
-                    </div> */}
-            {/* <div className="text-sm text-emerald-600 dark:text-emerald-400">
-                        {activeMode === "coach"
-                          ? "Human Expert"
-                          : "AI Assistant"}
-                      </div> */}
-            {/* </div> */}
-            {/* </div> */}
-            {/* <Badge
-                  variant={activeMode === "coach" ? "default" : "secondary"}
-                  className={
-                    activeMode === "coach"
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                  }
-                >
-                  {activeMode === "coach" ? "Human Expert" : "AI Assistant"}
-                </Badge> */}
-            {/* </div> */}
-            {/* </CardHeader> */}
-
             <CardContent className="flex-1 p-0">
               <div
-                className="h-[calc(100vh-355px)] md:h-[calc(100vh-335px)] overflow-y-auto p-4 space-y-4"
+                className="h-[calc(100vh-355px)] md:h-[calc(100vh-335px)] overflow-y-auto space-y-4"
                 style={{ scrollbarWidth: "thin" }}
               >
                 {messages.map((msg) => {
@@ -744,7 +616,6 @@ export default function ChatPage() {
               </div>
             </CardContent>
           </Card>
-          {/* ) : null} */}
         </div>
         <div className="px-4 py-2 bg-transparent fixed bottom-16 md:bottom-[108px] left-0 right-0 z-10 max-w-md mx-auto w-full">
           <div className="flex gap-3">
