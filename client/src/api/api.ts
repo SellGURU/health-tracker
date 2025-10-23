@@ -23,7 +23,15 @@ class Api {
     });
     return response;
   }
-
+  protected static delete(url: string, config?: any) {
+    const response = axios.delete(this.base_url + url, {
+      headers: {
+        Authorization: "Bearer " + getTokenFromLocalStorage(),
+        "Content-Type": config?.headers?.["Content-Type"] || "application/json",
+      },
+    });
+    return response;
+  }
   protected static get(url: string, config?: any) {
     const response = axios.get(this.base_url + url, {
       headers: {
