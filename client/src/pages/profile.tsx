@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { subscribe } from "@/lib/event";
 import { useMutation } from "@tanstack/react-query";
 import { RookConfig } from "capacitor-rook-sdk";
 import {
@@ -617,6 +618,19 @@ export default function Profile() {
     const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30));
     return `${diffMonths} months`;
   };
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
+  subscribe("brand_info", (data: any) => {
+    setBrandInfo(data.detail.information);
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
@@ -651,7 +665,18 @@ export default function Profile() {
                   </div>
                   <div className="relative flex-shrink-0">
                     <Avatar className="w-12 h-12 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
-                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-medium">
+                      <AvatarFallback
+                        className="text-white text-[10px] font-medium"
+                        style={{
+                          background: `linear-gradient(to right, ${
+                            brandInfo ? brandInfo?.primary_color : `#3b82f6`
+                          }, ${
+                            brandInfo
+                              ? brandInfo?.secondary_color
+                              : `#a855f7`
+                          })`,
+                        }}
+                      >
                         {(
                           clientInformation?.name?.split(" ")[0] || ""
                         ).toUpperCase() || "U"}
