@@ -139,6 +139,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   }, []);
 
   const [showDevicesModal, setShowDevicesModal] = useState(false);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
   useEffect(() => {
     if (showDevicesModal) {
       fetchDevicesData();
@@ -583,6 +584,10 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     const body = { data_source: sourceOrId };
   }
   const connectSdk = () => {
+    setShowPermissionModal(true);
+  };
+
+  const executeConnection = () => {
     setIsConnecting("connecting");
 
     const initRook = async (userId: string) => {
@@ -1953,7 +1958,51 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
               </div>
             </div>
           </DialogContent>
-        </Dialog>      
+        </Dialog>
+
+        {/* Permission Modal */}
+        <Dialog open={showPermissionModal} onOpenChange={setShowPermissionModal}>
+          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
+                <Watch className="w-4 h-4 text-blue-600" />
+                Allow Health Access
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+                {getPlatformInfo().isIOS 
+                  ? "This app uses Apple Health (HealthKit) to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
+                  : "This app uses Google Health to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="text-center py-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Watch className="w-8 h-8 text-blue-600" />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => {
+                    executeConnection();
+                    setShowPermissionModal(false);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
+                >
+                  Allow Access
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPermissionModal(false)}
+                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
       </div>
     </div>
