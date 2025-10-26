@@ -811,8 +811,8 @@ export default function ChatPage() {
 
       {/* References Modal */}
       <Dialog open={showReferencesModal} onOpenChange={setShowReferencesModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-blue-600" />
               References
@@ -821,7 +821,7 @@ export default function ChatPage() {
               Sources and references used in this response
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
             {selectedReferences.map((reference, index) => (
               <div
                 key={index}
@@ -832,9 +832,20 @@ export default function ChatPage() {
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Source {index + 1}:
                     </span>
-                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    <button
+                      onClick={() => {
+                        // Check if filename is already a complete URL
+                        const isCompleteUrl = reference.filename.startsWith('http://') || reference.filename.startsWith('https://');
+                        const url = isCompleteUrl 
+                          ? reference.filename 
+                          : `https://vercel-backend-one-roan.vercel.app/holisticare${reference.filename}`;
+                        window.open(url, '_blank');
+                      }}
+                      className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors duration-200"
+                      title="Click to open in new tab"
+                    >
                       {reference.filename}
-                    </span>
+                    </button>
                   </div>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                     {reference.text}
