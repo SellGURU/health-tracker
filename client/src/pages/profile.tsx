@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { subscribe } from "@/lib/event";
 import { useMutation } from "@tanstack/react-query";
 import { RookConfig, RookHealthConnect, RookPermissions, RookSummaries } from "capacitor-rook-sdk";
+import { Capacitor } from "@capacitor/core";
 import {
   Activity,
   Award,
@@ -84,6 +85,42 @@ export default function Profile() {
     // plan:string
   }>();
 
+  // Helper function to detect platform
+  const getPlatformInfo = () => {
+    if (Capacitor.isNativePlatform()) {
+      // For native platforms, we can use Capacitor.getPlatform()
+      const platform = Capacitor.getPlatform();
+      return {
+        isIOS: platform === 'ios',
+        isAndroid: platform === 'android',
+        googleDescription:`
+        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
+        `,
+        appleDescription:`
+         Connect with Apple Health
+Enable integration with Apple Health to sync your health and activity data.
+This app uses Apple Health (HealthKit) to read and write your health data securely.
+
+        `,
+        name: platform === 'ios' ? 'Apple Health' : 'Google Health',
+        icon: platform === 'ios' 
+          ? "AppleHealth.png"
+          : "googleHealth.png"
+      };
+    } else {
+      // For web platforms, default to Android/Google Health
+      return {
+        isIOS: false,
+        isAndroid: true,
+        googleDescription:`
+        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
+        `,        
+        name: 'Google Health',
+        icon: "googleHealth.png"
+      };
+    }
+  };
+
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
       .then((res) => {
@@ -102,12 +139,12 @@ export default function Profile() {
   }, []);
 
   const [showDevicesModal, setShowDevicesModal] = useState(false);
-  // useEffect(() => {
-  //   if (showDevicesModal) {
-  //     // fetchDevicesData();
-  //     // connectSdk();
-  //   }
-  // }, [showDevicesModal]);
+  useEffect(() => {
+    if (showDevicesModal) {
+      fetchDevicesData();
+      // connectSdk();
+    }
+  }, [showDevicesModal]);
 
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -1675,56 +1712,159 @@ export default function Profile() {
                 </div>
               ) : devicesData ? (
                 <div className="space-y-4">
-
-                  <div className="space-y-3 my-8 max-h-96 overflow-y-auto">
-                    {isConnecting === 'connected' ? (
-                      // حالت کانکت شده - فقط نمایش وضعیت
-                      <div className="w-full p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                        <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-400">
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <span className="font-medium">Connected</span>
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+    
+                    <div
+                      key={'-1'}
+                      className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={getPlatformInfo().icon}
+                            alt={getPlatformInfo().name}
+                            className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src =
+                                "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                            }}
+                          />
                         </div>
-                        <p className="text-sm text-green-600 dark:text-green-500 text-center mt-2">
-                          Your health devices are connected and syncing data
-                        </p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                              {getPlatformInfo().name}
+                            </h4>
+                            <Badge
+                              variant={
+                                isConnecting === 'connected' ? "default" : "outline"
+                              }
+                              className={`text-xs ${
+                                isConnecting === 'connected'
+                                  ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                  : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                              }`}
+                            >
+                              {isConnecting === 'connected'
+                                ? "Connected"
+                                :
+                                  isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                            {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant={
+                              isConnecting === 'connected' ? "outline" : "default"
+                            }
+                            className={`text-xs h-7 ${
+                              isConnecting === 'connected'
+                                ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                            }`}
+                            onClick={() => {
+                              if (isConnecting === 'connected') {
+                                clearConnectionState();
+                              } else {
+                                connectSdk();
+                              }
+                            }}
+                          >
+                            {isConnecting === 'connected' ? "Disconnect" : "Connect"}
+                          </Button>
+                        </div>
                       </div>
-                    ) : isConnecting === 'connecting' ? (
-                      // حالت در حال اتصال
-                      <Button
-                        disabled
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg opacity-75"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Connecting...
+                    </div>                    
+
+                    {devicesData.data_sources?.map(
+                      (source: any, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <img
+                                src={source.image}
+                                alt={source.name}
+                                className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src =
+                                    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                                  {source.name}
+                                </h4>
+                                <Badge
+                                  variant={
+                                    source.connected ? "default" : "outline"
+                                  }
+                                  className={`text-xs ${
+                                    source.connected
+                                      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                      : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                                  }`}
+                                >
+                                  {source.connected
+                                    ? "Connected"
+                                    : "Not Connected"}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                                {source.description}
+                              </p>
+                              <Button
+                                size="sm"
+                                variant={
+                                  source.connected ? "outline" : "default"
+                                }
+                                className={`text-xs h-7 ${
+                                  source.connected
+                                    ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                                }`}
+                                onClick={() => {
+                                  if (source.connected) {
+                                    // Handle disconnect
+                                    revokeRookDataSource(source.name).then(() => {
+                                        toast({
+                                          title: "Disconnect",
+                                          description: `Disconnect from ${source.name}`,
+                                        });
+                                        fetchDevicesData();
+                                    });
+
+                                  } else {
+                                    // Handle connect - open authorization URL
+
+                                    window.open(
+                                      source.authorization_url,
+                                      "_blank"
+                                    );
+                                    toast({
+                                      title: "Connecting",
+                                      description: `Opening ${source.name} authorization...`,
+                                    });
+                                  }
+                                }}
+                              >
+                                {source.connected ? "Disconnect" : "Connect"}
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                      </Button>
-                    ) : (
-                      // حالت قطع شده - دکمه اتصال
-                      <Button
-                        onClick={connectSdk}
-                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
-                      >
-                        <div className="flex items-center gap-2">
-                          {/* <Bluetooth className="w-4 h-4" /> */}
-                          Connect Devices
-                        </div>
-                      </Button>
+                      )
                     )}
-                    
-                    {isConnecting === 'connected' && (
-                      <Button
-                        onClick={clearConnectionState}
-                        variant="outline"
-                        className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Trash2 className="w-4 h-4" />
-                          Disconnect
-                        </div>
-                      </Button>
-                    )}
-                  </div>
+
+                  </div>                  
                 </div>
               ) : (
                 <div className="text-center py-8">
