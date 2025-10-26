@@ -728,6 +728,13 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     },    
   ];
   useEffect(() => {
+    if(isConnecting === "connected"){
+      if(getPlatformInfo().isIOS){
+        Application.connectVariable('Apple Health')
+      }else{
+        Application.connectVariable('Google Health')
+      }
+    }
     if (devicesData?.data_sources) {
       devicesData?.data_sources?.forEach((el:any) => {
         if (el.connected) {
