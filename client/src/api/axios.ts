@@ -12,7 +12,8 @@ axios.interceptors.response.use(
     if (
       error.response?.status == 401 ) {
       localStorage.clear();
-      window.location.reload();
+      // Avoid full reload on mobile WebView; navigate to auth route instead
+      window.location.href = "/auth";
     }
 
     return Promise.reject(error);
