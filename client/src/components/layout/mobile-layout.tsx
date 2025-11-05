@@ -15,7 +15,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
 import ProfileHeader from "./profile-header";
-// import { usePushNotifications } from "@/hooks/use-pushNotification";
+import { usePushNotifications } from "@/hooks/use-pushNotification";
 import NotificationApi from "@/api/notification";
 import { publish } from "@/lib/event";
 import { Capacitor } from "@capacitor/core";
@@ -29,16 +29,16 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
   const [showSearch, setShowSearch] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  // const { token, notifications } = usePushNotifications();
-  // useEffect(() => {
-  //   if(Capacitor.isNativePlatform()){
-  //     if(token){
-  //       NotificationApi.registerToken(token).then((res) => {
-  //         // console.log(res);
-  //       });
-  //     }
-  //   }
-  // }, [token]);
+  const { token, notifications } = usePushNotifications();
+  useEffect(() => {
+    if(Capacitor.isNativePlatform()){
+      if(token){
+        NotificationApi.registerToken(token).then((res) => {
+          // console.log(res);
+        });
+      }
+    }
+  }, [token]);
   const getBrandInfo = async () => {
     Application.getBrandInfo()
       .then((res) => {

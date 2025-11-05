@@ -25,7 +25,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { subscribe } from "@/lib/event";
 import { useMutation } from "@tanstack/react-query";
-import { RookConfig, RookHealthConnect, RookPermissions, RookSummaries } from "capacitor-rook-sdk";
+// import { RookConfig, RookHealthConnect, RookPermissions, RookSummaries } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import {
   Activity,
@@ -142,7 +142,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   useEffect(() => {
     if (showDevicesModal) {
-      fetchDevicesData();
+      // fetchDevicesData();
       // connectSdk();
     }
   }, [showDevicesModal]);
@@ -509,73 +509,73 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       });
     }
   };
-  const fetchDevicesData = async () => {
-    if (!clientInformation?.id) {
-      toast({
-        title: "Error",
-        description: "User id not found",
-        variant: "destructive",
-      });
-      return;
-    }
+  // const fetchDevicesData = async () => {
+  //   if (!clientInformation?.id) {
+  //     toast({
+  //       title: "Error",
+  //       description: "User id not found",
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
 
-    setIsLoadingDevices(true);
-    try {
-      const response = await fetch(
-        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
-        {
-          method: "GET",
-          headers: {
-            Authorization:
-              "Basic Y2xpZW50X3V1aWQ6UUg4dTE4T2pMb2ZzU1J2bUVEbUdCZ2p2MWZycDNmYXBkYkRB",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //   setIsLoadingDevices(true);
+  //   try {
+  //     const response = await fetch(
+  //       `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Authorization:
+  //             "Basic Y2xpZW50X3V1aWQ6UUg4dTE4T2pMb2ZzU1J2bUVEbUdCZ2p2MWZycDNmYXBkYkRB",
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
 
-      const data = await response.json();
-      setDevicesData(data);
+  //     const data = await response.json();
+  //     setDevicesData(data);
 
-      toast({
-        title: "Success",
-        description: "Devices data loaded successfully",
-      });
+  //     toast({
+  //       title: "Success",
+  //       description: "Devices data loaded successfully",
+  //     });
 
-      RookConfig.initRook({
-        environment: "production",
-        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-        enableBackgroundSync: true,
-        enableEventsBackgroundSync: true,
-      })
-        .then(() => {
-          console.log("Initialized rook")
-          RookPermissions.requestAllHealthConnectPermissions().then((e) => {
-            console.log("e", e)
-          });
-          RookPermissions.requestAndroidPermissions().then((e) => console.log("e2", e));
-          RookHealthConnect.scheduleYesterdaySync({
-            doOnEnd:"oldest"
-          });
-        })
-        .catch((e: any) => console.log("error", e));
-    } catch (error) {
-      console.error("Error fetching devices data:", error);
-      toast({
-        title: "Error",
-        description: `Failed to load devices data: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingDevices(false);
-    }
-  };
+  //     RookConfig.initRook({
+  //       environment: "production",
+  //       clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+  //       password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+  //       enableBackgroundSync: true,
+  //       enableEventsBackgroundSync: true,
+  //     })
+  //       .then(() => {
+  //         console.log("Initialized rook")
+  //         RookPermissions.requestAllHealthConnectPermissions().then((e) => {
+  //           console.log("e", e)
+  //         });
+  //         RookPermissions.requestAndroidPermissions().then((e) => console.log("e2", e));
+  //         RookHealthConnect.scheduleYesterdaySync({
+  //           doOnEnd:"oldest"
+  //         });
+  //       })
+  //       .catch((e: any) => console.log("error", e));
+  //   } catch (error) {
+  //     console.error("Error fetching devices data:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: `Failed to load devices data: ${
+  //         error instanceof Error ? error.message : "Unknown error"
+  //       }`,
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setIsLoadingDevices(false);
+  //   }
+  // };
   async function revokeRookDataSource( sourceOrId:string) {
     // Encode client_uuid:secret_key to Base64
     // const credentials = btoa(`${clientUuid}:${secretKey}`);
@@ -587,63 +587,63 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     setShowPermissionModal(true);
   };
 
-  const executeConnection = () => {
-    setIsConnecting("connecting");
+  // const executeConnection = () => {
+  //   setIsConnecting("connecting");
 
-    const initRook = async (userId: string) => {
-      try {
-        // 1. Init SDK
-        await RookConfig.initRook({
-          environment: "production", // یا "sandbox" برای تست
-          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-          enableBackgroundSync: true,
-          enableEventsBackgroundSync: true,
-        });
-        console.log("✅ Initialized Rook SDK");
+  //   const initRook = async (userId: string) => {
+  //     try {
+  //       // 1. Init SDK
+  //       await RookConfig.initRook({
+  //         environment: "production", // یا "sandbox" برای تست
+  //         clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+  //         password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+  //         enableBackgroundSync: true,
+  //         enableEventsBackgroundSync: true,
+  //       });
+  //       console.log("✅ Initialized Rook SDK");
 
-        // 2. آماده‌سازی User ID
-        // let userId = clientInformation?.id // طول مجاز 1 تا 50
-        // if (!userId) {
-        //   console.error("❌ User ID is missing. Cannot register with Rook.");
-        //   setIsConnecting("disconnected");
-        //   return;
-        // }
-        setIsConnecting("connected");
-        // 3. ایجاد کاربر (در صورت وجود نداشتن)
-        if (RookConfig.updateUserId) {
-          await RookConfig.updateUserId({
-            userId: userId,
-          });
-          console.log("✅ User created:", userId);
-        }
-        // console.log("✅ User created2:", )
+  //       // 2. آماده‌سازی User ID
+  //       // let userId = clientInformation?.id // طول مجاز 1 تا 50
+  //       // if (!userId) {
+  //       //   console.error("❌ User ID is missing. Cannot register with Rook.");
+  //       //   setIsConnecting("disconnected");
+  //       //   return;
+  //       // }
+  //       setIsConnecting("connected");
+  //       // 3. ایجاد کاربر (در صورت وجود نداشتن)
+  //       if (RookConfig.updateUserId) {
+  //         await RookConfig.updateUserId({
+  //           userId: userId,
+  //         });
+  //         console.log("✅ User created:", userId);
+  //       }
+  //       // console.log("✅ User created2:", )
 
 
-        // 5. درخواست مجوزهای Health Connect
-        const perms = await RookPermissions.requestAllHealthConnectPermissions();
-        console.log("✅ HealthConnect permissions:", perms);
+  //       // 5. درخواست مجوزهای Health Connect
+  //       const perms = await RookPermissions.requestAllHealthConnectPermissions();
+  //       console.log("✅ HealthConnect permissions:", perms);
 
-        // 6. درخواست مجوزهای Android
-        const androidPerms = await RookPermissions.requestAndroidPermissions();
-        console.log("✅ Android permissions:", androidPerms);
+  //       // 6. درخواست مجوزهای Android
+  //       const androidPerms = await RookPermissions.requestAndroidPermissions();
+  //       console.log("✅ Android permissions:", androidPerms);
 
-        // 7. برنامه‌ریزی همگام‌سازی داده‌های دیروز
-        await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
-        console.log("✅ Yesterday sync scheduled");
+  //       // 7. برنامه‌ریزی همگام‌سازی داده‌های دیروز
+  //       await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
+  //       console.log("✅ Yesterday sync scheduled");
 
-        setIsConnecting("connected");
-      } catch (e) {
-        console.error("❌ Error initializing Rook:", e);
-        setIsConnecting("disconnected");
-      }
-    };
+  //       setIsConnecting("connected");
+  //     } catch (e) {
+  //       console.error("❌ Error initializing Rook:", e);
+  //       setIsConnecting("disconnected");
+  //     }
+  //   };
 
-    // اجرای initRook یکبار
-    if (clientInformation?.id) {
-      initRook(clientInformation?.id);
-    }
-  };
+  //   // اجرای initRook یکبار
+  //   if (clientInformation?.id) {
+  //     initRook(clientInformation?.id);
+  //   }
+  // };
 
 
   const handleConnect = async () => {
@@ -676,14 +676,14 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     //   action: () => setShowEditDialog(true),
     //   badge: null,
     // },
-    {
-      icon: Watch,
-      title: "Wearable Devices",
-      description: "Connect and manage your health devices",
-      action: () => setShowDevicesModal(true),
-      badge:
-        connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
-    },
+    // {
+    //   icon: Watch,
+    //   title: "Wearable Devices",
+    //   description: "Connect and manage your health devices",
+    //   action: () => setShowDevicesModal(true),
+    //   badge:
+    //     connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
+    // },
     // {
     //   icon: Bell,
     //   title: "Notifications",
@@ -1851,7 +1851,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                                           title: "Disconnect",
                                           description: `Disconnect from ${source.name}`,
                                         });
-                                        fetchDevicesData();
+                                        // fetchDevicesData();
                                     });
 
                                   } else {
@@ -1992,7 +1992,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={() => {
-                    executeConnection();
+                    // executeConnection();
                     setShowPermissionModal(false);
                   }}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"

@@ -6,14 +6,22 @@ type ChatMode = "ai" | "coach";
 export default function SimpleModeSelect({
   activeMode,
   setActiveMode,
+  disabled = false,
 }: {
   activeMode: ChatMode;
   setActiveMode: (mode: ChatMode) => void;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const optionsRef = useRef<Array<HTMLDivElement | null>>([]);
+
+  useEffect(() => {
+    if (disabled) {
+      setOpen(false);
+    }
+  }, [disabled]);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -72,8 +80,15 @@ export default function SimpleModeSelect({
         ref={triggerRef}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="w-full group relative min-h-[56px] px-3 py-2 flex items-center gap-3 bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 border border-gray-200/30 dark:border-gray-700/20 shadow-inner rounded-xl"
+        onClick={() => {
+          if (!disabled) {
+            setOpen((v) => !v);
+          }
+        }}
+        disabled={disabled}
+        className={`w-full group relative min-h-[56px] px-3 py-2 flex items-center gap-3 bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 border border-gray-200/30 dark:border-gray-700/20 shadow-inner rounded-xl ${
+          disabled ? "opacity-60 cursor-not-allowed" : ""
+        }`}
       >
         <div
           className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
@@ -98,17 +113,19 @@ export default function SimpleModeSelect({
           </div>
         </div>
 
-        <div className="flex items-center ml-3">
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${
-              open ? "rotate-180" : ""
-            }`}
-          />
-        </div>
+        {!disabled && (
+          <div className="flex items-center ml-3">
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                open ? "rotate-180" : ""
+              }`}
+            />
+          </div>
+        )}
       </button>
 
       {/* Dropdown */}
-      {open && (
+      {open && !disabled && (
         <div
           role="listbox"
           aria-label="Select mode"
@@ -122,12 +139,14 @@ export default function SimpleModeSelect({
                 tabIndex={0}
                 ref={(el) => (optionsRef.current[i] = el)}
                 onClick={() => {
-                  setActiveMode(it.value);
-                  setOpen(false);
-                  triggerRef.current?.focus();
+                  if (!disabled) {
+                    setActiveMode(it.value);
+                    setOpen(false);
+                    triggerRef.current?.focus();
+                  }
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && !disabled) {
                     setActiveMode(it.value);
                     setOpen(false);
                     triggerRef.current?.focus();

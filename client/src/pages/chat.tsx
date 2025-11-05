@@ -82,7 +82,7 @@ const coaches: Coach[] = [
 ];
 
 export default function ChatPage() {
-  const [activeMode, setActiveMode] = useState<ChatMode>("ai");
+  const [activeMode, setActiveMode] = useState<ChatMode>("coach");
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -522,6 +522,7 @@ export default function ChatPage() {
         {/* Mode Toggle */}
         <div className="sticky top-2 z-10 bg-white rounded-xl">
           <SimpleModeSelect
+            disabled={true}
             activeMode={activeMode}
             setActiveMode={setActiveMode}
           />
