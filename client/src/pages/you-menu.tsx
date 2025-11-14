@@ -117,7 +117,26 @@ export default function YouMenu() {
     sex: string;
     verified_account: boolean;
   }>();
-
+  const [hasHtmlReport, setHasHtmlReport] = useState(false);
+  useEffect(() => {
+    Application.getHtmlReport().then(() => {
+      setHasHtmlReport(true);
+    }).catch((err) => {
+      if(err.response.status === 404){
+        setHasHtmlReport(false);
+      }
+    })
+  },[])
+  // const { token, notifications } = usePushNotifications();
+  // useEffect(() => {
+  //   if(Capacitor.isNativePlatform()){
+  //     if(token){
+  //       NotificationApi.registerToken(token).then((res) => {
+  //         // console.log(res);
+  //       });
+  //     }
+  //   }
+  // }, [token]);
   const [questionnaires, setQuestionnaires] = useState<
     {
       Estimated_time: string;
@@ -731,24 +750,37 @@ export default function YouMenu() {
                   <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-3 h-3 text-white" />
                   </div>
+                  {!hasHtmlReport ?
+                  <>
+                  <span className="text-xs font-medium">
+                    You’ll be able to download the report once it’s ready.
+                  </span>
+                  </>
+                  :
+                  <>
                   <span className="text-xs font-medium">
                     {holisticPlanActionPlan.num_of_interventions} personalized
                     interventions
                   </span>
+                  </>
+                  }
                 </div>
               </div>
-
-              <Button
-                id="download-pdf-report-Box"
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
-                onClick={handleGetHtmlReport}
-              >
-                {loadingHtmlReport ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  "Download PDF Report"
-                )}
-              </Button>
+              {hasHtmlReport && (
+                <>
+                  <Button
+                    id="download-pdf-report-Box"
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    onClick={handleGetHtmlReport}
+                  >
+                    {loadingHtmlReport ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Download PDF Report"
+                    )}
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
