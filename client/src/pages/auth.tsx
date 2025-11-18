@@ -889,8 +889,8 @@ export default function AuthPage() {
                         }))
                       }
                       className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
-                      placeholder="Enter 6-digit code"
-                      maxLength={6}
+                      placeholder="Enter 4-digit code"
+                      maxLength={4}
                       data-testid="input-reset-code"
                     />
                   </div>
