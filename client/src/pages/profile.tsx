@@ -549,8 +549,8 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         environment: "production",
         clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
         password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-        enableBackgroundSync: true,
-        enableEventsBackgroundSync: true,
+        enableBackgroundSync: false,
+        enableEventsBackgroundSync: false,
       })
         .then(() => {
           console.log("Initialized rook")
