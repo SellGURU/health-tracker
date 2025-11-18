@@ -89,6 +89,33 @@ export function createMockApiInterceptor() {
       });
     }
 
+    if (url.includes('/api/client_information_mobile')) {
+      // Always return mock client information with hasChangedPassword: false
+      return new Response(JSON.stringify({
+        name: 'Test User',
+        age: 30,
+        sex: 'male',
+        id: '1',
+        connected_wearable: false,
+        coach_username: [],
+        email: 'test@holisticare.com',
+        date_of_birth: '2024-12-01T00:00:00Z',
+        pheno_age: 30,
+        verified_account: true,
+        member_since: '2024-12-01T00:00:00Z',
+        lab_test: 5,
+        action_plan: 2,
+        active_client: true,
+        plan: 'plus',
+        show_phenoage: true,
+        has_report: false,
+        has_changed_password: false,  // This triggers password change redirect
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // For other API calls, return success with empty data
     return new Response(JSON.stringify({}), {
       status: 200,

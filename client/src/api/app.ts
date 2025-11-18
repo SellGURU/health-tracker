@@ -148,6 +148,28 @@ class Application extends Api {
     const response = this.post("/mobile/get_html_report", {});
     return response;
   }
+
+  static forgetPasswordSendVerification(email: string) {
+    const response = this.post("/mobile/auth/forget_password/send_verification", {
+      email: email
+    });
+    return response;
+  }
+
+  static forgetPasswordVerifyResetCode(email: string, reset_code: number) {
+    const response = this.post("/mobile/auth/forget_password/verify_reset_code", {
+      email: email,
+      reset_code: reset_code
+    });
+    return response;
+  }
+  static forgetPasswordResetPassword(email: string, new_password: string) {
+    const response = this.post("/mobile/auth/forget_password/reset_password", {
+      email: email,
+      new_password: new_password
+    });
+    return response;
+  }
 }
 
 export default Application;

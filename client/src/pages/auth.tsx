@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import ForgotPasswordModal from "@/components/auth/forgot-password-modal";
 // import logoImage from "@assets/logo.png";
 
 export default function AuthPage() {
@@ -30,6 +30,9 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentTab, setCurrentTab] = useState("login");
+
+  // Forgot password state
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -57,6 +60,7 @@ export default function AuthPage() {
       return () => clearTimeout(timer);
     }
   }, [stage]);
+
 
   const handleContinue = () => {
     setFadeClass("opacity-0");
@@ -196,6 +200,11 @@ export default function AuthPage() {
       return;
     }
     CallRegisterAuthApi();
+  };
+
+  const handleForgotPasswordSuccess = () => {
+    // Switch to login tab after successful password reset
+    setCurrentTab("login");
   };
 
   return (
@@ -390,10 +399,22 @@ export default function AuthPage() {
                       )}
                     </div>
 
+                    <div className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword(true)}
+                        className="text-white text-sm hover:underline"
+                        data-testid="link-forgot-password"
+                      >
+                        Forgot Password?
+                      </button>
+                    </div>
+
                     <Button
                       type="submit"
                       className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-6 cursor-pointer"
                       disabled={isLoadingLogin}
+                      data-testid="button-login"
                     >
                       <LogIn className="w-4 h-4 mr-2" />
                       {isLoadingLogin ? "Logging in..." : "Log in"}
@@ -608,6 +629,14 @@ export default function AuthPage() {
           </div>
         )}
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        open={showForgotPassword}
+        onOpenChange={setShowForgotPassword}
+        initialEmail={loginData.email}
+        onSuccess={handleForgotPasswordSuccess}
+      />
     </div>
   );
 }
