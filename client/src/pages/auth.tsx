@@ -76,7 +76,7 @@ export default function AuthPage() {
 
   // Timer for code expiration
   useEffect(() => {
-    if (codeExpireTime) {
+    if (codeExpireTime && forgotPasswordStep === 2) {
       const interval = setInterval(() => {
         const now = Date.now();
         const remaining = Math.max(0, Math.floor((codeExpireTime - now) / 1000));
@@ -89,7 +89,7 @@ export default function AuthPage() {
       
       return () => clearInterval(interval);
     }
-  }, [codeExpireTime]);
+  }, [codeExpireTime, forgotPasswordStep]);
 
   const handleContinue = () => {
     setFadeClass("opacity-0");
