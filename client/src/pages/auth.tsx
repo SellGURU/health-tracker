@@ -324,15 +324,6 @@ export default function AuthPage() {
       return;
     }
 
-    if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please make sure both passwords match.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoadingForgotPassword(true);
     try {
       await axios.post(
@@ -942,7 +933,7 @@ export default function AuthPage() {
                         }))
                       }
                       className="pl-10 pr-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
-                      placeholder="Enter new password"
+                      placeholder="Enter new password (min. 6 characters)"
                       data-testid="input-new-password"
                     />
                     <Button
@@ -958,29 +949,6 @@ export default function AuthPage() {
                         <Eye className="h-4 w-4" />
                       )}
                     </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-new-password" className="text-sm font-medium">
-                    Confirm New Password
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="confirm-new-password"
-                      type={showNewPassword ? "text" : "password"}
-                      value={forgotPasswordData.confirmPassword}
-                      onChange={(e) =>
-                        setForgotPasswordData((prev) => ({
-                          ...prev,
-                          confirmPassword: e.target.value,
-                        }))
-                      }
-                      className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
-                      placeholder="Confirm new password"
-                      data-testid="input-confirm-password"
-                    />
                   </div>
                 </div>
 
