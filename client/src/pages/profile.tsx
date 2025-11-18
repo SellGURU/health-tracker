@@ -555,13 +555,13 @@ You can manage permissions anytime in the Apple Health app.
       })
         .then(() => {
           console.log("Initialized rook")
-          RookPermissions.requestAllHealthConnectPermissions().then((e) => {
+          RookPermissions.requestAllAppleHealthPermissions().then((e) => {
             console.log("e", e)
           });
-          RookPermissions.requestAndroidPermissions().then((e) => console.log("e2", e));
-          RookHealthConnect.scheduleYesterdaySync({
-            doOnEnd:"oldest"
-          });
+          // RookPermissions.().then((e) => console.log("e2", e));
+          // RookHealthConnect.scheduleYesterdaySync({
+          //   doOnEnd:"oldest"
+          // });
         })
         .catch((e: any) => console.log("error", e));
     } catch (error) {
