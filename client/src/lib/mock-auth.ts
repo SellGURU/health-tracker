@@ -12,7 +12,8 @@ const MOCK_USER: AuthUser = {
   role: 'patient',
   subscriptionTier: 'plus',
   createdAt: '2024-12-01T00:00:00Z',
-  updatedAt: '2024-12-01T00:00:00Z'
+  updatedAt: '2024-12-01T00:00:00Z',
+  hasChangedPassword: false
 };
 
 const MOCK_LAB_RESULTS = [

@@ -89,6 +89,35 @@ export function createMockApiInterceptor() {
       });
     }
 
+    if (url.includes('/api/client_information_mobile')) {
+      const user = mockAuth.getCurrentUser();
+      if (user) {
+        return new Response(JSON.stringify({
+          name: user.fullName,
+          age: user.age || 0,
+          sex: user.gender || "not_specified",
+          id: user.id.toString(),
+          connected_wearable: user.connectedWearable || false,
+          coach_username: [],
+          email: user.email,
+          date_of_birth: user.dateOfBirth || user.createdAt,
+          pheno_age: user.phenoAge || user.age || 0,
+          verified_account: user.verifiedAccount !== false,
+          member_since: user.memberSince || user.createdAt,
+          lab_test: user.labTest || 0,
+          action_plan: user.actionPlan || 0,
+          active_client: user.activeClient !== false,
+          plan: user.plan || user.subscriptionTier || "free",
+          show_phenoage: user.showPhenoage !== false,
+          has_report: user.hasReport || false,
+          has_changed_password: user.hasChangedPassword || false,
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // For other API calls, return success with empty data
     return new Response(JSON.stringify({}), {
       status: 200,
