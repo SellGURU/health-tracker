@@ -202,6 +202,8 @@ class AuthService {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 Client info received:', data);
+        console.log('🔍 has_changed_password value:', data.has_changed_password);
         
         // Update current user with client information
         if (this.currentUser) {
@@ -221,6 +223,8 @@ class AuthService {
             hasReport: data.has_report,
           };
           
+          console.log('🔍 Updated user hasChangedPassword:', this.currentUser.hasChangedPassword);
+          
           // Update localStorage
           localStorage.setItem("health_user", JSON.stringify(this.currentUser));
         }
@@ -231,7 +235,10 @@ class AuthService {
   }
 
   needsPasswordChange(): boolean {
-    return this.currentUser?.hasChangedPassword === false;
+    const needs = this.currentUser?.hasChangedPassword === false;
+    console.log('🔍 needsPasswordChange() called, currentUser:', this.currentUser);
+    console.log('🔍 needsPasswordChange() returning:', needs);
+    return needs;
   }
 
   getUser(): AuthUser | null {

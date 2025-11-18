@@ -48,8 +48,13 @@ function Router() {
   // Check password change requirement after login
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('🔍 Checking password change requirement...');
       fetchClientInformation().then(() => {
-        if (needsPasswordChange()) {
+        const needsChange = needsPasswordChange();
+        console.log('🔍 Needs password change:', needsChange);
+        
+        if (needsChange) {
+          console.log('🔍 Redirecting to profile page...');
           // Store flag to open password dialog
           localStorage.setItem("requirePasswordChange", "true");
           
