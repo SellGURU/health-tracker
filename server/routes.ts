@@ -276,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         plan: user.subscriptionTier || "free",
         show_phenoage: true,
         has_report: false,
-        has_changed_password: user.hasChangedPassword !== false, // Default to true if not set
+        has_changed_password: user.hasChangedPassword || false,
       });
     } catch (error) {
       console.error('Get client information error:', error);
