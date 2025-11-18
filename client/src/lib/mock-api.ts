@@ -90,32 +90,30 @@ export function createMockApiInterceptor() {
     }
 
     if (url.includes('/api/client_information_mobile')) {
-      const user = mockAuth.getCurrentUser();
-      if (user) {
-        return new Response(JSON.stringify({
-          name: user.fullName,
-          age: user.age || 0,
-          sex: user.gender || "not_specified",
-          id: user.id.toString(),
-          connected_wearable: user.connectedWearable || false,
-          coach_username: [],
-          email: user.email,
-          date_of_birth: user.dateOfBirth || user.createdAt,
-          pheno_age: user.phenoAge || user.age || 0,
-          verified_account: user.verifiedAccount !== false,
-          member_since: user.memberSince || user.createdAt,
-          lab_test: user.labTest || 0,
-          action_plan: user.actionPlan || 0,
-          active_client: user.activeClient !== false,
-          plan: user.plan || user.subscriptionTier || "free",
-          show_phenoage: user.showPhenoage !== false,
-          has_report: user.hasReport || false,
-          has_changed_password: user.hasChangedPassword || false,
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
+      // Always return mock client information with hasChangedPassword: false
+      return new Response(JSON.stringify({
+        name: 'Test User',
+        age: 30,
+        sex: 'male',
+        id: '1',
+        connected_wearable: false,
+        coach_username: [],
+        email: 'test@holisticare.com',
+        date_of_birth: '2024-12-01T00:00:00Z',
+        pheno_age: 30,
+        verified_account: true,
+        member_since: '2024-12-01T00:00:00Z',
+        lab_test: 5,
+        action_plan: 2,
+        active_client: true,
+        plan: 'plus',
+        show_phenoage: true,
+        has_report: false,
+        has_changed_password: false,  // This triggers password change redirect
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // For other API calls, return success with empty data
