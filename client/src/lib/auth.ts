@@ -205,6 +205,14 @@ class AuthService {
         console.log('🔍 Client info received:', data);
         console.log('🔍 has_changed_password value:', data.has_changed_password);
         
+        // Restore user from localStorage if not already set
+        if (!this.currentUser) {
+          const userData = localStorage.getItem("health_user");
+          if (userData) {
+            this.currentUser = JSON.parse(userData);
+          }
+        }
+        
         // Update current user with client information
         if (this.currentUser) {
           this.currentUser = {

@@ -161,8 +161,8 @@ export class MockAuthService {
   private isEnabled: boolean;
 
   constructor() {
-    // Enable mock mode in development or when localStorage flag is set
-    this.isEnabled = import.meta.env.DEV || localStorage.getItem('MOCK_MODE') === 'true';
+    // Enable mock mode ONLY when localStorage flag is explicitly set
+    this.isEnabled = localStorage.getItem('MOCK_MODE') === 'true';
     if (this.isEnabled) {
       console.log('🔧 Mock Auth Mode Enabled - UI Testing Mode');
     }
