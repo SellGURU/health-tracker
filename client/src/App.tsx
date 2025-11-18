@@ -30,7 +30,6 @@ function Router() {
   const { isAuthenticated, fetchClientInformation, needsPasswordChange } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [hasCheckedPassword, setHasCheckedPassword] = useState(false);
   const isOnboardingCompleted =
     localStorage.getItem("onboardingCompleted") === "true";
   // const { token, notifications } = usePushNotifications();
@@ -48,7 +47,7 @@ function Router() {
 
   // Check password change requirement after login
   useEffect(() => {
-    if (isAuthenticated && !hasCheckedPassword) {
+    if (isAuthenticated) {
       fetchClientInformation().then(() => {
         if (needsPasswordChange()) {
           // Store flag to open password dialog
@@ -64,10 +63,9 @@ function Router() {
             variant: "destructive",
           });
         }
-        setHasCheckedPassword(true);
       });
     }
-  }, [isAuthenticated, hasCheckedPassword, fetchClientInformation, needsPasswordChange, setLocation, toast]);
+  }, [isAuthenticated, fetchClientInformation, needsPasswordChange, setLocation, toast]);
 
   if (!isAuthenticated) {
     return (
