@@ -101,6 +101,7 @@ export default function YouMenu() {
     setBrandInfo(data.detail.information);
   });
   const [clientInformation, setClientInformation] = useState<{
+    show_phenoage: boolean;
     action_plan: number;
     age: number;
     coach_username: [];
@@ -115,6 +116,16 @@ export default function YouMenu() {
     sex: string;
     verified_account: boolean;
   }>();
+  const [hasHtmlReport, setHasHtmlReport] = useState(false);
+  useEffect(() => {
+    Application.getHtmlReport().then(() => {
+      setHasHtmlReport(true);
+    }).catch((err) => {
+      if(err.response.status === 404){
+        setHasHtmlReport(false);
+      }
+    })
+  },[])
   // const { token, notifications } = usePushNotifications();
   // useEffect(() => {
   //   if(Capacitor.isNativePlatform()){
@@ -368,11 +379,11 @@ export default function YouMenu() {
     <div className="space-y-4">
       {/* Age Cards - Prominent Display */}
       <div
-        className={`grid grid-cols-2 gap-3 ${
-          clientInformation?.pheno_age ? "grid-cols-2" : "grid-cols-1"
+        className={`grid gap-3 ${
+          clientInformation?.show_phenoage ==true ? "grid-cols-2" : "grid-cols-1"
         }`}
       >
-        {clientInformation?.pheno_age && (
+        {clientInformation?.show_phenoage ==true && (
           <Card
             className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
             onClick={() =>
@@ -433,7 +444,7 @@ export default function YouMenu() {
         )}
 
         <Card
-          className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+          className="cursor-pointer  hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
           onClick={() =>
             toast({
               title: "Chronological Age",
@@ -722,24 +733,37 @@ export default function YouMenu() {
                   <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-3 h-3 text-white" />
                   </div>
+                  {!hasHtmlReport ?
+                  <>
+                  <span className="text-xs font-medium">
+                    You’ll be able to download the report once it’s ready.
+                  </span>
+                  </>
+                  :
+                  <>
                   <span className="text-xs font-medium">
                     {holisticPlanActionPlan.num_of_interventions} personalized
                     interventions
                   </span>
+                  </>
+                  }
                 </div>
               </div>
-
-              <Button
-                id="download-pdf-report-Box"
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
-                onClick={handleGetHtmlReport}
-              >
-                {loadingHtmlReport ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  "Download PDF Report"
-                )}
-              </Button>
+              {hasHtmlReport && (
+                <>
+                  <Button
+                    id="download-pdf-report-Box"
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    onClick={handleGetHtmlReport}
+                  >
+                    {loadingHtmlReport ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Download PDF Report"
+                    )}
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -1617,7 +1641,7 @@ export default function YouMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 pb-10">
       <div className="max-w-sm mx-auto">{renderCurrentView()}</div>
     </div>
   );
