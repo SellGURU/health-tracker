@@ -13,6 +13,18 @@ export interface AuthUser {
   subscriptionTier: string;
   createdAt: string;
   updatedAt: string;
+  hasChangedPassword?: boolean;
+  connectedWearable?: boolean;
+  dateOfBirth?: string;
+  phenoAge?: number;
+  verifiedAccount?: boolean;
+  memberSince?: string;
+  labTest?: number;
+  actionPlan?: number;
+  activeClient?: boolean;
+  plan?: string;
+  showPhenoage?: boolean;
+  hasReport?: boolean;
 }
 
 export interface AuthResponse {
@@ -178,6 +190,50 @@ class AuthService {
     return this.currentUser;
   }
 
+  async fetchClientInformation(): Promise<void> {
+    if (!this.sessionId && !mockAuth.isMockModeEnabled()) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/client_information_mobile", {
+        headers: this.getAuthHeaders(),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update current user with client information
+        if (this.currentUser) {
+          this.currentUser = {
+            ...this.currentUser,
+            hasChangedPassword: data.has_changed_password,
+            connectedWearable: data.connected_wearable,
+            dateOfBirth: data.date_of_birth,
+            phenoAge: data.pheno_age,
+            verifiedAccount: data.verified_account,
+            memberSince: data.member_since,
+            labTest: data.lab_test,
+            actionPlan: data.action_plan,
+            activeClient: data.active_client,
+            plan: data.plan,
+            showPhenoage: data.show_phenoage,
+            hasReport: data.has_report,
+          };
+          
+          // Update localStorage
+          localStorage.setItem("health_user", JSON.stringify(this.currentUser));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching client information:", error);
+    }
+  }
+
+  needsPasswordChange(): boolean {
+    return this.currentUser?.hasChangedPassword === false;
+  }
+
   getUser(): AuthUser | null {
     return this.currentUser;
   }
@@ -230,5 +286,7 @@ export function useAuth() {
     register: authService.register.bind(authService),
     logout: authService.logout.bind(authService),
     hasSubscription: authService.hasSubscription.bind(authService),
+    fetchClientInformation: authService.fetchClientInformation.bind(authService),
+    needsPasswordChange: authService.needsPasswordChange.bind(authService),
   };
 }

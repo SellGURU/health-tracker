@@ -153,6 +153,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logged out successfully" });
   });
 
+  // Change password
+  app.post("/api/auth/change-password", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { current_password, new_password, confirm_password } = req.body;
+
+      // Validate input
+      if (!current_password || !new_password || !confirm_password) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      if (new_password !== confirm_password) {
+        return res.status(400).json({ message: "New passwords do not match" });
+      }
+
+      if (new_password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      // Get current user
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Verify current password
+      const isValidPassword = await bcrypt.compare(current_password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(new_password, 10);
+
+      // Update password and mark as changed
+      await storage.updateUserPassword(userId, hashedPassword);
+
+      res.json({ message: "Password changed successfully" });
+    } catch (error) {
+      console.error('Change password error:', error);
+      res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
   // Delete account
   app.delete("/api/auth/delete-account", async (req, res) => {
     const userId = isAuthenticated(req);
@@ -191,6 +239,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const { password, ...userWithoutPassword } = user;
     res.json({ user: userWithoutPassword });
+  });
+
+  // Get client information mobile
+  app.get("/api/client_information_mobile", async (req, res) => {
+    const userId = isAuthenticated(req);
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get action plans count
+      const actionPlans = await storage.getActionPlans(userId);
+      const labResults = await storage.getLabResults(userId);
+
+      res.json({
+        name: user.fullName,
+        age: user.age || 0,
+        sex: user.gender || "not_specified",
+        id: user.id.toString(),
+        connected_wearable: false,
+        coach_username: [],
+        email: user.email,
+        date_of_birth: user.createdAt, // Using createdAt as placeholder
+        pheno_age: user.age || 0,
+        verified_account: true,
+        member_since: user.createdAt,
+        lab_test: labResults.length,
+        action_plan: actionPlans.length,
+        active_client: true,
+        plan: user.subscriptionTier || "free",
+        show_phenoage: true,
+        has_report: false,
+        has_changed_password: user.hasChangedPassword !== false, // Default to true if not set
+      });
+    } catch (error) {
+      console.error('Get client information error:', error);
+      res.status(500).json({ message: "Failed to fetch client information" });
+    }
   });
 
   // Lab results routes

@@ -56,6 +56,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(insertUser: InsertUser): Promise<User>;
   deleteUser(id: number): Promise<void>;
+  updateUserPassword(id: number, hashedPassword: string): Promise<void>;
   
   // Lab results methods
   getLabResults(userId: number, limit?: number): Promise<LabResult[]>;
@@ -162,6 +163,16 @@ export class DatabaseStorage implements IStorage {
     
     // Finally delete the user
     await db.delete(users).where(eq(users.id, id));
+  }
+
+  async updateUserPassword(id: number, hashedPassword: string): Promise<void> {
+    await db.update(users)
+      .set({ 
+        password: hashedPassword,
+        hasChangedPassword: true,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
   }
 
   async getLabResults(userId: number, limit?: number): Promise<LabResult[]> {

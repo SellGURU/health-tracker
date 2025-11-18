@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,12 +21,16 @@ import ActionPlanPage from "@/pages/action-plan";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
 // import { usePushNotifications } from "./hooks/use-pushNotification";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { StatusBar } from "@capacitor/status-bar";
+import { useToast } from "@/hooks/use-toast";
 
 function Router() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, fetchClientInformation, needsPasswordChange } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [hasCheckedPassword, setHasCheckedPassword] = useState(false);
   const isOnboardingCompleted =
     localStorage.getItem("onboardingCompleted") === "true";
   // const { token, notifications } = usePushNotifications();
@@ -41,6 +45,30 @@ function Router() {
       StatusBar.setBackgroundColor({ color: "#ffffff" });
     }
   }, []);
+
+  // Check password change requirement after login
+  useEffect(() => {
+    if (isAuthenticated && !hasCheckedPassword) {
+      fetchClientInformation().then(() => {
+        if (needsPasswordChange()) {
+          // Store flag to open password dialog
+          localStorage.setItem("requirePasswordChange", "true");
+          
+          // Redirect to profile page
+          setLocation("/profile");
+          
+          // Show toast notification
+          toast({
+            title: "Password Change Required",
+            description: "For security reasons, please change your password before continuing.",
+            variant: "destructive",
+          });
+        }
+        setHasCheckedPassword(true);
+      });
+    }
+  }, [isAuthenticated, hasCheckedPassword, fetchClientInformation, needsPasswordChange, setLocation, toast]);
+
   if (!isAuthenticated) {
     return (
       <Switch>
