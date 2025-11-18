@@ -315,15 +315,6 @@ export default function AuthPage() {
   };
 
   const handleForgotPasswordStep3 = async () => {
-    if (forgotPasswordData.newPassword.length < 6) {
-      toast({
-        title: "Invalid password",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoadingForgotPassword(true);
     try {
       await axios.post(
@@ -933,7 +924,7 @@ export default function AuthPage() {
                         }))
                       }
                       className="pl-10 pr-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
-                      placeholder="Enter new password (min. 6 characters)"
+                      placeholder="Enter new password"
                       data-testid="input-new-password"
                     />
                     <Button
