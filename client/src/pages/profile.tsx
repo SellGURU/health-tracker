@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { subscribe } from "@/lib/event";
 import { useMutation } from "@tanstack/react-query";
 import { RookConfig } from "capacitor-rook-sdk";
 import {
@@ -52,12 +53,18 @@ import {
   Trash2,
   ClipboardList,
   Zap,
+  AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import ProfileInfo from "./ProfileComponents/ProfileInfo";
+import AccountSetting from "./ProfileComponents/AccountSetting";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
@@ -258,7 +265,24 @@ export default function Profile() {
         setIsUpdatingPersonalInfo(false);
       });
   };
-
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      const res = await Application.deleteAccount(deleteConfirmation);
+      return res;
+    },
+    onSuccess: () => {
+    },
+    onError: (error) => {
+    },
+  });  
+  const handleDeleteAccount = () => {
+    const requiredText = `DELETE/${clientInformation?.name}`;
+    if (deleteConfirmation === requiredText) {
+      deleteAccountMutation.mutate();
+      setShowDeleteAccountDialog(false);
+      // setDeleteConfirmation("");
+    }
+  };
   const changePasswordMutation = useMutation({
     mutationFn: async (data: typeof passwordData) => {
       const payload = {
@@ -565,6 +589,13 @@ export default function Profile() {
       action: () => setShowPasswordDialog(true),
       badge: null,
     },
+    {
+      icon: Trash2,
+      title: "Delete Account",
+      description: "Permanently delete your account and data",
+      action: () => setShowDeleteAccountDialog(true),
+      badge: null,
+    },    
   ];
   useEffect(() => {
     if (devicesData?.data_sources) {
@@ -617,6 +648,19 @@ export default function Profile() {
     const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30));
     return `${diffMonths} months`;
   };
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
+  subscribe("brand_info", (data: any) => {
+    setBrandInfo(data.detail.information);
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
@@ -636,201 +680,10 @@ export default function Profile() {
 
       <div className="max-w-4xl mx-auto px-3 py-4 space-y-4">
         {/* Profile Overview Card */}
-        <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-          <CardContent className="p-4">
-            <div className="flex-1 min-w-0">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                      {clientInformation?.name || "User"}
-                    </h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {clientInformation?.email}
-                    </p>
-                  </div>
-                  <div className="relative flex-shrink-0">
-                    <Avatar className="w-12 h-12 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
-                      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-medium">
-                        {(
-                          clientInformation?.name?.split(" ")[0] || ""
-                        ).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                      <Crown className="w-2 h-2 text-white" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Better spaced info display */}
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Age:
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {clientInformation?.age || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Gender:
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
-                      {clientInformation?.sex || "Not specified"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Member Since:
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {getMembershipDuration()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Health stats */}
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Lab Tests:
-                    </span>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">
-                      {clientInformation?.lab_test}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Action Plan:
-                    </span>
-                    <span className="font-semibold text-green-600 dark:text-green-400">
-                      {clientInformation?.action_plan}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Account:
-                    </span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      {clientInformation?.verified_account
-                        ? "Verified"
-                        : "Unverified"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1 pt-1">
-                  {getSubscriptionBadge(clientInformation?.plan || "free")}
-                  <Badge
-                    variant="outline"
-                    className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
-                  >
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active User
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileInfo clientInformation={clientInformation} brandInfo={brandInfo} getMembershipDuration={getMembershipDuration} getSubscriptionBadge={getSubscriptionBadge} />
 
         {/* Settings Sections */}
-        <div className="flex flex-col gap-4">
-          {/* Account Settings */}
-          <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-emerald-800 dark:from-white dark:to-emerald-200 bg-clip-text text-transparent flex items-center gap-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center shadow-lg">
-                  <Settings className="w-3 h-3 text-white" />
-                </div>
-                Account Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {settingsItems.slice(0, 5).map((item, index) => (
-                <button
-                  key={index}
-                  onClick={item.action}
-                  className="w-full flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30 hover:from-emerald-50/60 hover:to-teal-50/60 dark:hover:from-emerald-900/20 dark:hover:to-teal-900/20 transition-all duration-300 hover:shadow-lg group min-h-[48px]"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 group-hover:from-emerald-500 group-hover:to-teal-500 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm">
-                      <item.icon className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                        {item.title}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 font-light">
-                        {item.description}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {item.badge && (
-                      <Badge
-                        variant="outline"
-                        className="bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs"
-                      >
-                        {item.badge}
-                      </Badge>
-                    )}
-                    <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300" />
-                  </div>
-                </button>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Preferences & Security */}
-          <div className="my-4"></div>
-          {/* <Card className="bg-gradient-to-br from-white/90 via-white/80 to-gray-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-900/20 border-0 shadow-xl backdrop-blur-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-purple-800 dark:from-white dark:to-purple-200 bg-clip-text text-transparent flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                Preferences & Security
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {settingsItems.slice(5).map((item, index) => (
-                <button
-                  key={index}
-                  onClick={item.action}
-                  className="w-full flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-gray-700/50 dark:to-gray-800/30 hover:from-purple-50/60 hover:to-indigo-50/60 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20 transition-all duration-300 hover:shadow-lg group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 group-hover:from-purple-500 group-hover:to-indigo-500 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm">
-                      <item.icon className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                        {item.title}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 font-light">
-                        {item.description}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {item.badge && (
-                      <Badge
-                        variant="outline"
-                        className="bg-purple-100/50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs"
-                      >
-                        {item.badge}
-                      </Badge>
-                    )}
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300" />
-                  </div>
-                </button>
-              ))}
-            </CardContent>
-          </Card> */}
-        </div>
+        <AccountSetting settingsItems={settingsItems} />
 
         {/* Edit Profile Dialog */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
@@ -1851,6 +1704,74 @@ export default function Profile() {
             </div>
           </DialogContent>
         </Dialog>
+
+
+        <Dialog open={showDeleteAccountDialog} onOpenChange={(open) => {
+          setShowDeleteAccountDialog(open);
+          if (!open) {
+            setDeleteConfirmation("");
+          }
+        }}>
+          <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-red-800 dark:from-white dark:to-red-200 bg-clip-text text-transparent flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                Delete Account
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
+                This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="bg-red-50/50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/30 rounded-lg p-4">
+                <div className="flex gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium mb-2">This will permanently delete:</p>
+                    <ul className="list-disc list-inside space-y-1 text-xs">
+                      <li>Your profile and account information</li>
+                      <li>All your health data and lab results</li>
+                      <li>Your goals, challenges, and action plans</li>
+                      <li>All questionnaire responses and insights</li>
+                      <li>Your chat history and messages</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="delete-confirmation" className="text-gray-700 dark:text-gray-300 font-medium">
+                  Type <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-sm">DELETE/{clientInformation?.name}</span> to confirm
+                </Label>
+                <Input
+                  id="delete-confirmation"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder={`DELETE/${clientInformation?.name }`}
+                  className="mt-2 bg-white/80 dark:bg-gray-700/80 border-red-200/50 dark:border-red-800/30 focus:border-red-500 dark:focus:border-red-500"
+                  data-testid="input-delete-confirmation"
+                />
+              </div>
+
+              <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-700/30 p-3 rounded-lg">
+                Once you delete your account, there is no going back. Please be certain.
+              </div>
+              
+              <div className="pt-4">
+                <Button 
+                  onClick={handleDeleteAccount}
+                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg"
+                  disabled={deleteConfirmation !== `DELETE/${clientInformation?.name}` || deleteAccountMutation.isPending}
+                  data-testid="button-delete-account"
+                >
+                  {deleteAccountMutation.isPending ? "Deleting Account..." : "Delete My Account Permanently"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>      
+
       </div>
     </div>
   );

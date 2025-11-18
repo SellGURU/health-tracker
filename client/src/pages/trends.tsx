@@ -367,7 +367,7 @@ export default function Trends() {
     );
   };
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
+    <div className="min-h-screen pb-8 relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
       <div className="w-full max-w-sm mx-auto px-3 py-4 overflow-hidden">
         {/* Your Results Header */}
         <div className="mb-4">
@@ -467,7 +467,7 @@ export default function Trends() {
                     </div>
 
                     {/* Reference Range */}
-                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                         Optimal Range
                       </div>
