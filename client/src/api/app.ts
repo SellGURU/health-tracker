@@ -166,7 +166,7 @@ class Application extends Api {
   static forgetPasswordResetPassword(email: string, new_password: string) {
     const response = this.post("/mobile/auth/forget_password/reset_password", {
       email: email,
-      new_password: new_password
+      password: new_password
     });
     return response;
   }
