@@ -1,5 +1,4 @@
 import Application from "@/api/app";
-import NotificationApi from "@/api/notification";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
-import { usePushNotifications } from "@/hooks/use-pushNotification";
 import { useToast } from "@/hooks/use-toast";
 import { subscribe } from "@/lib/event";
 import { Capacitor } from "@capacitor/core";
@@ -36,6 +34,7 @@ import {
   User,
   UtensilsCrossed,
   Wind,
+  X,
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -118,14 +117,16 @@ export default function YouMenu() {
   }>();
   const [hasHtmlReport, setHasHtmlReport] = useState(false);
   useEffect(() => {
-    Application.getHtmlReport().then(() => {
-      setHasHtmlReport(true);
-    }).catch((err) => {
-      if(err.response.status === 404){
-        setHasHtmlReport(false);
-      }
-    })
-  },[])
+    Application.getHtmlReport()
+      .then(() => {
+        setHasHtmlReport(true);
+      })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          setHasHtmlReport(false);
+        }
+      });
+  }, []);
   // const { token, notifications } = usePushNotifications();
   // useEffect(() => {
   //   if(Capacitor.isNativePlatform()){
@@ -142,8 +143,29 @@ export default function YouMenu() {
       status: string;
       title: string;
       unique_id: string;
+      forms_unique_id: string;
     }[]
   >([]);
+  const [openIframe, setOpenIframe] = useState(false);
+  const [iframeUrl, setIframeUrl] = useState("");
+  useEffect(() => {
+    const handleMessage = (event: any) => {
+      if (event.data?.type === "QUESTIONARY_SUBMITTED") {
+        setOpenIframe(false);
+        setIframeUrl("");
+
+        handleIframeClosed();
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+  const handleIframeClosed = () => {
+    handleGetAssignedQuestionaries();
+  };
+
   const [biomarkersData, setBiomarkersData] = useState<Biomarker[]>([]);
   const [holisticPlanActionPlan, setHolisticPlanActionPlan] = useState<{
     latest_deep_analysis: string;
@@ -222,14 +244,14 @@ export default function YouMenu() {
   // Auto-scroll to download report button when ?downloadReport is in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('downloadReport') === 'true') {
+    if (urlParams.get("downloadReport") === "true") {
       // Small delay to ensure the element is rendered
       setTimeout(() => {
-        const element = document.getElementById('download-pdf-report-Box');
+        const element = document.getElementById("download-pdf-report-Box");
         if (element) {
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
           });
         }
       }, 1000);
@@ -380,10 +402,12 @@ export default function YouMenu() {
       {/* Age Cards - Prominent Display */}
       <div
         className={`grid gap-3 ${
-          clientInformation?.show_phenoage ==true ? "grid-cols-2" : "grid-cols-1"
+          clientInformation?.show_phenoage == true
+            ? "grid-cols-2"
+            : "grid-cols-1"
         }`}
       >
-        {clientInformation?.show_phenoage ==true && (
+        {clientInformation?.show_phenoage == true && (
           <Card
             className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
             onClick={() =>
@@ -642,7 +666,7 @@ export default function YouMenu() {
                       {questionnaire.title}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {questionnaire.Estimated_time || "No time estimate"}
+                      {questionnaire.Estimated_time || ""}
                     </div>
                   </div>
                 </div>
@@ -655,15 +679,27 @@ export default function YouMenu() {
                       Completed
                     </Badge>
                   ) : (
+                    // <Button
+                    //   size="sm"
+                    //   variant="outline"
+                    //   onClick={() => {
+                    //     questionnaire.status = "Done";
+                    //     setQuestionnaires([...questionnaires]);
+                    //     window.open(
+                    //       `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`
+                    //     );
+                    //   }}
+                    //   className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
+                    // >
+                    //   Start
+                    // </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        questionnaire.status = "Done";
-                        setQuestionnaires([...questionnaires]);
-                        window.open(
-                          `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`
-                        );
+                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
+                        setIframeUrl(url);
+                        setOpenIframe(true);
                       }}
                       className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
                     >
@@ -676,6 +712,23 @@ export default function YouMenu() {
           </div>
         </CardContent>
       </Card>
+      {openIframe && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-white dark:bg-neutral-900 w-[100%] h-[100%] overflow-hidden relative">
+            <button
+              onClick={() => {
+                setOpenIframe(false);
+                setIframeUrl("");
+                handleIframeClosed();
+              }}
+              className="absolute top-3 right-6"
+            >
+              <X className="w-6 h-6 text-red-500" />
+            </button>
+            <iframe src={iframeUrl} className="w-full h-full border-none" />
+          </div>
+        </div>
+      )}
 
       {/* Health Summary Card */}
       {hasHealthData && (
@@ -733,20 +786,20 @@ export default function YouMenu() {
                   <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-3 h-3 text-white" />
                   </div>
-                  {!hasHtmlReport ?
-                  <>
-                  <span className="text-xs font-medium">
-                    You’ll be able to download the report once it’s ready.
-                  </span>
-                  </>
-                  :
-                  <>
-                  <span className="text-xs font-medium">
-                    {holisticPlanActionPlan.num_of_interventions} personalized
-                    interventions
-                  </span>
-                  </>
-                  }
+                  {!hasHtmlReport ? (
+                    <>
+                      <span className="text-xs font-medium">
+                        You’ll be able to download the report once it’s ready.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xs font-medium">
+                        {holisticPlanActionPlan.num_of_interventions}{" "}
+                        personalized interventions
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               {hasHtmlReport && (

@@ -279,7 +279,6 @@ export default function Trends() {
   };
 
   const openDetailModal = (biomarker: any) => {
-    console.log("biomarker => ", biomarker);
     setSelectedBiomarker(biomarker);
     setShowDetailModal(true);
   };
@@ -456,8 +455,8 @@ export default function Trends() {
                     </div>
                   </div>
 
-                  {/* Current Value */}
-                  <div className="mb-3">
+                  <div className="w-full flex justify-between items-center mb-1">
+                    {/* Current Value */}
                     <div className="flex items-baseline gap-2">
                       <span className="text-base font-bold text-gray-900 dark:text-gray-100">
                         {biomarker.values[0].toLocaleString()}
@@ -466,29 +465,33 @@ export default function Trends() {
                         {biomarker.unit}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Reference Range */}
-                  <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Optimal Range
-                    </div>
-                    <div className="text-sm flex flex-wrap gap-4 font-medium text-gray-700 dark:text-gray-300">
-                      {resolveOptimalRangesSelectedBiomarker(biomarker).map(
-                        (el: any, index: number) => {
-                          return (
-                            <div key={el.status} className="flex items-center">
-                              {resolveOptimalRangesSelectedBiomarker(biomarker)
-                                .length -
-                                1 ==
-                                index &&
-                                index != 0 && <div className=" mr-4">-</div>}
-                              {resolveOptimalRange(el)}
-                              {/* <div className="ml-2"></div> */}
-                            </div>
-                          );
-                        }
-                      )}
+                    {/* Reference Range */}
+                    <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        Optimal Range
+                      </div>
+                      <div className="text-sm flex flex-wrap gap-4 font-medium text-gray-700 dark:text-gray-300">
+                        {resolveOptimalRangesSelectedBiomarker(biomarker).map(
+                          (el: any, index: number) => {
+                            return (
+                              <div
+                                key={el.status}
+                                className="flex items-center"
+                              >
+                                {resolveOptimalRangesSelectedBiomarker(
+                                  biomarker
+                                ).length -
+                                  1 ==
+                                  index &&
+                                  index != 0 && <div className=" mr-4">-</div>}
+                                {resolveOptimalRange(el)}
+                                {/* <div className="ml-2"></div> */}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -542,7 +545,13 @@ export default function Trends() {
 
       {/* Detailed Information Modal */}
       {selectedBiomarker && (
-        <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+        <Dialog
+          open={showDetailModal}
+          onOpenChange={() => {
+            setShowDetailModal(false);
+            setActiveTab("results");
+          }}
+        >
           <DialogContent className="max-w-sm mx- ">
             <DialogHeader>
               <div className="flex items-center gap-2">
@@ -674,7 +683,7 @@ export default function Trends() {
                     <h3 className="text-base font-medium mb-2">
                       About This Biomarker
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed text-justify">
                       {selectedBiomarker.more_info}
                     </p>
                   </CardContent>
@@ -704,7 +713,7 @@ export default function Trends() {
                         <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <CheckCircle className="w-3 h-3 text-white" />
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 text-justify">
                           {selectedBiomarker.how_to_improve}
                         </p>
                       </div>
@@ -734,7 +743,7 @@ export default function Trends() {
                         <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Brain className="w-3 h-3 text-white" />
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 text-justify">
                           {selectedBiomarker.insight}
                         </p>
                       </div>
@@ -747,7 +756,10 @@ export default function Trends() {
             <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <Button
                 variant="outline"
-                onClick={() => setShowDetailModal(false)}
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setActiveTab("results");
+                }}
                 className="text-sm min-h-[44px]"
               >
                 Close

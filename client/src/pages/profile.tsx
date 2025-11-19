@@ -114,6 +114,15 @@ export default function Profile() {
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+
+  // Check if password change is required on mount
+  useEffect(() => {
+    const requirePasswordChange = localStorage.getItem("requirePasswordChange");
+    if (requirePasswordChange === "true") {
+      setShowPasswordDialog(true);
+      localStorage.removeItem("requirePasswordChange");
+    }
+  }, []);
   const [devicesData, setDevicesData] = useState<any>(null);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [editData, setEditData] = useState({
@@ -1636,7 +1645,7 @@ export default function Profile() {
                                     : "Not Connected"}
                                 </Badge>
                               </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
                                 {source.description}
                               </p>
                               <Button
