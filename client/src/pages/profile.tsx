@@ -705,15 +705,22 @@ You can manage permissions anytime in the Apple Health app.
           }
         }
 
-        // Step 5: Schedule sync
-        addLog("Scheduling yesterday's data sync...", "info", "Step 5: Schedule Sync");
-        try {
-          await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
-          addLog("Yesterday sync scheduled successfully", "success", "Step 5: Schedule Sync");
-        } catch (error: any) {
-          const errorMsg = error?.message || error?.toString() || "Unknown error";
-          addLog(`Failed to schedule sync: ${errorMsg}`, "error", "Step 5: Schedule Sync");
-          // Don't throw, connection can still be successful
+        // Step 5: Sync configuration
+        if (!platformInfo.isIOS) {
+          // Android: Manual sync scheduling required
+          addLog("Scheduling yesterday's data sync...", "info", "Step 5: Schedule Sync");
+          try {
+            await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
+            addLog("Yesterday sync scheduled successfully", "success", "Step 5: Schedule Sync");
+          } catch (error: any) {
+            const errorMsg = error?.message || error?.toString() || "Unknown error";
+            addLog(`Failed to schedule sync: ${errorMsg}`, "error", "Step 5: Schedule Sync");
+            // Don't throw, connection can still be successful
+          }
+        } else {
+          // iOS: Automatic sync via Apple Health background delivery
+          addLog("iOS sync configured: Apple Health will automatically sync data via background delivery", "info", "Step 5: Sync Configuration");
+          addLog("Background sync is enabled - data will be synced automatically when available in Apple Health", "success", "Step 5: Sync Configuration");
         }
 
         setIsConnecting("connected");
