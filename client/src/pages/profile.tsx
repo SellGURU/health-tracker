@@ -141,6 +141,13 @@ You can manage permissions anytime in the Apple Health app.
 
   const [showDevicesModal, setShowDevicesModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [connectionLogs, setConnectionLogs] = useState<Array<{
+    timestamp: string;
+    message: string;
+    type: 'info' | 'success' | 'error';
+    step?: string;
+  }>>([]);
   useEffect(() => {
     if (showDevicesModal) {
       fetchDevicesData();
@@ -187,6 +194,16 @@ You can manage permissions anytime in the Apple Health app.
   useEffect(() => {
     localStorage.setItem('health_device_connection_state', isConnecting);
   }, [isConnecting]);
+
+  // Auto-scroll log container to bottom when new logs are added
+  useEffect(() => {
+    if (showLogModal && connectionLogs.length > 0) {
+      const logContainer = document.querySelector('[data-log-container]');
+      if (logContainer) {
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+    }
+  }, [connectionLogs, showLogModal]);
 
   // Function to clear connection state (for testing or manual reset)
   const clearConnectionState = () => {
@@ -588,61 +605,134 @@ You can manage permissions anytime in the Apple Health app.
     setShowPermissionModal(true);
   };
 
+  // Helper function to add logs
+  const addLog = (message: string, type: 'info' | 'success' | 'error' = 'info', step?: string) => {
+    const timestamp = new Date().toLocaleTimeString('en-US', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit',
+      fractionalSecondDigits: 3
+    });
+    setConnectionLogs(prev => [...prev, { timestamp, message, type, step }]);
+  };
+
   const executeConnection = () => {
+    // Clear previous logs
+    setConnectionLogs([]);
+    setShowLogModal(true);
     setIsConnecting("connecting");
+    addLog("Starting connection process...", "info", "Step 1: Initialization");
 
     const initRook = async (userId: string) => {
       try {
-        // 1. Init SDK
-        await RookConfig.initRook({
-          environment: "production", // یا "sandbox" برای تست
-          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-          enableBackgroundSync: true,
-          enableEventsBackgroundSync: true,
-        });
-        console.log("✅ Initialized Rook SDK");
-
-        // 2. آماده‌سازی User ID
-        // let userId = clientInformation?.id // طول مجاز 1 تا 50
-        // if (!userId) {
-        //   console.error("❌ User ID is missing. Cannot register with Rook.");
-        //   setIsConnecting("disconnected");
-        //   return;
-        // }
-        setIsConnecting("connected");
-        // 3. ایجاد کاربر (در صورت وجود نداشتن)
-        if (RookConfig.updateUserId) {
-          await RookConfig.updateUserId({
-            userId: userId,
+        // Step 1: Init SDK
+        addLog("Initializing Rook SDK with production environment...", "info", "Step 1.1: SDK Init");
+        try {
+          await RookConfig.initRook({
+            environment: "production",
+            clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+            password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+            enableBackgroundSync: true,
+            enableEventsBackgroundSync: true,
           });
-          console.log("✅ User created:", userId);
+          addLog("Rook SDK initialized successfully", "success", "Step 1.1: SDK Init");
+        } catch (error: any) {
+          const errorMsg = error?.message || error?.toString() || "Unknown error";
+          addLog(`Failed to initialize Rook SDK: ${errorMsg}`, "error", "Step 1.1: SDK Init");
+          throw error;
         }
-        // console.log("✅ User created2:", )
 
+        // Step 2: Validate User ID
+        addLog(`Validating user ID: ${userId}`, "info", "Step 2: User Validation");
+        if (!userId || userId.trim() === "") {
+          const errorMsg = "User ID is missing or empty";
+          addLog(`Error: ${errorMsg}`, "error", "Step 2: User Validation");
+          setIsConnecting("disconnected");
+          return;
+        }
+        addLog("User ID validated successfully", "success", "Step 2: User Validation");
 
-        // 5. درخواست مجوزهای Health Connect
-        const perms = await RookPermissions.requestAllHealthConnectPermissions();
-        console.log("✅ HealthConnect permissions:", perms);
+        // Step 3: Update User ID
+        addLog("Updating user ID in Rook SDK...", "info", "Step 3: Update User ID");
+        try {
+          if (RookConfig.updateUserId) {
+            await RookConfig.updateUserId({
+              userId: userId,
+            });
+            addLog(`User ID updated successfully: ${userId}`, "success", "Step 3: Update User ID");
+          } else {
+            addLog("updateUserId method not available, skipping...", "info", "Step 3: Update User ID");
+          }
+        } catch (error: any) {
+          const errorMsg = error?.message || error?.toString() || "Unknown error";
+          addLog(`Failed to update user ID: ${errorMsg}`, "error", "Step 3: Update User ID");
+          throw error;
+        }
 
-        // 6. درخواست مجوزهای Android
-        const androidPerms = await RookPermissions.requestAndroidPermissions();
-        console.log("✅ Android permissions:", androidPerms);
+        // Step 4: Request permissions based on platform
+        const platformInfo = getPlatformInfo();
+        if (platformInfo.isIOS) {
+          addLog("Requesting Apple Health permissions...", "info", "Step 4: Request Permissions");
+          try {
+            const perms = await RookPermissions.requestAllAppleHealthPermissions();
+            addLog(`Apple Health permissions granted: ${JSON.stringify(perms)}`, "success", "Step 4: Request Permissions");
+          } catch (error: any) {
+            const errorMsg = error?.message || error?.toString() || "Unknown error";
+            addLog(`Failed to request Apple Health permissions: ${errorMsg}`, "error", "Step 4: Request Permissions");
+            throw error;
+          }
+        } else {
+          // Android/Health Connect permissions
+          addLog("Requesting Health Connect permissions...", "info", "Step 4.1: Health Connect Permissions");
+          try {
+            const perms = await RookPermissions.requestAllHealthConnectPermissions();
+            addLog(`Health Connect permissions granted: ${JSON.stringify(perms)}`, "success", "Step 4.1: Health Connect Permissions");
+          } catch (error: any) {
+            const errorMsg = error?.message || error?.toString() || "Unknown error";
+            addLog(`Failed to request Health Connect permissions: ${errorMsg}`, "error", "Step 4.1: Health Connect Permissions");
+            // Don't throw, continue with Android permissions
+          }
 
-        // 7. برنامه‌ریزی همگام‌سازی داده‌های دیروز
-        await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
-        console.log("✅ Yesterday sync scheduled");
+          addLog("Requesting Android permissions...", "info", "Step 4.2: Android Permissions");
+          try {
+            const androidPerms = await RookPermissions.requestAndroidPermissions();
+            addLog(`Android permissions granted: ${JSON.stringify(androidPerms)}`, "success", "Step 4.2: Android Permissions");
+          } catch (error: any) {
+            const errorMsg = error?.message || error?.toString() || "Unknown error";
+            addLog(`Failed to request Android permissions: ${errorMsg}`, "error", "Step 4.2: Android Permissions");
+            // Don't throw, continue
+          }
+        }
+
+        // Step 5: Schedule sync
+        addLog("Scheduling yesterday's data sync...", "info", "Step 5: Schedule Sync");
+        try {
+          await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
+          addLog("Yesterday sync scheduled successfully", "success", "Step 5: Schedule Sync");
+        } catch (error: any) {
+          const errorMsg = error?.message || error?.toString() || "Unknown error";
+          addLog(`Failed to schedule sync: ${errorMsg}`, "error", "Step 5: Schedule Sync");
+          // Don't throw, connection can still be successful
+        }
 
         setIsConnecting("connected");
-      } catch (e) {
-        console.error("❌ Error initializing Rook:", e);
+        addLog("Connection process completed successfully!", "success", "Final Step");
+      } catch (e: any) {
+        const errorMsg = e?.message || e?.toString() || "Unknown error occurred";
+        addLog(`Connection failed: ${errorMsg}`, "error", "Error Handler");
+        addLog(`Error details: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`, "error", "Error Details");
         setIsConnecting("disconnected");
       }
     };
 
-    // اجرای initRook یکبار
+    // Execute initRook
     if (clientInformation?.id) {
-      initRook(clientInformation?.id);
+      addLog(`User ID found: ${clientInformation.id}`, "info", "Pre-check");
+      initRook(clientInformation.id);
+    } else {
+      addLog("Error: User ID not found in client information", "error", "Pre-check");
+      setIsConnecting("disconnected");
     }
   };
 
@@ -1993,8 +2083,8 @@ You can manage permissions anytime in the Apple Health app.
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={() => {
-                    executeConnection();
                     setShowPermissionModal(false);
+                    executeConnection();
                   }}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
                 >
@@ -2006,6 +2096,78 @@ You can manage permissions anytime in the Apple Health app.
                   className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
                 >
                   Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Connection Logs Modal */}
+        <Dialog open={showLogModal} onOpenChange={setShowLogModal}>
+          <DialogContent className="max-w-2xl max-h-[80vh] bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
+                <ClipboardList className="w-4 h-4 text-blue-600" />
+                Connection Logs
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+                Step-by-step connection process logs
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg p-4 max-h-[60vh] overflow-y-auto" data-log-container>
+                {connectionLogs.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <ClipboardList className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>No logs yet. Connection process will start...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 font-mono text-xs">
+                    {connectionLogs.map((log, index) => (
+                      <div
+                        key={index}
+                        className={`p-2 rounded border-l-4 ${
+                          log.type === 'error'
+                            ? 'bg-red-50/50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-300'
+                            : log.type === 'success'
+                            ? 'bg-green-50/50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300'
+                            : 'bg-blue-50/50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">
+                            [{log.timestamp}]
+                          </span>
+                          {log.step && (
+                            <span className="font-semibold flex-shrink-0">
+                              {log.step}:
+                            </span>
+                          )}
+                          <span className="flex-1 break-words">{log.message}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setConnectionLogs([]);
+                    setShowLogModal(false);
+                  }}
+                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setConnectionLogs([])}
+                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
+                  disabled={connectionLogs.length === 0}
+                >
+                  Clear Logs
                 </Button>
               </div>
             </div>
