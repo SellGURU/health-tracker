@@ -85,6 +85,44 @@ const surveyIcons = {
   respiratory: Wind,
 };
 
+// Helper function to format time from seconds/milliseconds to appropriate unit
+function formatTime(timeValue: string | number | null | undefined): string {
+  if (!timeValue && timeValue !== 0) return "";
+  
+  // Convert to number if it's a string
+  let totalSeconds: number;
+  if (typeof timeValue === "string") {
+    // Extract number from string
+    const match = timeValue.match(/\d+/);
+    if (!match) return timeValue;
+    totalSeconds = parseInt(match[0], 10);
+  } else {
+    totalSeconds = Number(timeValue);
+  }
+  
+  // Check if it's a valid number
+  if (isNaN(totalSeconds)) return "";
+  
+  // If number is large (> 1000), assume it's in milliseconds, convert to seconds
+  if (totalSeconds > 1000) {
+    totalSeconds = Math.floor(totalSeconds / 1000);
+  }
+  
+  // Convert to minutes if >= 60 seconds
+  if (totalSeconds >= 60) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const remainingSeconds = totalSeconds % 60;
+    
+    if (remainingSeconds === 0) {
+      return `${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+    } else {
+      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ${remainingSeconds} ${remainingSeconds === 1 ? "second" : "seconds"}`;
+    }
+  }
+  
+  return `${totalSeconds} ${totalSeconds === 1 ? "second" : "seconds"}`;
+}
+
 export default function YouMenu() {
   const [brandInfo, setBrandInfo] = useState<{
     last_update: string;
@@ -666,7 +704,7 @@ export default function YouMenu() {
                       {questionnaire.title}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {questionnaire.Estimated_time || ""}
+                      {formatTime(questionnaire.Estimated_time || "")}
                     </div>
                   </div>
                 </div>
@@ -697,7 +735,7 @@ export default function YouMenu() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
+                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`;
                         setIframeUrl(url);
                         setOpenIframe(true);
                       }}
