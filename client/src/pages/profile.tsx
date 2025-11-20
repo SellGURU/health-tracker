@@ -141,13 +141,6 @@ You can manage permissions anytime in the Apple Health app.
 
   const [showDevicesModal, setShowDevicesModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
-  const [showLogModal, setShowLogModal] = useState(false);
-  const [connectionLogs, setConnectionLogs] = useState<Array<{
-    timestamp: string;
-    message: string;
-    type: 'info' | 'success' | 'error';
-    step?: string;
-  }>>([]);
   useEffect(() => {
     if (showDevicesModal) {
       fetchDevicesData();
@@ -195,15 +188,6 @@ You can manage permissions anytime in the Apple Health app.
     localStorage.setItem('health_device_connection_state', isConnecting);
   }, [isConnecting]);
 
-  // Auto-scroll log container to bottom when new logs are added
-  useEffect(() => {
-    if (showLogModal && connectionLogs.length > 0) {
-      const logContainer = document.querySelector('[data-log-container]');
-      if (logContainer) {
-        logContainer.scrollTop = logContainer.scrollHeight;
-      }
-    }
-  }, [connectionLogs, showLogModal]);
 
   // Function to clear connection state (for testing or manual reset)
   const clearConnectionState = () => {
@@ -605,7 +589,7 @@ You can manage permissions anytime in the Apple Health app.
     setShowPermissionModal(true);
   };
 
-  // Helper function to add logs
+  // Helper function to add logs (console only)
   const addLog = (message: string, type: 'info' | 'success' | 'error' = 'info', step?: string) => {
     const timestamp = new Date().toLocaleTimeString('en-US', { 
       hour12: false, 
@@ -614,13 +598,18 @@ You can manage permissions anytime in the Apple Health app.
       second: '2-digit',
       fractionalSecondDigits: 3
     });
-    setConnectionLogs(prev => [...prev, { timestamp, message, type, step }]);
+    const logMessage = step ? `[${timestamp}] ${step}: ${message}` : `[${timestamp}] ${message}`;
+    
+    if (type === 'error') {
+      console.error(logMessage);
+    } else if (type === 'success') {
+      console.log(`✅ ${logMessage}`);
+    } else {
+      console.log(`ℹ️ ${logMessage}`);
+    }
   };
 
   const executeConnection = () => {
-    // Clear previous logs
-    setConnectionLogs([]);
-    setShowLogModal(true);
     setIsConnecting("connecting");
     addLog("Starting connection process...", "info", "Step 1: Initialization");
 
@@ -2103,83 +2092,6 @@ You can manage permissions anytime in the Apple Health app.
                   className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
                 >
                   Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Connection Logs Modal */}
-        <Dialog open={showLogModal} onOpenChange={setShowLogModal}>
-          <DialogContent className="max-w-2xl max-h-[80vh] bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl flex flex-col">
-            <DialogHeader className="flex-shrink-0">
-              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
-                <ClipboardList className="w-4 h-4 text-blue-600" />
-                Connection Logs
-              </DialogTitle>
-              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Step-by-step connection process logs
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 flex-1 min-h-0 flex flex-col">
-              <div className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg p-4 max-h-[60vh] overflow-y-auto overflow-x-hidden" data-log-container>
-                {connectionLogs.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <ClipboardList className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No logs yet. Connection process will start...</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2 font-mono text-xs">
-                    {connectionLogs.map((log, index) => (
-                      <div
-                        key={index}
-                        className={`p-3 rounded border-l-4 break-words ${
-                          log.type === 'error'
-                            ? 'bg-red-50/50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-300'
-                            : log.type === 'success'
-                            ? 'bg-green-50/50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300'
-                            : 'bg-blue-50/50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300'
-                        }`}
-                        style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-                      >
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                              [{log.timestamp}]
-                            </span>
-                            {log.step && (
-                              <span className="font-semibold whitespace-nowrap">
-                                {log.step}
-                              </span>
-                            )}
-                          </div>
-                          <div className="break-words" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
-                            {log.message}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-3 pt-2 flex-shrink-0">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setConnectionLogs([]);
-                    setShowLogModal(false);
-                  }}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Close
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setConnectionLogs([])}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                  disabled={connectionLogs.length === 0}
-                >
-                  Clear Logs
                 </Button>
               </div>
             </div>
