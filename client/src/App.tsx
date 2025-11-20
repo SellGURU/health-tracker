@@ -25,6 +25,7 @@ import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { StatusBar } from "@capacitor/status-bar";
 import { useToast } from "@/hooks/use-toast";
+import { useServiceWorker } from "./hooks/use-serviceWorker";
 
 function Router() {
   const { isAuthenticated, fetchClientInformation, needsPasswordChange } = useAuth();
@@ -36,7 +37,7 @@ function Router() {
   // useEffect(() => {
   //   alert(notifications[notifications.length -1].title)
   // },[notifications])
-
+  useServiceWorker();
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       // اینجا مطمئن میشیم اپ روی موبایل ران شده
