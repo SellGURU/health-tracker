@@ -32,6 +32,7 @@ import {
   ThumbsDown,
   ThumbsUp,
   BookOpen,
+  Check,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -55,6 +56,7 @@ interface Message {
     text: string;
     filename: string;
   }>;
+  recipient?: boolean; // Indicates if message was sent/received
 }
 
 interface Coach {
@@ -546,12 +548,18 @@ export default function ChatPage() {
                   return (
                     <div
                       key={msg.conversation_id}
-                      className={`flex ${
+                      className={`flex items-end gap-2 ${
                         msg.sender_type === "patient"
                           ? "justify-end"
                           : "justify-start"
                       } ${isReported ? "opacity-50" : ""}`}
                     >
+                      {/* Blue checkmark for sent messages in coach mode - outside the message box */}
+                      {activeMode === "coach" &&
+                        msg.sender_type === "patient" &&
+                        msg.recipient && (
+                          <Check className="h-4 w-4 text-blue-500 mb-1 flex-shrink-0 order-1" />
+                        )}
                       <div
                         className={`max-w-[80%] group ${
                           msg.sender_type === "patient" ? "order-2" : "order-1"

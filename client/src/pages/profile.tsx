@@ -153,7 +153,16 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [devicesData, setDevicesData] = useState<any>(true);
+
+  // Check if password change is required on mount
+  // useEffect(() => {
+  //   const requirePasswordChange = localStorage.getItem("requirePasswordChange");
+  //   if (requirePasswordChange === "true") {
+  //     setShowPasswordDialog(true);
+  //     localStorage.removeItem("requirePasswordChange");
+  //   }
+  // }, []);
+  const [devicesData, setDevicesData] = useState<any>(null);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [editData, setEditData] = useState({
@@ -2017,4 +2026,4 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       </div>
     </div>
   );
-} 
+}
