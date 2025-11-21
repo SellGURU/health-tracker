@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword } from "@/lib/utils";
+import { useLocation } from "wouter";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import ForgotPasswordModal from "@/components/auth/forgot-password-modal";
@@ -76,6 +77,7 @@ export default function AuthPage() {
       password: "password123",
     });
   };
+  const [location,navigate] = useLocation();
   const CallLoginAuthApi = async (isRegister = false) => {
     setIsLoadingLogin(true);
     const data = {
@@ -98,7 +100,8 @@ export default function AuthPage() {
           });
         }
         setTimeout(() => {
-          window.location.reload();
+          navigate("/");
+          // window.location.reload();
         }, 500);
       })
       .catch((res) => {
