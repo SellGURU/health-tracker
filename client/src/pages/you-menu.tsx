@@ -186,6 +186,8 @@ export default function YouMenu() {
   >([]);
   const [openIframe, setOpenIframe] = useState(false);
   const [iframeUrl, setIframeUrl] = useState("");
+  const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  
   useEffect(() => {
     const handleMessage = (event: any) => {
       if (event.data?.type === "QUESTIONARY_SUBMITTED") {
@@ -200,6 +202,22 @@ export default function YouMenu() {
 
     return () => window.removeEventListener("message", handleMessage);
   }, []);
+  
+  // Check if opened window is closed and refetch questionnaires
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        handleGetAssignedQuestionaries();
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow]);
+  
   const handleIframeClosed = () => {
     handleGetAssignedQuestionaries();
   };
@@ -735,9 +753,13 @@ export default function YouMenu() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const url = `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
-                        setIframeUrl(url);
-                        setOpenIframe(true);
+                        const url = `https://holisticare-develop.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`;
+                        // setIframeUrl(url);
+                        // setOpenIframe(true);
+                        const newWindow = window.open(url, "_blank");
+                        if (newWindow) {
+                          setOpenedWindow(newWindow);
+                        }
                       }}
                       className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
                     >
