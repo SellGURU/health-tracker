@@ -15,7 +15,13 @@ axios.interceptors.response.use(
       const isLoginEndpoint = requestUrl.includes('/auth/mobile_token') || requestUrl.includes('/auth/mobile_register');
       
       if (!isLoginEndpoint) {
+        // Save brand_info before clearing localStorage
+        const brandInfo = localStorage.getItem("brand_info");
         localStorage.clear();
+        // Restore brand_info if it existed
+        if (brandInfo) {
+          localStorage.setItem("brand_info", brandInfo);
+        }
         window.location.reload();
       }
     }

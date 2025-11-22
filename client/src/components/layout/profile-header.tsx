@@ -195,7 +195,12 @@ export default function ProfileHeader() {
 
   const handleLogout = async () => {
     Auth.logOut();
+    const brandInfo = localStorage.getItem("brand_info");
     localStorage.clear();
+    // Restore brand_info if it existed
+    if (brandInfo) {
+      localStorage.setItem("brand_info", brandInfo);
+    }
     navigate("/");
     window.location.reload();
   };
@@ -248,6 +253,7 @@ export default function ProfileHeader() {
   }>();
   subscribe("brand_info", (data: any) => {
     setBrandInfo(data.detail.information);
+    localStorage.setItem("brand_info", JSON.stringify(data.detail.information));
   });
 
   return (
@@ -255,13 +261,13 @@ export default function ProfileHeader() {
       <div className="flex items-center gap-2 ">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
           <img
-            src={"./logo.png"}
+            src={brandInfo ? brandInfo?.logo : "./logo.png"}
             alt="HolistiCare Logo"
             className="w-8 h-8 rounded-full object-cover"
           />
         </div>
         <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          HolistiCare
+          {brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}
         </h1>
       </div>
 

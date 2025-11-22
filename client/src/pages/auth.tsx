@@ -69,7 +69,28 @@ export default function AuthPage() {
       setFadeClass("opacity-100");
     }, 500);
   };
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
 
+  useEffect(() => {
+    const storedBrandInfo = localStorage.getItem("brand_info");
+    if (storedBrandInfo) {
+      try {
+        const parsedInfo = JSON.parse(storedBrandInfo);
+        setBrandInfo(parsedInfo);
+      } catch (error) {
+        console.error("Error parsing brand_info from localStorage:", error);
+      }
+    }
+  }, []);
   const fillTestCredentials = () => {
     setLoginData({
       email: "test@holisticare.com",
@@ -237,17 +258,17 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={logoImage}
+                src={brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
             <h1 className="text-white text-2xl font-bold mb-2">
-              HolistiCare.io
+              {brandInfo ? (brandInfo?.name|| "HolistiCare.io") : "HolistiCare.io"}
             </h1>
             <p className="text-white/90 text-sm">
-              Empower Health with Intelligence
+              {brandInfo ? (brandInfo?.headline|| "Empower Health with Intelligence") : "Empower Health with Intelligence"}
             </p>
           </div>
         )}
@@ -258,13 +279,13 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={logoImage}
+                src={ brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-2">HolistiCare</h1>
+            <h1 className="text-white text-xl font-bold mb-2">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
             <p className="text-white/90 text-sm mb-8 sm:mb-12">
               Welcome back to your health journey
             </p>
@@ -284,13 +305,13 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={logoImage}
+                src={ brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-6">HolistiCare</h1>
+            <h1 className="text-white text-xl font-bold mb-6">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
 
             <div className="w-full max-w-xs mx-auto">
               <Tabs
