@@ -57,13 +57,15 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import ProfileInfo from "./ProfileComponents/ProfileInfo";
 import AccountSetting from "./ProfileComponents/AccountSetting";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, fetchClientInformation } = useAuth();
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [clientInformation, setClientInformation] = useState<{
@@ -83,6 +85,8 @@ export default function Profile() {
     sex: string;
     verified_account: boolean;
     // plan:string
+    has_changed_password?: boolean;
+    // plan: string;
   }>();
 
   // Helper function to detect platform
@@ -154,6 +158,9 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Check if password change is required
+  const isPasswordChangeRequired = clientInformation?.has_changed_password === false;
+
   // Check if password change is required on mount
   // useEffect(() => {
   //   const requirePasswordChange = localStorage.getItem("requirePasswordChange");
@@ -162,6 +169,28 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   //     localStorage.removeItem("requirePasswordChange");
   //   }
   // }, []);
+  useEffect(() => {
+    const requirePasswordChange = localStorage.getItem("requirePasswordChange");
+    if (requirePasswordChange === "true") {
+      setShowPasswordDialog(true);
+      localStorage.removeItem("requirePasswordChange");
+    }
+  }, []);
+
+  // Prevent navigation away if password change is required
+  useEffect(() => {
+    if (isPasswordChangeRequired && location !== "/profile") {
+      setLocation("/profile");
+      if (!showPasswordDialog) {
+        setShowPasswordDialog(true);
+      }
+      toast({
+        title: "Password Change Required",
+        description: "Please change your password before continuing.",
+        variant: "destructive",
+      });
+    }
+  }, [location, isPasswordChangeRequired, showPasswordDialog, setLocation, toast]);
   const [devicesData, setDevicesData] = useState<any>(null);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
@@ -371,7 +400,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     onSuccess: (res: any) => {
       if (res?.status === 200) {
         toast({
-          title: "Password changed",
+          title: "Password Changed",
           description: "Your password has been updated successfully.",
         });
         setShowPasswordDialog(false);
@@ -380,9 +409,13 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           newPassword: "",
           confirmPassword: "",
         });
+        // Refresh client information to update has_changed_password flag
+        handleGetClientInformation();
+        // Also refresh auth service client information
+        fetchClientInformation();
       } else {
         toast({
-          title: "Password change failed",
+          title: "Password Change Failed",
           description: res?.data?.detail || "Unexpected server response.",
           variant: "destructive",
         });
@@ -954,7 +987,21 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         </Dialog>
 
         {/* Change Password Dialog */}
-        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <Dialog 
+          open={showPasswordDialog} 
+          onOpenChange={(open) => {
+            // Prevent closing if password change is required
+            if (!open && isPasswordChangeRequired) {
+              toast({
+                title: "Password Change Required",
+                description: "Please change your password before continuing.",
+                variant: "destructive",
+              });
+              return;
+            }
+            setShowPasswordDialog(open);
+          }}
+        >
           <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
             <DialogHeader>
               <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-red-800 dark:from-white dark:to-red-200 bg-clip-text text-transparent">

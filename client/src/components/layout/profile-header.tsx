@@ -48,7 +48,7 @@ export default function ProfileHeader() {
   const [notificationCount, setNotificationCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const { logout } = useAuth();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isUnReadNotif, setIsUnReadNotif] = useState(false);
   const [hadNotifications, setHadNotifications] = useState(false);
@@ -69,12 +69,28 @@ export default function ProfileHeader() {
     pheno_age: number;
     sex: string;
     verified_account: boolean;
+    has_changed_password?: boolean;
   }>();
 
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
       .then((res) => {
         setClientInformation(res.data);
+        // Check if password change is required
+        if (res.data?.has_changed_password === false) {
+          // Store flag to open password dialog
+          localStorage.setItem("requirePasswordChange", "true");
+          // Redirect to profile page only if not already there
+          if (location !== "/profile") {
+            navigate("/profile");
+          }
+          // Show toast notification
+          toast({
+            title: "Password Change Required",
+            description: "Please change your password for account security.",
+            variant: "destructive",
+          });
+        }
       })
       .catch((res) => {
         toast({
