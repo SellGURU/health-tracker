@@ -29,7 +29,7 @@ import { useServiceWorker } from "./hooks/use-serviceWorker";
 
 function Router() {
   const { isAuthenticated, fetchClientInformation, needsPasswordChange } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const isOnboardingCompleted =
     localStorage.getItem("onboardingCompleted") === "true";
@@ -65,13 +65,21 @@ function Router() {
           // Show toast notification
           toast({
             title: "Password Change Required",
-            description: "For security reasons, please change your password before continuing.",
+            description: "Please change your password for account security.",
             variant: "destructive",
           });
         }
       });
     }
   }, [isAuthenticated, fetchClientInformation, needsPasswordChange, setLocation, toast]);
+
+  // Prevent navigation to other pages if password change is required
+  useEffect(() => {
+    if (isAuthenticated && needsPasswordChange() && location !== "/profile") {
+      setLocation("/profile");
+      localStorage.setItem("requirePasswordChange", "true");
+    }
+  }, [location, isAuthenticated, needsPasswordChange, setLocation]);
 
   if (!isAuthenticated) {
     return (
