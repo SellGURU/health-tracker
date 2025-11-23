@@ -58,6 +58,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import ProfileInfo from "./ProfileComponents/ProfileInfo";
 import AccountSetting from "./ProfileComponents/AccountSetting";
+import ChangePasswordDialog from "./ProfileComponents/ChangePasswordDialog";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
@@ -732,179 +733,16 @@ export default function Profile() {
         </Dialog>
 
         {/* Change Password Dialog */}
-        <Dialog 
-          open={showPasswordDialog} 
-          onOpenChange={(open) => {
-            // Prevent closing if password change is required
-            if (!open && isPasswordChangeRequired) {
-              toast({
-                title: "Password Change Required",
-                description: "Please change your password before continuing.",
-                variant: "destructive",
-              });
-              return;
-            }
-            setShowPasswordDialog(open);
-          }}
-        >
-          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-red-800 dark:from-white dark:to-red-200 bg-clip-text text-transparent">
-                Change Password
-              </DialogTitle>
-              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Enter your current password and choose a new one
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label
-                  htmlFor="currentPassword"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  Current Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="currentPassword"
-                    type={showPasswords.current ? "text" : "password"}
-                    value={passwordData.currentPassword}
-                    onChange={(e) =>
-                      setPasswordData((prev) => ({
-                        ...prev,
-                        currentPassword: e.target.value,
-                      }))
-                    }
-                    className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
-                    onClick={() =>
-                      setShowPasswords((prev) => ({
-                        ...prev,
-                        current: !prev.current,
-                      }))
-                    }
-                  >
-                    {showPasswords.current ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <Label
-                  htmlFor="newPassword"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  New Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="newPassword"
-                    type={showPasswords.new ? "text" : "password"}
-                    value={passwordData.newPassword}
-                    onChange={(e) =>
-                      setPasswordData((prev) => ({
-                        ...prev,
-                        newPassword: e.target.value,
-                      }))
-                    }
-                    className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
-                    onClick={() =>
-                      setShowPasswords((prev) => ({
-                        ...prev,
-                        new: !prev.new,
-                      }))
-                    }
-                  >
-                    {showPasswords.new ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <Label
-                  htmlFor="confirmPassword"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  Confirm New Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showPasswords.confirm ? "text" : "password"}
-                    value={passwordData.confirmPassword}
-                    onChange={(e) =>
-                      setPasswordData((prev) => ({
-                        ...prev,
-                        confirmPassword: e.target.value,
-                      }))
-                    }
-                    className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
-                    onClick={() =>
-                      setShowPasswords((prev) => ({
-                        ...prev,
-                        confirm: !prev.confirm,
-                      }))
-                    }
-                  >
-                    {showPasswords.confirm ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <Button
-                onClick={() => {
-                  if (
-                    passwordData.newPassword !== passwordData.confirmPassword
-                  ) {
-                    toast({
-                      title: "Passwords don't match",
-                      description: "Please ensure both password fields match.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  changePasswordMutation.mutate(passwordData);
-                }}
-                disabled={
-                  !passwordData.currentPassword ||
-                  !passwordData.newPassword ||
-                  changePasswordMutation.isPending
-                }
-                className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg"
-              >
-                {changePasswordMutation.isPending
-                  ? "Changing..."
-                  : "Change Password"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ChangePasswordDialog
+          open={showPasswordDialog}
+          onOpenChange={setShowPasswordDialog}
+          isPasswordChangeRequired={isPasswordChangeRequired}
+          passwordData={passwordData}
+          setPasswordData={setPasswordData}
+          showPasswords={showPasswords}
+          setShowPasswords={setShowPasswords}
+          changePasswordMutation={changePasswordMutation}
+        />
 
         {/* Notifications Dialog */}
         <Dialog
