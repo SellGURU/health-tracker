@@ -18,6 +18,7 @@ import ChatPage from "@/pages/chat";
 import EducationalPage from "@/pages/educational";
 import PlanPage from "@/pages/plan-simple";
 import ActionPlanPage from "@/pages/action-plan";
+import Devices from "@/pages/devices";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
 // import { usePushNotifications } from "./hooks/use-pushNotification";
@@ -137,6 +138,7 @@ function Router() {
                 <Route path="/chat" component={ChatPage} />
                 <Route path="/educational" component={EducationalPage} />
                 <Route path="/profile" component={Profile} />
+                <Route path="/devices" component={Devices} />
                 <Route path="/plan" component={PlanPage} />
                 <Route path="/action-plan" component={ActionPlanPage} />
                 <Route path="/lab-upload" component={LabUpload} />
