@@ -25,8 +25,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { subscribe } from "@/lib/event";
 import { useMutation } from "@tanstack/react-query";
-import { RookConfig, RookHealthConnect, RookPermissions, RookSummaries } from "capacitor-rook-sdk";
-import { Capacitor } from "@capacitor/core";
 import {
   Activity,
   Award,
@@ -57,13 +55,16 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import ProfileInfo from "./ProfileComponents/ProfileInfo";
 import AccountSetting from "./ProfileComponents/AccountSetting";
+import ChangePasswordDialog from "./ProfileComponents/ChangePasswordDialog";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, fetchClientInformation } = useAuth();
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [clientInformation, setClientInformation] = useState<{
@@ -83,44 +84,10 @@ export default function Profile() {
     sex: string;
     verified_account: boolean;
     // plan:string
+    has_changed_password?: boolean;
+    // plan: string;
   }>();
 
-  // Helper function to detect platform
-  const getPlatformInfo = () => {
-    if (Capacitor.isNativePlatform()) {
-      // For native platforms, we can use Capacitor.getPlatform()
-      const platform = Capacitor.getPlatform();
-      return {
-        isIOS: platform === 'ios',
-        isAndroid: platform === 'android',
-        googleDescription:`
-        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
-        `,
-        appleDescription:`
-         Connect with Apple Health
-Enable integration with Apple Health to sync your health and activity data.
-This app uses Apple Health (HealthKit) to read and write your health data securely.
-
-        `,
-        name: platform === 'ios' ? 'Apple Health' : 'Google Health',
-        icon: platform === 'ios' 
-          ? "AppleHealth.png"
-          : "googleHealth.png"
-      };
-    } else {
-      // For web platforms, default to Android/Google Health
-      return {
-        isIOS: false,
-        isAndroid: true,
-        googleDescription:`
-This app connects with Apple Health to securely read your health and activity data (such as steps, heart rate, or calories) and send it to your Rook account.
-You can manage permissions anytime in the Apple Health app.                 
-        `,        
-        name: 'Apple Health',
-        icon: "AppleHealth.png"
-      };
-    }
-  };
 
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
@@ -139,14 +106,6 @@ You can manage permissions anytime in the Apple Health app.
     handleGetClientInformation();
   }, []);
 
-  const [showDevicesModal, setShowDevicesModal] = useState(false);
-  const [showPermissionModal, setShowPermissionModal] = useState(false);
-  useEffect(() => {
-    if (showDevicesModal) {
-      fetchDevicesData();
-      // connectSdk();
-    }
-  }, [showDevicesModal]);
 
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -154,9 +113,40 @@ You can manage permissions anytime in the Apple Health app.
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [devicesData, setDevicesData] = useState<any>(true);
-  const [isLoadingDevices, setIsLoadingDevices] = useState(false);
-  const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+
+  // Check if password change is required
+  const isPasswordChangeRequired = clientInformation?.has_changed_password === false;
+
+  // Check if password change is required on mount
+  // useEffect(() => {
+  //   const requirePasswordChange = localStorage.getItem("requirePasswordChange");
+  //   if (requirePasswordChange === "true") {
+  //     setShowPasswordDialog(true);
+  //     localStorage.removeItem("requirePasswordChange");
+  //   }
+  // }, []);
+  useEffect(() => {
+    const requirePasswordChange = localStorage.getItem("requirePasswordChange");
+    if (requirePasswordChange === "true") {
+      setShowPasswordDialog(true);
+      localStorage.removeItem("requirePasswordChange");
+    }
+  }, []);
+
+  // Prevent navigation away if password change is required
+  useEffect(() => {
+    if (isPasswordChangeRequired && location !== "/profile") {
+      setLocation("/profile");
+      if (!showPasswordDialog) {
+        setShowPasswordDialog(true);
+      }
+      toast({
+        title: "Password Change Required",
+        description: "Please change your password before continuing.",
+        variant: "destructive",
+      });
+    }
+  }, [location, isPasswordChangeRequired, showPasswordDialog, setLocation, toast]);
   const [editData, setEditData] = useState({
     firstName: "",
     lastName: "",
@@ -173,31 +163,6 @@ You can manage permissions anytime in the Apple Health app.
     });
   }, [clientInformation]);
 
-  // Restore connection state from localStorage on component mount
-  useEffect(() => {
-    const savedConnectionState = localStorage.getItem('health_device_connection_state');
-    if (savedConnectionState) {
-      if(savedConnectionState != 'connecting'){
-        setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
-      }
-    }
-  }, []);
-
-  // Save connection state to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('health_device_connection_state', isConnecting);
-  }, [isConnecting]);
-
-
-  // Function to clear connection state (for testing or manual reset)
-  const clearConnectionState = () => {
-    setIsConnecting('disconnected');
-    localStorage.removeItem('health_device_connection_state');
-    toast({
-      title: "Connection Reset",
-      description: "Device connection state has been cleared.",
-    });
-  };
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -364,7 +329,7 @@ You can manage permissions anytime in the Apple Health app.
     onSuccess: (res: any) => {
       if (res?.status === 200) {
         toast({
-          title: "Password changed",
+          title: "Password Changed",
           description: "Your password has been updated successfully.",
         });
         setShowPasswordDialog(false);
@@ -373,9 +338,13 @@ You can manage permissions anytime in the Apple Health app.
           newPassword: "",
           confirmPassword: "",
         });
+        // Refresh client information to update has_changed_password flag
+        handleGetClientInformation();
+        // Also refresh auth service client information
+        fetchClientInformation();
       } else {
         toast({
-          title: "Password change failed",
+          title: "Password Change Failed",
           description: res?.data?.detail || "Unexpected server response.",
           variant: "destructive",
         });
@@ -511,249 +480,6 @@ You can manage permissions anytime in the Apple Health app.
       });
     }
   };
-  const fetchDevicesData = async () => {
-    if (!clientInformation?.id) {
-      toast({
-        title: "Error",
-        description: "User id not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoadingDevices(true);
-    try {
-      const response = await fetch(
-        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
-        {
-          method: "GET",
-          headers: {
-            Authorization:
-              "Basic Y2xpZW50X3V1aWQ6UUg4dTE4T2pMb2ZzU1J2bUVEbUdCZ2p2MWZycDNmYXBkYkRB",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setDevicesData(data);
-
-      toast({
-        title: "Success",
-        description: "Devices data loaded successfully",
-      });
-
-      RookConfig.initRook({
-        environment: "production",
-        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-        enableBackgroundSync: true,
-        enableEventsBackgroundSync: true,
-      })
-        .then(() => {
-          console.log("Initialized rook")
-          RookPermissions.requestAllAppleHealthPermissions().then((e) => {
-            console.log("e", e)
-          });
-          // RookPermissions.().then((e) => console.log("e2", e));
-          // RookHealthConnect.scheduleYesterdaySync({
-          //   doOnEnd:"oldest"
-          // });
-        })
-        .catch((e: any) => console.log("error", e));
-    } catch (error) {
-      console.error("Error fetching devices data:", error);
-      toast({
-        title: "Error",
-        description: `Failed to load devices data: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingDevices(false);
-    }
-  };
-  async function revokeRookDataSource( sourceOrId:string) {
-    // Encode client_uuid:secret_key to Base64
-    // const credentials = btoa(`${clientUuid}:${secretKey}`);
-    const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
-    // Choose body key based on type
-    const body = { data_source: sourceOrId };
-  }
-  const connectSdk = () => {
-    setShowPermissionModal(true);
-  };
-
-  // Helper function to add logs (console only)
-  const addLog = (message: string, type: 'info' | 'success' | 'error' = 'info', step?: string) => {
-    const timestamp = new Date().toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit',
-      fractionalSecondDigits: 3
-    });
-    const logMessage = step ? `[${timestamp}] ${step}: ${message}` : `[${timestamp}] ${message}`;
-    
-    if (type === 'error') {
-      console.error(logMessage);
-    } else if (type === 'success') {
-      console.log(`✅ ${logMessage}`);
-    } else {
-      console.log(`ℹ️ ${logMessage}`);
-    }
-  };
-
-  const executeConnection = () => {
-    setIsConnecting("connecting");
-    addLog("Starting connection process...", "info", "Step 1: Initialization");
-
-    const initRook = async (userId: string) => {
-      try {
-        // Step 1: Init SDK
-        addLog("Initializing Rook SDK with production environment...", "info", "Step 1.1: SDK Init");
-        try {
-          await RookConfig.initRook({
-            environment: "production",
-            clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-            password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-            enableBackgroundSync: true,
-            enableEventsBackgroundSync: true,
-          });
-          addLog("Rook SDK initialized successfully", "success", "Step 1.1: SDK Init");
-        } catch (error: any) {
-          const errorMsg = error?.message || error?.toString() || "Unknown error";
-          addLog(`Failed to initialize Rook SDK: ${errorMsg}`, "error", "Step 1.1: SDK Init");
-          throw error;
-        }
-
-        // Step 2: Validate User ID
-        addLog(`Validating user ID: ${userId}`, "info", "Step 2: User Validation");
-        if (!userId || userId.trim() === "") {
-          const errorMsg = "User ID is missing or empty";
-          addLog(`Error: ${errorMsg}`, "error", "Step 2: User Validation");
-          setIsConnecting("disconnected");
-          return;
-        }
-        addLog("User ID validated successfully", "success", "Step 2: User Validation");
-
-        // Step 3: Update User ID
-        addLog("Updating user ID in Rook SDK...", "info", "Step 3: Update User ID");
-        try {
-          if (RookConfig.updateUserId) {
-            await RookConfig.updateUserId({
-              userId: userId,
-            });
-            addLog(`User ID updated successfully: ${userId}`, "success", "Step 3: Update User ID");
-          } else {
-            addLog("updateUserId method not available, skipping...", "info", "Step 3: Update User ID");
-          }
-        } catch (error: any) {
-          const errorMsg = error?.message || error?.toString() || "Unknown error";
-          addLog(`Failed to update user ID: ${errorMsg}`, "error", "Step 3: Update User ID");
-          throw error;
-        }
-
-        // Step 4: Request permissions based on platform
-        const platformInfo = getPlatformInfo();
-        if (platformInfo.isIOS) {
-          addLog("Requesting Apple Health permissions...", "info", "Step 4: Request Permissions");
-          try {
-            const perms = await RookPermissions.requestAllAppleHealthPermissions();
-            addLog(`Apple Health permissions granted: ${JSON.stringify(perms)}`, "success", "Step 4: Request Permissions");
-          } catch (error: any) {
-            const errorMsg = error?.message || error?.toString() || "Unknown error";
-            addLog(`Failed to request Apple Health permissions: ${errorMsg}`, "error", "Step 4: Request Permissions");
-            throw error;
-          }
-        } else {
-          // Android/Health Connect permissions
-          addLog("Requesting Health Connect permissions...", "info", "Step 4.1: Health Connect Permissions");
-          try {
-            const perms = await RookPermissions.requestAllHealthConnectPermissions();
-            addLog(`Health Connect permissions granted: ${JSON.stringify(perms)}`, "success", "Step 4.1: Health Connect Permissions");
-          } catch (error: any) {
-            const errorMsg = error?.message || error?.toString() || "Unknown error";
-            addLog(`Failed to request Health Connect permissions: ${errorMsg}`, "error", "Step 4.1: Health Connect Permissions");
-            // Don't throw, continue with Android permissions
-          }
-
-          addLog("Requesting Android permissions...", "info", "Step 4.2: Android Permissions");
-          try {
-            const androidPerms = await RookPermissions.requestAndroidPermissions();
-            addLog(`Android permissions granted: ${JSON.stringify(androidPerms)}`, "success", "Step 4.2: Android Permissions");
-          } catch (error: any) {
-            const errorMsg = error?.message || error?.toString() || "Unknown error";
-            addLog(`Failed to request Android permissions: ${errorMsg}`, "error", "Step 4.2: Android Permissions");
-            // Don't throw, continue
-          }
-        }
-
-        // Step 5: Sync configuration
-        if (!platformInfo.isIOS) {
-          // Android: Manual sync scheduling required
-          addLog("Scheduling yesterday's data sync...", "info", "Step 5: Schedule Sync");
-          try {
-            await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
-            addLog("Yesterday sync scheduled successfully", "success", "Step 5: Schedule Sync");
-          } catch (error: any) {
-            const errorMsg = error?.message || error?.toString() || "Unknown error";
-            addLog(`Failed to schedule sync: ${errorMsg}`, "error", "Step 5: Schedule Sync");
-            // Don't throw, connection can still be successful
-          }
-        } else {
-          // iOS: Automatic sync via Apple Health background delivery
-          addLog("iOS sync configured: Apple Health will automatically sync data via background delivery", "info", "Step 5: Sync Configuration");
-          addLog("Background sync is enabled - data will be synced automatically when available in Apple Health", "success", "Step 5: Sync Configuration");
-        }
-
-        setIsConnecting("connected");
-        addLog("Connection process completed successfully!", "success", "Final Step");
-      } catch (e: any) {
-        const errorMsg = e?.message || e?.toString() || "Unknown error occurred";
-        addLog(`Connection failed: ${errorMsg}`, "error", "Error Handler");
-        addLog(`Error details: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`, "error", "Error Details");
-        setIsConnecting("disconnected");
-      }
-    };
-
-    // Execute initRook
-    if (clientInformation?.id) {
-      addLog(`User ID found: ${clientInformation.id}`, "info", "Pre-check");
-      initRook(clientInformation.id);
-    } else {
-      addLog("Error: User ID not found in client information", "error", "Pre-check");
-      setIsConnecting("disconnected");
-    }
-  };
-
-
-  const handleConnect = async () => {
-    // setIsConnecting(true);
-    try {
-      await connectSdk();
-      toast({
-        title: "Success",
-        description: "Successfully connected to health devices",
-      });
-    } catch (error) {
-      toast({
-        title: "Connection failed",
-        description: "Failed to connect to health devices. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      // setIsConnecting(false);
-    }
-  };
-  // Device management functions with ROOK integration
-
-  // Check ROOK connection status
 
   const settingsItems = [
     // {
@@ -767,7 +493,7 @@ You can manage permissions anytime in the Apple Health app.
       icon: Watch,
       title: "Wearable Devices",
       description: "Connect and manage your health devices",
-      action: () => setShowDevicesModal(true),
+      action: () => setLocation("/devices"),
       badge:
         connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
     },
@@ -814,28 +540,6 @@ You can manage permissions anytime in the Apple Health app.
       badge: null,
     },    
   ];
-  useEffect(() => {
-    if(isConnecting === "connected"){
-      if(getPlatformInfo().isIOS){
-        Application.connectVariable('Apple Health')
-      }else{
-        Application.connectVariable('Google Health')
-      }
-    }
-    if (devicesData?.data_sources) {
-      devicesData?.data_sources?.forEach((el:any) => {
-        if (el.connected) {
-          Application.connectVariable(el.name);
-          // Application.addEvent({
-          //   event_name: el.name,
-          //   event_type: "connected",
-          // });
-        }else{
-          Application.disConnectVariable(el.name);
-        }
-      });
-    }
-  }, [devicesData?.data_sources]);
 
   const getSubscriptionBadge = (tier: string) => {
     switch (tier) {
@@ -1029,165 +733,16 @@ You can manage permissions anytime in the Apple Health app.
         </Dialog>
 
         {/* Change Password Dialog */}
-        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-red-800 dark:from-white dark:to-red-200 bg-clip-text text-transparent">
-                Change Password
-              </DialogTitle>
-              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Enter your current password and choose a new one
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label
-                  htmlFor="currentPassword"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  Current Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="currentPassword"
-                    type={showPasswords.current ? "text" : "password"}
-                    value={passwordData.currentPassword}
-                    onChange={(e) =>
-                      setPasswordData((prev) => ({
-                        ...prev,
-                        currentPassword: e.target.value,
-                      }))
-                    }
-                    className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
-                    onClick={() =>
-                      setShowPasswords((prev) => ({
-                        ...prev,
-                        current: !prev.current,
-                      }))
-                    }
-                  >
-                    {showPasswords.current ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <Label
-                  htmlFor="newPassword"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  New Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="newPassword"
-                    type={showPasswords.new ? "text" : "password"}
-                    value={passwordData.newPassword}
-                    onChange={(e) =>
-                      setPasswordData((prev) => ({
-                        ...prev,
-                        newPassword: e.target.value,
-                      }))
-                    }
-                    className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
-                    onClick={() =>
-                      setShowPasswords((prev) => ({
-                        ...prev,
-                        new: !prev.new,
-                      }))
-                    }
-                  >
-                    {showPasswords.new ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <Label
-                  htmlFor="confirmPassword"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  Confirm New Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showPasswords.confirm ? "text" : "password"}
-                    value={passwordData.confirmPassword}
-                    onChange={(e) =>
-                      setPasswordData((prev) => ({
-                        ...prev,
-                        confirmPassword: e.target.value,
-                      }))
-                    }
-                    className="bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
-                    onClick={() =>
-                      setShowPasswords((prev) => ({
-                        ...prev,
-                        confirm: !prev.confirm,
-                      }))
-                    }
-                  >
-                    {showPasswords.confirm ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <Button
-                onClick={() => {
-                  if (
-                    passwordData.newPassword !== passwordData.confirmPassword
-                  ) {
-                    toast({
-                      title: "Passwords don't match",
-                      description: "Please ensure both password fields match.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  changePasswordMutation.mutate(passwordData);
-                }}
-                disabled={
-                  !passwordData.currentPassword ||
-                  !passwordData.newPassword ||
-                  changePasswordMutation.isPending
-                }
-                className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg"
-              >
-                {changePasswordMutation.isPending
-                  ? "Changing..."
-                  : "Change Password"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ChangePasswordDialog
+          open={showPasswordDialog}
+          onOpenChange={setShowPasswordDialog}
+          isPasswordChangeRequired={isPasswordChangeRequired}
+          passwordData={passwordData}
+          setPasswordData={setPasswordData}
+          showPasswords={showPasswords}
+          setShowPasswords={setShowPasswords}
+          changePasswordMutation={changePasswordMutation}
+        />
 
         {/* Notifications Dialog */}
         <Dialog
@@ -1787,207 +1342,6 @@ You can manage permissions anytime in the Apple Health app.
           </DialogContent>
         </Dialog>
 
-        {/* Variable Devices Modal */}
-        <Dialog open={showDevicesModal} onOpenChange={setShowDevicesModal}>
-          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
-                <Watch className="w-4 h-4 text-blue-600" />
-                Wearable devices
-              </DialogTitle>
-              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Connect and manage your health devices
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              {isLoadingDevices ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                    <Watch className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    Loading devices data...
-                  </p>
-                </div>
-              ) : devicesData ? (
-                <div className="space-y-4">
-                  <div className="space-y-2 max-h-80 overflow-y-auto">
-    
-                    <div
-                      key={'-1'}
-                      className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <img
-                            src={getPlatformInfo().icon}
-                            alt={getPlatformInfo().name}
-                            className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src =
-                                "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                            }}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                              {getPlatformInfo().name}
-                            </h4>
-                            <Badge
-                              variant={
-                                isConnecting === 'connected' ? "default" : "outline"
-                              }
-                              className={`text-xs ${
-                                isConnecting === 'connected'
-                                  ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                                  : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                              }`}
-                            >
-                              {isConnecting === 'connected'
-                                ? "Connected"
-                                :
-                                  isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                            {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
-                          </p>
-                          <Button
-                            size="sm"
-                            variant={
-                              isConnecting === 'connected' ? "outline" : "default"
-                            }
-                            className={`text-xs h-7 ${
-                              isConnecting === 'connected'
-                                ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
-                            }`}
-                            onClick={() => {
-                              if (isConnecting === 'connected') {
-                                clearConnectionState();
-                              } else {
-                                connectSdk();
-                              }
-                            }}
-                          >
-                            {isConnecting === 'connected' ? "Disconnect" : "Connect"}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>                    
-
-                    {devicesData.data_sources?.map(
-                      (source: any, index: number) => (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <img
-                                src={source.image}
-                                alt={source.name}
-                                className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src =
-                                    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                                }}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                                  {source.name}
-                                </h4>
-                                <Badge
-                                  variant={
-                                    source.connected ? "default" : "outline"
-                                  }
-                                  className={`text-xs ${
-                                    source.connected
-                                      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                                      : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                                  }`}
-                                >
-                                  {source.connected
-                                    ? "Connected"
-                                    : "Not Connected"}
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                                {source.description}
-                              </p>
-                              <Button
-                                size="sm"
-                                variant={
-                                  source.connected ? "outline" : "default"
-                                }
-                                className={`text-xs h-7 ${
-                                  source.connected
-                                    ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                                }`}
-                                onClick={() => {
-                                  if (source.connected) {
-                                    // Handle disconnect
-                                    revokeRookDataSource(source.name).then(() => {
-                                        toast({
-                                          title: "Disconnect",
-                                          description: `Disconnect from ${source.name}`,
-                                        });
-                                        fetchDevicesData();
-                                    });
-
-                                  } else {
-                                    // Handle connect - open authorization URL
-
-                                    window.open(
-                                      source.authorization_url,
-                                      "_blank"
-                                    );
-                                    toast({
-                                      title: "Connecting",
-                                      description: `Opening ${source.name} authorization...`,
-                                    });
-                                  }
-                                }}
-                              >
-                                {source.connected ? "Disconnect" : "Connect"}
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    )}
-
-                  </div>                  
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Watch className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    No devices data available
-                  </p>
-                </div>
-              )}
-            </div>
-            {/* <div className="flex gap-3 pt-4">
-              <Button
-                onClick={() => setShowDevicesModal(false)}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
-              >
-                Close
-              </Button>
-            </div> */}
-          </DialogContent>
-        </Dialog>
-
-
         <Dialog open={showDeleteAccountDialog} onOpenChange={(open) => {
           setShowDeleteAccountDialog(open);
           if (!open) {
@@ -2054,51 +1408,7 @@ You can manage permissions anytime in the Apple Health app.
           </DialogContent>
         </Dialog>
 
-        {/* Permission Modal */}
-        <Dialog open={showPermissionModal} onOpenChange={setShowPermissionModal}>
-          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
-                <Watch className="w-4 h-4 text-blue-600" />
-                Allow Health Access
-              </DialogTitle>
-              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-                {getPlatformInfo().isIOS 
-                  ? "This app connects to Apple Health to read your health and activity data (like steps and heart rate) and sync it securely with your Rook account. You can manage permissions anytime in the Health app. Do you want to allow access?"
-                  : "This app uses Google Health to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
-                }
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6">
-              {/* <div className="text-center py-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Watch className="w-8 h-8 text-blue-600" />
-                </div>
-              </div> */}
-              
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={() => {
-                    setShowPermissionModal(false);
-                    executeConnection();
-                  }}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
-                >
-                  Allow Access
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowPermissionModal(false)}
-                  className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
       </div>
     </div>
   );
-} 
+}

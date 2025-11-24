@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword } from "@/lib/utils";
+import { useLocation } from "wouter";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import ForgotPasswordModal from "@/components/auth/forgot-password-modal";
 // import logoImage from "@assets/logo.png";
 
 export default function AuthPage() {
@@ -30,6 +31,9 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentTab, setCurrentTab] = useState("login");
+
+  // Forgot password state
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -58,6 +62,7 @@ export default function AuthPage() {
     }
   }, [stage]);
 
+
   const handleContinue = () => {
     setFadeClass("opacity-0");
     setTimeout(() => {
@@ -65,13 +70,35 @@ export default function AuthPage() {
       setFadeClass("opacity-100");
     }, 500);
   };
+  const [brandInfo, setBrandInfo] = useState<{
+    last_update: string;
+    logo: string;
+    name: string;
+    headline: string;
+    primary_color: string;
+    secondary_color: string;
+    tone: string;
+    focus_area: string;
+  }>();
 
+  useEffect(() => {
+    const storedBrandInfo = localStorage.getItem("brand_info");
+    if (storedBrandInfo) {
+      try {
+        const parsedInfo = JSON.parse(storedBrandInfo);
+        setBrandInfo(parsedInfo);
+      } catch (error) {
+        console.error("Error parsing brand_info from localStorage:", error);
+      }
+    }
+  }, []);
   const fillTestCredentials = () => {
     setLoginData({
       email: "test@holisticare.com",
       password: "password123",
     });
   };
+  const [location,navigate] = useLocation();
   const CallLoginAuthApi = async (isRegister = false) => {
     setIsLoadingLogin(true);
     const data = {
@@ -94,7 +121,8 @@ export default function AuthPage() {
           });
         }
         setTimeout(() => {
-          window.location.reload();
+          navigate("/");
+          // window.location.reload();
         }, 500);
       })
       .catch((res) => {
@@ -198,6 +226,11 @@ export default function AuthPage() {
     CallRegisterAuthApi();
   };
 
+  const handleForgotPasswordSuccess = () => {
+    // Switch to login tab after successful password reset
+    setCurrentTab("login");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-300 to-green-400 relative overflow-hidden">
       {/* Curved bottom decoration */}
@@ -228,17 +261,17 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={logoImage}
+                src={brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
             <h1 className="text-white text-2xl font-bold mb-2">
-              HolistiCare.io
+              {brandInfo ? (brandInfo?.name|| "HolistiCare.io") : "HolistiCare.io"}
             </h1>
             <p className="text-white/90 text-sm">
-              Empower Health with Intelligence
+              {brandInfo ? (brandInfo?.headline|| "Empower Health with Intelligence") : "Empower Health with Intelligence"}
             </p>
           </div>
         )}
@@ -249,13 +282,13 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={logoImage}
+                src={ brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-2">HolistiCare</h1>
+            <h1 className="text-white text-xl font-bold mb-2">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
             <p className="text-white/90 text-sm mb-8 sm:mb-12">
               Welcome back to your health journey
             </p>
@@ -275,13 +308,13 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={logoImage}
+                src={ brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-6">HolistiCare</h1>
+            <h1 className="text-white text-xl font-bold mb-6">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
 
             <div className="w-full max-w-xs mx-auto">
               <Tabs
@@ -390,10 +423,22 @@ export default function AuthPage() {
                       )}
                     </div>
 
+                    <div className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword(true)}
+                        className="text-white text-sm hover:underline"
+                        data-testid="link-forgot-password"
+                      >
+                        Forgot Password?
+                      </button>
+                    </div>
+
                     <Button
                       type="submit"
                       className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-6 cursor-pointer"
                       disabled={isLoadingLogin}
+                      data-testid="button-login"
                     >
                       <LogIn className="w-4 h-4 mr-2" />
                       {isLoadingLogin ? "Logging in..." : "Log in"}
@@ -608,6 +653,14 @@ export default function AuthPage() {
           </div>
         )}
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        open={showForgotPassword}
+        onOpenChange={setShowForgotPassword}
+        initialEmail={loginData.email}
+        onSuccess={handleForgotPasswordSuccess}
+      />
     </div>
   );
 }

@@ -55,6 +55,8 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(insertUser: InsertUser): Promise<User>;
+  deleteUser(id: number): Promise<void>;
+  updateUserPassword(id: number, hashedPassword: string): Promise<void>;
   
   // Lab results methods
   getLabResults(userId: number, limit?: number): Promise<LabResult[]>;
@@ -143,6 +145,34 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    // Delete all related records first (cascade delete)
+    await db.delete(labResults).where(eq(labResults.userId, id));
+    await db.delete(healthScores).where(eq(healthScores.userId, id));
+    await db.delete(actionPlans).where(eq(actionPlans.userId, id));
+    await db.delete(aiInsights).where(eq(aiInsights.userId, id));
+    await db.delete(fileUploads).where(eq(fileUploads.userId, id));
+    await db.delete(userEducationProgress).where(eq(userEducationProgress.userId, id));
+    await db.delete(chatMessages).where(eq(chatMessages.userId, id));
+    await db.delete(deepAnalyses).where(eq(deepAnalyses.userId, id));
+    await db.delete(coachingSessions).where(eq(coachingSessions.userId, id));
+    await db.delete(healthGoals).where(eq(healthGoals.userId, id));
+    await db.delete(holisticPlans).where(eq(holisticPlans.userId, id));
+    
+    // Finally delete the user
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async updateUserPassword(id: number, hashedPassword: string): Promise<void> {
+    await db.update(users)
+      .set({ 
+        password: hashedPassword,
+        hasChangedPassword: true,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
   }
 
   async getLabResults(userId: number, limit?: number): Promise<LabResult[]> {

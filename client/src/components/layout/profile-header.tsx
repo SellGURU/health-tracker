@@ -48,9 +48,10 @@ export default function ProfileHeader() {
   const [notificationCount, setNotificationCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const { logout } = useAuth();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isUnReadNotif, setIsUnReadNotif] = useState(false);
+  const [hadNotifications, setHadNotifications] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -68,12 +69,28 @@ export default function ProfileHeader() {
     pheno_age: number;
     sex: string;
     verified_account: boolean;
+    has_changed_password?: boolean;
   }>();
 
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
       .then((res) => {
         setClientInformation(res.data);
+        // Check if password change is required
+        if (res.data?.has_changed_password === false) {
+          // Store flag to open password dialog
+          localStorage.setItem("requirePasswordChange", "true");
+          // Redirect to profile page only if not already there
+          if (location !== "/profile") {
+            navigate("/profile");
+          }
+          // Show toast notification
+          toast({
+            title: "Password Change Required",
+            description: "Please change your password for account security.",
+            variant: "destructive",
+          });
+        }
       })
       .catch((res) => {
         toast({
@@ -122,6 +139,9 @@ export default function ProfileHeader() {
   useEffect(() => {
     const unreadCount = notifications.filter((n) => !n.read_status).length;
     setNotificationCount(unreadCount);
+    if (notifications.length > 0) {
+      setHadNotifications(true);
+    }
   }, [notifications]);
   const fetchNotifications = async () => {
     try {
@@ -144,6 +164,9 @@ export default function ProfileHeader() {
         color: n.color || "blue",
       }));
       setNotifications(notifData);
+      if (notifData.length > 0) {
+        setHadNotifications(true);
+      }
     } catch (err) {
       console.error("Failed to fetch notifications", err);
     }
@@ -188,7 +211,12 @@ export default function ProfileHeader() {
 
   const handleLogout = async () => {
     Auth.logOut();
+    const brandInfo = localStorage.getItem("brand_info");
     localStorage.clear();
+    // Restore brand_info if it existed
+    if (brandInfo) {
+      localStorage.setItem("brand_info", brandInfo);
+    }
     navigate("/");
     window.location.reload();
   };
@@ -241,6 +269,7 @@ export default function ProfileHeader() {
   }>();
   subscribe("brand_info", (data: any) => {
     setBrandInfo(data.detail.information);
+    localStorage.setItem("brand_info", JSON.stringify(data.detail.information));
   });
 
   return (
@@ -248,13 +277,13 @@ export default function ProfileHeader() {
       <div className="flex items-center gap-2 ">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
           <img
-            src={"./logo.png"}
+            src={brandInfo ? brandInfo?.logo : "./logo.png"}
             alt="HolistiCare Logo"
             className="w-8 h-8 rounded-full object-cover"
           />
         </div>
         <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          HolistiCare
+          {brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}
         </h1>
       </div>
 
@@ -288,37 +317,38 @@ export default function ProfileHeader() {
                 onClick={() => setShowNotifications(false)}
               />
               {/* Notification Panel */}
-              <div className="absolute right-[15%] md:right-[28%] xl:right-[35%] 2xl:right-[39%] top-16 w-[280px] sm:w-[320px]  bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-96 overflow-hidden z-[999999]">
+              <div className="absolute right-[5%] sm:right-[15%] md:right-[28%] xl:right-[35%] 2xl:right-[39%] top-16 w-[95%] max-w-[420px] sm:w-[480px] md:w-[520px] lg:w-[560px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-hidden z-[999999]">
                 {/* Header */}
-                <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
+                <div className="p-2.5 sm:p-3 md:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
+                    <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 dark:text-gray-100">
                       Notifications
                     </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       {isUnReadNotif && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={markAllAsRead}
-                          className="text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20"
+                          className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20 px-2 py-1"
                         >
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Mark all read
+                          <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                          <span className="hidden sm:inline">Mark all read</span>
+                          <span className="sm:hidden">Read</span>
                         </Button>
                       )}
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setShowNotifications(false)}
-                        className="w-6 h-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                        className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>
                   {(notificationCount > 0 || isUnReadNotif) && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                       You have {notificationCount} unread notification
                       {notificationCount !== 1 ? "s" : ""}
                     </div>
@@ -326,25 +356,27 @@ export default function ProfileHeader() {
                 </div>
 
                 {/* Notifications List */}
-                <div className="max-h-72 sm:max-h-[200px] overflow-y-auto">
+                <div className="max-h-[300px] sm:max-h-[400px] md:max-h-[480px] overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <Bell className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-600 dark:text-gray-400">
+                    <div className="p-6 sm:p-8 text-center">
+                      <Bell className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-2 sm:mb-3" />
+                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                         No notifications
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                        You're all caught up!
-                      </p>
+                      {hadNotifications && (
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500 mt-1">
+                          You're all caught up!
+                        </p>
+                      )}
                     </div>
                   ) : (
-                    <div className="space-y-1  p-2">
+                    <div className="space-y-2 sm:space-y-3 p-2 sm:p-3 md:p-4">
                       {notifications.map((notification) => {
                         const IconComponent = notification.icon;
                         return (
                           <div
                             key={notification.id}
-                            className={`p-2 sm:p-3 rounded-xl transition-all duration-300 cursor-pointer group ${getColorClasses(
+                            className={`p-2.5 sm:p-3 md:p-4 rounded-xl transition-all duration-300 cursor-pointer group ${getColorClasses(
                               notification.color,
                               notification.read_status
                             )} ${
@@ -357,16 +389,16 @@ export default function ProfileHeader() {
                               markAsRead(notification.id)
                             }
                           >
-                            <div className="flex items-start gap-2 sm:gap-3">
+                            <div className="flex items-start gap-2 sm:gap-2.5 md:gap-3">
                               <div
-                                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                                   notification.read_status
                                     ? "bg-gray-200/50 dark:bg-gray-700/50"
                                     : `bg-gradient-to-br from-${notification.color}-500/20 to-${notification.color}-600/20 dark:from-${notification.color}-400/20 dark:to-${notification.color}-500/20`
                                 }`}
                               >
                                 <IconComponent
-                                  className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 ${
                                     notification.read_status
                                       ? "text-gray-500"
                                       : getIconColor(notification.color)
@@ -375,39 +407,18 @@ export default function ProfileHeader() {
                               </div>
 
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex-1">
-                                    <h4
-                                      className={`text-xs sm:text-sm font-medium mb-1 ${
-                                        notification.read_status
-                                          ? "text-gray-600 dark:text-gray-400"
-                                          : "text-gray-900 dark:text-gray-100"
-                                      }`}
-                                    >
-                                      {notification.title}
-                                    </h4>
-                                    <div
-                                      className={`text-xs leading-relaxed ${
-                                        notification.read_status
-                                          ? "text-gray-500 dark:text-gray-500"
-                                          : "text-gray-700 dark:text-gray-300"
-                                      }`}
-                                    >
-                                      {notification.message}
-                                    </div>
-                                    {/* <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
-                                      <div
-                                        className={`w-1 h-1 rounded-full ${
-                                        notification.read_status
-                                            ? "bg-gray-400"
-                                            : "bg-blue-500 animate-pulse"
-                                        }`}
-                                      />
-                                      {notification.time}
-                                    </div> */}
-                                  </div>
-
-                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                {/* Title Row with Buttons */}
+                                <div className="flex items-start justify-between gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                                  <h4
+                                    className={`text-[11px] sm:text-xs md:text-sm font-medium break-words flex-1 min-w-0 pr-1 ${
+                                      notification.read_status
+                                        ? "text-gray-600 dark:text-gray-400"
+                                        : "text-gray-900 dark:text-gray-100"
+                                    }`}
+                                  >
+                                    {notification.title}
+                                  </h4>
+                                  <div className="flex items-center gap-0.5 sm:gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                                     {!notification.read_status && (
                                       <Button
                                         variant="ghost"
@@ -416,9 +427,9 @@ export default function ProfileHeader() {
                                           e.stopPropagation();
                                           markAsRead(notification.id);
                                         }}
-                                        className="w-6 h-6 text-blue-600 dark:text-blue-400 hover:bg-blue-100/60 dark:hover:bg-blue-900/30"
+                                        className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 hover:bg-blue-100/60 dark:hover:bg-blue-900/30"
                                       >
-                                        <Check className="w-3 h-3" />
+                                        <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                       </Button>
                                     )}
                                     <Button
@@ -428,12 +439,32 @@ export default function ProfileHeader() {
                                         e.stopPropagation();
                                         removeNotification(notification.id);
                                       }}
-                                      className="w-6 h-6 text-red-500 hover:bg-red-100/60 dark:hover:bg-red-900/30"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 hover:bg-red-100/60 dark:hover:bg-red-900/30"
                                     >
-                                      <X className="w-3 h-3" />
+                                      <X className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                     </Button>
                                   </div>
                                 </div>
+                                {/* Message Row - Full Width */}
+                                <div
+                                  className={`text-[10px] sm:text-xs leading-relaxed break-words ${
+                                    notification.read_status
+                                      ? "text-gray-500 dark:text-gray-500"
+                                      : "text-gray-700 dark:text-gray-300"
+                                  }`}
+                                >
+                                  {notification.message}
+                                </div>
+                                {/* <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
+                                  <div
+                                    className={`w-1 h-1 rounded-full ${
+                                    notification.read_status
+                                        ? "bg-gray-400"
+                                        : "bg-blue-500 animate-pulse"
+                                    }`}
+                                  />
+                                  {notification.time}
+                                </div> */}
                               </div>
                             </div>
                           </div>

@@ -15,6 +15,7 @@ export const users = pgTable("users", {
   weight: decimal("weight", { precision: 5, scale: 2 }), // in kg
   role: text("role").notNull().default("patient"), // patient, healthcare_professional, admin
   subscriptionTier: text("subscription_tier").default("free"), // free, plus, professional
+  hasChangedPassword: boolean("has_changed_password").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

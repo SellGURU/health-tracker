@@ -32,6 +32,7 @@ import {
   ThumbsDown,
   ThumbsUp,
   BookOpen,
+  Check,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -55,6 +56,7 @@ interface Message {
     text: string;
     filename: string;
   }>;
+  recipient?: boolean; // Indicates if message was sent/received
 }
 
 interface Coach {
@@ -137,6 +139,22 @@ export default function ChatPage() {
         setMessages(res.data.messages);
         setConversationId(res.data.conversation_id);
 
+        // Initialize displayedMessages for all AI messages
+        const initDisplayedMessages: Record<number, string> = {};
+        res.data.messages.forEach((msg: Message) => {
+          if (msg.sender_type === "ai" || msg.sender_type === "coach") {
+            initDisplayedMessages[msg.conversation_id] = msg.message_text;
+          }
+        });
+        setDisplayedMessages(initDisplayedMessages);
+        
+        // Update previousCount to match loaded messages
+        if (res.data.messages.length > 0) {
+          setPreviousCount(res.data.messages.length);
+          const lastMsg = res.data.messages[res.data.messages.length - 1];
+          lastMessageIdRef.current = lastMsg.conversation_id;
+        }
+
         // Sync feedback state with server data
         const feedbackState: Record<number, "liked" | "disliked" | null> = {};
         const reportedMessagesSet = new Set<string>();
@@ -174,6 +192,9 @@ export default function ChatPage() {
   useEffect(() => {
     setMessages([]);
     setConversationId(0);
+    setDisplayedMessages({});
+    setPreviousCount(0);
+    lastMessageIdRef.current = null;
     setIsLoading(true);
     handleGetMessagesId();
   }, [activeMode]);
@@ -547,12 +568,18 @@ export default function ChatPage() {
                   return (
                     <div
                       key={msg.conversation_id}
-                      className={`flex ${
+                      className={`flex items-end gap-2 ${
                         msg.sender_type === "patient"
                           ? "justify-end"
                           : "justify-start"
                       } ${isReported ? "opacity-50" : ""}`}
                     >
+                      {/* Blue checkmark for sent messages in coach mode - outside the message box */}
+                      {activeMode === "coach" &&
+                        msg.sender_type === "patient" &&
+                        msg.recipient && (
+                          <Check className="h-4 w-4 text-blue-500 mb-1 flex-shrink-0 order-1" />
+                        )}
                       <div
                         className={`max-w-[80%] group ${
                           msg.sender_type === "patient" ? "order-2" : "order-1"
@@ -812,10 +839,10 @@ export default function ChatPage() {
 
       {/* References Modal */}
       <Dialog open={showReferencesModal} onOpenChange={setShowReferencesModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-          <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-600" />
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto sm:w-full">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 flex-wrap">
+              <BookOpen className="h-5 w-5 text-blue-600 flex-shrink-0" />
               References
             </DialogTitle>
             <DialogDescription>
@@ -826,29 +853,18 @@ export default function ChatPage() {
             {selectedReferences.map((reference, index) => (
               <div
                 key={index}
-                className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+                className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
               >
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
                       Source {index + 1}:
                     </span>
-                    <button
-                      onClick={() => {
-                        // Check if filename is already a complete URL
-                        const isCompleteUrl = reference.filename.startsWith('http://') || reference.filename.startsWith('https://');
-                        const url = isCompleteUrl 
-                          ? reference.filename 
-                          : `https://vercel-backend-one-roan.vercel.app/holisticare${reference.filename}`;
-                        window.open(url, '_blank');
-                      }}
-                      className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors duration-200"
-                      title="Click to open in new tab"
-                    >
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 break-words break-all min-w-0 flex-1" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                       {reference.filename}
-                    </button>
+                    </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words break-all" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                     {reference.text}
                   </p>
                 </div>

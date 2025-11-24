@@ -222,7 +222,7 @@ export default function EducationalPage() {
                   return (
                     <p
                       key={index}
-                      className="mb-4 text-gray-600 dark:text-gray-400 leading-relaxed"
+                      className="mb-4 text-gray-600 dark:text-gray-400 leading-relaxed text-justify"
                     >
                       {line}
                     </p>
@@ -302,7 +302,7 @@ export default function EducationalPage() {
                       <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                         {content.title}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-4 text-justify">
                         {content.content.slice(0, 200)}...
                       </p>
 
