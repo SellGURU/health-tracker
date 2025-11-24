@@ -226,6 +226,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
 
         // // 5. Schedule sync
         try{
+          await RookHealthConnect.scheduleHealthConnectBackGround();
           await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
           console.log("✅ Yesterday sync scheduled");
 
