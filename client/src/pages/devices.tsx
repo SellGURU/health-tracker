@@ -67,7 +67,7 @@ Enable integration with Apple Health to sync your health and activity data.
 This app uses Apple Health (HealthKit) to read and write your health data securely.
 
         `,
-        name: platform === 'ios' ? 'Apple Health' : platform === 'android' ? 'Samsung Health' : 'Health Connect',
+        name: platform === 'ios' ? 'Apple Health' :'Health Connect',
         icon: platform === 'ios' 
           ? "AppleHealth.png"
           : "health-conncet.png"
@@ -88,7 +88,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [devicesData, setDevicesData] = useState<any>(null);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
-
+  const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   // Restore connection state from localStorage on component mount
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
@@ -244,6 +244,12 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             types: permissions,
           })
           RookSamsungHealth.enableBackGroundUpdates();
+          const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
+          toast({
+            title: "Samsung Health Availability",
+            description: availability.toString(),
+          });
+          // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
           await RookHealthConnect.scheduleHealthConnectBackGround();
           await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
           console.log("✅ Yesterday sync scheduled");
@@ -289,63 +295,102 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       setIsConnecting("disconnected");
     }
   };
-  const  connectSamsungHealth = async (userId: string) => {
-  try {
-    // 1. Init Rook
-      await RookConfig.initRook({
-        environment: "production",
-        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-        enableBackgroundSync: true,
-        enableEventsBackgroundSync: true,
+
+  const executeSamsungHealthConnection = () => {
+    setIsConnectingSamsungHealth("connecting");   
+    const initRook = async (userId: string) => {
+      try {
+        // 1. Initialize Rook SDK
+        await RookConfig.initRook({
+          environment: "production",
+          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+          enableBackgroundSync: true,
+          enableEventsBackgroundSync: true,
+        });
+        console.log("✅ Initialized Rook SDK");
+
+        // 2. Update User ID
+        if (RookConfig.updateUserId) {
+          await RookConfig.updateUserId({
+            userId: userId,
+          });
+          console.log("✅ User ID updated:", userId);
+        }
+
+        // 3. Request Android permissions first (required for Health Connect)
+        const androidPerms = await RookPermissions.requestAndroidPermissions();
+        console.log("✅ Android permissions:", androidPerms);
+        // 4. Request Health Connect permissions
+        // // 5. Schedule sync
+        try{
+          const permissions: Array<SamsungPermissionType> = [
+            "ACTIVITY_SUMMARY",
+            "BLOOD_GLUCOSE",
+            "BLOOD_OXYGEN",
+            "BLOOD_PRESSURE",
+            "BODY_COMPOSITION",
+            "EXERCISE",
+            "EXERCISE_LOCATION",
+            "FLOORS_CLIMBED",
+            "HEART_RATE",
+            "NUTRITION",
+            "SLEEP",
+            "STEPS",
+            "WATER_INTAKE"
+          ];
+          await RookPermissions.requestSamsungHealthPermissions({
+            types: permissions,
+          })
+          RookSamsungHealth.enableBackGroundUpdates();
+          const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
+          toast({
+            title: "Samsung Health Availability",
+            description: availability.toString(),
+          });
+          // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
+
+        }catch(e: any){
+          toast({
+            title: "Error",
+            description: `Failed to schedule yesterday sync: ${e?.message || e?.toString() || "Unknown error"}`,
+            variant: "destructive",
+          });
+          console.error("❌ Error scheduling yesterday sync:", e);
+        }
+
+        // 6. Set connected state only after all operations succeed
+        setIsConnectingSamsungHealth("connected");
+        
+        toast({
+          title: "Connected Successfully",
+          description: "Samsung Health has been connected successfully.",
+        });
+      } catch (e: any) {
+        console.error("❌ Error initializing Rook:", e);
+        setIsConnectingSamsungHealth("disconnected");
+        
+        // Show user-friendly error message
+        const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
+        toast({
+          title: "Connection Failed",
+          description: `Failed to connect to Samsung Health: ${errorMessage}`,
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (clientInformation?.id) {
+      initRook(clientInformation.id);
+    } else {
+      toast({
+        title: "Error",
+        description: "User ID not found. Please try again.",
+        variant: "destructive",
       });
-
-    // 2. Set User ID
-    await RookConfig.updateUserId({ userId });
-
-    // 3. Android permissions
-    await RookPermissions.requestAndroidPermissions();
-
-    // 4. Samsung Health permissions
-      const permissions: Array<SamsungPermissionType> = [
-        "ACTIVITY_SUMMARY", 
-        "BLOOD_GLUCOSE", 
-        "BLOOD_OXYGEN", 
-        "BLOOD_PRESSURE", 
-        "BODY_COMPOSITION", 
-        "EXERCISE", 
-        "EXERCISE_LOCATION", 
-        "FLOORS_CLIMBED", 
-        "HEART_RATE", 
-        "NUTRITION", 
-        "SLEEP", 
-        "STEPS", 
-        "WATER_INTAKE"];    
-    const perms = await RookPermissions.requestSamsungHealthPermissions({
-      types: permissions,
-    });
-    console.log("Samsung Health Permissions:", perms);
-
-    // 5. Connect to Samsung Health
-    await RookSamsungHealth.enableBackGroundUpdates();
-    console.log("Connected to Samsung Health");
-
-    // 6. Schedule Samsung sync
-
-    toast({
-      title: "Connected",
-      description: "Samsung Health connected successfully.",
-    });
-
-  } catch (e: any) {
-    console.error("Samsung Health Error:", e);
-    toast({
-      title: "Samsung Health Error",
-      description: e.message || "Failed to connect Samsung Health",
-      variant: "destructive",
-    });
+      setIsConnectingSamsungHealth("disconnected");
+    }     
   }
-  };
 
   useEffect(() => {
     // Sync connection state with backend
@@ -490,7 +535,71 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                   </div>
                 </div>
               </div>
-
+              <div
+                key={'-2'}
+                className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <img
+                      src={'./Samsung_Health_2025_logo.png'}
+                      alt={'Samsung Health'}
+                      className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src =
+                          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                        Samsung Health
+                      </h4>
+                      <Badge
+                        variant={
+                          isConnectingSamsungHealth === 'connected' ? "default" : "outline"
+                        }
+                        className={`text-xs ${
+                          isConnectingSamsungHealth === 'connected'
+                            ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                            : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                        }`}
+                      >
+                        {isConnectingSamsungHealth === 'connected'
+                          ? "Connected"
+                          :
+                            isConnectingSamsungHealth === 'connecting' ? "Connecting" : "Not Connected"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                      Samsung Health helps you stay on top of your wellness by tracking your daily activities and fitness data with ease. It connects smoothly with compatible devices like smartwatches and fitness bands, giving you real-time insights into your workouts, steps, heart rate, and more. You can view detailed trends, monitor your progress over time, and stay motivated with personalized stats. All your information syncs wirelessly across devices, so your health data is always accessible whenever and wherever you need it.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant={
+                        isConnectingSamsungHealth === 'connected' ? "outline" : "default"
+                      }
+                      className={`text-xs h-7 ${
+                        isConnectingSamsungHealth === 'connected'
+                          ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                          : "bg-blue-600 hover:bg-blue-700 text-white"
+                      }`}
+                      onClick={() => {
+                        if (isConnectingSamsungHealth === 'connected') {
+                          clearConnectionState();
+                        } else {
+                          // connectSdk();
+                          executeSamsungHealthConnection();
+                        }
+                      }}
+                    >
+                      {isConnecting === 'connected' ? "Disconnect" : "Connect"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
 
               {/* Other Devices */}
               {devicesData.data_sources?.map(
