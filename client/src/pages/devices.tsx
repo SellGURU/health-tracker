@@ -223,25 +223,26 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         // 4. Request Health Connect permissions
         const perms = await RookPermissions.requestAllHealthConnectPermissions();
         console.log("✅ HealthConnect permissions:", perms);
-      const permissions: Array<SamsungPermissionType> = [
-        "ACTIVITY_SUMMARY", 
-        "BLOOD_GLUCOSE", 
-        "BLOOD_OXYGEN", 
-        "BLOOD_PRESSURE", 
-        "BODY_COMPOSITION", 
-        "EXERCISE", 
-        "EXERCISE_LOCATION", 
-        "FLOORS_CLIMBED", 
-        "HEART_RATE", 
-        "NUTRITION", 
-        "SLEEP", 
-        "STEPS", 
-        "WATER_INTAKE"];
         // // 5. Schedule sync
         try{
+          const permissions: Array<SamsungPermissionType> = [
+            "ACTIVITY_SUMMARY", 
+            "BLOOD_GLUCOSE", 
+            "BLOOD_OXYGEN", 
+            "BLOOD_PRESSURE", 
+            "BODY_COMPOSITION", 
+            "EXERCISE", 
+            "EXERCISE_LOCATION", 
+            "FLOORS_CLIMBED", 
+            "HEART_RATE", 
+            "NUTRITION", 
+            "SLEEP", 
+            "STEPS", 
+            "WATER_INTAKE"];
           await RookPermissions.requestSamsungHealthPermissions({
             types: permissions,
           })
+          RookSamsungHealth.enableBackGroundUpdates();
           await RookHealthConnect.scheduleHealthConnectBackGround();
           await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
           console.log("✅ Yesterday sync scheduled");
