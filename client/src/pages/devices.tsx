@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookConfig, RookHealthConnect, RookPermissions } from "capacitor-rook-sdk";
+import { RookConfig, RookHealthConnect, RookPermissions, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -223,9 +223,25 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         // 4. Request Health Connect permissions
         const perms = await RookPermissions.requestAllHealthConnectPermissions();
         console.log("✅ HealthConnect permissions:", perms);
-
+      const permissions: Array<SamsungPermissionType> = [
+        "ACTIVITY_SUMMARY", 
+        "BLOOD_GLUCOSE", 
+        "BLOOD_OXYGEN", 
+        "BLOOD_PRESSURE", 
+        "BODY_COMPOSITION", 
+        "EXERCISE", 
+        "EXERCISE_LOCATION", 
+        "FLOORS_CLIMBED", 
+        "HEART_RATE", 
+        "NUTRITION", 
+        "SLEEP", 
+        "STEPS", 
+        "WATER_INTAKE"];
         // // 5. Schedule sync
         try{
+          await RookPermissions.requestSamsungHealthPermissions({
+            types: permissions,
+          })
           await RookHealthConnect.scheduleHealthConnectBackGround();
           await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
           console.log("✅ Yesterday sync scheduled");
