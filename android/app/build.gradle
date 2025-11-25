@@ -53,6 +53,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    implementation(files("$rootDir/libs/samsung-health-data-api-1.0.0-b2.aar"))
+    implementation("com.google.code.gson:gson:2.13.0")
 }
 
 apply from: 'capacitor.build.gradle'
