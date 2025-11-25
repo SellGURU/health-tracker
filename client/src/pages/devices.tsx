@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookConfig, RookHealthConnect, RookPermissions, SamsungPermissionType } from "capacitor-rook-sdk";
+import { RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -59,7 +59,7 @@ export default function Devices() {
         isIOS: platform === 'ios',
         isAndroid: platform === 'android',
         googleDescription: `
-        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
+        Health Connect lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Health Connect so you can access it anytime, anywhere.
         `,
         appleDescription: `
          Connect with Apple Health
@@ -67,20 +67,20 @@ Enable integration with Apple Health to sync your health and activity data.
 This app uses Apple Health (HealthKit) to read and write your health data securely.
 
         `,
-        name: platform === 'ios' ? 'Apple Health' : 'Google Health',
+        name: platform === 'ios' ? 'Apple Health' : platform === 'android' ? 'Samsung Health' : 'Health Connect',
         icon: platform === 'ios' 
           ? "AppleHealth.png"
-          : "googleHealth.png"
+          : "health-conncet.png"
       };
     } else {
       return {
         isIOS: false,
         isAndroid: true,
         googleDescription: `
-        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
+        Health Connect lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Health Connect so you can access it anytime, anywhere.
         `,        
-        name: 'Google Health',
-        icon: "googleHealth.png"
+        name: 'Health Connect',
+        icon: "health-conncet.png"
       };
     }
   };
@@ -260,7 +260,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         
         toast({
           title: "Connected Successfully",
-          description: "Google Health has been connected successfully.",
+          description: "Health Connect has been connected successfully.",
         });
       } catch (e: any) {
         console.error("❌ Error initializing Rook:", e);
@@ -270,7 +270,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
         toast({
           title: "Connection Failed",
-          description: `Failed to connect to Google Health: ${errorMessage}`,
+          description: `Failed to connect to Health Connect: ${errorMessage}`,
           variant: "destructive",
         });
       }
@@ -287,6 +287,63 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       setIsConnecting("disconnected");
     }
   };
+  const  connectSamsungHealth = async (userId: string) => {
+  try {
+    // 1. Init Rook
+      await RookConfig.initRook({
+        environment: "production",
+        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+        enableBackgroundSync: true,
+        enableEventsBackgroundSync: true,
+      });
+
+    // 2. Set User ID
+    await RookConfig.updateUserId({ userId });
+
+    // 3. Android permissions
+    await RookPermissions.requestAndroidPermissions();
+
+    // 4. Samsung Health permissions
+      const permissions: Array<SamsungPermissionType> = [
+        "ACTIVITY_SUMMARY", 
+        "BLOOD_GLUCOSE", 
+        "BLOOD_OXYGEN", 
+        "BLOOD_PRESSURE", 
+        "BODY_COMPOSITION", 
+        "EXERCISE", 
+        "EXERCISE_LOCATION", 
+        "FLOORS_CLIMBED", 
+        "HEART_RATE", 
+        "NUTRITION", 
+        "SLEEP", 
+        "STEPS", 
+        "WATER_INTAKE"];    
+    const perms = await RookPermissions.requestSamsungHealthPermissions({
+      types: permissions,
+    });
+    console.log("Samsung Health Permissions:", perms);
+
+    // 5. Connect to Samsung Health
+    await RookSamsungHealth.enableBackGroundUpdates();
+    console.log("Connected to Samsung Health");
+
+    // 6. Schedule Samsung sync
+
+    toast({
+      title: "Connected",
+      description: "Samsung Health connected successfully.",
+    });
+
+  } catch (e: any) {
+    console.error("Samsung Health Error:", e);
+    toast({
+      title: "Samsung Health Error",
+      description: e.message || "Failed to connect Samsung Health",
+      variant: "destructive",
+    });
+  }
+  };
 
   useEffect(() => {
     // Sync connection state with backend
@@ -297,15 +354,15 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           console.error("Failed to connect Apple Health variable:", err);
         });
       } else {
-        Application.connectVariable('Google Health').catch((err) => {
-          console.error("Failed to connect Google Health variable:", err);
+        Application.connectVariable('Health Connect').catch((err) => {
+          console.error("Failed to connect Health Connect variable:", err);
         });
       }
     } else if(isConnecting === "disconnected") {
       const platformInfo = getPlatformInfo();
       if(!platformInfo.isIOS){
-        Application.disConnectVariable('Google Health').catch((err) => {
-          console.error("Failed to disconnect Google Health variable:", err);
+        Application.disConnectVariable('Health Connect').catch((err) => {
+          console.error("Failed to disconnect Health Connect variable:", err);
         });
       }
     }
@@ -366,7 +423,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         ) : devicesData ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              {/* Platform Health (Apple Health / Google Health) */}
+              {/* Platform Health (Apple Health / Health Connect) */}
               <div
                 key={'-1'}
                 className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
@@ -539,7 +596,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
               {getPlatformInfo().isIOS 
                 ? "This app uses Apple Health (HealthKit) to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
-                : "This app uses Google Health to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
+                : "This app uses Health Connect to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
               }
             </DialogDescription>
           </DialogHeader>
