@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, SamsungPermissionType } from "capacitor-rook-sdk";
+import { RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -92,19 +92,25 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   // Restore connection state from localStorage on component mount
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
+    const savedSamsungHealthConnectionState = localStorage.getItem('samsung_health_device_connection_state');
     if (savedConnectionState) {
       if(savedConnectionState != 'connecting'){
         setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
       }
     }
-    
+    if (savedSamsungHealthConnectionState) {
+      if(savedSamsungHealthConnectionState != 'connecting'){
+        setIsConnectingSamsungHealth(savedSamsungHealthConnectionState as 'disconnected' | 'connecting' | 'connected');
+      }
+    }
     // Restore Samsung Health connection state
   }, []);
 
   // Save connection state to localStorage whenever it changes
   useEffect(() => {
+    localStorage.setItem('samsung_health_device_connection_state', isConnectingSamsungHealth);
     localStorage.setItem('health_device_connection_state', isConnecting);
-  }, [isConnecting]);
+  }, [isConnecting, isConnectingSamsungHealth]);
 
   // Save Samsung Health connection state
 
@@ -251,8 +257,9 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           });
           // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
           await RookHealthConnect.scheduleHealthConnectBackGround();
-          await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
+          // await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
           console.log("✅ Yesterday sync scheduled");
+          RookSummaries.sync({})
 
         }catch(e: any){
           toast({
@@ -349,7 +356,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             description: availability.toString(),
           });
           // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
-
+          RookSummaries.sync({})
         }catch(e: any){
           toast({
             title: "Error",
@@ -524,6 +531,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                       }`}
                       onClick={() => {
                         if (isConnecting === 'connected') {
+                          RookHealthConnect.cancelHealthConnectBackGround()
                           clearConnectionState();
                         } else {
                           connectSdk();
@@ -589,13 +597,14 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                       onClick={() => {
                         if (isConnectingSamsungHealth === 'connected') {
                           clearConnectionState();
+                          RookSamsungHealth.disableBackGroundUpdates();
                         } else {
                           // connectSdk();
                           executeSamsungHealthConnection();
                         }
                       }}
                     >
-                      {isConnecting === 'connected' ? "Disconnect" : "Connect"}
+                      {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
                     </Button>
                   </div>
                 </div>
