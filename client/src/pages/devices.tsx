@@ -51,6 +51,27 @@ export default function Devices() {
     }
   }, [clientInformation?.id]);
 
+  // Helper function to detect if device is Samsung
+  const isSamsungDevice = () => {
+    if (typeof navigator !== 'undefined') {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
+      // Check for Samsung in user agent (common patterns: SM-, Samsung, GT-)
+      return /samsung|SM-|GT-/i.test(userAgent);
+    }
+    // For native platforms, also check if we can detect Samsung
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+      // Additional check: Samsung devices often have specific characteristics
+      // This is a fallback if user agent doesn't work in native context
+      try {
+        const userAgent = (window as any).navigator?.userAgent || '';
+        return /samsung|SM-|GT-/i.test(userAgent);
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  };
+
   // Helper function to detect platform
   const getPlatformInfo = () => {
     if (Capacitor.isNativePlatform()) {
@@ -118,6 +139,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const clearConnectionState = () => {
     setIsConnecting('disconnected');
     localStorage.removeItem('health_device_connection_state');
+    // localStorage.removeItem('samsung_health_device_connection_state');
     toast({
       title: "Connection Reset",
       description: "Device connection state has been cleared.",
@@ -160,22 +182,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         description: "Devices data loaded successfully",
       });
 
-      // Initialize Rook SDK for device data fetching
-      // Note: This is a lightweight initialization for fetching device list
-      // Full connection happens in executeConnection()
-      try {
-        await RookConfig.initRook({
-          environment: "production",
-          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-          enableBackgroundSync: false,
-          enableEventsBackgroundSync: false,
-        });
-        console.log("✅ Rook SDK initialized for device list");
-      } catch (e: any) {
-        console.warn("⚠️ Rook SDK initialization warning (non-critical):", e);
-        // Don't throw error here as this is just for fetching device list
-      }
+
     } catch (error) {
       console.error("Error fetching devices data:", error);
       toast({
@@ -346,18 +353,35 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             "STEPS",
             "WATER_INTAKE"
           ];
-          await RookPermissions.requestSamsungHealthPermissions({
-            types: permissions,
-          })
-          RookSamsungHealth.enableBackGroundUpdates();
-          const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
-          toast({
-            title: "Samsung Health Availability",
-            description: availability.toString(),
+          await RookSamsungHealth.checkSamsungHealthAvailability().then(async (res) => {
+            toast({
+              title: "Samsung Health Availability",
+              description: res.toString(),
+            });
+            if(res.toString() === 'INSTALLED'){
+              await RookPermissions.requestSamsungHealthPermissions({
+                types: permissions,
+              })
+              RookSamsungHealth.enableBackGroundUpdates();
+              const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
+              toast({
+                title: "Samsung Health Availability",
+                description: availability.toString(),
+              });
+              // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
+              RookSummaries.sync({})
+              setIsConnectingSamsungHealth("connected");
+              
+              toast({
+                title: "Connected Successfully",
+                description: "Samsung Health has been connected successfully.",
+              });
+            }else {
+              setIsConnectingSamsungHealth("disconnected");
+            }
           });
-          // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
-          RookSummaries.sync({})
         }catch(e: any){
+          setIsConnectingSamsungHealth("disconnected");
           toast({
             title: "Error",
             description: `Failed to schedule yesterday sync: ${e?.message || e?.toString() || "Unknown error"}`,
@@ -367,12 +391,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         }
 
         // 6. Set connected state only after all operations succeed
-        setIsConnectingSamsungHealth("connected");
-        
-        toast({
-          title: "Connected Successfully",
-          description: "Samsung Health has been connected successfully.",
-        });
+
       } catch (e: any) {
         console.error("❌ Error initializing Rook:", e);
         setIsConnectingSamsungHealth("disconnected");
@@ -420,7 +439,15 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         });
       }
     }
-    
+    if(isConnectingSamsungHealth === "connected"){
+      Application.connectVariable('Samsung Health').catch((err) => {
+        console.error("Failed to connect Samsung Health variable:", err);
+      });
+    } else if(isConnectingSamsungHealth === "disconnected"){
+      Application.disConnectVariable('Samsung Health').catch((err) => {
+        console.error("Failed to disconnect Samsung Health variable:", err);
+      });
+    }
     
     // Sync other devices
     if (devicesData?.data_sources) {
@@ -477,7 +504,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         ) : devicesData ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              {/* Platform Health (Apple Health / Health Connect) */}
+              {/* Platform Health (Apple Health / Health Connect) - Only show if NOT Samsung */}       
               <div
                 key={'-1'}
                 className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
@@ -543,6 +570,8 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                   </div>
                 </div>
               </div>
+              {/* Samsung Health - Only show if Samsung device */}
+              {isSamsungDevice() && (
               <div
                 key={'-2'}
                 className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
@@ -596,8 +625,10 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                       }`}
                       onClick={() => {
                         if (isConnectingSamsungHealth === 'connected') {
-                          clearConnectionState();
+                          // clearConnectionState();
                           RookSamsungHealth.disableBackGroundUpdates();
+                          setIsConnectingSamsungHealth('disconnected');
+                           localStorage.removeItem('samsung_health_device_connection_state');
                         } else {
                           // connectSdk();
                           executeSamsungHealthConnection();
@@ -609,6 +640,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Other Devices */}
               {devicesData.data_sources?.map(
