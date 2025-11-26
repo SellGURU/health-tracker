@@ -358,6 +358,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
               title: "Samsung Health Availability",
               description: res.toString(),
             });
+            console.log("✅ Samsung Health Availability:", res);
             if(res.toString() === 'INSTALLED'){
               await RookPermissions.requestSamsungHealthPermissions({
                 types: permissions,
