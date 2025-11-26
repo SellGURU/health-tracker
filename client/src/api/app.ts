@@ -170,6 +170,11 @@ class Application extends Api {
     });
     return response;
   }
+
+  static varifyPassword(data: any) {
+    const response = this.post("/mobile/auth/verify_password", data);
+    return response;
+  }
 }
 
 export default Application;
