@@ -1,3 +1,4 @@
+import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,8 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Info } from "lucide-react";
 import { useState, useEffect } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface PasswordData {
   currentPassword: string;
@@ -59,6 +65,7 @@ const ChangePasswordDialog = ({
 }: ChangePasswordDialogProps) => {
   const { toast } = useToast();
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   // Validation functions
   const validateCurrentPassword = (value: string): string | undefined => {
@@ -151,20 +158,20 @@ const ChangePasswordDialog = ({
                     currentPassword: e.target.value,
                   }));
                   // Clear error when user starts typing
-                  if (errors.currentPassword) {
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.currentPassword;
-                      return newErrors;
-                    });
-                  }
+                  // if (errors.currentPassword) {
+                  //   setErrors((prev) => {
+                  //     const newErrors = { ...prev };
+                  //     delete newErrors.currentPassword;
+                  //     return newErrors;
+                  //   });
+                  // }
                 }}
                 onBlur={() => {
                   const error = validateCurrentPassword(passwordData.currentPassword);
-                  setErrors((prev) => ({
-                    ...prev,
-                    currentPassword: error,
-                  }));
+                  // setErrors((prev) => ({
+                  //   ...prev,
+                  //   currentPassword: error,
+                  // }));
                 }}
                 className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
                   errors.currentPassword ? "border-red-500 dark:border-red-500" : ""
@@ -190,16 +197,42 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.currentPassword && (
-              <p className="text-sm text-red-500 mt-1">{errors.currentPassword}</p>
+              <p className="text-xs text-red-500 mt-1">{errors.currentPassword}</p>
             )}
           </div>
           <div>
-            <Label
-              htmlFor="newPassword"
-              className="text-gray-700 dark:text-gray-300 font-medium"
-            >
-              New Password
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="newPassword"
+                className="text-gray-700 dark:text-gray-300 font-medium"
+              >
+                New Password
+              </Label>
+              <Popover  open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    aria-label="Password requirements"
+                    onMouseEnter={() => setIsInfoOpen(true)}
+                    onMouseLeave={() => setIsInfoOpen(false)}
+                  >
+                    <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-72 p-3 text-sm"
+                  side="top"
+                  sideOffset={8}
+                  onMouseEnter={() => setIsInfoOpen(true)}
+                  onMouseLeave={() => setIsInfoOpen(false)}
+                >
+                  <p className="text-gray-700 dark:text-gray-300">
+                    At least 8 characters. (Use Uppercase & Lowercase letters, Numbers and Special characters)
+                  </p>
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="relative">
               <Input
                 id="newPassword"
@@ -211,20 +244,20 @@ const ChangePasswordDialog = ({
                     newPassword: e.target.value,
                   }));
                   // Clear error when user starts typing
-                  if (errors.newPassword) {
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.newPassword;
-                      return newErrors;
-                    });
-                  }
+                  // if (errors.newPassword) {
+                  //   setErrors((prev) => {
+                  //     const newErrors = { ...prev };
+                  //     delete newErrors.newPassword;
+                  //     return newErrors;
+                  //   });
+                  // }
                 }}
                 onBlur={() => {
-                  const error = validateNewPassword(passwordData.newPassword);
-                  setErrors((prev) => ({
-                    ...prev,
-                    newPassword: error,
-                  }));
+                  // const error = validateNewPassword(passwordData.newPassword);
+                  // setErrors((prev) => ({
+                  //   ...prev,
+                  //   newPassword: error,
+                  // }));
                 }}
                 className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
                   errors.newPassword ? "border-red-500 dark:border-red-500" : ""
@@ -250,7 +283,7 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.newPassword && (
-              <p className="text-sm text-red-500 mt-1">{errors.newPassword}</p>
+              <p className="text-xs text-red-500 mt-1">{errors.newPassword}</p>
             )}
           </div>
           <div>
@@ -313,55 +346,50 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>
+              <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>
             )}
           </div>
           <Button
             onClick={() => {
               // Validate all fields
-              const currentPasswordError = validateCurrentPassword(
-                passwordData.currentPassword
-              );
-              const newPasswordError = validateNewPassword(
-                passwordData.newPassword
-              );
-              const confirmPasswordError = validateConfirmPassword(
-                passwordData.confirmPassword,
-                passwordData.newPassword
-              );
-
-              const validationErrors: ValidationErrors = {};
-              if (currentPasswordError) {
-                validationErrors.currentPassword = currentPasswordError;
-              }
-              if (newPasswordError) {
-                validationErrors.newPassword = newPasswordError;
-              }
-              if (confirmPasswordError) {
-                validationErrors.confirmPassword = confirmPasswordError;
-              }
-
-              if (Object.keys(validationErrors).length > 0) {
-                setErrors(validationErrors);
-                toast({
-                  title: "Validation Error",
-                  description: "Please fill all fields correctly",
-                  variant: "destructive",
-                });
-                return;
-              }
 
               if (
                 passwordData.newPassword !== passwordData.confirmPassword
               ) {
-                toast({
-                  title: "Passwords don't match",
-                  description: "Please ensure both password fields match.",
-                  variant: "destructive",
-                });
+                // toast({
+                //   title: "Passwords don't match",
+                //   description: "Please ensure both password fields match.",
+                //   variant: "destructive",
+                // });
+                setErrors((prev) => ({
+                  ...prev,
+                  confirmPassword: "Passwords do not match",
+                }));
                 return;
               }
-              changePasswordMutation.mutate(passwordData);
+              Application.varifyPassword({
+                current_password: passwordData.currentPassword,
+                new_password: passwordData.newPassword,
+              }).then((res) => {
+                if (res.status === 200) {
+                  changePasswordMutation.mutate(passwordData);
+                } else {
+                  toast({
+                    title: "Invalid password",
+                    description: "Please enter a valid password",
+                  });
+                }
+              }).catch((err) => {
+                console.log(err.response.data.detail);
+                setErrors((prev) => ({
+                  newPassword: err.response.data.detail.new_password,
+                  currentPassword: err.response.data.detail.current_password,
+                }));
+                // toast({
+                //   title: "Invalid password",
+                //   description: "Please enter a valid password",
+                // });
+              });
             }}
             disabled={changePasswordMutation.isPending}
             className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
