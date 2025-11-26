@@ -53,7 +53,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
-    implementation(files("$rootDir/libs/samsung-health-data-api-1.0.0-b2.aar"))
+    implementation(files("$rootDir/libs/samsung-health-data-api-1.0.0-b2-5ba4cce677f09c01ce8e27a339ba7862.aar"))
     implementation("com.google.code.gson:gson:2.13.0")
 }
 
