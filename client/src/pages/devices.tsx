@@ -354,20 +354,21 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             "WATER_INTAKE"
           ];
           await RookSamsungHealth.checkSamsungHealthAvailability().then(async (res) => {
-            toast({
-              title: "Samsung Health Availability",
-              description: res.toString(),
-            });
+            // toast({
+            //   title: "Samsung Health Availability",
+            //   description: res.toString(),
+            // });
             console.log("✅ Samsung Health Availability:", res);
-            if(res.toString() === 'INSTALLED'){
+            if(res.result.toString() === 'INSTALLED'){
               await RookPermissions.requestSamsungHealthPermissions({
                 types: permissions,
               })
               RookSamsungHealth.enableBackGroundUpdates();
-              const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
+              const isActive = await RookSamsungHealth.isBackGroundUpdatesEnable();
+              // const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
               toast({
                 title: "Samsung Health Availability",
-                description: availability.toString(),
+                description: isActive.toString(),
               });
               // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
               RookSummaries.sync({})
