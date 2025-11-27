@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Capacitor } from "@capacitor/core";
 import VersionControll from "@/api/VersionControll";
 import { compareVersions } from "@/utils/version";
 import packageJson from "../../../package.json";
@@ -27,8 +28,18 @@ export function useVersionCheck() {
   const [downloadLink, setDownloadLink] = useState<string>("");
   const [playStoreLink, setPlayStoreLink] = useState<string>("");
 
+  // اگر نسخه وب بود، هیچ مودالی نمایش داده نشود
+  const isWeb = !Capacitor.isNativePlatform();
+
   const checkVersion = useCallback((config: VersionConfig) => {
     if (!config) return;
+    
+    // اگر نسخه وب بود، هیچ مودالی نمایش داده نشود
+    if (isWeb) {
+      setShowUpdateModal(false);
+      setShowUnsupportedModal(false);
+      return;
+    }
 
     const { version, minimumSupportedVersion, downloadUrl, downloadLink, playStoreUrl } = config;
     
@@ -60,28 +71,45 @@ export function useVersionCheck() {
         setPlayStoreLink(playStoreUrl);
       }
     }
-  }, []);
+  }, [isWeb]);
 
   const checkConfig = useCallback(() => {
+    // اگر نسخه وب بود، نیازی به چک کردن نسخه نیست
+    if (isWeb) {
+      setShowUpdateModal(false);
+      setShowUnsupportedModal(false);
+      return;
+    }
+    
     VersionControll.getConfig()
       .then((res) => {
-        const androidConfig = res.data.android;
-        checkVersion(androidConfig);
+        const platform = Capacitor.getPlatform();
+        // اگر نسخه iOS بود، config مربوط به iOS را بخوان، در غیر این صورت Android
+        const platformConfig = platform === 'ios' ? res.data.ios : res.data.android;
+        checkVersion(platformConfig);
       })
       .catch((error) => {
         console.error("Error fetching version config:", error);
       });
-  }, [checkVersion]);
+  }, [checkVersion, isWeb]);
 
   useEffect(() => {
+    // اگر نسخه وب بود، نیازی به چک کردن نسخه نیست
+    if (isWeb) {
+      setShowUpdateModal(false);
+      setShowUnsupportedModal(false);
+      return;
+    }
+    
     checkConfig();
     const interval = setInterval(checkConfig, CHECK_INTERVAL);
     return () => clearInterval(interval);
-  }, [checkConfig]);
+  }, [checkConfig, isWeb]);
 
+  // اگر نسخه وب بود، همیشه false برگردان
   return {
-    showUpdateModal,
-    showUnsupportedModal,
+    showUpdateModal: isWeb ? false : showUpdateModal,
+    showUnsupportedModal: isWeb ? false : showUnsupportedModal,
     downloadLink,
     playStoreLink,
     setShowUpdateModal,
