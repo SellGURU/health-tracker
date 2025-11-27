@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
+import { RookAppleHealth, RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -232,41 +232,24 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         }
 
         // 3. Request Android permissions first (required for Health Connect)
-        const androidPerms = await RookPermissions.requestAndroidPermissions();
-        console.log("✅ Android permissions:", androidPerms);
+        if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
+          const androidPerms = await RookPermissions.requestAndroidPermissions();
+          console.log("✅ Android permissions:", androidPerms);
+          const perms = await RookPermissions.requestAllHealthConnectPermissions();
+          console.log("✅ HealthConnect permissions:", perms);
+
+        } else if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'){
+          const iosPerms = await RookPermissions.requestAllAppleHealthPermissions();
+          console.log("✅ Apple Health permissions:", iosPerms);
+        }
         // 4. Request Health Connect permissions
-        const perms = await RookPermissions.requestAllHealthConnectPermissions();
-        console.log("✅ HealthConnect permissions:", perms);
         // // 5. Schedule sync
         try{
-          const permissions: Array<SamsungPermissionType> = [
-    "ACTIVITY_SUMMARY",
-    "BLOOD_GLUCOSE",
-    "BLOOD_OXYGEN",
-    "BLOOD_PRESSURE",
-    "BODY_COMPOSITION",
-    "EXERCISE",
-    "EXERCISE_LOCATION",
-    "FLOORS_CLIMBED",
-    "HEART_RATE",
-    "NUTRITION",
-    "SLEEP",
-    "STEPS",
-    "WATER_INTAKE"
-          ];
-          await RookPermissions.requestSamsungHealthPermissions({
-            types: permissions,
-          })
-          RookSamsungHealth.enableBackGroundUpdates();
-          const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
-          toast({
-            title: "Samsung Health Availability",
-            description: availability.toString(),
-          });
-          // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
-          await RookHealthConnect.scheduleHealthConnectBackGround();
-          // await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
-          console.log("✅ Yesterday sync scheduled");
+          if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
+            await RookHealthConnect.scheduleHealthConnectBackGround();
+          } else if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'){
+            await RookAppleHealth.enableBackGroundUpdates();
+          }
           RookSummaries.sync({})
 
         }catch(e: any){
