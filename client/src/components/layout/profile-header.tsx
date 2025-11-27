@@ -566,7 +566,7 @@ export default function ProfileHeader() {
             <DialogHeader>
               <DialogTitle>Are you sure you want to sign out?</DialogTitle>
             </DialogHeader>
-            <DialogFooter>
+            <DialogFooter className="flex items-center justify-center gap-2">
               <Button onClick={handleLogout} className="bg-red-500 text-white">
                 Sign out
               </Button>

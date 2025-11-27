@@ -1,3 +1,4 @@
+// import { ReactNode, useEffect, useState } from "react";
 import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,18 +15,30 @@ import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
 import ProfileHeader from "./profile-header";
+import { usePushNotifications } from "@/hooks/use-pushNotification";
+import NotificationApi from "@/api/notification";
 import { publish } from "@/lib/event";
-
+import { Capacitor } from "@capacitor/core";
 interface MobileLayoutProps {
   children: ReactNode;
 }
 
-export default function MobileLayout({ children }: MobileLayoutProps) {
+export default function MobileLayout({ children }:MobileLayoutProps ) {
   const { toast } = useToast();
   const [location] = useLocation();
   const [showSearch, setShowSearch] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { token, notifications } = usePushNotifications();
+  useEffect(() => {
+    if(Capacitor.isNativePlatform()){
+      if(token){
+        NotificationApi.registerToken(token).then((res) => {
+          // console.log(res);
+        });
+      }
+    }
+  }, [token]);
   const getBrandInfo = async () => {
     Application.getBrandInfo()
       .then((res) => {
@@ -71,7 +84,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   };
 
   return (
-    <div className="h-svh overflow-y-hidden flex flex-col bg-gray-50 w-full relative dark:bg-gray-900">
+    <div className="h-dvh overflow-y-hidden flex flex-col bg-gray-50 w-full relative dark:bg-gray-900">
       {useProfileHeader ? (
         <ProfileHeader />
       ) : (
@@ -113,7 +126,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
         </header>
       )}
 
-      <div className=" flex-1 overflow-y-auto pb-20">
+      <div className=" flex-1 overflow-y-auto pb-20" >
         {useProfileHeader ? (
           children
         ) : (
