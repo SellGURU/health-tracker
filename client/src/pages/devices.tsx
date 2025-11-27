@@ -507,150 +507,155 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         ) : devicesData ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              {/* Platform Health (Apple Health / Health Connect) - Only show if NOT Samsung */}       
-              <div
-                key={'-1'}
-                className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={getPlatformInfo().icon}
-                      alt={getPlatformInfo().name}
-                      className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src =
-                          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        {getPlatformInfo().name}
-                      </h4>
-                      <Badge
-                        variant={
-                          isConnecting === 'connected' ? "default" : "outline"
-                        }
-                        className={`text-xs ${
-                          isConnecting === 'connected'
-                            ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                            : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                        }`}
-                      >
-                        {isConnecting === 'connected'
-                          ? "Connected"
-                          :
-                            isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                      {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
-                    </p>
-                    <Button
-                      size="sm"
-                      variant={
-                        isConnecting === 'connected' ? "outline" : "default"
-                      }
-                      className={`text-xs h-7 ${
-                        isConnecting === 'connected'
-                          ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                          : "bg-blue-600 hover:bg-blue-700 text-white"
-                      }`}
-                      onClick={() => {
-                        if (isConnecting === 'connected') {
-                          RookHealthConnect.cancelHealthConnectBackGround()
-                          clearConnectionState();
-                        } else {
-                          connectSdk();
-                        }
-                      }}
-                    >
-                      {isConnecting === 'connected' ? "Disconnect" : "Connect"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              {/* Samsung Health - Only show if Samsung device */}
-              
-              <div
-                key={'-2'}
-                className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={'./Samsung_Health_2025_logo.png'}
-                      alt={'Samsung Health'}
-                      className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src =
-                          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        Samsung Health
-                      </h4>
-                      <Badge
-                        variant={
-                          isConnectingSamsungHealth === 'connected' ? "default" : "outline"
-                        }
-                        className={`text-xs ${
-                          isConnectingSamsungHealth === 'connected'
-                            ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                            : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                        }`}
-                      >
-                        {isConnectingSamsungHealth === 'connected'
-                          ? "Connected"
-                          :
-                            isConnectingSamsungHealth === 'connecting' ? "Connecting" : "Not Connected"}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                      Samsung Health helps you stay on top of your wellness by tracking your daily activities and fitness data with ease. It connects smoothly with compatible devices like smartwatches and fitness bands, giving you real-time insights into your workouts, steps, heart rate, and more. You can view detailed trends, monitor your progress over time, and stay motivated with personalized stats. All your information syncs wirelessly across devices, so your health data is always accessible whenever and wherever you need it.
-                    </p>
-                    <Button
-                      size="sm"
-                      variant={
-                        isConnectingSamsungHealth === 'connected' ? "outline" : "default"
-                      }
-                      className={`text-xs h-7 ${
-                        isConnectingSamsungHealth === 'connected'
-                          ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                          : "bg-blue-600 hover:bg-blue-700 text-white"
-                      }`}
-                      onClick={() => {
-                        if (isConnectingSamsungHealth === 'connected') {
-                          // clearConnectionState();
-                          RookSamsungHealth.disableBackGroundUpdates();
-                          setIsConnectingSamsungHealth('disconnected');
-                           localStorage.removeItem('samsung_health_device_connection_state');
-                        } else {
-                          // connectSdk();
-                          if(isSamsungDevice()){
-                            executeSamsungHealthConnection();
-                          } else {
-                            toast({
-                              title: "Error",
-                              description: "Samsung Health is not installed on this device.",
-                              variant: "destructive",
-                            });
+              {
+                Capacitor.isNativePlatform() &&
+                <>
+                  <div
+                    key={'-1'}
+                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={getPlatformInfo().icon}
+                          alt={getPlatformInfo().name}
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            {getPlatformInfo().name}
+                          </h4>
+                          <Badge
+                            variant={
+                              isConnecting === 'connected' ? "default" : "outline"
+                            }
+                            className={`text-xs ${
+                              isConnecting === 'connected'
+                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                            }`}
+                          >
+                            {isConnecting === 'connected'
+                              ? "Connected"
+                              :
+                                isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                          {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
+                        </p>
+                        <Button
+                          size="sm"
+                          variant={
+                            isConnecting === 'connected' ? "outline" : "default"
                           }
-                        }
-                      }}
-                    >
-                      {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
-                    </Button>
+                          className={`text-xs h-7 ${
+                            isConnecting === 'connected'
+                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                          onClick={() => {
+                            if (isConnecting === 'connected') {
+                              RookHealthConnect.cancelHealthConnectBackGround()
+                              clearConnectionState();
+                            } else {
+                              connectSdk();
+                            }
+                          }}
+                        >
+                          {isConnecting === 'connected' ? "Disconnect" : "Connect"}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                  {/* Samsung Health - Only show if Samsung device */}
+                  
+                  <div
+                    key={'-2'}
+                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={'./Samsung_Health_2025_logo.png'}
+                          alt={'Samsung Health'}
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            Samsung Health
+                          </h4>
+                          <Badge
+                            variant={
+                              isConnectingSamsungHealth === 'connected' ? "default" : "outline"
+                            }
+                            className={`text-xs ${
+                              isConnectingSamsungHealth === 'connected'
+                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                            }`}
+                          >
+                            {isConnectingSamsungHealth === 'connected'
+                              ? "Connected"
+                              :
+                                isConnectingSamsungHealth === 'connecting' ? "Connecting" : "Not Connected"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                          Samsung Health helps you stay on top of your wellness by tracking your daily activities and fitness data with ease. It connects smoothly with compatible devices like smartwatches and fitness bands, giving you real-time insights into your workouts, steps, heart rate, and more. You can view detailed trends, monitor your progress over time, and stay motivated with personalized stats. All your information syncs wirelessly across devices, so your health data is always accessible whenever and wherever you need it.
+                        </p>
+                        <Button
+                          size="sm"
+                          variant={
+                            isConnectingSamsungHealth === 'connected' ? "outline" : "default"
+                          }
+                          className={`text-xs h-7 ${
+                            isConnectingSamsungHealth === 'connected'
+                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                          onClick={() => {
+                            if (isConnectingSamsungHealth === 'connected') {
+                              // clearConnectionState();
+                              RookSamsungHealth.disableBackGroundUpdates();
+                              setIsConnectingSamsungHealth('disconnected');
+                              localStorage.removeItem('samsung_health_device_connection_state');
+                            } else {
+                              // connectSdk();
+                              if(isSamsungDevice()){
+                                executeSamsungHealthConnection();
+                              } else {
+                                toast({
+                                  title: "Error",
+                                  description: "Samsung Health is not installed on this device.",
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              }
+              {/* Platform Health (Apple Health / Health Connect) - Only show if NOT Samsung */}       
               
 
               {/* Other Devices */}
