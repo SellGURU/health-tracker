@@ -1,4 +1,6 @@
 import Application from "@/api/app";
+import NotificationApi from "@/api/notification";
+import { App as CapacitorApp } from "@capacitor/app";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -312,6 +314,22 @@ export default function YouMenu() {
         }
       }, 1000);
     }
+
+    CapacitorApp.addListener('appUrlOpen', (urlOpen: { url: string | URL; }) => {
+      const url = new URL(urlOpen.url);
+      const key = url.searchParams.get('key');
+      if (key === 'downloadReport') {
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);        
+      }
+    });    
   }, []);
 
   const [currentView, setCurrentView] = useState<

@@ -4,9 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail } from "@/lib/utils";
-import { Eye, EyeOff, Key, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Info, Key, Lock, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import Application from "@/api/app";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -33,6 +38,7 @@ export default function ForgotPasswordModal({
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [codeExpireTime, setCodeExpireTime] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -314,9 +320,35 @@ export default function ForgotPasswordModal({
               </p>
               
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-sm font-medium">
-                  New Password
-                </Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="new-password" className="text-sm font-medium">
+                    New Password
+                  </Label>
+                  <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        aria-label="Password requirements"
+                        onMouseEnter={() => setIsInfoOpen(true)}
+                        onMouseLeave={() => setIsInfoOpen(false)}
+                      >
+                        <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-72 p-3 text-sm"
+                      side="top"
+                      sideOffset={8}
+                      onMouseEnter={() => setIsInfoOpen(true)}
+                      onMouseLeave={() => setIsInfoOpen(false)}
+                    >
+                      <p className="text-gray-700 dark:text-gray-300">
+                        At least 8 characters. (Use Uppercase & Lowercase letters, Numbers and Special characters)
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
