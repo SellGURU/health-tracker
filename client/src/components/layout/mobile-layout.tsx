@@ -31,7 +31,8 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
   const [searchQuery, setSearchQuery] = useState("");
   const { token, notifications } = usePushNotifications();
   useEffect(() => {
-    if(Capacitor.isNativePlatform()){
+    const platform = Capacitor.getPlatform();
+    if(platform === 'ios' || platform === 'android'){
       if(token){
         NotificationApi.registerToken(token).then((res) => {
           // console.log(res);

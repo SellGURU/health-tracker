@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { PushNotifications, Token, PushNotificationSchema, ActionPerformed } from "@capacitor/push-notifications";
+import { Capacitor } from "@capacitor/core";
 
 export function usePushNotifications() {
   const [token, setToken] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<PushNotificationSchema[]>([]);
 
   useEffect(() => {
+    const platform = Capacitor.getPlatform();
+    // فقط در پلتفرم‌های native (iOS و Android) اجرا شود
+    if (platform !== 'ios' && platform !== 'android') {
+      return;
+    }
+
     // 1. درخواست مجوز
     PushNotifications.requestPermissions().then(result => {
       if (result.receive === "granted") {

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookAppleHealth, RookConfig, RookHealthConnect, RookPermissions } from "capacitor-rook-sdk";
+import { RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -51,6 +51,28 @@ export default function Devices() {
     }
   }, [clientInformation?.id]);
 
+  // Helper function to detect if device is Samsung
+  const isSamsungDevice = () => {
+    // return true;
+    if (typeof navigator !== 'undefined') {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
+      // Check for Samsung in user agent (common patterns: SM-, Samsung, GT-)
+      return /samsung|SM-|GT-/i.test(userAgent);
+    }
+    // For native platforms, also check if we can detect Samsung
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+      // Additional check: Samsung devices often have specific characteristics
+      // This is a fallback if user agent doesn't work in native context
+      try {
+        const userAgent = (window as any).navigator?.userAgent || '';
+        return /samsung|SM-|GT-/i.test(userAgent);
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  };
+
   // Helper function to detect platform
   const getPlatformInfo = () => {
     if (Capacitor.isNativePlatform()) {
@@ -59,7 +81,7 @@ export default function Devices() {
         isIOS: platform === 'ios',
         isAndroid: platform === 'android',
         googleDescription: `
-        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
+        Health Connect lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Health Connect so you can access it anytime, anywhere.
         `,
         appleDescription: `
          Connect with Apple Health
@@ -67,20 +89,20 @@ Enable integration with Apple Health to sync your health and activity data.
 This app uses Apple Health (HealthKit) to read and write your health data securely.
 
         `,
-        name: platform === 'ios' ? 'Apple Health' : 'Google Health',
+        name: platform === 'ios' ? 'Apple Health' :'Health Connect',
         icon: platform === 'ios' 
           ? "AppleHealth.png"
-          : "googleHealth.png"
+          : "health-conncet.png"
       };
     } else {
       return {
         isIOS: false,
         isAndroid: true,
         googleDescription: `
-        Google Health lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Google Health so you can access it anytime, anywhere.
+        Health Connect lets you track and analyze your health and fitness activities. It works seamlessly with compatible devices, such as smartwatches and activity trackers. Monitor your workouts, steps, heart rate, and other health metrics, and instantly see your progress. All your data syncs wirelessly to Health Connect so you can access it anytime, anywhere.
         `,        
-        name: 'Google Health',
-        icon: "googleHealth.png"
+        name: 'Health Connect',
+        icon: "health-conncet.png"
       };
     }
   };
@@ -88,23 +110,29 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [devicesData, setDevicesData] = useState<any>(null);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
-
+  const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   // Restore connection state from localStorage on component mount
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
+    const savedSamsungHealthConnectionState = localStorage.getItem('samsung_health_device_connection_state');
     if (savedConnectionState) {
       if(savedConnectionState != 'connecting'){
         setIsConnecting(savedConnectionState as 'disconnected' | 'connecting' | 'connected');
       }
     }
-    
+    if (savedSamsungHealthConnectionState) {
+      if(savedSamsungHealthConnectionState != 'connecting'){
+        setIsConnectingSamsungHealth(savedSamsungHealthConnectionState as 'disconnected' | 'connecting' | 'connected');
+      }
+    }
     // Restore Samsung Health connection state
   }, []);
 
   // Save connection state to localStorage whenever it changes
   useEffect(() => {
+    localStorage.setItem('samsung_health_device_connection_state', isConnectingSamsungHealth);
     localStorage.setItem('health_device_connection_state', isConnecting);
-  }, [isConnecting]);
+  }, [isConnecting, isConnectingSamsungHealth]);
 
   // Save Samsung Health connection state
 
@@ -112,6 +140,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const clearConnectionState = () => {
     setIsConnecting('disconnected');
     localStorage.removeItem('health_device_connection_state');
+    // localStorage.removeItem('samsung_health_device_connection_state');
     toast({
       title: "Connection Reset",
       description: "Device connection state has been cleared.",
@@ -154,22 +183,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         description: "Devices data loaded successfully",
       });
 
-      // Initialize Rook SDK for device data fetching
-      // Note: This is a lightweight initialization for fetching device list
-      // Full connection happens in executeConnection()
-      try {
-        await RookConfig.initRook({
-          environment: "production",
-          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-          enableBackgroundSync: false,
-          enableEventsBackgroundSync: false,
-        });
-        console.log("✅ Rook SDK initialized for device list");
-      } catch (e: any) {
-        console.warn("⚠️ Rook SDK initialization warning (non-critical):", e);
-        // Don't throw error here as this is just for fetching device list
-      }
+
     } catch (error) {
       console.error("Error fetching devices data:", error);
       toast({
@@ -218,18 +232,42 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         }
 
         // 3. Request Android permissions first (required for Health Connect)
-        const androidPerms = await RookPermissions.requestAllAppleHealthPermissions();
-        // console.log("✅ Android permissions:", androidPerms);
-        // // 4. Request Health Connect permissions
-        // const perms = await RookPermissions.requestAllHealthConnectPermissions();
-        // console.log("✅ HealthConnect permissions:", perms);
-
+        const androidPerms = await RookPermissions.requestAndroidPermissions();
+        console.log("✅ Android permissions:", androidPerms);
+        // 4. Request Health Connect permissions
+        const perms = await RookPermissions.requestAllHealthConnectPermissions();
+        console.log("✅ HealthConnect permissions:", perms);
         // // 5. Schedule sync
         try{
-          // await RookHealthConnect.scheduleHealthConnectBackGround();
-          await RookAppleHealth.enableBackGroundUpdates();
+          const permissions: Array<SamsungPermissionType> = [
+    "ACTIVITY_SUMMARY",
+    "BLOOD_GLUCOSE",
+    "BLOOD_OXYGEN",
+    "BLOOD_PRESSURE",
+    "BODY_COMPOSITION",
+    "EXERCISE",
+    "EXERCISE_LOCATION",
+    "FLOORS_CLIMBED",
+    "HEART_RATE",
+    "NUTRITION",
+    "SLEEP",
+    "STEPS",
+    "WATER_INTAKE"
+          ];
+          await RookPermissions.requestSamsungHealthPermissions({
+            types: permissions,
+          })
+          RookSamsungHealth.enableBackGroundUpdates();
+          const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
+          toast({
+            title: "Samsung Health Availability",
+            description: availability.toString(),
+          });
+          // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
+          await RookHealthConnect.scheduleHealthConnectBackGround();
           // await RookHealthConnect.scheduleYesterdaySync({ doOnEnd: "oldest" });
           console.log("✅ Yesterday sync scheduled");
+          RookSummaries.sync({})
 
         }catch(e: any){
           toast({
@@ -245,7 +283,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         
         toast({
           title: "Connected Successfully",
-          description: "Google Health has been connected successfully.",
+          description: "Health Connect has been connected successfully.",
         });
       } catch (e: any) {
         console.error("❌ Error initializing Rook:", e);
@@ -255,7 +293,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
         toast({
           title: "Connection Failed",
-          description: `Failed to connect to Google Health: ${errorMessage}`,
+          description: `Failed to connect to Health Connect: ${errorMessage}`,
           variant: "destructive",
         });
       }
@@ -273,6 +311,116 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     }
   };
 
+  const executeSamsungHealthConnection = () => {
+    setIsConnectingSamsungHealth("connecting");   
+    const initRook = async (userId: string) => {
+      try {
+        // 1. Initialize Rook SDK
+        await RookConfig.initRook({
+          environment: "production",
+          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+          enableBackgroundSync: true,
+          enableEventsBackgroundSync: true,
+        });
+        console.log("✅ Initialized Rook SDK");
+
+        // 2. Update User ID
+        if (RookConfig.updateUserId) {
+          await RookConfig.updateUserId({
+            userId: userId,
+          });
+          console.log("✅ User ID updated:", userId);
+        }
+
+        // 3. Request Android permissions first (required for Health Connect)
+        const androidPerms = await RookPermissions.requestAndroidPermissions();
+        console.log("✅ Android permissions:", androidPerms);
+        // 4. Request Health Connect permissions
+        // // 5. Schedule sync
+        try{
+          const permissions: Array<SamsungPermissionType> = [
+            "ACTIVITY_SUMMARY",
+            "BLOOD_GLUCOSE",
+            "BLOOD_OXYGEN",
+            "BLOOD_PRESSURE",
+            "BODY_COMPOSITION",
+            "EXERCISE",
+            "EXERCISE_LOCATION",
+            "FLOORS_CLIMBED",
+            "HEART_RATE",
+            "NUTRITION",
+            "SLEEP",
+            "STEPS",
+            "WATER_INTAKE"
+          ];
+          await RookSamsungHealth.checkSamsungHealthAvailability().then(async (res) => {
+            // toast({
+            //   title: "Samsung Health Availability",
+            //   description: res.toString(),
+            // });
+            console.log("✅ Samsung Health Availability:", res);
+            if(res.result.toString() === 'INSTALLED'){
+              await RookPermissions.requestSamsungHealthPermissions({
+                types: permissions,
+              })
+              RookSamsungHealth.enableBackGroundUpdates();
+              const isActive = await RookSamsungHealth.isBackGroundUpdatesEnable();
+              // const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
+              toast({
+                title: "Samsung Health Availability",
+                description: isActive.toString(),
+              });
+              // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
+              RookSummaries.sync({})
+              setIsConnectingSamsungHealth("connected");
+              
+              toast({
+                title: "Connected Successfully",
+                description: "Samsung Health has been connected successfully.",
+              });
+            }else {
+              setIsConnectingSamsungHealth("disconnected");
+            }
+          });
+        }catch(e: any){
+          setIsConnectingSamsungHealth("disconnected");
+          toast({
+            title: "Error",
+            description: `Failed to schedule yesterday sync: ${e?.message || e?.toString() || "Unknown error"}`,
+            variant: "destructive",
+          });
+          console.error("❌ Error scheduling yesterday sync:", e);
+        }
+
+        // 6. Set connected state only after all operations succeed
+
+      } catch (e: any) {
+        console.error("❌ Error initializing Rook:", e);
+        setIsConnectingSamsungHealth("disconnected");
+        
+        // Show user-friendly error message
+        const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
+        toast({
+          title: "Connection Failed",
+          description: `Failed to connect to Samsung Health: ${errorMessage}`,
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (clientInformation?.id) {
+      initRook(clientInformation.id);
+    } else {
+      toast({
+        title: "Error",
+        description: "User ID not found. Please try again.",
+        variant: "destructive",
+      });
+      setIsConnectingSamsungHealth("disconnected");
+    }     
+  }
+
   useEffect(() => {
     // Sync connection state with backend
     if(isConnecting === "connected"){
@@ -282,19 +430,27 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           console.error("Failed to connect Apple Health variable:", err);
         });
       } else {
-        Application.connectVariable('Google Health').catch((err) => {
-          console.error("Failed to connect Google Health variable:", err);
+        Application.connectVariable('Health Connect').catch((err) => {
+          console.error("Failed to connect Health Connect variable:", err);
         });
       }
     } else if(isConnecting === "disconnected") {
       const platformInfo = getPlatformInfo();
       if(!platformInfo.isIOS){
-        Application.disConnectVariable('Google Health').catch((err) => {
-          console.error("Failed to disconnect Google Health variable:", err);
+        Application.disConnectVariable('Health Connect').catch((err) => {
+          console.error("Failed to disconnect Health Connect variable:", err);
         });
       }
     }
-    
+    if(isConnectingSamsungHealth === "connected"){
+      Application.connectVariable('Samsung Health').catch((err) => {
+        console.error("Failed to connect Samsung Health variable:", err);
+      });
+    } else if(isConnectingSamsungHealth === "disconnected"){
+      Application.disConnectVariable('Samsung Health').catch((err) => {
+        console.error("Failed to disconnect Samsung Health variable:", err);
+      });
+    }
     
     // Sync other devices
     if (devicesData?.data_sources) {
@@ -351,72 +507,156 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         ) : devicesData ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              {/* Platform Health (Apple Health / Google Health) */}
-              <div
-                key={'-1'}
-                className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={getPlatformInfo().icon}
-                      alt={getPlatformInfo().name}
-                      className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src =
-                          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        {getPlatformInfo().name}
-                      </h4>
-                      <Badge
-                        variant={
-                          isConnecting === 'connected' ? "default" : "outline"
-                        }
-                        className={`text-xs ${
-                          isConnecting === 'connected'
-                            ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                            : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                        }`}
-                      >
-                        {isConnecting === 'connected'
-                          ? "Connected"
-                          :
-                            isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
-                      </Badge>
+              {
+                Capacitor.isNativePlatform() &&
+                <>
+                  <div
+                    key={'-1'}
+                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={getPlatformInfo().icon}
+                          alt={getPlatformInfo().name}
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            {getPlatformInfo().name}
+                          </h4>
+                          <Badge
+                            variant={
+                              isConnecting === 'connected' ? "default" : "outline"
+                            }
+                            className={`text-xs ${
+                              isConnecting === 'connected'
+                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                            }`}
+                          >
+                            {isConnecting === 'connected'
+                              ? "Connected"
+                              :
+                                isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                          {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
+                        </p>
+                        <Button
+                          size="sm"
+                          variant={
+                            isConnecting === 'connected' ? "outline" : "default"
+                          }
+                          className={`text-xs h-7 ${
+                            isConnecting === 'connected'
+                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                          onClick={() => {
+                            if (isConnecting === 'connected') {
+                              RookHealthConnect.cancelHealthConnectBackGround()
+                              clearConnectionState();
+                            } else {
+                              connectSdk();
+                            }
+                          }}
+                        >
+                          {isConnecting === 'connected' ? "Disconnect" : "Connect"}
+                        </Button>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                      {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
-                    </p>
-                    <Button
-                      size="sm"
-                      variant={
-                        isConnecting === 'connected' ? "outline" : "default"
-                      }
-                      className={`text-xs h-7 ${
-                        isConnecting === 'connected'
-                          ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                          : "bg-blue-600 hover:bg-blue-700 text-white"
-                      }`}
-                      onClick={() => {
-                        if (isConnecting === 'connected') {
-                          clearConnectionState();
-                        } else {
-                          connectSdk();
-                        }
-                      }}
-                    >
-                      {isConnecting === 'connected' ? "Disconnect" : "Connect"}
-                    </Button>
                   </div>
-                </div>
-              </div>
-
+                  {/* Samsung Health - Only show if Samsung device */}
+                  
+                  <div
+                    key={'-2'}
+                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={'./Samsung_Health_2025_logo.png'}
+                          alt={'Samsung Health'}
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            Samsung Health
+                          </h4>
+                          <Badge
+                            variant={
+                              isConnectingSamsungHealth === 'connected' ? "default" : "outline"
+                            }
+                            className={`text-xs ${
+                              isConnectingSamsungHealth === 'connected'
+                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                            }`}
+                          >
+                            {isConnectingSamsungHealth === 'connected'
+                              ? "Connected"
+                              :
+                                isConnectingSamsungHealth === 'connecting' ? "Connecting" : "Not Connected"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
+                          Samsung Health helps you stay on top of your wellness by tracking your daily activities and fitness data with ease. It connects smoothly with compatible devices like smartwatches and fitness bands, giving you real-time insights into your workouts, steps, heart rate, and more. You can view detailed trends, monitor your progress over time, and stay motivated with personalized stats. All your information syncs wirelessly across devices, so your health data is always accessible whenever and wherever you need it.
+                        </p>
+                        <Button
+                          size="sm"
+                          variant={
+                            isConnectingSamsungHealth === 'connected' ? "outline" : "default"
+                          }
+                          className={`text-xs h-7 ${
+                            isConnectingSamsungHealth === 'connected'
+                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                          onClick={() => {
+                            if (isConnectingSamsungHealth === 'connected') {
+                              // clearConnectionState();
+                              RookSamsungHealth.disableBackGroundUpdates();
+                              setIsConnectingSamsungHealth('disconnected');
+                              localStorage.removeItem('samsung_health_device_connection_state');
+                            } else {
+                              // connectSdk();
+                              if(isSamsungDevice()){
+                                executeSamsungHealthConnection();
+                              } else {
+                                toast({
+                                  title: "Error",
+                                  description: "Samsung Health is not installed on this device.",
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              }
+              {/* Platform Health (Apple Health / Health Connect) - Only show if NOT Samsung */}       
+              
 
               {/* Other Devices */}
               {devicesData.data_sources?.map(
@@ -524,7 +764,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
               {getPlatformInfo().isIOS 
                 ? "This app uses Apple Health (HealthKit) to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
-                : "This app uses Google Health to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
+                : "This app uses Health Connect to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
               }
             </DialogDescription>
           </DialogHeader>
