@@ -53,6 +53,7 @@ export default function Devices() {
 
   // Helper function to detect if device is Samsung
   const isSamsungDevice = () => {
+    // return true;
     if (typeof navigator !== 'undefined') {
       const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
       // Check for Samsung in user agent (common patterns: SM-, Samsung, GT-)
@@ -573,7 +574,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                 </div>
               </div>
               {/* Samsung Health - Only show if Samsung device */}
-              {isSamsungDevice() && (
+              
               <div
                 key={'-2'}
                 className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
@@ -633,7 +634,15 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                            localStorage.removeItem('samsung_health_device_connection_state');
                         } else {
                           // connectSdk();
-                          executeSamsungHealthConnection();
+                          if(isSamsungDevice()){
+                            executeSamsungHealthConnection();
+                          } else {
+                            toast({
+                              title: "Error",
+                              description: "Samsung Health is not installed on this device.",
+                              variant: "destructive",
+                            });
+                          }
                         }
                       }}
                     >
@@ -642,7 +651,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                   </div>
                 </div>
               </div>
-              )}
+              
 
               {/* Other Devices */}
               {devicesData.data_sources?.map(
