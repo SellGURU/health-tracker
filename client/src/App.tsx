@@ -145,6 +145,7 @@ function Router() {
                 <Route path="/manual-entry" component={ManualEntry} />
                 <Route path="/holistic-plans" component={HolisticPlans} />
                 <Route path="/not-found" component={NotFound} />
+                <Route path="/auth" component={YouMenu} />
                 <Route component={NotFound} />
               </Switch>
             </MobileLayout>
