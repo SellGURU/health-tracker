@@ -70,8 +70,8 @@ export default function Profile() {
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
-    active_client:boolean;
-    plan?:string;
+    active_client: boolean;
+    plan?: string;
     coach_username: [];
     connected_wearable: boolean;
     date_of_birth: string;
