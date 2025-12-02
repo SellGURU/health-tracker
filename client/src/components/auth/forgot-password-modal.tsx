@@ -1,22 +1,22 @@
+import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { validateEmail } from "@/lib/utils";
-import { Eye, EyeOff, Info, Key, Lock, Mail } from "lucide-react";
-import { useEffect, useState } from "react";
-import Application from "@/api/app";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { validateEmail } from "@/lib/utils";
+import { Eye, EyeOff, Info, Key, Lock, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -32,7 +32,7 @@ export default function ForgotPasswordModal({
   onSuccess,
 }: ForgotPasswordModalProps) {
   const { toast } = useToast();
-  const [forgotPasswordStep, setForgotPasswordStep] = useState(1);
+  const [forgotPasswordStep, setForgotPasswordStep] = useState(3);
   const [forgotPasswordData, setForgotPasswordData] = useState({
     email: initialEmail,
     resetCode: "",
@@ -41,6 +41,7 @@ export default function ForgotPasswordModal({
   });
   const [isLoadingForgotPassword, setIsLoadingForgotPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [codeExpireTime, setCodeExpireTime] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
@@ -59,7 +60,7 @@ export default function ForgotPasswordModal({
         newPassword: "",
         confirmPassword: "",
       });
-      setForgotPasswordStep(1);
+      // setForgotPasswordStep(1);
       setCodeExpireTime(null);
       setTimeRemaining(0);
     }
@@ -377,7 +378,7 @@ export default function ForgotPasswordModal({
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         aria-label="Password requirements"
                         onMouseEnter={() => setIsInfoOpen(true)}
                         onMouseLeave={() => setIsInfoOpen(false)}
@@ -386,7 +387,7 @@ export default function ForgotPasswordModal({
                       </button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-72 p-3 text-sm"
+                      className="w-64 p-3 text-sm"
                       side="top"
                       sideOffset={8}
                       onMouseEnter={() => setIsInfoOpen(true)}
@@ -451,7 +452,7 @@ export default function ForgotPasswordModal({
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     id="confirm-new-password"
-                    type={showNewPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     value={forgotPasswordData.confirmPassword}
                     onChange={(e) => {
                       setForgotPasswordData((prev) => ({
@@ -467,6 +468,19 @@ export default function ForgotPasswordModal({
                     placeholder="Confirm new password"
                     data-testid="input-confirm-password"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
                 {errorsForgotPassword.confirmPassword && (
                   <p className="text-red-500 text-sm">
