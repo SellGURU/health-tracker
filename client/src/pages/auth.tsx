@@ -62,7 +62,6 @@ export default function AuthPage() {
     }
   }, [stage]);
 
-
   const handleContinue = () => {
     setFadeClass("opacity-0");
     setTimeout(() => {
@@ -98,7 +97,7 @@ export default function AuthPage() {
       password: "password123",
     });
   };
-  const [location,navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const CallLoginAuthApi = async (isRegister = false) => {
     setIsLoadingLogin(true);
     const data = {
@@ -127,24 +126,26 @@ export default function AuthPage() {
       })
       .catch((res) => {
         if (res.response.data.detail) {
-          if (res.response.data.detail.includes("email")) {
-            toast({
-              title: "Sign in failed",
-              description:
-                "This email address is not registered in our system.",
-              variant: "destructive",
+          if (
+            res.response.data.detail.includes("email") ||
+            res.response.data.detail.includes("Email")
+          ) {
+            setErrorsLogin({
+              ...errorsLogin,
+              email: res.response.data.detail,
             });
-          } else if (res.response.data.detail.includes("password")) {
-            toast({
-              title: "Sign in failed",
-              description: "Incorrect password. Please try again.",
-              variant: "destructive",
+          } else if (
+            res.response.data.detail.includes("password") ||
+            res.response.data.detail.includes("Password")
+          ) {
+            setErrorsLogin({
+              ...errorsLogin,
+              password: res.response.data.detail,
             });
           } else {
-            toast({
-              title: "Sign in failed",
-              description: res.response.data.detail,
-              variant: "destructive",
+            setErrorsLogin({
+              ...errorsLogin,
+              email: res.response.data.detail,
             });
           }
         }
@@ -165,11 +166,28 @@ export default function AuthPage() {
         });
       })
       .catch((res) => {
-        toast({
-          title: "Sign up failed",
-          description: res.response.data.detail,
-          variant: "destructive",
-        });
+        if (
+          res.response.data.detail.includes("email") ||
+          res.response.data.detail.includes("Email")
+        ) {
+          setErrorsRegister({
+            ...errorsRegister,
+            email: res.response.data.detail,
+          });
+        } else if (
+          res.response.data.detail.includes("password") ||
+          res.response.data.detail.includes("Password")
+        ) {
+          setErrorsRegister({
+            ...errorsRegister,
+            password: res.response.data.detail,
+          });
+        } else {
+          setErrorsRegister({
+            ...errorsRegister,
+            email: res.response.data.detail,
+          });
+        }
       })
       .finally(() => {
         setIsLoadingRegister(false);
@@ -268,10 +286,14 @@ export default function AuthPage() {
             </div>
 
             <h1 className="text-white text-2xl font-bold mb-2">
-              {brandInfo ? (brandInfo?.name|| "HolistiCare.io") : "HolistiCare.io"}
+              {brandInfo
+                ? brandInfo?.name || "HolistiCare.io"
+                : "HolistiCare.io"}
             </h1>
             <p className="text-white/90 text-sm">
-              {brandInfo ? (brandInfo?.headline|| "Empower Health with Intelligence") : "Empower Health with Intelligence"}
+              {brandInfo
+                ? brandInfo?.headline || "Empower Health with Intelligence"
+                : "Empower Health with Intelligence"}
             </p>
           </div>
         )}
@@ -282,13 +304,15 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={ brandInfo ? brandInfo?.logo : logoImage}
+                src={brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-2">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
+            <h1 className="text-white text-xl font-bold mb-2">
+              {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
+            </h1>
             <p className="text-white/90 text-sm mb-8 sm:mb-12">
               Welcome back to your health journey
             </p>
@@ -308,13 +332,15 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={ brandInfo ? brandInfo?.logo : logoImage}
+                src={brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-6">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
+            <h1 className="text-white text-xl font-bold mb-6">
+              {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
+            </h1>
 
             <div className="w-full max-w-xs mx-auto">
               <Tabs
@@ -616,7 +642,10 @@ export default function AuthPage() {
                             );
                           }}
                           // href="https://holisticare.io/legal/patients-privacy-policy/"
-                          style={{ textDecoration: "underline",cursor: "pointer" }}
+                          style={{
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                          }}
                         >
                           Privacy Policy
                         </div>
@@ -629,7 +658,10 @@ export default function AuthPage() {
                             );
                           }}
                           // href="https://holisticare.io/legal/patients-terms-of-service/"
-                          style={{ textDecoration: "underline",cursor: "pointer" }}
+                          style={{
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                          }}
                         >
                           Terms of Service
                         </div>
