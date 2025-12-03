@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import {
   Home,
-  TrendingUp,
+  Watch,
   MessageCircle,
   BookOpen,
   Target,
@@ -12,7 +12,7 @@ import { useState } from "react";
 
 const navItems = [
   { path: "/", icon: Home, label: "Home" },
-  { path: "/monitor", icon: TrendingUp, label: "Monitor" },
+  { path: "/wearable", icon: Watch, label: "Wearable" },
   { path: "/chat", icon: MessageCircle, label: "Chat", isSpecial: true },
   { path: "/plan", icon: Target, label: "Plan" },
   { path: "/educational", icon: BookOpen, label: "Educational" },
