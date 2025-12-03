@@ -32,7 +32,7 @@ export default function ForgotPasswordModal({
   onSuccess,
 }: ForgotPasswordModalProps) {
   const { toast } = useToast();
-  const [forgotPasswordStep, setForgotPasswordStep] = useState(3);
+  const [forgotPasswordStep, setForgotPasswordStep] = useState(1);
   const [forgotPasswordData, setForgotPasswordData] = useState({
     email: initialEmail,
     resetCode: "",
@@ -272,7 +272,7 @@ export default function ForgotPasswordModal({
                   />
                 </div>
                 {errorsForgotPassword.email && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-[11px] mt-1">
                     {errorsForgotPassword.email}
                   </p>
                 )}
@@ -334,7 +334,7 @@ export default function ForgotPasswordModal({
                   />
                 </div>
                 {errorsForgotPassword.resetCode && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-[11px] mt-1">
                     {errorsForgotPassword.resetCode}
                   </p>
                 )}
@@ -435,7 +435,7 @@ export default function ForgotPasswordModal({
                   </Button>
                 </div>
                 {errorsForgotPassword.newPassword && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-[11px] mt-1">
                     {errorsForgotPassword.newPassword}
                   </p>
                 )}
@@ -483,7 +483,7 @@ export default function ForgotPasswordModal({
                   </Button>
                 </div>
                 {errorsForgotPassword.confirmPassword && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-[11px] mt-1">
                     {errorsForgotPassword.confirmPassword}
                   </p>
                 )}

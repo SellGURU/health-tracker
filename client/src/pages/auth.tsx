@@ -396,7 +396,7 @@ export default function AuthPage() {
                         placeholder="Enter your email"
                       />
                       {errorsLogin.email && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsLogin.email}
                         </p>
                       )}
@@ -443,7 +443,7 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsLogin.password && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsLogin.password}
                         </p>
                       )}
@@ -514,7 +514,7 @@ export default function AuthPage() {
                         placeholder="Enter your email"
                       />
                       {errorsRegister.email && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.email}
                         </p>
                       )}
@@ -561,7 +561,7 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsRegister.password && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.password}
                         </p>
                       )}
@@ -610,7 +610,7 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsRegister.confirmPassword && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.confirmPassword}
                         </p>
                       )}
