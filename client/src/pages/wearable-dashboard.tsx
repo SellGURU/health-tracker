@@ -15,12 +15,9 @@ import {
   ChevronRight,
   Sparkles,
   Watch,
-  ArrowLeft,
-  Smartphone,
   RefreshCw,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
 import {
   LineChart,
   Line,
@@ -208,21 +205,10 @@ function SleepStagesCircle() {
   );
 }
 
-function EmptyState({ onConnect, onBack, onViewDemo }: { onConnect: () => void; onBack: () => void; onViewDemo: () => void }) {
+function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
-      <div className="max-w-lg mx-auto">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onBack}
-          className="mb-4 -ml-2"
-          data-testid="button-back"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back
-        </Button>
-        
+      <div className="max-w-lg mx-auto pt-4">
         <div className="glass-card rounded-3xl p-8 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
           <div className="flex flex-col items-center text-center space-y-6">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-500 flex items-center justify-center shadow-xl shadow-blue-500/30">
@@ -231,10 +217,10 @@ function EmptyState({ onConnect, onBack, onViewDemo }: { onConnect: () => void; 
             
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                Connect Your Wearable
+                No Wearable Data
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">
-                Link your smartwatch or fitness tracker to see real-time health metrics, sleep data, and personalized insights.
+                Please make sure your wearable devices are connected and synced to see your real-time health metrics, sleep data, and wellness insights.
               </p>
             </div>
             
@@ -261,14 +247,6 @@ function EmptyState({ onConnect, onBack, onViewDemo }: { onConnect: () => void; 
             
             <div className="space-y-3 w-full max-w-xs pt-2">
               <Button
-                onClick={onConnect}
-                className="w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg shadow-blue-500/30"
-                data-testid="button-connect-wearable"
-              >
-                <Smartphone className="w-4 h-4 mr-2" />
-                Connect Device
-              </Button>
-              <Button
                 variant="outline"
                 onClick={onViewDemo}
                 className="w-full border-gray-200 dark:border-gray-700"
@@ -290,7 +268,6 @@ function EmptyState({ onConnect, onBack, onViewDemo }: { onConnect: () => void; 
 }
 
 export default function WearableDashboard() {
-  const [, setLocation] = useLocation();
   const [hasWearableData, setHasWearableData] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
@@ -318,10 +295,6 @@ export default function WearableDashboard() {
     return "Needs Attention";
   };
 
-  const handleConnect = () => {
-    setHasWearableData(true);
-  };
-
   const handleViewDemo = () => {
     setShowDemo(true);
     setHasWearableData(true);
@@ -329,28 +302,13 @@ export default function WearableDashboard() {
 
   if (!hasWearableData && !showDemo) {
     return (
-      <EmptyState 
-        onConnect={handleConnect} 
-        onBack={() => setLocation("/")} 
-        onViewDemo={handleViewDemo}
-      />
+      <EmptyState onViewDemo={handleViewDemo} />
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
-      <div className="max-w-lg mx-auto">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setLocation("/")}
-          className="mb-4 -ml-2"
-          data-testid="button-back-dashboard"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back
-        </Button>
-        
+      <div className="max-w-lg mx-auto pt-4">
         <div className="space-y-4">
         
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
