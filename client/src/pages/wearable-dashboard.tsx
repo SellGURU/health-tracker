@@ -256,10 +256,6 @@ function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
                 View Demo Data
               </Button>
             </div>
-            
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              Supports Apple Watch, Fitbit, Garmin, Oura Ring, and more
-            </p>
           </div>
         </div>
       </div>
