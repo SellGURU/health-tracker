@@ -354,12 +354,25 @@ export default function WearableDashboard() {
         <div className="space-y-4">
         
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
             Wellness Summary
           </h2>
           
+          <div className="flex flex-col items-center mb-4">
+            <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
+              <div className="text-center">
+                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                  {animatedScore.toFixed(1)}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {getScoreLabel(animatedScore)}
+                </div>
+              </div>
+            </CircularProgress>
+          </div>
+          
           {/* Tabs */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('daily')}
               className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-300 ${
@@ -382,19 +395,6 @@ export default function WearableDashboard() {
             >
               Weekly
             </button>
-          </div>
-          
-          <div className="flex flex-col items-center">
-            <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
-              <div className="text-center">
-                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                  {animatedScore.toFixed(1)}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {getScoreLabel(animatedScore)}
-                </div>
-              </div>
-            </CircularProgress>
           </div>
         </div>
 
