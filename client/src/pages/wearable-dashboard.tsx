@@ -371,14 +371,17 @@ export default function WearableDashboard() {
             </CircularProgress>
           </div>
           
-          {/* Tabs */}
+        </div>
+
+        {/* Tabs Section */}
+        <div className="glass-card rounded-2xl p-2 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('daily')}
-              className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-300 ${
+              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 border ${
                 activeTab === 'daily'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/30'
-                  : 'bg-white/50 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-white/70 dark:hover:bg-white/20'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/30 border-transparent'
+                  : 'bg-white/70 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-white/10'
               }`}
               data-testid="tab-daily"
             >
@@ -386,10 +389,10 @@ export default function WearableDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('weekly')}
-              className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-300 ${
+              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 border ${
                 activeTab === 'weekly'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/30'
-                  : 'bg-white/50 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-white/70 dark:hover:bg-white/20'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/30 border-transparent'
+                  : 'bg-white/70 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-white/10'
               }`}
               data-testid="tab-weekly"
             >
