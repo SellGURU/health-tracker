@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import {
   Activity,
   Flame,
@@ -13,8 +14,13 @@ import {
   Brain,
   ChevronRight,
   Sparkles,
+  Watch,
+  ArrowLeft,
+  Smartphone,
+  RefreshCw,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import {
   LineChart,
   Line,
@@ -202,7 +208,116 @@ function SleepStagesCircle() {
   );
 }
 
+function EmptyState({ onConnect, onBack, onViewDemo }: { onConnect: () => void; onBack: () => void; onViewDemo: () => void }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
+      <div className="max-w-lg mx-auto">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="mb-4 -ml-2"
+          data-testid="button-back"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Back
+        </Button>
+        
+        <div className="glass-card rounded-3xl p-8 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
+          <div className="flex flex-col items-center text-center space-y-6">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-500 flex items-center justify-center shadow-xl shadow-blue-500/30">
+              <Watch className="w-12 h-12 text-white" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                Connect Your Wearable
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">
+                Link your smartwatch or fitness tracker to see real-time health metrics, sleep data, and personalized insights.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4 w-full max-w-xs">
+              <div className="flex flex-col items-center space-y-1">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md">
+                  <Heart className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Heart Rate</span>
+              </div>
+              <div className="flex flex-col items-center space-y-1">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md">
+                  <Moon className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Sleep</span>
+              </div>
+              <div className="flex flex-col items-center space-y-1">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-md">
+                  <Footprints className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Steps</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3 w-full max-w-xs pt-2">
+              <Button
+                onClick={onConnect}
+                className="w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 text-white shadow-lg shadow-blue-500/30"
+                data-testid="button-connect-wearable"
+              >
+                <Smartphone className="w-4 h-4 mr-2" />
+                Connect Device
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onViewDemo}
+                className="w-full border-gray-200 dark:border-gray-700"
+                data-testid="button-view-demo"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                View Demo Data
+              </Button>
+            </div>
+            
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Supports Apple Watch, Fitbit, Garmin, Oura Ring, and more
+            </p>
+          </div>
+        </div>
+        
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-800 dark:text-white">Track Progress</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Daily insights</div>
+              </div>
+            </div>
+          </div>
+          <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-800 dark:text-white">AI Insights</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Personalized tips</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WearableDashboard() {
+  const [, setLocation] = useLocation();
+  const [hasWearableData, setHasWearableData] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
   const globalScore = getValueByType("Global Health Score") / 10;
   const steps = getValueByType("Steps");
@@ -228,9 +343,40 @@ export default function WearableDashboard() {
     return "Needs Attention";
   };
 
+  const handleConnect = () => {
+    setHasWearableData(true);
+  };
+
+  const handleViewDemo = () => {
+    setShowDemo(true);
+    setHasWearableData(true);
+  };
+
+  if (!hasWearableData && !showDemo) {
+    return (
+      <EmptyState 
+        onConnect={handleConnect} 
+        onBack={() => setLocation("/")} 
+        onViewDemo={handleViewDemo}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
-      <div className="space-y-4 max-w-lg mx-auto">
+      <div className="max-w-lg mx-auto">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLocation("/")}
+          className="mb-4 -ml-2"
+          data-testid="button-back-dashboard"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Back
+        </Button>
+        
+        <div className="space-y-4">
         
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
@@ -406,6 +552,7 @@ export default function WearableDashboard() {
           ))}
         </div>
 
+        </div>
       </div>
     </div>
   );

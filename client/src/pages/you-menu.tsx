@@ -630,6 +630,33 @@ export default function YouMenu() {
         </Card>
       )}
 
+      {/* Wearable Dashboard Card */}
+      <Card
+        className="cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-cyan-50/50 via-white/50 to-blue-50/50 dark:from-cyan-900/20 dark:via-gray-800/50 dark:to-blue-900/20 border-0 shadow-xl backdrop-blur-lg"
+        onClick={() => setLocation("/wearable")}
+        data-testid="card-wearable-dashboard"
+      >
+        <CardContent className="p-4 relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-lg"></div>
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-thin text-base text-gray-900 dark:text-gray-100 mb-1">
+                  Wearable Dashboard
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
+                  Track your daily wellness metrics
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Assigned Questionnaires Section */}
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
         <CardHeader className="pb-2">
