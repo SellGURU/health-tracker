@@ -207,8 +207,8 @@ function SleepStagesCircle() {
 
 function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
-      <div className="max-w-lg mx-auto pt-4">
+    <div className="h-[calc(100vh-5rem)] bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 flex items-center justify-center overflow-hidden">
+      <div className="max-w-lg w-full">
         <div className="glass-card rounded-3xl p-8 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
           <div className="flex flex-col items-center text-center space-y-6">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-500 flex items-center justify-center shadow-xl shadow-blue-500/30">
