@@ -18,6 +18,7 @@ import ChatPage from "@/pages/chat";
 import EducationalPage from "@/pages/educational";
 import PlanPage from "@/pages/plan-simple";
 import ActionPlanPage from "@/pages/action-plan";
+import WearableDashboard from "@/pages/wearable-dashboard";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
 // import { usePushNotifications } from "./hooks/use-pushNotification";
@@ -98,6 +99,7 @@ function Router() {
         <Route path="/lab-upload" component={LabUpload} />
         <Route path="/manual-entry" component={ManualEntry} />
         <Route path="/holistic-plans" component={HolisticPlans} />
+        <Route path="/wearable" component={WearableDashboard} />
         <Route path="/not-found" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
