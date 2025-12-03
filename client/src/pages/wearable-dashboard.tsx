@@ -207,16 +207,16 @@ function SleepStagesCircle() {
 
 function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
   return (
-    <div className="h-[calc(100vh-5rem)] bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 flex items-center justify-center overflow-hidden">
+    <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900">
       <div className="max-w-lg w-full">
-        <div className="glass-card rounded-3xl p-8 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
-          <div className="flex flex-col items-center text-center space-y-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-500 flex items-center justify-center shadow-xl shadow-blue-500/30">
-              <Watch className="w-12 h-12 text-white" />
+        <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
+          <div className="flex flex-col items-center text-center space-y-5">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-500 flex items-center justify-center shadow-xl shadow-blue-500/30">
+              <Watch className="w-10 h-10 text-white" />
             </div>
             
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                 No Wearable Data
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">
@@ -224,28 +224,28 @@ function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
               </p>
             </div>
             
-            <div className="grid grid-cols-3 gap-4 w-full max-w-xs">
+            <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
               <div className="flex flex-col items-center space-y-1">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md">
-                  <Heart className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md">
+                  <Heart className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xs text-gray-500 dark:text-gray-400">Heart Rate</span>
               </div>
               <div className="flex flex-col items-center space-y-1">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md">
-                  <Moon className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md">
+                  <Moon className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xs text-gray-500 dark:text-gray-400">Sleep</span>
               </div>
               <div className="flex flex-col items-center space-y-1">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-md">
-                  <Footprints className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-md">
+                  <Footprints className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xs text-gray-500 dark:text-gray-400">Steps</span>
               </div>
             </div>
             
-            <div className="space-y-3 w-full max-w-xs pt-2">
+            <div className="w-full max-w-xs">
               <Button
                 variant="outline"
                 onClick={onViewDemo}
