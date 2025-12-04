@@ -31,7 +31,9 @@ import {
   Cell,
   PieChart,
   Pie,
+  Tooltip,
 } from "recharts";
+import { Dumbbell, HeartPulse, Timer } from "lucide-react";
 
 const biomarkersData = {
   biomarkers: [
@@ -137,6 +139,49 @@ const weeklyActiveData = [
   { day: 'Fri', minutes: 60 },
   { day: 'Sat', minutes: 196 },
 ];
+
+const currentScores = {
+  scores: {
+    sleep: 81.98,
+    activity: 60.10,
+    heart: 85.13,
+    stress: 100.0,
+    calories: 63.04,
+    body: 20.0,
+    global: 72.70
+  },
+  archetype: "Sedentary Worker"
+};
+
+const scoreHistory = [
+  { date: 'Nov 28', sleep: 75.2, activity: 55.3, heart: 82.1, stress: 85.0, calories: 58.2, body: 18.5, global: 68.4 },
+  { date: 'Nov 29', sleep: 78.5, activity: 48.2, heart: 80.5, stress: 90.0, calories: 55.8, body: 19.0, global: 66.2 },
+  { date: 'Nov 30', sleep: 82.1, activity: 62.4, heart: 83.7, stress: 92.0, calories: 61.5, body: 19.5, global: 70.1 },
+  { date: 'Dec 1', sleep: 79.8, activity: 58.1, heart: 84.2, stress: 88.0, calories: 60.2, body: 20.0, global: 69.5 },
+  { date: 'Dec 2', sleep: 80.5, activity: 54.6, heart: 86.0, stress: 95.0, calories: 62.8, body: 19.8, global: 71.2 },
+  { date: 'Dec 3', sleep: 83.2, activity: 65.8, heart: 84.8, stress: 98.0, calories: 64.5, body: 20.2, global: 73.5 },
+  { date: 'Dec 4', sleep: 81.98, activity: 60.10, heart: 85.13, stress: 100.0, calories: 63.04, body: 20.0, global: 72.70 },
+];
+
+const scoreColors: Record<string, string> = {
+  sleep: '#8B5CF6',
+  activity: '#10B981',
+  heart: '#EC4899',
+  stress: '#F59E0B',
+  calories: '#F97316',
+  body: '#06B6D4',
+  global: '#3B82F6',
+};
+
+const scoreLabels: Record<string, string> = {
+  sleep: 'Sleep',
+  activity: 'Activity',
+  heart: 'Heart',
+  stress: 'Stress',
+  calories: 'Calories',
+  body: 'Body',
+  global: 'Global',
+};
 
 function CircularProgress({ 
   value, 
@@ -307,8 +352,8 @@ export default function WearableDashboard() {
   const [hasWearableData, setHasWearableData] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
-  const [activeTab, setActiveTab] = useState<'daily' | 'weekly'>('daily');
-  const globalScore = getValueByType("Global Health Score") / 10;
+  const [visibleScores, setVisibleScores] = useState<string[]>(['global', 'sleep', 'activity', 'heart']);
+  const globalScore = currentScores.scores.global / 10;
   const steps = getValueByType("Steps");
   const sleepSeconds = getValueByType("Sleep Duration");
   const activeMinutes = Math.round(getValueByType("Active Time") / 60);
@@ -337,28 +382,37 @@ export default function WearableDashboard() {
     setHasWearableData(true);
   };
 
+  const toggleScoreVisibility = (scoreKey: string) => {
+    setVisibleScores(prev => 
+      prev.includes(scoreKey) 
+        ? prev.filter(s => s !== scoreKey)
+        : [...prev, scoreKey]
+    );
+  };
+
   if (!hasWearableData && !showDemo) {
     return (
       <EmptyState onViewDemo={handleViewDemo} />
     );
   }
 
-  const weeklyAvgSteps = Math.round(weeklyStepsData.reduce((a, b) => a + b.steps, 0) / 7);
-  const weeklyAvgSleep = (weeklySleepData.reduce((a, b) => a + b.hours, 0) / 7).toFixed(1);
-  const weeklyAvgCalories = Math.round(weeklyCaloriesData.reduce((a, b) => a + b.calories, 0) / 7);
-  const weeklyAvgActive = Math.round(weeklyActiveData.reduce((a, b) => a + b.minutes, 0) / 7);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
       <div className="max-w-lg mx-auto pt-4">
         <div className="space-y-4">
         
+        {/* Hero Card with Global Score and Archetype */}
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            Wellness Summary
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Wellness Summary
+            </h2>
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+              {currentScores.archetype}
+            </span>
+          </div>
           
-          <div className="flex flex-col items-center mb-4">
+          <div className="flex flex-col items-center">
             <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
               <div className="text-center">
                 <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
@@ -370,316 +424,258 @@ export default function WearableDashboard() {
               </div>
             </CircularProgress>
           </div>
-          
         </div>
 
-        {/* Tabs Section */}
-        <div className="glass-card rounded-2xl p-2 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('daily')}
-              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 border ${
-                activeTab === 'daily'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/30 border-transparent'
-                  : 'bg-white/70 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-white/10'
-              }`}
-              data-testid="tab-daily"
-            >
-              Daily
-            </button>
-            <button
-              onClick={() => setActiveTab('weekly')}
-              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 border ${
-                activeTab === 'weekly'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/30 border-transparent'
-                  : 'bg-white/70 dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-white/10'
-              }`}
-              data-testid="tab-weekly"
-            >
-              Weekly
-            </button>
+        {/* Daily Metrics - Steps, Sleep, Active, Calories */}
+        <div className="grid grid-cols-4 gap-2">
+          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-steps">
+            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+              <Footprints className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-800 dark:text-white">{steps.toLocaleString()}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400">Steps</div>
+          </div>
+          
+          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-sleep">
+            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <Moon className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-800 dark:text-white">{formatDuration(sleepSeconds)}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400">Sleep</div>
+          </div>
+          
+          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-active">
+            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-800 dark:text-white">{activeMinutes}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400">Active Min</div>
+          </div>
+          
+          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-calories">
+            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <Flame className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-800 dark:text-white">{calories}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400">Calories</div>
           </div>
         </div>
 
-        {activeTab === 'daily' ? (
-          <>
-            {/* Daily View */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-steps">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Footprints className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-xl font-bold text-gray-800 dark:text-white">{steps.toLocaleString()}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Steps</div>
-              </div>
-              
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-sleep">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                  <Moon className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-xl font-bold text-gray-800 dark:text-white">{formatDuration(sleepSeconds)}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Sleep</div>
-              </div>
-              
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-active">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-xl font-bold text-gray-800 dark:text-white">{activeMinutes}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Active Min</div>
-              </div>
-            </div>
+        {/* Score Progression History */}
+        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-score-progression">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Score Progression</h3>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 days</span>
+          </div>
+          
+          {/* Score Legend Toggles */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {Object.keys(scoreColors).map((key) => (
+              <button
+                key={key}
+                onClick={() => toggleScoreVisibility(key)}
+                className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all duration-200 flex items-center gap-1 ${
+                  visibleScores.includes(key)
+                    ? 'bg-white/80 dark:bg-white/20 shadow-sm'
+                    : 'bg-transparent opacity-50'
+                }`}
+                data-testid={`toggle-${key}`}
+              >
+                <span 
+                  className="w-2 h-2 rounded-full" 
+                  style={{ backgroundColor: scoreColors[key] }}
+                />
+                <span className="text-gray-700 dark:text-gray-300">{scoreLabels[key]}</span>
+              </button>
+            ))}
+          </div>
+          
+          <div className="h-44">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={scoreHistory}>
+                <defs>
+                  {Object.entries(scoreColors).map(([key, color]) => (
+                    <linearGradient key={key} id={`${key}Gradient`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={color} stopOpacity={0}/>
+                    </linearGradient>
+                  ))}
+                </defs>
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 10 }} 
+                  stroke="#9CA3AF" 
+                  axisLine={false} 
+                  tickLine={false} 
+                />
+                <YAxis 
+                  hide 
+                  domain={[0, 100]} 
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    borderRadius: '12px', 
+                    border: 'none',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                  }}
+                  labelStyle={{ fontWeight: 600, marginBottom: 4 }}
+                />
+                {visibleScores.includes('global') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="global" 
+                    stroke={scoreColors.global} 
+                    strokeWidth={2.5} 
+                    dot={{ fill: scoreColors.global, r: 3 }}
+                    activeDot={{ r: 5 }}
+                  />
+                )}
+                {visibleScores.includes('sleep') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="sleep" 
+                    stroke={scoreColors.sleep} 
+                    strokeWidth={2} 
+                    dot={{ fill: scoreColors.sleep, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                )}
+                {visibleScores.includes('activity') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="activity" 
+                    stroke={scoreColors.activity} 
+                    strokeWidth={2} 
+                    dot={{ fill: scoreColors.activity, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                )}
+                {visibleScores.includes('heart') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="heart" 
+                    stroke={scoreColors.heart} 
+                    strokeWidth={2} 
+                    dot={{ fill: scoreColors.heart, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                )}
+                {visibleScores.includes('stress') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="stress" 
+                    stroke={scoreColors.stress} 
+                    strokeWidth={2} 
+                    dot={{ fill: scoreColors.stress, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                )}
+                {visibleScores.includes('calories') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="calories" 
+                    stroke={scoreColors.calories} 
+                    strokeWidth={2} 
+                    dot={{ fill: scoreColors.calories, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                )}
+                {visibleScores.includes('body') && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="body" 
+                    stroke={scoreColors.body} 
+                    strokeWidth={2} 
+                    dot={{ fill: scoreColors.body, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-            <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-calorie-burn">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Calorie Burn</h3>
-              <div className="flex items-center justify-center">
-                <CircularProgress value={calories} max={3000} size={80} strokeWidth={6}>
-                  <div className="text-center">
-                    <Flame className="w-5 h-5 text-orange-500 mx-auto" />
-                  </div>
-                </CircularProgress>
-              </div>
-              <div className="text-center mt-2">
-                <span className="text-lg font-bold text-gray-800 dark:text-white">{calories}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">kcal</span>
-              </div>
-            </div>
-
-            <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-biometrics">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Biometric Timeline</h3>
-                <div className="flex gap-3 text-xs">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-pink-500" />
-                    HR
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-purple-500" />
-                    HRV
-                  </span>
-                </div>
-              </div>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={heartRateData}>
-                    <defs>
-                      <linearGradient id="hrGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#EC4899" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#EC4899" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="hrvGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="time" tick={{ fontSize: 10 }} stroke="#9CA3AF" axisLine={false} tickLine={false} />
-                    <YAxis hide domain={[40, 100]} />
-                    <Area type="monotone" dataKey="hr" stroke="#EC4899" strokeWidth={2} fill="url(#hrGradient)" />
-                    <Area type="monotone" dataKey="hrv" stroke="#8B5CF6" strokeWidth={2} fill="url(#hrvGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { icon: Heart, label: "HR", value: heartRate, unit: "bpm", color: "from-pink-500 to-rose-500" },
-                { icon: Activity, label: "SpO2", value: spo2, unit: "%", color: "from-cyan-500 to-blue-500" },
-                { icon: Brain, label: "HRV", value: hrv, unit: "ms", color: "from-purple-500 to-indigo-500" },
-                { icon: Wind, label: "BR", value: breathingRate, unit: "/min", color: "from-teal-500 to-emerald-500" },
-              ].map((metric, i) => (
+        {/* Current Scores Grid */}
+        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-current-scores">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Today's Scores</h3>
+          <div className="grid grid-cols-4 gap-2">
+            {Object.entries(currentScores.scores).filter(([key]) => key !== 'global').map(([key, value]) => (
+              <div 
+                key={key}
+                className="text-center p-2 rounded-xl bg-white/50 dark:bg-white/5"
+                data-testid={`score-${key}`}
+              >
                 <div 
-                  key={i} 
-                  className="glass-card rounded-xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center"
-                  data-testid={`metric-${metric.label.toLowerCase()}`}
+                  className="text-lg font-bold"
+                  style={{ color: scoreColors[key] }}
                 >
-                  <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center`}>
-                    <metric.icon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-sm font-bold text-gray-800 dark:text-white">{metric.value}</div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">{metric.unit}</div>
+                  {Math.round(value)}
                 </div>
-              ))}
-            </div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 capitalize">{key}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-            <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-sleep-analysis">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Sleep Analysis</h3>
-              <SleepStagesCircle />
-              <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50 flex justify-between text-xs">
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Efficiency</span>
-                  <span className="ml-2 font-semibold text-gray-800 dark:text-white">90%</span>
-                </div>
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Quality</span>
-                  <span className="ml-2 font-semibold text-gray-800 dark:text-white">5/5</span>
-                </div>
+        {/* Biometrics */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { icon: Heart, label: "HR", value: heartRate, unit: "bpm", color: "from-pink-500 to-rose-500" },
+            { icon: Activity, label: "SpO2", value: spo2, unit: "%", color: "from-cyan-500 to-blue-500" },
+            { icon: Brain, label: "HRV", value: hrv, unit: "ms", color: "from-purple-500 to-indigo-500" },
+            { icon: Wind, label: "BR", value: breathingRate, unit: "/min", color: "from-teal-500 to-emerald-500" },
+          ].map((metric, i) => (
+            <div 
+              key={i} 
+              className="glass-card rounded-xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center"
+              data-testid={`metric-${metric.label.toLowerCase()}`}
+            >
+              <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center`}>
+                <metric.icon className="w-4 h-4 text-white" />
               </div>
+              <div className="text-sm font-bold text-gray-800 dark:text-white">{metric.value}</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400">{metric.unit}</div>
             </div>
+          ))}
+        </div>
 
-            <div className="space-y-2" data-testid="insights-section">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 px-1">Your Insights</h3>
-              {insights.map((insight, i) => (
-                <div 
-                  key={i}
-                  className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg flex items-center gap-3"
-                  data-testid={`insight-card-${i}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${insight.color} flex items-center justify-center flex-shrink-0`}>
-                    <insight.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-800 dark:text-white">{insight.title}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{insight.description}</div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                </div>
-              ))}
+        {/* Sleep Analysis */}
+        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-sleep-analysis">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Sleep Analysis</h3>
+          <SleepStagesCircle />
+          <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50 flex justify-between text-xs">
+            <div>
+              <span className="text-gray-500 dark:text-gray-400">Efficiency</span>
+              <span className="ml-2 font-semibold text-gray-800 dark:text-white">90%</span>
             </div>
-          </>
-        ) : (
-          <>
-            {/* Weekly View */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="weekly-tile-steps">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Footprints className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-xl font-bold text-gray-800 dark:text-white">{weeklyAvgSteps.toLocaleString()}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Avg Steps</div>
-              </div>
-              
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="weekly-tile-sleep">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                  <Moon className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-xl font-bold text-gray-800 dark:text-white">{weeklyAvgSleep}h</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Avg Sleep</div>
-              </div>
-              
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="weekly-tile-active">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-xl font-bold text-gray-800 dark:text-white">{weeklyAvgActive}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Avg Active</div>
-              </div>
+            <div>
+              <span className="text-gray-500 dark:text-gray-400">Quality</span>
+              <span className="ml-2 font-semibold text-gray-800 dark:text-white">5/5</span>
             </div>
+          </div>
+        </div>
 
-            <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-weekly-steps">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Weekly Steps</h3>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyStepsData} barSize={20}>
-                    <XAxis dataKey="day" tick={{ fontSize: 10 }} stroke="#9CA3AF" axisLine={false} tickLine={false} />
-                    <Bar dataKey="steps" radius={[6, 6, 0, 0]} fill="url(#stepsGradient)">
-                      {weeklyStepsData.map((entry, index) => {
-                        const percent = entry.steps / entry.goal;
-                        const color = percent >= 1 ? '#34D399' : percent >= 0.7 ? '#60A5FA' : percent >= 0.5 ? '#FBBF24' : '#F87171';
-                        return <Cell key={`cell-${index}`} fill={color} fillOpacity={0.8} />;
-                      })}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+        {/* Insights */}
+        <div className="space-y-2" data-testid="insights-section">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 px-1">Your Insights</h3>
+          {insights.map((insight, i) => (
+            <div 
+              key={i}
+              className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg flex items-center gap-3"
+              data-testid={`insight-card-${i}`}
+            >
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${insight.color} flex items-center justify-center flex-shrink-0`}>
+                <insight.icon className="w-5 h-5 text-white" />
               </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-800 dark:text-white">{insight.title}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{insight.description}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
             </div>
-
-            <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-weekly-sleep">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Weekly Sleep</h3>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={weeklySleepData}>
-                    <defs>
-                      <linearGradient id="sleepGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="day" tick={{ fontSize: 10 }} stroke="#9CA3AF" axisLine={false} tickLine={false} />
-                    <YAxis hide domain={[4, 10]} />
-                    <Area type="monotone" dataKey="hours" stroke="#8B5CF6" strokeWidth={2} fill="url(#sleepGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-weekly-calories">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Weekly Calories</h3>
-                <div className="h-24">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={weeklyCaloriesData}>
-                      <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#9CA3AF" axisLine={false} tickLine={false} />
-                      <Line type="monotone" dataKey="calories" stroke="#F97316" strokeWidth={2} dot={{ fill: '#F97316', r: 3 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="text-center mt-1">
-                  <span className="text-sm font-bold text-gray-800 dark:text-white">{weeklyAvgCalories}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">avg kcal</span>
-                </div>
-              </div>
-              
-              <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-weekly-active">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Weekly Activity</h3>
-                <div className="h-24">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weeklyActiveData} barSize={16}>
-                      <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#9CA3AF" axisLine={false} tickLine={false} />
-                      <Bar dataKey="minutes" radius={[4, 4, 0, 0]} fill="#10B981" fillOpacity={0.7} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="text-center mt-1">
-                  <span className="text-sm font-bold text-gray-800 dark:text-white">{weeklyAvgActive}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">avg min</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-weekly-summary">
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Weekly Summary</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Footprints className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Total Steps</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-800 dark:text-white">
-                    {weeklyStepsData.reduce((a, b) => a + b.steps, 0).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Moon className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Total Sleep</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-800 dark:text-white">
-                    {weeklySleepData.reduce((a, b) => a + b.hours, 0).toFixed(1)}h
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Flame className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Total Calories</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-800 dark:text-white">
-                    {weeklyCaloriesData.reduce((a, b) => a + b.calories, 0).toLocaleString()} kcal
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-emerald-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Total Active</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-800 dark:text-white">
-                    {weeklyActiveData.reduce((a, b) => a + b.minutes, 0)} min
-                  </span>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+          ))}
+        </div>
 
         </div>
       </div>
