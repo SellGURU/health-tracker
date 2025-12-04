@@ -53,6 +53,16 @@ type MetricConfig = {
   tooltip: string;
 };
 
+const archetypeDescriptions: Record<string, string> = {
+  'Night Owl': 'You often fall asleep late with irregular sleep timing. Your rhythm leans toward late nights, which can affect sleep quality.',
+  'Strong Sleeper': 'You have good sleep efficiency with solid deep & REM sleep. You recover well with strong nighttime restoration.',
+  'Sedentary Worker': 'You take few steps per day with long periods of inactivity. You may sit or stay inactive for extended times.',
+  'Stress Responder': 'You spend long durations in a high-stress state or have lower HRV. Your nervous system may need more recovery.',
+  'High Performer': 'You sleep well, stay active, have strong cardiovascular metrics, and balanced stress responses.',
+  'Balanced Individual': 'You show no major weaknesses or extreme strengths. A stable lifestyle with room to grow.',
+  'Recovery Needed': 'Several biomarker areas are in low or critical ranges. Your body may need recovery or lifestyle changes.',
+};
+
 const metricsConfig: MetricConfig[] = [
   {
     key: 'sleep',
@@ -538,9 +548,24 @@ export default function WearableDashboard() {
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               Wellness Summary
             </h2>
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
-              {currentScores.archetype}
-            </span>
+            <TooltipProvider delayDuration={200}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 flex items-center gap-1 hover:from-cyan-500/30 hover:to-blue-500/30 transition-all">
+                    {currentScores.archetype}
+                    <Info className="w-3 h-3 opacity-60" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="bottom" 
+                  align="end"
+                  className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                >
+                  <p className="font-medium mb-1">{currentScores.archetype}</p>
+                  <p>{archetypeDescriptions[currentScores.archetype] || 'Your wellness archetype based on your health patterns.'}</p>
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
           </div>
           
           {/* Global Score Hero */}
