@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { format, subDays, isAfter, isBefore, startOfDay } from "date-fns";
+import { format, subDays, isAfter, isBefore, startOfDay, differenceInCalendarDays } from "date-fns";
 import {
   Activity,
   Flame,
@@ -42,6 +42,7 @@ import {
   PieChart,
   Pie,
   Tooltip,
+  CartesianGrid,
 } from "recharts";
 import { Dumbbell, HeartPulse, Timer } from "lucide-react";
 
@@ -66,42 +67,42 @@ const archetypeDescriptions: Record<string, string> = {
 const metricsConfig: MetricConfig[] = [
   {
     key: 'sleep',
-    label: 'Sleep',
+    label: 'Sleep Score',
     icon: MoonStar,
     color: '#8B5CF6',
     tooltip: 'Based on: Total sleep duration, deep/light/REM sleep amounts, sleep efficiency, quality rating, time awake during night, and sleep schedule consistency.'
   },
   {
     key: 'activity',
-    label: 'Activity',
+    label: 'Activity Score',
     icon: Footprints,
     color: '#10B981',
     tooltip: 'Based on: Steps taken, active minutes, low/moderate/vigorous intensity activity, inactivity duration, walking distance, and active calories burned.'
   },
   {
     key: 'heart',
-    label: 'Heart',
+    label: 'Heart Score',
     icon: HeartPulse,
     color: '#EC4899',
     tooltip: 'Based on: Average, minimum, and maximum heart rate, plus Heart Rate Variability (HRV). Higher HRV indicates better recovery and stress resilience.'
   },
   {
     key: 'stress',
-    label: 'Stress',
+    label: 'Stress Score',
     icon: BrainCircuit,
     color: '#F97316',
     tooltip: 'Based on: Duration of high-stress physiological states. Less sustained stress throughout the day means a higher stress score.'
   },
   {
     key: 'calories',
-    label: 'Calories',
+    label: 'Calorie Score',
     icon: Flame,
-    color: '#F97316',
+    color: '#EAB308',
     tooltip: 'Based on: Total calories burned and active calories from movement/exercise. More daily activity and higher active burn improves this score.'
   },
   {
     key: 'body',
-    label: 'Body',
+    label: 'Body Score',
     icon: PersonStanding,
     color: '#06B6D4',
     tooltip: 'Based on: Body Mass Index (BMI) and other body composition markers. Healthy weight-related metrics contribute to a higher score.'
@@ -234,9 +235,14 @@ const seededRandom = (seed: number) => {
 
 const generateScoreHistory = (fromDate: Date, toDate: Date) => {
   const data = [];
-  const currentDate = new Date(fromDate);
+  const normalizedFrom = startOfDay(fromDate);
+  const normalizedTo = startOfDay(toDate);
+  const totalDays = differenceInCalendarDays(normalizedTo, normalizedFrom) + 1;
   
-  while (currentDate <= toDate) {
+  for (let i = 0; i < totalDays; i++) {
+    const currentDate = new Date(normalizedFrom);
+    currentDate.setDate(currentDate.getDate() + i);
+    
     const dayOfYear = Math.floor((currentDate.getTime() - new Date(currentDate.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
     const dateSeed = currentDate.getFullYear() * 1000 + dayOfYear;
     
@@ -254,8 +260,6 @@ const generateScoreHistory = (fromDate: Date, toDate: Date) => {
       body: Math.round(Math.min(100, Math.max(15, 19 + baseVariation * 0.3 + getVariation(6) * 0.5)) * 10) / 10,
       global: Math.round(Math.min(100, Math.max(60, 70 + baseVariation * 0.7 + getVariation(7))) * 10) / 10,
     });
-    
-    currentDate.setDate(currentDate.getDate() + 1);
   }
   
   return data;
@@ -266,7 +270,7 @@ const scoreColors: Record<string, string> = {
   activity: '#10B981',
   heart: '#EC4899',
   stress: '#F59E0B',
-  calories: '#F97316',
+  calories: '#EAB308',
   body: '#06B6D4',
   global: '#3B82F6',
 };
@@ -452,11 +456,11 @@ export default function WearableDashboard() {
   const [animatedScore, setAnimatedScore] = useState(0);
   const [visibleScores, setVisibleScores] = useState<string[]>(['global', 'sleep', 'activity', 'heart', 'stress', 'calories', 'body']);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
-    from: subDays(new Date(), 6),
-    to: new Date()
+    from: startOfDay(subDays(new Date(), 6)),
+    to: startOfDay(new Date())
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [scoreHistory, setScoreHistory] = useState(() => generateScoreHistory(subDays(new Date(), 6), new Date()));
+  const [scoreHistory, setScoreHistory] = useState(() => generateScoreHistory(startOfDay(subDays(new Date(), 6)), startOfDay(new Date())));
   const globalScore = currentScores.scores.global / 10;
 
   useEffect(() => {
@@ -524,8 +528,8 @@ export default function WearableDashboard() {
 
   const setPresetRange = (days: number) => {
     setDateRange({
-      from: subDays(new Date(), days - 1),
-      to: new Date()
+      from: startOfDay(subDays(new Date(), days - 1)),
+      to: startOfDay(new Date())
     });
     setIsDatePickerOpen(false);
   };
@@ -750,9 +754,9 @@ export default function WearableDashboard() {
             ))}
           </div>
           
-          <div className="h-44">
+          <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={scoreHistory}>
+              <LineChart data={scoreHistory} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   {Object.entries(scoreColors).map(([key, color]) => (
                     <linearGradient key={key} id={`${key}Gradient`} x1="0" y1="0" x2="0" y2="1">
@@ -761,12 +765,19 @@ export default function WearableDashboard() {
                     </linearGradient>
                   ))}
                 </defs>
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="rgba(148, 163, 184, 0.15)" 
+                  vertical={false}
+                />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fontSize: 10 }} 
-                  stroke="#9CA3AF" 
+                  tick={{ fontSize: 9, fill: '#9CA3AF' }} 
+                  stroke="#E5E7EB" 
                   axisLine={false} 
-                  tickLine={false} 
+                  tickLine={false}
+                  interval={0}
+                  padding={{ left: 10, right: 10 }}
                 />
                 <YAxis 
                   hide 
@@ -774,81 +785,97 @@ export default function WearableDashboard() {
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)', 
                     borderRadius: '12px', 
-                    border: 'none',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                    border: '1px solid rgba(0,0,0,0.05)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                    fontSize: '11px',
+                    padding: '8px 12px'
                   }}
-                  labelStyle={{ fontWeight: 600, marginBottom: 4 }}
+                  labelStyle={{ fontWeight: 600, marginBottom: 6, fontSize: '12px' }}
+                  itemStyle={{ padding: '2px 0' }}
                 />
                 {visibleScores.includes('global') && (
                   <Line 
                     type="monotone" 
                     dataKey="global" 
+                    name="Global"
                     stroke={scoreColors.global} 
-                    strokeWidth={2.5} 
-                    dot={{ fill: scoreColors.global, r: 3 }}
-                    activeDot={{ r: 5 }}
+                    strokeWidth={3} 
+                    dot={false}
+                    activeDot={{ r: 5, fill: scoreColors.global, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
                 {visibleScores.includes('sleep') && (
                   <Line 
                     type="monotone" 
-                    dataKey="sleep" 
+                    dataKey="sleep"
+                    name="Sleep"
                     stroke={scoreColors.sleep} 
-                    strokeWidth={2} 
-                    dot={{ fill: scoreColors.sleep, r: 2 }}
-                    activeDot={{ r: 4 }}
+                    strokeWidth={1.5} 
+                    strokeOpacity={0.85}
+                    dot={false}
+                    activeDot={{ r: 4, fill: scoreColors.sleep, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
                 {visibleScores.includes('activity') && (
                   <Line 
                     type="monotone" 
-                    dataKey="activity" 
+                    dataKey="activity"
+                    name="Activity"
                     stroke={scoreColors.activity} 
-                    strokeWidth={2} 
-                    dot={{ fill: scoreColors.activity, r: 2 }}
-                    activeDot={{ r: 4 }}
+                    strokeWidth={1.5} 
+                    strokeOpacity={0.85}
+                    dot={false}
+                    activeDot={{ r: 4, fill: scoreColors.activity, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
                 {visibleScores.includes('heart') && (
                   <Line 
                     type="monotone" 
-                    dataKey="heart" 
+                    dataKey="heart"
+                    name="Heart"
                     stroke={scoreColors.heart} 
-                    strokeWidth={2} 
-                    dot={{ fill: scoreColors.heart, r: 2 }}
-                    activeDot={{ r: 4 }}
+                    strokeWidth={1.5} 
+                    strokeOpacity={0.85}
+                    dot={false}
+                    activeDot={{ r: 4, fill: scoreColors.heart, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
                 {visibleScores.includes('stress') && (
                   <Line 
                     type="monotone" 
-                    dataKey="stress" 
+                    dataKey="stress"
+                    name="Stress"
                     stroke={scoreColors.stress} 
-                    strokeWidth={2} 
-                    dot={{ fill: scoreColors.stress, r: 2 }}
-                    activeDot={{ r: 4 }}
+                    strokeWidth={1.5} 
+                    strokeOpacity={0.85}
+                    dot={false}
+                    activeDot={{ r: 4, fill: scoreColors.stress, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
                 {visibleScores.includes('calories') && (
                   <Line 
                     type="monotone" 
-                    dataKey="calories" 
+                    dataKey="calories"
+                    name="Calories"
                     stroke={scoreColors.calories} 
-                    strokeWidth={2} 
-                    dot={{ fill: scoreColors.calories, r: 2 }}
-                    activeDot={{ r: 4 }}
+                    strokeWidth={1.5} 
+                    strokeOpacity={0.85}
+                    dot={false}
+                    activeDot={{ r: 4, fill: scoreColors.calories, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
                 {visibleScores.includes('body') && (
                   <Line 
                     type="monotone" 
-                    dataKey="body" 
+                    dataKey="body"
+                    name="Body"
                     stroke={scoreColors.body} 
-                    strokeWidth={2} 
-                    dot={{ fill: scoreColors.body, r: 2 }}
-                    activeDot={{ r: 4 }}
+                    strokeWidth={1.5} 
+                    strokeOpacity={0.85}
+                    dot={false}
+                    activeDot={{ r: 4, fill: scoreColors.body, stroke: '#fff', strokeWidth: 2 }}
                   />
                 )}
               </LineChart>
