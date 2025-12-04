@@ -474,19 +474,13 @@ export default function WearableDashboard() {
         
         {/* Hero Card with Global Score and Archetype */}
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               Wellness Summary
             </h2>
             <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
               {currentScores.archetype}
             </span>
-          </div>
-          
-          {/* Last Sync Info */}
-          <div className="flex items-center justify-center gap-1.5 mb-4 text-[11px] text-gray-500 dark:text-gray-400">
-            <RefreshCw className="w-3 h-3" />
-            <span>Last synced: {format(currentScores.lastSync, 'MMM d, yyyy')} at {format(currentScores.lastSync, 'h:mm a')}</span>
           </div>
           
           <div className="flex flex-col items-center">
@@ -505,7 +499,15 @@ export default function WearableDashboard() {
 
         {/* All 7 Scores Display */}
         <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-all-scores">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Today's Scores</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Scores from {format(currentScores.lastSync, 'MMM d')}
+            </h3>
+            <span className="text-[9px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+              <RefreshCw className="w-2.5 h-2.5" />
+              {format(currentScores.lastSync, 'h:mm a')}
+            </span>
+          </div>
           <div className="grid grid-cols-3 gap-3">
             {Object.entries(currentScores.scores).filter(([key]) => key !== 'global').map(([key, value]) => (
               <div 
