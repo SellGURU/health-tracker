@@ -428,7 +428,7 @@ function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-                  <span className="text-gray-600 dark:text-gray-300">Body Score</span>
+                  <span className="text-gray-600 dark:text-gray-300">Body Composition Score</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
