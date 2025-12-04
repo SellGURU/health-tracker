@@ -472,9 +472,10 @@ export default function WearableDashboard() {
       <div className="max-w-lg mx-auto pt-4">
         <div className="space-y-4">
         
-        {/* Hero Card with Global Score and Archetype */}
-        <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
-          <div className="flex items-center justify-between mb-4">
+        {/* Unified Wellness Snapshot Card */}
+        <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20" data-testid="card-wellness-snapshot">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               Wellness Summary
             </h2>
@@ -483,7 +484,8 @@ export default function WearableDashboard() {
             </span>
           </div>
           
-          <div className="flex flex-col items-center">
+          {/* Global Score Hero */}
+          <div className="flex flex-col items-center mb-6">
             <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
               <div className="text-center">
                 <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
@@ -495,24 +497,16 @@ export default function WearableDashboard() {
               </div>
             </CircularProgress>
           </div>
-        </div>
-
-        {/* All 7 Scores Display */}
-        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-all-scores">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Scores from {format(currentScores.lastSync, 'MMM d')}
-            </h3>
-            <span className="text-[9px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
-              <RefreshCw className="w-2.5 h-2.5" />
-              {format(currentScores.lastSync, 'h:mm a')}
-            </span>
-          </div>
+          
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent dark:via-gray-600/50 mb-4" />
+          
+          {/* Individual Scores Grid */}
           <div className="grid grid-cols-3 gap-3">
             {Object.entries(currentScores.scores).filter(([key]) => key !== 'global').map(([key, value]) => (
               <div 
                 key={key}
-                className="text-center p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/30"
+                className="text-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-white/30"
                 data-testid={`score-${key}`}
               >
                 <div 
@@ -533,6 +527,14 @@ export default function WearableDashboard() {
                 <div className="text-[10px] text-gray-500 dark:text-gray-400 capitalize">{key}</div>
               </div>
             ))}
+          </div>
+          
+          {/* Subtle Last Sync Footer */}
+          <div className="mt-4 pt-3 border-t border-gray-200/30 dark:border-gray-700/30">
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+              <RefreshCw className="w-2.5 h-2.5" />
+              <span>Last synced {format(currentScores.lastSync, 'MMM d')} at {format(currentScores.lastSync, 'h:mm a')}</span>
+            </div>
           </div>
         </div>
 
