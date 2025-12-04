@@ -407,29 +407,8 @@ function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
                 No Wearable Data
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">
-                Please make sure your wearable devices are connected and synced to see your real-time health metrics, sleep data, and wellness insights.
+                Please make sure your wearable devices are connected and synced to see your real-time health metrics and sleep data.
               </p>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
-              <div className="flex flex-col items-center space-y-1">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md">
-                  <Heart className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Heart Rate</span>
-              </div>
-              <div className="flex flex-col items-center space-y-1">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md">
-                  <Moon className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Sleep</span>
-              </div>
-              <div className="flex flex-col items-center space-y-1">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-md">
-                  <Footprints className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Steps</span>
-              </div>
             </div>
             
             <div className="w-full max-w-xs">
