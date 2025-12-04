@@ -440,7 +440,7 @@ export default function WearableDashboard() {
   const [hasWearableData, setHasWearableData] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
-  const [visibleScores, setVisibleScores] = useState<string[]>(['global', 'sleep', 'activity', 'heart']);
+  const [visibleScores, setVisibleScores] = useState<string[]>(['global', 'sleep', 'activity', 'heart', 'stress', 'calories', 'body']);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subDays(new Date(), 6),
     to: new Date()
@@ -544,18 +544,35 @@ export default function WearableDashboard() {
           </div>
           
           {/* Global Score Hero */}
-          <div className="flex flex-col items-center mb-6">
-            <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
-              <div className="text-center">
-                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                  {animatedScore.toFixed(1)}
+          <TooltipProvider delayDuration={200}>
+            <div className="flex flex-col items-center mb-6">
+              <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
+                <div className="text-center">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                    {animatedScore.toFixed(1)}
+                  </div>
+                  <div className="flex items-center justify-center gap-1 mt-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Global Score
+                    </span>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors">
+                          <Info className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent 
+                        side="bottom" 
+                        className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                      >
+                        <p>Your Global Wellness Score combines all 6 metrics: Sleep, Activity, Heart Health, Stress, Calories, and Body Composition to give you an overall view of your health balance.</p>
+                      </TooltipContent>
+                    </UITooltip>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Global Score
-                </div>
-              </div>
-            </CircularProgress>
-          </div>
+              </CircularProgress>
+            </div>
+          </TooltipProvider>
           
           {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent dark:via-gray-600/50 mb-4" />
