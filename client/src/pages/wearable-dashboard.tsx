@@ -402,16 +402,49 @@ function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
               <Watch className="w-10 h-10 text-white" />
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-4">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                No Wearable Data
+                Your Wellness Dashboard Is Waiting for Data
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">
-                Please make sure your wearable devices are connected and synced to see your real-time health metrics and sleep data.
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                We analyze your sleep, movement, stress, heart rhythms, and body metrics to generate your:
+              </p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-left text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Sleep Score</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Activity Score</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Stress Score</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Heart Health Score</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Body Score</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Global Wellness Score</span>
+                </div>
+                <div className="flex items-center gap-2 col-span-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+                  <span className="text-gray-600 dark:text-gray-300">Personal Health Archetype</span>
+                </div>
+              </div>
+              <p className="text-gray-500 dark:text-gray-400 text-sm pt-1">
+                Connect your wearable device to unlock your personalized insights.
               </p>
             </div>
             
-            <div className="w-full max-w-xs">
+            <div className="w-full max-w-xs pt-2">
               <Button
                 variant="outline"
                 onClick={onViewDemo}
