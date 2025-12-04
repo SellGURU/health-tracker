@@ -158,15 +158,39 @@ const currentScores = {
   lastSync: new Date('2024-12-04T14:32:00')
 };
 
-const scoreHistory = [
-  { date: 'Nov 28', sleep: 75.2, activity: 55.3, heart: 82.1, stress: 85.0, calories: 58.2, body: 18.5, global: 68.4 },
-  { date: 'Nov 29', sleep: 78.5, activity: 48.2, heart: 80.5, stress: 90.0, calories: 55.8, body: 19.0, global: 66.2 },
-  { date: 'Nov 30', sleep: 82.1, activity: 62.4, heart: 83.7, stress: 92.0, calories: 61.5, body: 19.5, global: 70.1 },
-  { date: 'Dec 1', sleep: 79.8, activity: 58.1, heart: 84.2, stress: 88.0, calories: 60.2, body: 20.0, global: 69.5 },
-  { date: 'Dec 2', sleep: 80.5, activity: 54.6, heart: 86.0, stress: 95.0, calories: 62.8, body: 19.8, global: 71.2 },
-  { date: 'Dec 3', sleep: 83.2, activity: 65.8, heart: 84.8, stress: 98.0, calories: 64.5, body: 20.2, global: 73.5 },
-  { date: 'Dec 4', sleep: 81.98, activity: 60.10, heart: 85.13, stress: 100.0, calories: 63.04, body: 20.0, global: 72.70 },
-];
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
+
+const generateScoreHistory = (fromDate: Date, toDate: Date) => {
+  const data = [];
+  const currentDate = new Date(fromDate);
+  
+  while (currentDate <= toDate) {
+    const dayOfYear = Math.floor((currentDate.getTime() - new Date(currentDate.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const dateSeed = currentDate.getFullYear() * 1000 + dayOfYear;
+    
+    const baseVariation = Math.sin(dayOfYear * 0.1) * 5;
+    const getVariation = (offset: number) => (seededRandom(dateSeed + offset) - 0.5) * 8;
+    
+    data.push({
+      date: format(currentDate, 'MMM d'),
+      fullDate: new Date(currentDate),
+      sleep: Math.round(Math.min(100, Math.max(60, 78 + baseVariation + getVariation(1))) * 10) / 10,
+      activity: Math.round(Math.min(100, Math.max(40, 55 + baseVariation * 1.2 + getVariation(2))) * 10) / 10,
+      heart: Math.round(Math.min(100, Math.max(70, 83 + baseVariation * 0.5 + getVariation(3))) * 10) / 10,
+      stress: Math.round(Math.min(100, Math.max(75, 90 + baseVariation * 0.8 + getVariation(4))) * 10) / 10,
+      calories: Math.round(Math.min(100, Math.max(45, 60 + baseVariation + getVariation(5))) * 10) / 10,
+      body: Math.round(Math.min(100, Math.max(15, 19 + baseVariation * 0.3 + getVariation(6) * 0.5)) * 10) / 10,
+      global: Math.round(Math.min(100, Math.max(60, 70 + baseVariation * 0.7 + getVariation(7))) * 10) / 10,
+    });
+    
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return data;
+};
 
 const scoreColors: Record<string, string> = {
   sleep: '#8B5CF6',
@@ -363,7 +387,13 @@ export default function WearableDashboard() {
     to: new Date()
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [scoreHistory, setScoreHistory] = useState(() => generateScoreHistory(subDays(new Date(), 6), new Date()));
   const globalScore = currentScores.scores.global / 10;
+
+  useEffect(() => {
+    setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+  }, [dateRange]);
+
   const steps = getValueByType("Steps");
   const sleepSeconds = getValueByType("Sleep Duration");
   const activeMinutes = Math.round(getValueByType("Active Time") / 60);
