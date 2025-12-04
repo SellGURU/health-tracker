@@ -67,42 +67,42 @@ const archetypeDescriptions: Record<string, string> = {
 const metricsConfig: MetricConfig[] = [
   {
     key: 'sleep',
-    label: 'Sleep Score',
+    label: 'Sleep',
     icon: MoonStar,
     color: '#8B5CF6',
     tooltip: 'Based on: Total sleep duration, deep/light/REM sleep amounts, sleep efficiency, quality rating, time awake during night, and sleep schedule consistency.'
   },
   {
     key: 'activity',
-    label: 'Activity Score',
+    label: 'Activity',
     icon: Footprints,
     color: '#10B981',
     tooltip: 'Based on: Steps taken, active minutes, low/moderate/vigorous intensity activity, inactivity duration, walking distance, and active calories burned.'
   },
   {
     key: 'heart',
-    label: 'Heart Score',
+    label: 'Heart Health',
     icon: HeartPulse,
     color: '#EC4899',
     tooltip: 'Based on: Average, minimum, and maximum heart rate, plus Heart Rate Variability (HRV). Higher HRV indicates better recovery and stress resilience.'
   },
   {
     key: 'stress',
-    label: 'Stress Score',
+    label: 'Stress',
     icon: BrainCircuit,
     color: '#F97316',
     tooltip: 'Based on: Duration of high-stress physiological states. Less sustained stress throughout the day means a higher stress score.'
   },
   {
     key: 'calories',
-    label: 'Calorie Score',
+    label: 'Metabolic',
     icon: Flame,
     color: '#EAB308',
     tooltip: 'Based on: Total calories burned and active calories from movement/exercise. More daily activity and higher active burn improves this score.'
   },
   {
     key: 'body',
-    label: 'Body Score',
+    label: 'Body Composition',
     icon: PersonStanding,
     color: '#06B6D4',
     tooltip: 'Based on: Body Mass Index (BMI) and other body composition markers. Healthy weight-related metrics contribute to a higher score.'
@@ -278,11 +278,11 @@ const scoreColors: Record<string, string> = {
 const scoreLabels: Record<string, string> = {
   sleep: 'Sleep',
   activity: 'Activity',
-  heart: 'Heart',
+  heart: 'Heart Health',
   stress: 'Stress',
-  calories: 'Calories',
-  body: 'Body',
-  global: 'Global',
+  calories: 'Metabolic',
+  body: 'Body Comp',
+  global: 'Global Wellness',
 };
 
 function CircularProgress({ 
