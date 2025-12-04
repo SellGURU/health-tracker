@@ -20,7 +20,13 @@ import {
   Watch,
   RefreshCw,
   CalendarIcon,
+  MoonStar,
+  BrainCircuit,
+  PersonStanding,
+  Info,
+  HelpCircle,
 } from "lucide-react";
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 import {
   LineChart,
@@ -38,6 +44,59 @@ import {
   Tooltip,
 } from "recharts";
 import { Dumbbell, HeartPulse, Timer } from "lucide-react";
+
+type MetricConfig = {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  color: string;
+  tooltip: string;
+};
+
+const metricsConfig: MetricConfig[] = [
+  {
+    key: 'sleep',
+    label: 'Sleep',
+    icon: MoonStar,
+    color: '#8B5CF6',
+    tooltip: 'Based on: Total sleep duration, deep/light/REM sleep amounts, sleep efficiency, quality rating, time awake during night, and sleep schedule consistency.'
+  },
+  {
+    key: 'activity',
+    label: 'Activity',
+    icon: Footprints,
+    color: '#10B981',
+    tooltip: 'Based on: Steps taken, active minutes, low/moderate/vigorous intensity activity, inactivity duration, walking distance, and active calories burned.'
+  },
+  {
+    key: 'heart',
+    label: 'Heart',
+    icon: HeartPulse,
+    color: '#EC4899',
+    tooltip: 'Based on: Average, minimum, and maximum heart rate, plus Heart Rate Variability (HRV). Higher HRV indicates better recovery and stress resilience.'
+  },
+  {
+    key: 'stress',
+    label: 'Stress',
+    icon: BrainCircuit,
+    color: '#F97316',
+    tooltip: 'Based on: Duration of high-stress physiological states. Less sustained stress throughout the day means a higher stress score.'
+  },
+  {
+    key: 'calories',
+    label: 'Calories',
+    icon: Flame,
+    color: '#F97316',
+    tooltip: 'Based on: Total calories burned and active calories from movement/exercise. More daily activity and higher active burn improves this score.'
+  },
+  {
+    key: 'body',
+    label: 'Body',
+    icon: PersonStanding,
+    color: '#06B6D4',
+    tooltip: 'Based on: Body Mass Index (BMI) and other body composition markers. Healthy weight-related metrics contribute to a higher score.'
+  },
+];
 
 const biomarkersData = {
   biomarkers: [
@@ -502,32 +561,59 @@ export default function WearableDashboard() {
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent dark:via-gray-600/50 mb-4" />
           
           {/* Individual Scores Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            {Object.entries(currentScores.scores).filter(([key]) => key !== 'global').map(([key, value]) => (
-              <div 
-                key={key}
-                className="text-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-white/30"
-                data-testid={`score-${key}`}
-              >
-                <div 
-                  className="w-8 h-8 mx-auto mb-2 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: `${scoreColors[key]}20` }}
-                >
+          <TooltipProvider delayDuration={200}>
+            <div className="grid grid-cols-3 gap-3">
+              {metricsConfig.map((metric) => {
+                const scoreValue = currentScores?.scores?.[metric.key as keyof typeof currentScores.scores] ?? null;
+                const hasValue = scoreValue !== null && scoreValue !== undefined;
+                const IconComponent = metric.icon;
+                
+                return (
                   <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: scoreColors[key] }}
-                  />
-                </div>
-                <div 
-                  className="text-xl font-bold"
-                  style={{ color: scoreColors[key] }}
-                >
-                  {Math.round(value)}
-                </div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400 capitalize">{key}</div>
-              </div>
-            ))}
-          </div>
+                    key={metric.key}
+                    className={`text-center p-3 rounded-xl border transition-all ${
+                      hasValue 
+                        ? 'bg-white/40 dark:bg-white/5 border-white/30' 
+                        : 'bg-gray-100/30 dark:bg-gray-800/30 border-dashed border-gray-300/50 dark:border-gray-600/50'
+                    }`}
+                    data-testid={`score-${metric.key}`}
+                  >
+                    <div 
+                      className="w-8 h-8 mx-auto mb-2 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: hasValue ? `${metric.color}15` : '#9ca3af20' }}
+                    >
+                      <IconComponent 
+                        className="w-4 h-4"
+                        style={{ color: hasValue ? metric.color : '#9ca3af' }}
+                      />
+                    </div>
+                    <div 
+                      className="text-xl font-bold"
+                      style={{ color: hasValue ? metric.color : '#9ca3af' }}
+                    >
+                      {hasValue ? Math.round(scoreValue) : '—'}
+                    </div>
+                    <div className="flex items-center justify-center gap-0.5">
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{metric.label}</span>
+                      <UITooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors">
+                            <Info className="w-2.5 h-2.5 text-gray-400 dark:text-gray-500" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent 
+                          side="top" 
+                          className="max-w-[200px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                        >
+                          <p>{metric.tooltip}</p>
+                        </TooltipContent>
+                      </UITooltip>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </TooltipProvider>
           
           {/* Subtle Last Sync Footer */}
           <div className="mt-4 pt-3 border-t border-gray-200/30 dark:border-gray-700/30">
