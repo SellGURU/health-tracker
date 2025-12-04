@@ -1,6 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format, subDays, isAfter, isBefore, startOfDay } from "date-fns";
 import {
   Activity,
   Flame,
@@ -16,6 +19,7 @@ import {
   Sparkles,
   Watch,
   RefreshCw,
+  CalendarIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -353,6 +357,11 @@ export default function WearableDashboard() {
   const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
   const [visibleScores, setVisibleScores] = useState<string[]>(['global', 'sleep', 'activity', 'heart']);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subDays(new Date(), 6),
+    to: new Date()
+  });
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const globalScore = currentScores.scores.global / 10;
   const steps = getValueByType("Steps");
   const sleepSeconds = getValueByType("Sleep Duration");
@@ -388,6 +397,37 @@ export default function WearableDashboard() {
         ? prev.filter(s => s !== scoreKey)
         : [...prev, scoreKey]
     );
+  };
+
+  const getDateRangeLabel = () => {
+    const diffDays = Math.round((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    if (diffDays === 7) return "Last 7 days";
+    if (diffDays === 14) return "Last 14 days";
+    if (diffDays === 30) return "Last 30 days";
+    return `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}`;
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    
+    if (!dateRange.from || (dateRange.from && dateRange.to)) {
+      setDateRange({ from: date, to: date });
+    } else {
+      if (isBefore(date, dateRange.from)) {
+        setDateRange({ from: date, to: dateRange.from });
+      } else {
+        setDateRange({ from: dateRange.from, to: date });
+      }
+      setIsDatePickerOpen(false);
+    }
+  };
+
+  const setPresetRange = (days: number) => {
+    setDateRange({
+      from: subDays(new Date(), days - 1),
+      to: new Date()
+    });
+    setIsDatePickerOpen(false);
   };
 
   if (!hasWearableData && !showDemo) {
@@ -465,7 +505,62 @@ export default function WearableDashboard() {
         <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-score-progression">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Score Progression</h3>
-            <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 days</span>
+            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <button 
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-gray-600 dark:text-gray-300 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 border border-gray-200/50 dark:border-gray-600/50 transition-all duration-200"
+                  data-testid="date-picker-trigger"
+                >
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  <span>{getDateRangeLabel()}</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl rounded-2xl" align="end">
+                <div className="p-3 border-b border-gray-200/50 dark:border-gray-700/50">
+                  <div className="flex gap-1.5 flex-wrap">
+                    <button
+                      onClick={() => setPresetRange(7)}
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-700 dark:text-cyan-300 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
+                      data-testid="preset-7-days"
+                    >
+                      7 days
+                    </button>
+                    <button
+                      onClick={() => setPresetRange(14)}
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-700 dark:text-cyan-300 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
+                      data-testid="preset-14-days"
+                    >
+                      14 days
+                    </button>
+                    <button
+                      onClick={() => setPresetRange(30)}
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-700 dark:text-cyan-300 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
+                      data-testid="preset-30-days"
+                    >
+                      30 days
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2">
+                    Or select custom range below
+                  </p>
+                </div>
+                <Calendar
+                  mode="range"
+                  selected={{ from: dateRange.from, to: dateRange.to }}
+                  onSelect={(range) => {
+                    if (range?.from && range?.to) {
+                      setDateRange({ from: range.from, to: range.to });
+                      setIsDatePickerOpen(false);
+                    } else if (range?.from) {
+                      setDateRange({ from: range.from, to: range.from });
+                    }
+                  }}
+                  disabled={(date) => isAfter(date, new Date())}
+                  numberOfMonths={1}
+                  className="rounded-b-2xl"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           
           {/* Score Legend Toggles */}
