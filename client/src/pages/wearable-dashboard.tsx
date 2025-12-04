@@ -154,7 +154,8 @@ const currentScores = {
     body: 20.0,
     global: 72.70
   },
-  archetype: "Sedentary Worker"
+  archetype: "Sedentary Worker",
+  lastSync: new Date('2024-12-04T14:32:00')
 };
 
 const scoreHistory = [
@@ -443,13 +444,19 @@ export default function WearableDashboard() {
         
         {/* Hero Card with Global Score and Archetype */}
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               Wellness Summary
             </h2>
             <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
               {currentScores.archetype}
             </span>
+          </div>
+          
+          {/* Last Sync Info */}
+          <div className="flex items-center justify-center gap-1.5 mb-4 text-[11px] text-gray-500 dark:text-gray-400">
+            <RefreshCw className="w-3 h-3" />
+            <span>Last synced: {format(currentScores.lastSync, 'MMM d, yyyy')} at {format(currentScores.lastSync, 'h:mm a')}</span>
           </div>
           
           <div className="flex flex-col items-center">
@@ -459,45 +466,41 @@ export default function WearableDashboard() {
                   {animatedScore.toFixed(1)}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {getScoreLabel(animatedScore)}
+                  Global Score
                 </div>
               </div>
             </CircularProgress>
           </div>
         </div>
 
-        {/* Daily Metrics - Steps, Sleep, Active, Calories */}
-        <div className="grid grid-cols-4 gap-2">
-          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-steps">
-            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <Footprints className="w-4 h-4 text-white" />
-            </div>
-            <div className="text-lg font-bold text-gray-800 dark:text-white">{steps.toLocaleString()}</div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400">Steps</div>
-          </div>
-          
-          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-sleep">
-            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Moon className="w-4 h-4 text-white" />
-            </div>
-            <div className="text-lg font-bold text-gray-800 dark:text-white">{formatDuration(sleepSeconds)}</div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400">Sleep</div>
-          </div>
-          
-          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-active">
-            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <div className="text-lg font-bold text-gray-800 dark:text-white">{activeMinutes}</div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400">Active Min</div>
-          </div>
-          
-          <div className="glass-card rounded-2xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center" data-testid="tile-calories">
-            <div className="w-9 h-9 mx-auto mb-1.5 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
-              <Flame className="w-4 h-4 text-white" />
-            </div>
-            <div className="text-lg font-bold text-gray-800 dark:text-white">{calories}</div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400">Calories</div>
+        {/* All 7 Scores Display */}
+        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-all-scores">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Today's Scores</h3>
+          <div className="grid grid-cols-3 gap-3">
+            {Object.entries(currentScores.scores).filter(([key]) => key !== 'global').map(([key, value]) => (
+              <div 
+                key={key}
+                className="text-center p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/30"
+                data-testid={`score-${key}`}
+              >
+                <div 
+                  className="w-8 h-8 mx-auto mb-2 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: `${scoreColors[key]}20` }}
+                >
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: scoreColors[key] }}
+                  />
+                </div>
+                <div 
+                  className="text-xl font-bold"
+                  style={{ color: scoreColors[key] }}
+                >
+                  {Math.round(value)}
+                </div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 capitalize">{key}</div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -689,87 +692,6 @@ export default function WearableDashboard() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
-
-        {/* Current Scores Grid */}
-        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-current-scores">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Today's Scores</h3>
-          <div className="grid grid-cols-4 gap-2">
-            {Object.entries(currentScores.scores).filter(([key]) => key !== 'global').map(([key, value]) => (
-              <div 
-                key={key}
-                className="text-center p-2 rounded-xl bg-white/50 dark:bg-white/5"
-                data-testid={`score-${key}`}
-              >
-                <div 
-                  className="text-lg font-bold"
-                  style={{ color: scoreColors[key] }}
-                >
-                  {Math.round(value)}
-                </div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400 capitalize">{key}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Biometrics */}
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { icon: Heart, label: "HR", value: heartRate, unit: "bpm", color: "from-pink-500 to-rose-500" },
-            { icon: Activity, label: "SpO2", value: spo2, unit: "%", color: "from-cyan-500 to-blue-500" },
-            { icon: Brain, label: "HRV", value: hrv, unit: "ms", color: "from-purple-500 to-indigo-500" },
-            { icon: Wind, label: "BR", value: breathingRate, unit: "/min", color: "from-teal-500 to-emerald-500" },
-          ].map((metric, i) => (
-            <div 
-              key={i} 
-              className="glass-card rounded-xl p-3 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg text-center"
-              data-testid={`metric-${metric.label.toLowerCase()}`}
-            >
-              <div className={`w-8 h-8 mx-auto mb-1.5 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center`}>
-                <metric.icon className="w-4 h-4 text-white" />
-              </div>
-              <div className="text-sm font-bold text-gray-800 dark:text-white">{metric.value}</div>
-              <div className="text-[10px] text-gray-500 dark:text-gray-400">{metric.unit}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Sleep Analysis */}
-        <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-sleep-analysis">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Sleep Analysis</h3>
-          <SleepStagesCircle />
-          <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50 flex justify-between text-xs">
-            <div>
-              <span className="text-gray-500 dark:text-gray-400">Efficiency</span>
-              <span className="ml-2 font-semibold text-gray-800 dark:text-white">90%</span>
-            </div>
-            <div>
-              <span className="text-gray-500 dark:text-gray-400">Quality</span>
-              <span className="ml-2 font-semibold text-gray-800 dark:text-white">5/5</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Insights */}
-        <div className="space-y-2" data-testid="insights-section">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 px-1">Your Insights</h3>
-          {insights.map((insight, i) => (
-            <div 
-              key={i}
-              className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg flex items-center gap-3"
-              data-testid={`insight-card-${i}`}
-            >
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${insight.color} flex items-center justify-center flex-shrink-0`}>
-                <insight.icon className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-800 dark:text-white">{insight.title}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{insight.description}</div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            </div>
-          ))}
         </div>
 
         </div>
