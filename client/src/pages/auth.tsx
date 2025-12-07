@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { validateEmail, validatePassword } from "@/lib/utils";
+// import { validateEmail, validatePassword } from "@/lib/utils";
 import { useLocation } from "wouter";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ export default function AuthPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    terms: "",
   });
   const [stage, setStage] = useState(1);
   const [fadeClass, setFadeClass] = useState("opacity-100");
@@ -196,41 +197,41 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateEmail(loginData.email)) {
-      setErrorsLogin({
-        ...errorsLogin,
-        email: "Please enter a valid email address",
-      });
-      return;
-    }
+    // if (!validateEmail(loginData.email)) {
+    //   setErrorsLogin({
+    //     ...errorsLogin,
+    //     email: "Please enter a valid email address",
+    //   });
+    //   return;
+    // }
 
-    if (loginData.password.length < 6) {
-      setErrorsLogin({
-        ...errorsLogin,
-        password: "Password must be at least 6 characters long",
-      });
-      return;
-    }
+    // if (loginData.password.length < 6) {
+    //   setErrorsLogin({
+    //     ...errorsLogin,
+    //     password: "Password must be at least 6 characters long",
+    //   });
+    //   return;
+    // }
     CallLoginAuthApi();
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateEmail(registerData.email)) {
-      setErrorsRegister({
-        ...errorsRegister,
-        email: "Please enter a valid email address",
-      });
-      return;
-    }
-    const passwordValidation = validatePassword(registerData.password);
-    if (!passwordValidation.valid) {
-      setErrorsRegister({
-        ...errorsRegister,
-        password: passwordValidation.message || "",
-      });
-      return;
-    }
+    // if (!validateEmail(registerData.email)) {
+    //   setErrorsRegister({
+    //     ...errorsRegister,
+    //     email: "Please enter a valid email address",
+    //   });
+    //   return;
+    // }
+    // const passwordValidation = validatePassword(registerData.password);
+    // if (!passwordValidation.valid) {
+    //   setErrorsRegister({
+    //     ...errorsRegister,
+    //     password: passwordValidation.message || "",
+    //   });
+    //   return;
+    // }
     if (registerData.password !== registerData.confirmPassword) {
       setErrorsRegister({
         ...errorsRegister,
@@ -239,6 +240,10 @@ export default function AuthPage() {
       return;
     }
     if (!registerData.terms) {
+      setErrorsRegister({
+        ...errorsRegister,
+        terms: "You must accept the terms and conditions",
+      });
       return;
     }
     CallRegisterAuthApi();
@@ -380,7 +385,6 @@ export default function AuthPage() {
                       <Input
                         id="login-email"
                         type="email"
-                        required
                         value={loginData.email}
                         onChange={(e) => {
                           setLoginData((prev) => ({
@@ -413,7 +417,6 @@ export default function AuthPage() {
                         <Input
                           id="login-password"
                           type={showPassword ? "text" : "password"}
-                          required
                           value={loginData.password}
                           onChange={(e) => {
                             setLoginData((prev) => ({
@@ -498,7 +501,6 @@ export default function AuthPage() {
                       <Input
                         id="register-email"
                         type="email"
-                        required
                         value={registerData.email}
                         onChange={(e) => {
                           setRegisterData((prev) => ({
@@ -531,7 +533,6 @@ export default function AuthPage() {
                         <Input
                           id="register-password"
                           type={showPassword ? "text" : "password"}
-                          required
                           value={registerData.password}
                           onChange={(e) => {
                             setRegisterData((prev) => ({
@@ -578,7 +579,6 @@ export default function AuthPage() {
                         <Input
                           id="confirm-password"
                           type={showConfirmPassword ? "text" : "password"}
-                          required
                           value={registerData.confirmPassword}
                           onChange={(e) => {
                             setRegisterData((prev) => ({
@@ -625,8 +625,11 @@ export default function AuthPage() {
                             ...prev,
                             terms: !prev.terms,
                           }));
+                          setErrorsRegister({
+                            ...errorsRegister,
+                            terms: "",
+                          });
                         }}
-                        required
                         className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
                       />
                       <Label
@@ -666,6 +669,11 @@ export default function AuthPage() {
                           Terms of Service
                         </div>
                       </Label>
+                      {errorsRegister.terms && (
+                        <p className="text-red-500 text-[11px] mt-1">
+                          {errorsRegister.terms}
+                        </p>
+                      )}
                     </div>
 
                     <Button
