@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-// import { validateEmail, validatePassword } from "@/lib/utils";
+import { validateEmail, validatePassword } from "@/lib/utils";
 import { useLocation } from "wouter";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -197,13 +197,27 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // if (!validateEmail(loginData.email)) {
-    //   setErrorsLogin({
-    //     ...errorsLogin,
-    //     email: "Please enter a valid email address",
-    //   });
-    //   return;
-    // }
+    if (!loginData.email || loginData.email.trim() === "") {
+      setErrorsLogin({
+        ...errorsLogin,
+        email: "This field is required.",
+      });
+      return;
+    }
+    if (!loginData.password || loginData.password.trim() === "") {
+      setErrorsLogin({
+        ...errorsLogin,
+        password: "This field is required.",
+      });
+      return;
+    }
+    if (!validateEmail(loginData.email)) {
+      setErrorsLogin({
+        ...errorsLogin,
+        email: "Invalid email address. Please try again.",
+      });
+      return;
+    }
 
     // if (loginData.password.length < 6) {
     //   setErrorsLogin({
@@ -217,25 +231,49 @@ export default function AuthPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // if (!validateEmail(registerData.email)) {
-    //   setErrorsRegister({
-    //     ...errorsRegister,
-    //     email: "Please enter a valid email address",
-    //   });
-    //   return;
-    // }
-    // const passwordValidation = validatePassword(registerData.password);
-    // if (!passwordValidation.valid) {
-    //   setErrorsRegister({
-    //     ...errorsRegister,
-    //     password: passwordValidation.message || "",
-    //   });
-    //   return;
-    // }
+    if (!registerData.email || registerData.email.trim() === "") {
+      setErrorsRegister({
+        ...errorsRegister,
+        email: "This field is required.",
+      });
+      return;
+    }
+    if (!registerData.password || registerData.password.trim() === "") {
+      setErrorsRegister({
+        ...errorsRegister,
+        password: "This field is required.",
+      });
+      return;
+    }
+    if (
+      !registerData.confirmPassword ||
+      registerData.confirmPassword.trim() === ""
+    ) {
+      setErrorsRegister({
+        ...errorsRegister,
+        confirmPassword: "This field is required.",
+      });
+      return;
+    }
+    if (!validateEmail(registerData.email)) {
+      setErrorsRegister({
+        ...errorsRegister,
+        email: "Invalid email address. Please try again.",
+      });
+      return;
+    }
+    const passwordValidation = validatePassword(registerData.password);
+    if (!passwordValidation.valid) {
+      setErrorsRegister({
+        ...errorsRegister,
+        password: passwordValidation.message || "",
+      });
+      return;
+    }
     if (registerData.password !== registerData.confirmPassword) {
       setErrorsRegister({
         ...errorsRegister,
-        confirmPassword: "Passwords do not match",
+        confirmPassword: "Passwords do not match. Please try again.",
       });
       return;
     }
@@ -616,59 +654,61 @@ export default function AuthPage() {
                       )}
                     </div>
 
-                    <div className="text-left flex items-center gap-2">
-                      <Checkbox
-                        id="register-terms"
-                        checked={registerData.terms}
-                        onCheckedChange={() => {
-                          setRegisterData((prev) => ({
-                            ...prev,
-                            terms: !prev.terms,
-                          }));
-                          setErrorsRegister({
-                            ...errorsRegister,
-                            terms: "",
-                          });
-                        }}
-                        className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
-                      />
-                      <Label
-                        htmlFor="register-terms"
-                        className="text-white text-xs flex items-center gap-1 text-nowrap"
-                      >
-                        I accept the{" "}
-                        <div
-                          onClick={() => {
-                            window.open(
-                              "https://holisticare.io/legal/patients-privacy-policy/",
-                              "_blank"
-                            );
+                    <div className="text-left">
+                      <div className="text-left flex items-center gap-2">
+                        <Checkbox
+                          id="register-terms"
+                          checked={registerData.terms}
+                          onCheckedChange={() => {
+                            setRegisterData((prev) => ({
+                              ...prev,
+                              terms: !prev.terms,
+                            }));
+                            setErrorsRegister({
+                              ...errorsRegister,
+                              terms: "",
+                            });
                           }}
-                          // href="https://holisticare.io/legal/patients-privacy-policy/"
-                          style={{
-                            textDecoration: "underline",
-                            cursor: "pointer",
-                          }}
+                          className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
+                        />
+                        <Label
+                          htmlFor="register-terms"
+                          className="text-white text-xs flex items-center gap-1 text-nowrap"
                         >
-                          Privacy Policy
-                        </div>
-                        and{" "}
-                        <div
-                          onClick={() => {
-                            window.open(
-                              "https://holisticare.io/legal/patients-terms-of-service/",
-                              "_blank"
-                            );
-                          }}
-                          // href="https://holisticare.io/legal/patients-terms-of-service/"
-                          style={{
-                            textDecoration: "underline",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Terms of Service
-                        </div>
-                      </Label>
+                          I accept the{" "}
+                          <div
+                            onClick={() => {
+                              window.open(
+                                "https://holisticare.io/legal/patients-privacy-policy/",
+                                "_blank"
+                              );
+                            }}
+                            // href="https://holisticare.io/legal/patients-privacy-policy/"
+                            style={{
+                              textDecoration: "underline",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Privacy Policy
+                          </div>
+                          and{" "}
+                          <div
+                            onClick={() => {
+                              window.open(
+                                "https://holisticare.io/legal/patients-terms-of-service/",
+                                "_blank"
+                              );
+                            }}
+                            // href="https://holisticare.io/legal/patients-terms-of-service/"
+                            style={{
+                              textDecoration: "underline",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Terms of Service
+                          </div>
+                        </Label>
+                      </div>
                       {errorsRegister.terms && (
                         <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.terms}
