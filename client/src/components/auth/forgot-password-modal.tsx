@@ -14,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-// import { validateEmail } from "@/lib/utils";
+import { validateEmail } from "@/lib/utils";
 import { Eye, EyeOff, Info, Key, Lock, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -87,13 +87,20 @@ export default function ForgotPasswordModal({
   }, [codeExpireTime, forgotPasswordStep]);
 
   const handleForgotPasswordStep1 = async () => {
-    // if (!validateEmail(forgotPasswordData.email)) {
-    //   setErrorsForgotPassword({
-    //     ...errorsForgotPassword,
-    //     email: "Please enter a valid email address.",
-    //   });
-    //   return;
-    // }
+    if (!forgotPasswordData.email || forgotPasswordData.email.trim() === "") {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        email: "This field is required.",
+      });
+      return;
+    }
+    if (!validateEmail(forgotPasswordData.email)) {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        email: "Invalid email address. Please try again.",
+      });
+      return;
+    }
 
     setIsLoadingForgotPassword(true);
     try {
@@ -122,13 +129,13 @@ export default function ForgotPasswordModal({
   };
 
   const handleForgotPasswordStep2 = async () => {
-    // if (!forgotPasswordData.resetCode) {
-    //   setErrorsForgotPassword({
-    //     ...errorsForgotPassword,
-    //     resetCode: "Please enter the verification code.",
-    //   });
-    //   return;
-    // }
+    if (!forgotPasswordData.resetCode) {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        resetCode: "This field is required.",
+      });
+      return;
+    }
 
     setIsLoadingForgotPassword(true);
     try {
@@ -162,18 +169,28 @@ export default function ForgotPasswordModal({
   };
 
   const handleForgotPasswordStep3 = async () => {
-    // if (!forgotPasswordData.newPassword) {
-    //   setErrorsForgotPassword({
-    //     ...errorsForgotPassword,
-    //     newPassword: "Please enter a new password.",
-    //   });
-    //   return;
-    // }
+    if (!forgotPasswordData.newPassword) {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        newPassword: "This field is required.",
+      });
+      return;
+    }
+    if (
+      !forgotPasswordData.confirmPassword ||
+      forgotPasswordData.confirmPassword.trim() === ""
+    ) {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        confirmPassword: "Please confirm your password",
+      });
+      return;
+    }
 
     if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
       setErrorsForgotPassword({
         ...errorsForgotPassword,
-        confirmPassword: "Please make sure both passwords match.",
+        confirmPassword: "Passwords do not match. Please try again.",
       });
       return;
     }
