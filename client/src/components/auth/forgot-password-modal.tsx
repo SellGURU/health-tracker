@@ -40,6 +40,8 @@ export default function ForgotPasswordModal({
     confirmPassword: "",
   });
   const [isLoadingForgotPassword, setIsLoadingForgotPassword] = useState(false);
+  const [isLoadingForgotPasswordResend, setIsLoadingForgotPasswordResend] =
+    useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [codeExpireTime, setCodeExpireTime] = useState<number | null>(null);
@@ -60,9 +62,15 @@ export default function ForgotPasswordModal({
         newPassword: "",
         confirmPassword: "",
       });
-      // setForgotPasswordStep(1);
       setCodeExpireTime(null);
       setTimeRemaining(0);
+      setErrorsForgotPassword({
+        email: "",
+        resetCode: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setForgotPasswordStep(1);
     }
   }, [open, initialEmail]);
 
@@ -86,7 +94,11 @@ export default function ForgotPasswordModal({
     }
   }, [codeExpireTime, forgotPasswordStep]);
 
-  const handleForgotPasswordStep1 = async () => {
+  const handleForgotPasswordStep1 = async ({
+    resend = false,
+  }: {
+    resend?: boolean;
+  }) => {
     if (!forgotPasswordData.email || forgotPasswordData.email.trim() === "") {
       setErrorsForgotPassword({
         ...errorsForgotPassword,
@@ -102,7 +114,11 @@ export default function ForgotPasswordModal({
       return;
     }
 
-    setIsLoadingForgotPassword(true);
+    if (resend) {
+      setIsLoadingForgotPasswordResend(true);
+    } else {
+      setIsLoadingForgotPassword(true);
+    }
     try {
       await Application.forgetPasswordSendVerification(
         forgotPasswordData.email
@@ -125,6 +141,7 @@ export default function ForgotPasswordModal({
       });
     } finally {
       setIsLoadingForgotPassword(false);
+      setIsLoadingForgotPasswordResend(false);
     }
   };
 
@@ -160,7 +177,7 @@ export default function ForgotPasswordModal({
       } else {
         setErrorsForgotPassword({
           ...errorsForgotPassword,
-          resetCode: "Failed to verify code. Please try again.",
+          resetCode: detail || "Failed to verify code. Please try again.",
         });
       }
     } finally {
@@ -243,7 +260,7 @@ export default function ForgotPasswordModal({
   };
 
   const handleResendCode = async () => {
-    await handleForgotPasswordStep1();
+    await handleForgotPasswordStep1({ resend: true });
   };
 
   return (
@@ -295,7 +312,7 @@ export default function ForgotPasswordModal({
                 )}
               </div>
               <Button
-                onClick={handleForgotPasswordStep1}
+                onClick={() => handleForgotPasswordStep1({ resend: false })}
                 disabled={isLoadingForgotPassword}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
                 data-testid="button-send-code"
@@ -368,7 +385,9 @@ export default function ForgotPasswordModal({
                 </Button>
                 <Button
                   onClick={handleResendCode}
-                  disabled={isLoadingForgotPassword || timeRemaining > 540}
+                  disabled={
+                    isLoadingForgotPasswordResend || timeRemaining > 540
+                  }
                   variant="outline"
                   className="flex-1"
                   data-testid="button-resend-code"
