@@ -159,6 +159,7 @@ export default function AuthPage() {
     setIsLoadingRegister(true);
     Auth.signup(registerData.email, registerData.password)
       .then(() => {
+        localStorage.setItem("registerpasswordchange", "true");
         CallLoginAuthApi(true);
         toast({
           title: "Account created!",
@@ -197,6 +198,17 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (
+      (!loginData.email || loginData.email.trim() === "") &&
+      (!loginData.password || loginData.password.trim() === "")
+    ) {
+      setErrorsLogin({
+        ...errorsLogin,
+        email: "This field is required.",
+        password: "This field is required.",
+      });
+      return;
+    }
     if (!loginData.email || loginData.email.trim() === "") {
       setErrorsLogin({
         ...errorsLogin,
@@ -231,6 +243,20 @@ export default function AuthPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (
+      (!registerData.email || registerData.email.trim() === "") &&
+      (!registerData.password || registerData.password.trim() === "") &&
+      (!registerData.confirmPassword ||
+        registerData.confirmPassword.trim() === "")
+    ) {
+      setErrorsRegister({
+        ...errorsRegister,
+        email: "This field is required.",
+        password: "This field is required.",
+        confirmPassword: "This field is required.",
+      });
+      return;
+    }
     if (!registerData.email || registerData.email.trim() === "") {
       setErrorsRegister({
         ...errorsRegister,
@@ -422,7 +448,7 @@ export default function AuthPage() {
                       </Label>
                       <Input
                         id="login-email"
-                        type="email"
+                        type="text"
                         value={loginData.email}
                         onChange={(e) => {
                           setLoginData((prev) => ({
@@ -538,7 +564,7 @@ export default function AuthPage() {
                       </Label>
                       <Input
                         id="register-email"
-                        type="email"
+                        type="text"
                         value={registerData.email}
                         onChange={(e) => {
                           setRegisterData((prev) => ({
