@@ -9,15 +9,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { UseMutationResult } from "@tanstack/react-query";
-import { Eye, EyeOff, Info } from "lucide-react";
-import { useState, useEffect } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { UseMutationResult } from "@tanstack/react-query";
+import { Eye, EyeOff, Info } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PasswordData {
   currentPassword: string;
@@ -39,12 +39,7 @@ interface ChangePasswordDialogProps {
   setPasswordData: React.Dispatch<React.SetStateAction<PasswordData>>;
   showPasswords: ShowPasswords;
   setShowPasswords: React.Dispatch<React.SetStateAction<ShowPasswords>>;
-  changePasswordMutation: UseMutationResult<
-    any,
-    any,
-    PasswordData,
-    unknown
-  >;
+  changePasswordMutation: UseMutationResult<any, any, PasswordData, unknown>;
 }
 
 interface ValidationErrors {
@@ -167,14 +162,18 @@ const ChangePasswordDialog = ({
                   // }
                 }}
                 onBlur={() => {
-                  const error = validateCurrentPassword(passwordData.currentPassword);
+                  const error = validateCurrentPassword(
+                    passwordData.currentPassword
+                  );
                   // setErrors((prev) => ({
                   //   ...prev,
                   //   currentPassword: error,
                   // }));
                 }}
                 className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
-                  errors.currentPassword ? "border-red-500 dark:border-red-500" : ""
+                  errors.currentPassword
+                    ? "border-red-500 dark:border-red-500"
+                    : ""
                 }`}
               />
               <Button
@@ -197,7 +196,9 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.currentPassword && (
-              <p className="text-xs text-red-500 mt-1">{errors.currentPassword}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.currentPassword}
+              </p>
             )}
           </div>
           <div>
@@ -208,11 +209,11 @@ const ChangePasswordDialog = ({
               >
                 New Password
               </Label>
-              <Popover  open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+              <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     aria-label="Password requirements"
                     onMouseEnter={() => setIsInfoOpen(true)}
                     onMouseLeave={() => setIsInfoOpen(false)}
@@ -220,15 +221,16 @@ const ChangePasswordDialog = ({
                     <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent 
-                  className="w-72 p-3 text-sm"
+                <PopoverContent
+                  className="w-64 p-3 text-sm"
                   side="top"
                   sideOffset={8}
                   onMouseEnter={() => setIsInfoOpen(true)}
                   onMouseLeave={() => setIsInfoOpen(false)}
                 >
                   <p className="text-gray-700 dark:text-gray-300">
-                    At least 8 characters. (Use Uppercase & Lowercase letters, Numbers and Special characters)
+                    At least 8 characters. (Use Uppercase & Lowercase letters,
+                    Numbers and Special characters)
                   </p>
                 </PopoverContent>
               </Popover>
@@ -323,7 +325,9 @@ const ChangePasswordDialog = ({
                   }));
                 }}
                 className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
-                  errors.confirmPassword ? "border-red-500 dark:border-red-500" : ""
+                  errors.confirmPassword
+                    ? "border-red-500 dark:border-red-500"
+                    : ""
                 }`}
               />
               <Button
@@ -346,16 +350,16 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.confirmPassword}
+              </p>
             )}
           </div>
           <Button
             onClick={() => {
               // Validate all fields
 
-              if (
-                passwordData.newPassword !== passwordData.confirmPassword
-              ) {
+              if (passwordData.newPassword !== passwordData.confirmPassword) {
                 // toast({
                 //   title: "Passwords don't match",
                 //   description: "Please ensure both password fields match.",
@@ -370,26 +374,28 @@ const ChangePasswordDialog = ({
               Application.varifyPassword({
                 current_password: passwordData.currentPassword,
                 new_password: passwordData.newPassword,
-              }).then((res) => {
-                if (res.status === 200) {
-                  changePasswordMutation.mutate(passwordData);
-                } else {
-                  toast({
-                    title: "Invalid password",
-                    description: "Please enter a valid password",
-                  });
-                }
-              }).catch((err) => {
-                console.log(err.response.data.detail);
-                setErrors((prev) => ({
-                  newPassword: err.response.data.detail.new_password,
-                  currentPassword: err.response.data.detail.current_password,
-                }));
-                // toast({
-                //   title: "Invalid password",
-                //   description: "Please enter a valid password",
-                // });
-              });
+              })
+                .then((res) => {
+                  if (res.status === 200) {
+                    changePasswordMutation.mutate(passwordData);
+                  } else {
+                    toast({
+                      title: "Invalid password",
+                      description: "Please enter a valid password",
+                    });
+                  }
+                })
+                .catch((err) => {
+                  console.log(err.response.data.detail);
+                  setErrors((prev) => ({
+                    newPassword: err.response.data.detail.new_password,
+                    currentPassword: err.response.data.detail.current_password,
+                  }));
+                  // toast({
+                  //   title: "Invalid password",
+                  //   description: "Please enter a valid password",
+                  // });
+                });
             }}
             disabled={changePasswordMutation.isPending}
             className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
@@ -405,4 +411,3 @@ const ChangePasswordDialog = ({
 };
 
 export default ChangePasswordDialog;
-
