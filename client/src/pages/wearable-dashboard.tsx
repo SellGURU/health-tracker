@@ -373,14 +373,16 @@ function CircularProgress({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
+        {/* Background circle - shows the complete unfilled track */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.1)"
+          stroke="rgba(200, 210, 220, 0.3)"
           strokeWidth={strokeWidth}
         />
+        {/* Foreground circle - fills based on percentage */}
         <circle
           cx={size / 2}
           cy={size / 2}
