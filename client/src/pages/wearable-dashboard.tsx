@@ -530,8 +530,14 @@ export default function WearableDashboard() {
       const response = await Application.getWellnessScores(requestData);
       const data = response.data;
       
-      // Validate response has expected structure
-      if (data && typeof data === 'object') {
+      // Validate response has expected structure with actual scores
+      const hasValidScores = data && 
+        typeof data === 'object' && 
+        data.scores && 
+        typeof data.scores === 'object' &&
+        Object.keys(data.scores).length > 0;
+      
+      if (hasValidScores) {
         setWellnessData(data);
         setHasWearableData(true);
         
@@ -554,7 +560,8 @@ export default function WearableDashboard() {
           setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
         }
       } else {
-        // Invalid response structure, show empty state
+        // No valid scores data, show empty state
+        setWellnessData(null);
         setHasWearableData(false);
       }
     } catch (error: any) {
