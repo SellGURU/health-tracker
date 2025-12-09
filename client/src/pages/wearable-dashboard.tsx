@@ -290,24 +290,63 @@ const generateScoreHistory = (fromDate: Date, toDate: Date) => {
   return data;
 };
 
+// Dynamic color palette for scores - will be assigned based on score key
+const colorPalette = [
+  '#8B5CF6', // purple
+  '#10B981', // green
+  '#EC4899', // pink
+  '#F59E0B', // orange
+  '#EAB308', // yellow
+  '#06B6D4', // cyan
+  '#3B82F6', // blue
+  '#EF4444', // red
+  '#14B8A6', // teal
+  '#A855F7', // violet
+];
+
+// Generate consistent color for any score key
+const getScoreColor = (scoreKey: string): string => {
+  // Hash the key to get a consistent color index
+  let hash = 0;
+  for (let i = 0; i < scoreKey.length; i++) {
+    hash = ((hash << 5) - hash) + scoreKey.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return colorPalette[Math.abs(hash) % colorPalette.length];
+};
+
+// For backward compatibility with hardcoded keys
 const scoreColors: Record<string, string> = {
   sleep: '#8B5CF6',
   activity: '#10B981',
   heart: '#EC4899',
+  heart_health: '#EC4899',
   stress: '#F59E0B',
   calories: '#EAB308',
+  calories_metabolic: '#EAB308',
   body: '#06B6D4',
+  body_composition: '#06B6D4',
   global: '#3B82F6',
+  global_wellness: '#3B82F6',
+};
+
+// Get color for a score key (prefer predefined, fallback to generated)
+const getColorForScore = (key: string): string => {
+  return scoreColors[key] || getScoreColor(key);
 };
 
 const scoreLabels: Record<string, string> = {
   sleep: 'Sleep',
   activity: 'Activity',
   heart: 'Heart Health',
+  heart_health: 'Heart Health',
   stress: 'Stress',
   calories: 'Metabolic',
+  calories_metabolic: 'Metabolic',
   body: 'Body Comp',
+  body_composition: 'Body Composition',
   global: 'Global Wellness',
+  global_wellness: 'Global Wellness',
 };
 
 function CircularProgress({ 
@@ -714,16 +753,10 @@ export default function WearableDashboard() {
         currentDate.setDate(currentDate.getDate() + i);
         const dateKey = format(currentDate, 'yyyy-MM-dd');
         
+        // Initialize with just date info, score keys will be added dynamically
         allDatesInRange[dateKey] = {
           date: format(currentDate, 'MMM d'),
           fullDate: new Date(currentDate),
-          sleep: null,
-          activity: null,
-          heart: null,
-          stress: null,
-          calories: null,
-          body: null,
-          global: null,
         };
       }
       
@@ -733,35 +766,69 @@ export default function WearableDashboard() {
       const historicalArray = unwrappedData?.historical;
       console.log('🔍 Unwrapped historical array:', historicalArray);
       
+      // Track all unique score names from API
+      const detectedScoreKeys = new Set<string>();
+      
       if (historicalArray && Array.isArray(historicalArray) && historicalArray.length > 0) {
-        // Fill in actual data from API
+        // Fill in actual data from API using the exact API name as key
         for (const item of historicalArray) {
-          if (!item.date || item.name === 'archetype') continue;
+          if (!item.date || !item.name) continue;
+          
+          // Skip archetype entries
+          const nameLower = item.name.toLowerCase();
+          if (nameLower === 'archetype' || nameLower.includes('archetype')) continue;
           
           const itemDate = new Date(item.date);
           const dateKey = format(itemDate, 'yyyy-MM-dd');
-          const scoreValue = parseFloat(item.score) || 0;
+          const scoreValue = parseFloat(item.score);
+          
+          // Create a normalized key from the API name (lowercase, no special chars)
+          const scoreKey = item.name.toLowerCase()
+            .replace(/\s*score\s*/gi, '')
+            .replace(/[^a-z0-9]/gi, '_')
+            .replace(/_+/g, '_')
+            .replace(/^_|_$/g, '')
+            .trim();
           
           // Only update if this date is in our range
-          if (allDatesInRange[dateKey]) {
-            // Normalize the name for flexible matching
-            const normalizedName = (item.name || '').toLowerCase().replace(/[_\s\/]+/g, ' ').trim();
+          if (allDatesInRange[dateKey] && scoreKey) {
+            allDatesInRange[dateKey][scoreKey] = isNaN(scoreValue) ? null : scoreValue;
+            detectedScoreKeys.add(scoreKey);
             
-            if (normalizedName.includes('sleep')) {
-              allDatesInRange[dateKey].sleep = scoreValue;
-            } else if (normalizedName.includes('activity')) {
-              allDatesInRange[dateKey].activity = scoreValue;
-            } else if (normalizedName.includes('heart')) {
-              allDatesInRange[dateKey].heart = scoreValue;
-            } else if (normalizedName.includes('stress')) {
-              allDatesInRange[dateKey].stress = scoreValue;
-            } else if (normalizedName.includes('calor') || normalizedName.includes('metabolic')) {
-              allDatesInRange[dateKey].calories = scoreValue;
-            } else if (normalizedName.includes('body')) {
-              allDatesInRange[dateKey].body = scoreValue;
-            } else if (normalizedName.includes('global')) {
-              allDatesInRange[dateKey].global = scoreValue;
+            // Store the original API name for display purposes
+            if (!scoreDetails[scoreKey]) {
+              setScoreDetails(prev => ({
+                ...prev,
+                [scoreKey]: {
+                  key: scoreKey,
+                  name: item.name,
+                  description: '',
+                  factors: [],
+                  score: scoreValue,
+                }
+              }));
             }
+          }
+        }
+        
+        // Initialize null values for all detected score keys across all dates
+        const scoreKeysArray = Array.from(detectedScoreKeys);
+        Object.keys(allDatesInRange).forEach(dateKey => {
+          scoreKeysArray.forEach(scoreKey => {
+            if (allDatesInRange[dateKey][scoreKey] === undefined) {
+              allDatesInRange[dateKey][scoreKey] = null;
+            }
+          });
+        });
+        
+        // Update present scores and visible scores if this is initial load
+        if (detectedScoreKeys.size > 0) {
+          const newPresentScores = Array.from(detectedScoreKeys);
+          setPresentScores(newPresentScores);
+          
+          if (isInitialLoadRef.current) {
+            setVisibleScores(newPresentScores);
+            isInitialLoadRef.current = false;
           }
         }
       }
@@ -1109,10 +1176,11 @@ export default function WearableDashboard() {
           
           {/* Score Legend Toggles - Only show present scores */}
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {(showDemo ? Object.keys(scoreColors) : presentScores).map((key) => {
+            {(showDemo ? ['sleep', 'activity', 'heart', 'stress', 'calories', 'body', 'global'] : presentScores).map((key) => {
               // Use dynamic name from API, fallback to static label
               const details = scoreDetails[key];
-              const displayLabel = details?.name?.replace(/\s*Score\s*$/i, '') || scoreLabels[key];
+              const displayLabel = details?.name?.replace(/\s*Score\s*$/i, '') || scoreLabels[key] || key;
+              const color = getColorForScore(key);
               
               return (
                 <button
@@ -1127,7 +1195,7 @@ export default function WearableDashboard() {
                 >
                   <span 
                     className="w-2 h-2 rounded-full" 
-                    style={{ backgroundColor: scoreColors[key] }}
+                    style={{ backgroundColor: color }}
                   />
                   <span className="text-gray-700 dark:text-gray-300">{displayLabel}</span>
                 </button>
@@ -1139,12 +1207,15 @@ export default function WearableDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={scoreHistory} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                  {Object.entries(scoreColors).map(([key, color]) => (
-                    <linearGradient key={key} id={`${key}Gradient`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor={color} stopOpacity={0}/>
-                    </linearGradient>
-                  ))}
+                  {presentScores.map((key) => {
+                    const color = getColorForScore(key);
+                    return (
+                      <linearGradient key={key} id={`${key}Gradient`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor={color} stopOpacity={0}/>
+                      </linearGradient>
+                    );
+                  })}
                 </defs>
                 <CartesianGrid 
                   strokeDasharray="3 3" 
@@ -1179,96 +1250,30 @@ export default function WearableDashboard() {
                   labelStyle={{ fontWeight: 600, marginBottom: 6, fontSize: '12px' }}
                   itemStyle={{ padding: '2px 0' }}
                 />
-                {visibleScores.includes('global') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="global" 
-                    name="Global"
-                    stroke={scoreColors.global} 
-                    strokeWidth={3} 
-                    dot={{ r: 4, fill: scoreColors.global, stroke: '#fff', strokeWidth: 2 }}
-                    activeDot={{ r: 6, fill: scoreColors.global, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
-                {visibleScores.includes('sleep') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="sleep"
-                    name="Sleep"
-                    stroke={scoreColors.sleep} 
-                    strokeWidth={1.5} 
-                    strokeOpacity={0.85}
-                    dot={{ r: 3, fill: scoreColors.sleep, stroke: '#fff', strokeWidth: 1 }}
-                    activeDot={{ r: 5, fill: scoreColors.sleep, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
-                {visibleScores.includes('activity') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="activity"
-                    name="Activity"
-                    stroke={scoreColors.activity} 
-                    strokeWidth={1.5} 
-                    strokeOpacity={0.85}
-                    dot={{ r: 3, fill: scoreColors.activity, stroke: '#fff', strokeWidth: 1 }}
-                    activeDot={{ r: 5, fill: scoreColors.activity, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
-                {visibleScores.includes('heart') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="heart"
-                    name="Heart"
-                    stroke={scoreColors.heart} 
-                    strokeWidth={1.5} 
-                    strokeOpacity={0.85}
-                    dot={{ r: 3, fill: scoreColors.heart, stroke: '#fff', strokeWidth: 1 }}
-                    activeDot={{ r: 5, fill: scoreColors.heart, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
-                {visibleScores.includes('stress') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="stress"
-                    name="Stress"
-                    stroke={scoreColors.stress} 
-                    strokeWidth={1.5} 
-                    strokeOpacity={0.85}
-                    dot={{ r: 3, fill: scoreColors.stress, stroke: '#fff', strokeWidth: 1 }}
-                    activeDot={{ r: 5, fill: scoreColors.stress, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
-                {visibleScores.includes('calories') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="calories"
-                    name="Calories"
-                    stroke={scoreColors.calories} 
-                    strokeWidth={1.5} 
-                    strokeOpacity={0.85}
-                    dot={{ r: 3, fill: scoreColors.calories, stroke: '#fff', strokeWidth: 1 }}
-                    activeDot={{ r: 5, fill: scoreColors.calories, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
-                {visibleScores.includes('body') && (
-                  <Line 
-                    type="monotone" 
-                    dataKey="body"
-                    name="Body"
-                    stroke={scoreColors.body} 
-                    strokeWidth={1.5} 
-                    strokeOpacity={0.85}
-                    dot={{ r: 3, fill: scoreColors.body, stroke: '#fff', strokeWidth: 1 }}
-                    activeDot={{ r: 5, fill: scoreColors.body, stroke: '#fff', strokeWidth: 2 }}
-                    connectNulls={false}
-                  />
-                )}
+                {/* Dynamically render lines for all present scores */}
+                {presentScores.map((key) => {
+                  if (!visibleScores.includes(key)) return null;
+                  
+                  const color = getColorForScore(key);
+                  const details = scoreDetails[key];
+                  const displayName = details?.name?.replace(/\s*Score\s*$/i, '') || scoreLabels[key] || key;
+                  const isGlobal = key.includes('global');
+                  
+                  return (
+                    <Line 
+                      key={key}
+                      type="monotone" 
+                      dataKey={key}
+                      name={displayName}
+                      stroke={color} 
+                      strokeWidth={isGlobal ? 3 : 1.5} 
+                      strokeOpacity={isGlobal ? 1 : 0.85}
+                      dot={{ r: isGlobal ? 4 : 3, fill: color, stroke: '#fff', strokeWidth: isGlobal ? 2 : 1 }}
+                      activeDot={{ r: isGlobal ? 6 : 5, fill: color, stroke: '#fff', strokeWidth: 2 }}
+                      connectNulls={false}
+                    />
+                  );
+                })}
               </LineChart>
             </ResponsiveContainer>
           </div>
