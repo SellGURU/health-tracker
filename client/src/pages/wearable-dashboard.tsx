@@ -326,7 +326,10 @@ function CircularProgress({
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const percent = Math.min(value / max, 1);
-  const offset = circumference - percent * circumference;
+  // strokeDasharray: first value is visible dash, second is gap
+  // strokeDashoffset: shifts the starting point
+  const dashLength = percent * circumference;
+  const gapLength = circumference - dashLength;
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -347,9 +350,9 @@ function CircularProgress({
           stroke="url(#gradient)"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-all duration-1000 ease-out"
+          strokeDasharray={`${dashLength} ${gapLength}`}
+          strokeDashoffset={0}
+          className="transition-all duration-500 ease-out"
         />
         <defs>
           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
