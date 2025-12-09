@@ -522,34 +522,42 @@ export default function WearableDashboard() {
       const data = response.data;
       console.log('🔍 Wellness API response:', data);
       
-      // API returns scores as an array: [{name: "activity_score", score: "82"}, ...]
-      // We need to convert this to our expected format
+      // API returns scores as an array with dynamic names like:
+      // [{name: "Activity Score", score: "82"}, {name: "activity_score", score: "82"}, ...]
+      // We need to match flexibly using keywords
       const scoresArray = data?.scores;
       
       if (scoresArray && Array.isArray(scoresArray) && scoresArray.length > 0) {
-        // Helper to find score by name
-        const getScore = (name: string): number | null => {
-          const item = scoresArray.find((s: any) => s.name === name);
-          if (item && item.score !== undefined && item.score !== null) {
+        // Helper to find score by keyword (flexible matching)
+        const getScoreByKeyword = (keyword: string): number | null => {
+          const normalizedKeyword = keyword.toLowerCase();
+          const item = scoresArray.find((s: any) => {
+            const name = (s.name || '').toLowerCase().replace(/[_\s\/]+/g, ' ').trim();
+            return name.includes(normalizedKeyword);
+          });
+          if (item && item.score !== undefined && item.score !== null && item.score !== '') {
             const num = parseFloat(item.score);
             return isNaN(num) ? null : num;
           }
           return null;
         };
         
-        // Get archetype from array
-        const archetypeItem = scoresArray.find((s: any) => s.name === 'archetype');
+        // Get archetype from array (flexible matching)
+        const archetypeItem = scoresArray.find((s: any) => {
+          const name = (s.name || '').toLowerCase();
+          return name.includes('archetype');
+        });
         const archetypeValue = archetypeItem?.score || null;
         
-        // Build normalized scores object
+        // Build normalized scores object using flexible keyword matching
         const normalizedScores: WellnessScores = {
-          sleep: getScore('sleep_score'),
-          activity: getScore('activity_score'),
-          heart: getScore('heart_health_score'),
-          stress: getScore('stress_score'),
-          calories: getScore('calories_score'),
-          body: getScore('body_score'),
-          global: getScore('global_score'),
+          sleep: getScoreByKeyword('sleep'),
+          activity: getScoreByKeyword('activity'),
+          heart: getScoreByKeyword('heart'),
+          stress: getScoreByKeyword('stress'),
+          calories: getScoreByKeyword('calor') || getScoreByKeyword('metabolic'),
+          body: getScoreByKeyword('body'),
+          global: getScoreByKeyword('global'),
         };
         
         console.log('🔍 Parsed scores:', normalizedScores, 'archetype:', archetypeValue);
@@ -676,29 +684,23 @@ export default function WearableDashboard() {
           
           // Only update if this date is in our range
           if (allDatesInRange[dateKey]) {
-            switch (item.name) {
-              case 'sleep_score':
-                allDatesInRange[dateKey].sleep = scoreValue;
-                break;
-              case 'activity_score':
-                allDatesInRange[dateKey].activity = scoreValue;
-                break;
-              case 'heart_health_score':
-              case 'heart_score':
-                allDatesInRange[dateKey].heart = scoreValue;
-                break;
-              case 'stress_score':
-                allDatesInRange[dateKey].stress = scoreValue;
-                break;
-              case 'calories_score':
-                allDatesInRange[dateKey].calories = scoreValue;
-                break;
-              case 'body_score':
-                allDatesInRange[dateKey].body = scoreValue;
-                break;
-              case 'global_score':
-                allDatesInRange[dateKey].global = scoreValue;
-                break;
+            // Normalize the name for flexible matching
+            const normalizedName = (item.name || '').toLowerCase().replace(/[_\s\/]+/g, ' ').trim();
+            
+            if (normalizedName.includes('sleep')) {
+              allDatesInRange[dateKey].sleep = scoreValue;
+            } else if (normalizedName.includes('activity')) {
+              allDatesInRange[dateKey].activity = scoreValue;
+            } else if (normalizedName.includes('heart')) {
+              allDatesInRange[dateKey].heart = scoreValue;
+            } else if (normalizedName.includes('stress')) {
+              allDatesInRange[dateKey].stress = scoreValue;
+            } else if (normalizedName.includes('calor') || normalizedName.includes('metabolic')) {
+              allDatesInRange[dateKey].calories = scoreValue;
+            } else if (normalizedName.includes('body')) {
+              allDatesInRange[dateKey].body = scoreValue;
+            } else if (normalizedName.includes('global')) {
+              allDatesInRange[dateKey].global = scoreValue;
             }
           }
         }
