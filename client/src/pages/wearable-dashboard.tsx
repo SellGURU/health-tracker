@@ -1100,8 +1100,9 @@ export default function WearableDashboard() {
                     name="Global"
                     stroke={scoreColors.global} 
                     strokeWidth={3} 
-                    dot={false}
-                    activeDot={{ r: 5, fill: scoreColors.global, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 4, fill: scoreColors.global, stroke: '#fff', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: scoreColors.global, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
                 {visibleScores.includes('sleep') && (
@@ -1112,8 +1113,9 @@ export default function WearableDashboard() {
                     stroke={scoreColors.sleep} 
                     strokeWidth={1.5} 
                     strokeOpacity={0.85}
-                    dot={false}
-                    activeDot={{ r: 4, fill: scoreColors.sleep, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: scoreColors.sleep, stroke: '#fff', strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: scoreColors.sleep, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
                 {visibleScores.includes('activity') && (
@@ -1124,8 +1126,9 @@ export default function WearableDashboard() {
                     stroke={scoreColors.activity} 
                     strokeWidth={1.5} 
                     strokeOpacity={0.85}
-                    dot={false}
-                    activeDot={{ r: 4, fill: scoreColors.activity, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: scoreColors.activity, stroke: '#fff', strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: scoreColors.activity, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
                 {visibleScores.includes('heart') && (
@@ -1136,8 +1139,9 @@ export default function WearableDashboard() {
                     stroke={scoreColors.heart} 
                     strokeWidth={1.5} 
                     strokeOpacity={0.85}
-                    dot={false}
-                    activeDot={{ r: 4, fill: scoreColors.heart, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: scoreColors.heart, stroke: '#fff', strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: scoreColors.heart, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
                 {visibleScores.includes('stress') && (
@@ -1148,8 +1152,9 @@ export default function WearableDashboard() {
                     stroke={scoreColors.stress} 
                     strokeWidth={1.5} 
                     strokeOpacity={0.85}
-                    dot={false}
-                    activeDot={{ r: 4, fill: scoreColors.stress, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: scoreColors.stress, stroke: '#fff', strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: scoreColors.stress, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
                 {visibleScores.includes('calories') && (
@@ -1160,8 +1165,9 @@ export default function WearableDashboard() {
                     stroke={scoreColors.calories} 
                     strokeWidth={1.5} 
                     strokeOpacity={0.85}
-                    dot={false}
-                    activeDot={{ r: 4, fill: scoreColors.calories, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: scoreColors.calories, stroke: '#fff', strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: scoreColors.calories, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
                 {visibleScores.includes('body') && (
@@ -1172,8 +1178,9 @@ export default function WearableDashboard() {
                     stroke={scoreColors.body} 
                     strokeWidth={1.5} 
                     strokeOpacity={0.85}
-                    dot={false}
-                    activeDot={{ r: 4, fill: scoreColors.body, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: scoreColors.body, stroke: '#fff', strokeWidth: 1 }}
+                    activeDot={{ r: 5, fill: scoreColors.body, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
                   />
                 )}
               </LineChart>
