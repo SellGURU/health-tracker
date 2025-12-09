@@ -375,6 +375,26 @@ export default function Plan() {
     }
   }, [selectIndexTitle.id, selectData]);
 
+  const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        if (activeTab === "today") {
+          handleGetTodayTasks();
+        } else {
+          handleGetWeeklyTasks();
+        }
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow]);
+
   const formatDateKey = (dateString: string) => {
     const date = new Date(dateString + "T00:00:00");
     return date.toLocaleDateString("en-US", {
@@ -695,12 +715,16 @@ export default function Plan() {
                                             src={file.Content.url}
                                             alt={file.Title || exercise.Title}
                                             className="w-full h-48 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                            onClick={() =>
-                                              window.open(
-                                                file.Content.url,
+                                            onClick={() => {
+                                              const url = file.Content.url;
+                                              const newWindow = window.open(
+                                                url,
                                                 "_blank"
-                                              )
-                                            }
+                                              );
+                                              if (newWindow) {
+                                                setOpenedWindow(newWindow);
+                                              }
+                                            }}
                                           />
                                         ) : (
                                           <div className="relative w-full h-48 rounded-md overflow-hidden">
@@ -824,9 +848,11 @@ export default function Plan() {
                 if (!task.Status) {
                   handleCheckTask(task.task_id);
                 }
-                window.open(
-                  `https://holisticare.vercel.app/checkin/${encodedMi}/${task.task_id}`
-                );
+                const url = `https://holisticare-develop.vercel.app/checkin/${encodedMi}/${task.task_id}`;
+                const newWindow = window.open(url, "_blank");
+                if (newWindow) {
+                  setOpenedWindow(newWindow);
+                }
               }}
               className={`w-full !mt-4 !-mb-6 ${
                 task.Status

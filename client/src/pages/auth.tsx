@@ -25,6 +25,7 @@ export default function AuthPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    terms: "",
   });
   const [stage, setStage] = useState(1);
   const [fadeClass, setFadeClass] = useState("opacity-100");
@@ -62,7 +63,6 @@ export default function AuthPage() {
     }
   }, [stage]);
 
-
   const handleContinue = () => {
     setFadeClass("opacity-0");
     setTimeout(() => {
@@ -98,7 +98,7 @@ export default function AuthPage() {
       password: "password123",
     });
   };
-  const [location,navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const CallLoginAuthApi = async (isRegister = false) => {
     setIsLoadingLogin(true);
     const data = {
@@ -127,24 +127,26 @@ export default function AuthPage() {
       })
       .catch((res) => {
         if (res.response.data.detail) {
-          if (res.response.data.detail.includes("email")) {
-            toast({
-              title: "Sign in failed",
-              description:
-                "This email address is not registered in our system.",
-              variant: "destructive",
+          if (
+            res.response.data.detail.includes("email") ||
+            res.response.data.detail.includes("Email")
+          ) {
+            setErrorsLogin({
+              ...errorsLogin,
+              email: res.response.data.detail,
             });
-          } else if (res.response.data.detail.includes("password")) {
-            toast({
-              title: "Sign in failed",
-              description: "Incorrect password. Please try again.",
-              variant: "destructive",
+          } else if (
+            res.response.data.detail.includes("password") ||
+            res.response.data.detail.includes("Password")
+          ) {
+            setErrorsLogin({
+              ...errorsLogin,
+              password: res.response.data.detail,
             });
           } else {
-            toast({
-              title: "Sign in failed",
-              description: res.response.data.detail,
-              variant: "destructive",
+            setErrorsLogin({
+              ...errorsLogin,
+              email: res.response.data.detail,
             });
           }
         }
@@ -157,6 +159,7 @@ export default function AuthPage() {
     setIsLoadingRegister(true);
     Auth.signup(registerData.email, registerData.password)
       .then(() => {
+        localStorage.setItem("registerpasswordchange", "true");
         CallLoginAuthApi(true);
         toast({
           title: "Account created!",
@@ -165,11 +168,28 @@ export default function AuthPage() {
         });
       })
       .catch((res) => {
-        toast({
-          title: "Sign up failed",
-          description: res.response.data.detail,
-          variant: "destructive",
-        });
+        if (
+          res.response.data.detail.includes("email") ||
+          res.response.data.detail.includes("Email")
+        ) {
+          setErrorsRegister({
+            ...errorsRegister,
+            email: res.response.data.detail,
+          });
+        } else if (
+          res.response.data.detail.includes("password") ||
+          res.response.data.detail.includes("Password")
+        ) {
+          setErrorsRegister({
+            ...errorsRegister,
+            password: res.response.data.detail,
+          });
+        } else {
+          setErrorsRegister({
+            ...errorsRegister,
+            email: res.response.data.detail,
+          });
+        }
       })
       .finally(() => {
         setIsLoadingRegister(false);
@@ -178,30 +198,93 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (
+      (!loginData.email || loginData.email.trim() === "") &&
+      (!loginData.password || loginData.password.trim() === "")
+    ) {
+      setErrorsLogin({
+        ...errorsLogin,
+        email: "This field is required.",
+        password: "This field is required.",
+      });
+      return;
+    }
+    if (!loginData.email || loginData.email.trim() === "") {
+      setErrorsLogin({
+        ...errorsLogin,
+        email: "This field is required.",
+      });
+      return;
+    }
+    if (!loginData.password || loginData.password.trim() === "") {
+      setErrorsLogin({
+        ...errorsLogin,
+        password: "This field is required.",
+      });
+      return;
+    }
     if (!validateEmail(loginData.email)) {
       setErrorsLogin({
         ...errorsLogin,
-        email: "Please enter a valid email address",
+        email: "Invalid email address. Please try again.",
       });
       return;
     }
 
-    if (loginData.password.length < 6) {
-      setErrorsLogin({
-        ...errorsLogin,
-        password: "Password must be at least 6 characters long",
-      });
-      return;
-    }
+    // if (loginData.password.length < 6) {
+    //   setErrorsLogin({
+    //     ...errorsLogin,
+    //     password: "Password must be at least 6 characters long",
+    //   });
+    //   return;
+    // }
     CallLoginAuthApi();
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (
+      (!registerData.email || registerData.email.trim() === "") &&
+      (!registerData.password || registerData.password.trim() === "") &&
+      (!registerData.confirmPassword ||
+        registerData.confirmPassword.trim() === "")
+    ) {
+      setErrorsRegister({
+        ...errorsRegister,
+        email: "This field is required.",
+        password: "This field is required.",
+        confirmPassword: "This field is required.",
+      });
+      return;
+    }
+    if (!registerData.email || registerData.email.trim() === "") {
+      setErrorsRegister({
+        ...errorsRegister,
+        email: "This field is required.",
+      });
+      return;
+    }
+    if (!registerData.password || registerData.password.trim() === "") {
+      setErrorsRegister({
+        ...errorsRegister,
+        password: "This field is required.",
+      });
+      return;
+    }
+    if (
+      !registerData.confirmPassword ||
+      registerData.confirmPassword.trim() === ""
+    ) {
+      setErrorsRegister({
+        ...errorsRegister,
+        confirmPassword: "This field is required.",
+      });
+      return;
+    }
     if (!validateEmail(registerData.email)) {
       setErrorsRegister({
         ...errorsRegister,
-        email: "Please enter a valid email address",
+        email: "Invalid email address. Please try again.",
       });
       return;
     }
@@ -216,11 +299,15 @@ export default function AuthPage() {
     if (registerData.password !== registerData.confirmPassword) {
       setErrorsRegister({
         ...errorsRegister,
-        confirmPassword: "Passwords do not match",
+        confirmPassword: "Passwords do not match. Please try again.",
       });
       return;
     }
     if (!registerData.terms) {
+      setErrorsRegister({
+        ...errorsRegister,
+        terms: "You must accept the terms and conditions",
+      });
       return;
     }
     CallRegisterAuthApi();
@@ -268,10 +355,14 @@ export default function AuthPage() {
             </div>
 
             <h1 className="text-white text-2xl font-bold mb-2">
-              {brandInfo ? (brandInfo?.name|| "HolistiCare.io") : "HolistiCare.io"}
+              {brandInfo
+                ? brandInfo?.name || "HolistiCare.io"
+                : "HolistiCare.io"}
             </h1>
             <p className="text-white/90 text-sm">
-              {brandInfo ? (brandInfo?.headline|| "Empower Health with Intelligence") : "Empower Health with Intelligence"}
+              {brandInfo
+                ? brandInfo?.headline || "Empower Health with Intelligence"
+                : "Empower Health with Intelligence"}
             </p>
           </div>
         )}
@@ -282,13 +373,15 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={ brandInfo ? brandInfo?.logo : logoImage}
+                src={brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-2">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
+            <h1 className="text-white text-xl font-bold mb-2">
+              {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
+            </h1>
             <p className="text-white/90 text-sm mb-8 sm:mb-12">
               Welcome back to your health journey
             </p>
@@ -308,13 +401,15 @@ export default function AuthPage() {
             {/* Logo circle */}
             <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
               <img
-                src={ brandInfo ? brandInfo?.logo : logoImage}
+                src={brandInfo ? brandInfo?.logo : logoImage}
                 alt="HolistiCare Logo"
                 className="w-12 h-12"
               />
             </div>
 
-            <h1 className="text-white text-xl font-bold mb-6">{brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}</h1>
+            <h1 className="text-white text-xl font-bold mb-6">
+              {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
+            </h1>
 
             <div className="w-full max-w-xs mx-auto">
               <Tabs
@@ -353,8 +448,7 @@ export default function AuthPage() {
                       </Label>
                       <Input
                         id="login-email"
-                        type="email"
-                        required
+                        type="text"
                         value={loginData.email}
                         onChange={(e) => {
                           setLoginData((prev) => ({
@@ -370,7 +464,7 @@ export default function AuthPage() {
                         placeholder="Enter your email"
                       />
                       {errorsLogin.email && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsLogin.email}
                         </p>
                       )}
@@ -387,7 +481,6 @@ export default function AuthPage() {
                         <Input
                           id="login-password"
                           type={showPassword ? "text" : "password"}
-                          required
                           value={loginData.password}
                           onChange={(e) => {
                             setLoginData((prev) => ({
@@ -417,7 +510,7 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsLogin.password && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsLogin.password}
                         </p>
                       )}
@@ -471,8 +564,7 @@ export default function AuthPage() {
                       </Label>
                       <Input
                         id="register-email"
-                        type="email"
-                        required
+                        type="text"
                         value={registerData.email}
                         onChange={(e) => {
                           setRegisterData((prev) => ({
@@ -488,7 +580,7 @@ export default function AuthPage() {
                         placeholder="Enter your email"
                       />
                       {errorsRegister.email && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.email}
                         </p>
                       )}
@@ -505,7 +597,6 @@ export default function AuthPage() {
                         <Input
                           id="register-password"
                           type={showPassword ? "text" : "password"}
-                          required
                           value={registerData.password}
                           onChange={(e) => {
                             setRegisterData((prev) => ({
@@ -535,7 +626,7 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsRegister.password && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.password}
                         </p>
                       )}
@@ -552,7 +643,6 @@ export default function AuthPage() {
                         <Input
                           id="confirm-password"
                           type={showConfirmPassword ? "text" : "password"}
-                          required
                           value={registerData.confirmPassword}
                           onChange={(e) => {
                             setRegisterData((prev) => ({
@@ -584,56 +674,72 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsRegister.confirmPassword && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-[11px] mt-1">
                           {errorsRegister.confirmPassword}
                         </p>
                       )}
                     </div>
 
-                    <div className="text-left flex items-center gap-2">
-                      <Checkbox
-                        id="register-terms"
-                        checked={registerData.terms}
-                        onCheckedChange={() => {
-                          setRegisterData((prev) => ({
-                            ...prev,
-                            terms: !prev.terms,
-                          }));
-                        }}
-                        required
-                        className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
-                      />
-                      <Label
-                        htmlFor="register-terms"
-                        className="text-white text-xs flex items-center gap-1 text-nowrap"
-                      >
-                        I accept the{" "}
-                        <div
-                          onClick={() => {
-                            window.open(
-                              "https://holisticare.io/legal/patients-privacy-policy/",
-                              "_blank"
-                            );
+                    <div className="text-left">
+                      <div className="text-left flex items-center gap-2">
+                        <Checkbox
+                          id="register-terms"
+                          checked={registerData.terms}
+                          onCheckedChange={() => {
+                            setRegisterData((prev) => ({
+                              ...prev,
+                              terms: !prev.terms,
+                            }));
+                            setErrorsRegister({
+                              ...errorsRegister,
+                              terms: "",
+                            });
                           }}
-                          // href="https://holisticare.io/legal/patients-privacy-policy/"
-                          style={{ textDecoration: "underline",cursor: "pointer" }}
+                          className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
+                        />
+                        <Label
+                          htmlFor="register-terms"
+                          className="text-white text-xs flex items-center gap-1 text-nowrap"
                         >
-                          Privacy Policy
-                        </div>
-                        and{" "}
-                        <div
-                          onClick={() => {
-                            window.open(
-                              "https://holisticare.io/legal/patients-terms-of-service/",
-                              "_blank"
-                            );
-                          }}
-                          // href="https://holisticare.io/legal/patients-terms-of-service/"
-                          style={{ textDecoration: "underline",cursor: "pointer" }}
-                        >
-                          Terms of Service
-                        </div>
-                      </Label>
+                          I accept the{" "}
+                          <div
+                            onClick={() => {
+                              window.open(
+                                "https://holisticare.io/legal/patients-privacy-policy/",
+                                "_blank"
+                              );
+                            }}
+                            // href="https://holisticare.io/legal/patients-privacy-policy/"
+                            style={{
+                              textDecoration: "underline",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Privacy Policy
+                          </div>
+                          and{" "}
+                          <div
+                            onClick={() => {
+                              window.open(
+                                "https://holisticare.io/legal/patients-terms-of-service/",
+                                "_blank"
+                              );
+                            }}
+                            // href="https://holisticare.io/legal/patients-terms-of-service/"
+                            style={{
+                              textDecoration: "underline",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Terms of Service
+                          </div>
+                        </Label>
+                      </div>
+                      {errorsRegister.terms && (
+                        <p className="text-red-500 text-[11px] mt-1">
+                          {errorsRegister.terms}
+                        </p>
+                      )}
                     </div>
 
                     <Button
