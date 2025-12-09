@@ -659,20 +659,23 @@ export default function WearableDashboard() {
         };
       }
       
-      // API returns: { historical: [{name: "sleep_score", score: "75", date: "..."}, ...], date_range: {...} }
-      // Scores are flat array, need to group by date
-      const historicalArray = responseData?.historical;
+      // API returns array: [{ historical: [...], date_range: {...} }]
+      // Need to unwrap the array first
+      const unwrappedData = Array.isArray(responseData) ? responseData[0] : responseData;
+      const historicalArray = unwrappedData?.historical;
+      console.log('🔍 Unwrapped historical array:', historicalArray);
       
       if (historicalArray && Array.isArray(historicalArray) && historicalArray.length > 0) {
         // Fill in actual data from API
         for (const item of historicalArray) {
           if (!item.date || item.name === 'archetype') continue;
           
-          const dateKey = format(new Date(item.date), 'yyyy-MM-dd');
+          const itemDate = new Date(item.date);
+          const dateKey = format(itemDate, 'yyyy-MM-dd');
+          const scoreValue = parseFloat(item.score) || 0;
           
           // Only update if this date is in our range
           if (allDatesInRange[dateKey]) {
-            const scoreValue = parseFloat(item.score) || 0;
             switch (item.name) {
               case 'sleep_score':
                 allDatesInRange[dateKey].sleep = scoreValue;
@@ -706,7 +709,6 @@ export default function WearableDashboard() {
         (a: any, b: any) => a.fullDate.getTime() - b.fullDate.getTime()
       );
       
-      console.log('🔍 Parsed history with all dates:', formattedHistory);
       setScoreHistory(formattedHistory);
       
     } catch (error: any) {
@@ -716,19 +718,19 @@ export default function WearableDashboard() {
     }
   };
 
-  // Initial fetch
+  // Initial fetch with default date range
   useEffect(() => {
-    fetchWellnessScores();
+    fetchWellnessScores(dateRange.from, dateRange.to);
   }, []);
 
   // Fetch with date range when it changes (only if we have data)
   useEffect(() => {
     if (hasWearableData && !showDemo) {
-      fetchWellnessScores(dateRange.from, dateRange.to);
+      fetchHistoricalScores(dateRange.from, dateRange.to);
     } else if (showDemo) {
       setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
     }
-  }, [dateRange]);
+  }, [dateRange, hasWearableData]);
 
   const steps = getValueByType("Steps");
   const sleepSeconds = getValueByType("Sleep Duration");
