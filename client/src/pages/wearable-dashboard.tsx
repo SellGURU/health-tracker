@@ -475,18 +475,31 @@ function EmptyState() {
   );
 }
 
+// Type for score metadata from API
+interface ScoreMetadata {
+  key: string;
+  name: string;
+  description: string;
+  factors: string[];
+  score: number | null;
+}
+
 export default function WearableDashboard() {
   const [hasWearableData, setHasWearableData] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
   const [presentScores, setPresentScores] = useState<string[]>([]);
   const [visibleScores, setVisibleScores] = useState<string[]>([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfDay(subDays(new Date(), 6)),
     to: startOfDay(new Date())
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [scoreHistory, setScoreHistory] = useState<any[]>([]);
+  
+  // Store score metadata from API (name, description, factors)
+  const [scoreDetails, setScoreDetails] = useState<Record<string, ScoreMetadata>>({});
   
   // API state
   const [isLoading, setIsLoading] = useState(true);
@@ -523,24 +536,72 @@ export default function WearableDashboard() {
       console.log('🔍 Wellness API response:', data);
       
       // API returns scores as an array with dynamic names like:
-      // [{name: "Activity Score", score: "82"}, {name: "activity_score", score: "82"}, ...]
-      // We need to match flexibly using keywords
+      // [{name: "Activity Score", score: "82", description: "...", factors: [...]}, ...]
+      // We need to match flexibly using keywords and store metadata
       const scoresArray = data?.scores;
       
       if (scoresArray && Array.isArray(scoresArray) && scoresArray.length > 0) {
-        // Helper to find score by keyword (flexible matching)
-        const getScoreByKeyword = (keyword: string): number | null => {
+        // Map of keywords to internal keys
+        const keywordToKey: Record<string, string> = {
+          'sleep': 'sleep',
+          'activity': 'activity',
+          'heart': 'heart',
+          'stress': 'stress',
+          'calor': 'calories',
+          'metabolic': 'calories',
+          'body': 'body',
+          'global': 'global',
+        };
+        
+        // Helper to find score item by keyword (flexible matching)
+        const findItemByKeyword = (keyword: string): any | null => {
           const normalizedKeyword = keyword.toLowerCase();
-          const item = scoresArray.find((s: any) => {
+          return scoresArray.find((s: any) => {
             const name = (s.name || '').toLowerCase().replace(/[_\s\/]+/g, ' ').trim();
             return name.includes(normalizedKeyword);
-          });
-          if (item && item.score !== undefined && item.score !== null && item.score !== '') {
-            const num = parseFloat(item.score);
-            return isNaN(num) ? null : num;
-          }
-          return null;
+          }) || null;
         };
+        
+        // Build score details map with full metadata from API
+        const newScoreDetails: Record<string, ScoreMetadata> = {};
+        const normalizedScores: WellnessScores = {
+          sleep: null, activity: null, heart: null, stress: null,
+          calories: null, body: null, global: null,
+        };
+        
+        // Process each score type
+        const scoreTypes = [
+          { keyword: 'sleep', key: 'sleep' },
+          { keyword: 'activity', key: 'activity' },
+          { keyword: 'heart', key: 'heart' },
+          { keyword: 'stress', key: 'stress' },
+          { keyword: 'calor', key: 'calories', altKeyword: 'metabolic' },
+          { keyword: 'body', key: 'body' },
+          { keyword: 'global', key: 'global' },
+        ];
+        
+        for (const { keyword, key, altKeyword } of scoreTypes) {
+          let item = findItemByKeyword(keyword);
+          if (!item && altKeyword) {
+            item = findItemByKeyword(altKeyword);
+          }
+          
+          if (item) {
+            const scoreValue = item.score !== undefined && item.score !== null && item.score !== ''
+              ? parseFloat(item.score)
+              : null;
+            
+            normalizedScores[key as keyof WellnessScores] = isNaN(scoreValue as number) ? null : scoreValue;
+            
+            newScoreDetails[key] = {
+              key,
+              name: item.name || key,
+              description: item.description || '',
+              factors: item.factors || [],
+              score: normalizedScores[key as keyof WellnessScores],
+            };
+          }
+        }
         
         // Get archetype from array (flexible matching)
         const archetypeItem = scoresArray.find((s: any) => {
@@ -549,33 +610,24 @@ export default function WearableDashboard() {
         });
         const archetypeValue = archetypeItem?.score || null;
         
-        // Build normalized scores object using flexible keyword matching
-        const normalizedScores: WellnessScores = {
-          sleep: getScoreByKeyword('sleep'),
-          activity: getScoreByKeyword('activity'),
-          heart: getScoreByKeyword('heart'),
-          stress: getScoreByKeyword('stress'),
-          calories: getScoreByKeyword('calor') || getScoreByKeyword('metabolic'),
-          body: getScoreByKeyword('body'),
-          global: getScoreByKeyword('global'),
-        };
+        // Also store archetype details
+        if (archetypeItem) {
+          newScoreDetails['archetype'] = {
+            key: 'archetype',
+            name: archetypeItem.name || 'Archetype',
+            description: archetypeItem.description || '',
+            factors: archetypeItem.factors || [],
+            score: null,
+          };
+        }
         
         console.log('🔍 Parsed scores:', normalizedScores, 'archetype:', archetypeValue);
+        console.log('🔍 Score details:', newScoreDetails);
         
         // Detect which scores are present (have non-null values)
-        const scoreKeyMap: Record<string, keyof WellnessScores> = {
-          sleep: 'sleep',
-          activity: 'activity',
-          heart: 'heart',
-          stress: 'stress',
-          calories: 'calories',
-          body: 'body',
-          global: 'global',
-        };
-        
-        const detectedPresentScores = Object.entries(scoreKeyMap)
-          .filter(([_, scoreKey]) => normalizedScores[scoreKey] !== null)
-          .map(([key]) => key);
+        const detectedPresentScores = Object.keys(newScoreDetails).filter(
+          key => key !== 'archetype' && newScoreDetails[key].score !== null
+        );
         
         console.log('🔍 Present scores:', detectedPresentScores);
         
@@ -583,9 +635,14 @@ export default function WearableDashboard() {
         const hasAnyScore = detectedPresentScores.length > 0;
         
         if (hasAnyScore) {
+          setScoreDetails(newScoreDetails);
           setPresentScores(detectedPresentScores);
-          // Set visible scores to all present scores on first load
-          setVisibleScores(prev => prev.length === 0 ? detectedPresentScores : prev.filter(s => detectedPresentScores.includes(s)));
+          
+          // Only set visible scores on initial load, don't reset user's filter choices
+          if (isInitialLoad) {
+            setVisibleScores(detectedPresentScores);
+            setIsInitialLoad(false);
+          }
           
           const normalizedData: WellnessApiResponse = {
             scores: normalizedScores,
@@ -853,10 +910,17 @@ export default function WearableDashboard() {
                 <TooltipContent 
                   side="bottom" 
                   align="end"
-                  className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                  className="max-w-[250px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                 >
                   <p className="font-medium mb-1">{archetype || 'Unknown'}</p>
-                  <p>{archetype ? (archetypeDescriptions[archetype] || 'Your wellness archetype based on your health patterns.') : 'Connect your wearable to see your archetype.'}</p>
+                  <p>{archetype ? (
+                    scoreDetails['archetype']?.description || 
+                    archetypeDescriptions[archetype] || 
+                    'Your wellness archetype based on your health patterns.'
+                  ) : 'Connect your wearable to see your archetype.'}</p>
+                  {scoreDetails['archetype']?.factors?.length > 0 && (
+                    <p className="mt-1 text-gray-500">Key factors: {scoreDetails['archetype'].factors.join(', ')}</p>
+                  )}
                 </TooltipContent>
               </UITooltip>
             </TooltipProvider>
@@ -882,9 +946,12 @@ export default function WearableDashboard() {
                       </TooltipTrigger>
                       <TooltipContent 
                         side="bottom" 
-                        className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                        className="max-w-[250px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                       >
-                        <p>Your Global Wellness Score combines all 6 metrics: Sleep, Activity, Heart Health, Stress, Calories, and Body Composition to give you an overall view of your health balance.</p>
+                        <p>{scoreDetails['global']?.description || 'Your Global Wellness Score combines all metrics to give you an overall view of your health balance.'}</p>
+                        {scoreDetails['global']?.factors?.length > 0 && (
+                          <p className="mt-1 text-gray-500">Includes: {scoreDetails['global'].factors.join(', ')}</p>
+                        )}
                       </TooltipContent>
                     </UITooltip>
                   </div>
@@ -903,6 +970,16 @@ export default function WearableDashboard() {
                 const scoreValue = scores?.[metric.key as keyof WellnessScores] ?? null;
                 const hasValue = scoreValue !== null && scoreValue !== undefined;
                 const IconComponent = metric.icon;
+                
+                // Get dynamic metadata from API, fallback to static config
+                const details = scoreDetails[metric.key];
+                const displayName = details?.name?.replace(/\s*Score\s*$/i, '') || metric.label;
+                const description = details?.description || metric.tooltip;
+                const factors = details?.factors || [];
+                
+                // Build tooltip content from API data
+                const tooltipContent = description + 
+                  (factors.length > 0 ? `\n\nKey factors: ${factors.join(', ')}` : '');
                 
                 return (
                   <div 
@@ -930,7 +1007,7 @@ export default function WearableDashboard() {
                       {hasValue ? Math.round(scoreValue) : '—'}
                     </div>
                     <div className="flex items-center justify-center gap-0.5">
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{metric.label}</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{displayName}</span>
                       <UITooltip>
                         <TooltipTrigger asChild>
                           <button className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors">
@@ -939,9 +1016,9 @@ export default function WearableDashboard() {
                         </TooltipTrigger>
                         <TooltipContent 
                           side="top" 
-                          className="max-w-[200px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                          className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                         >
-                          <p>{metric.tooltip}</p>
+                          <p className="whitespace-pre-line">{tooltipContent}</p>
                         </TooltipContent>
                       </UITooltip>
                     </div>
@@ -1029,24 +1106,30 @@ export default function WearableDashboard() {
           
           {/* Score Legend Toggles - Only show present scores */}
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {(showDemo ? Object.keys(scoreColors) : presentScores).map((key) => (
-              <button
-                key={key}
-                onClick={() => toggleScoreVisibility(key)}
-                className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all duration-200 flex items-center gap-1 ${
-                  visibleScores.includes(key)
-                    ? 'bg-white/80 dark:bg-white/20 shadow-sm'
-                    : 'bg-transparent opacity-50'
-                }`}
-                data-testid={`toggle-${key}`}
-              >
-                <span 
-                  className="w-2 h-2 rounded-full" 
-                  style={{ backgroundColor: scoreColors[key] }}
-                />
-                <span className="text-gray-700 dark:text-gray-300">{scoreLabels[key]}</span>
-              </button>
-            ))}
+            {(showDemo ? Object.keys(scoreColors) : presentScores).map((key) => {
+              // Use dynamic name from API, fallback to static label
+              const details = scoreDetails[key];
+              const displayLabel = details?.name?.replace(/\s*Score\s*$/i, '') || scoreLabels[key];
+              
+              return (
+                <button
+                  key={key}
+                  onClick={() => toggleScoreVisibility(key)}
+                  className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all duration-200 flex items-center gap-1 ${
+                    visibleScores.includes(key)
+                      ? 'bg-white/80 dark:bg-white/20 shadow-sm'
+                      : 'bg-transparent opacity-50'
+                  }`}
+                  data-testid={`toggle-${key}`}
+                >
+                  <span 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: scoreColors[key] }}
+                  />
+                  <span className="text-gray-700 dark:text-gray-300">{displayLabel}</span>
+                </button>
+              );
+            })}
           </div>
           
           <div className="h-52">
