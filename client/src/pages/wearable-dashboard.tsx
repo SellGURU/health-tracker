@@ -929,7 +929,7 @@ export default function WearableDashboard() {
           {/* Global Score Hero */}
           <TooltipProvider delayDuration={200}>
             <div className="flex flex-col items-center mb-6">
-              <CircularProgress value={animatedScore} max={10} size={140} strokeWidth={10}>
+              <CircularProgress value={animatedScore} max={100} size={140} strokeWidth={10}>
                 <div className="text-center">
                   <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                     {animatedScore.toFixed(1)}
