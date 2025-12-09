@@ -621,6 +621,9 @@ export default function WearableDashboard() {
   // Fetch historical scores from dedicated endpoint
   const fetchHistoricalScores = async (fromDate?: Date, toDate?: Date) => {
     try {
+      const effectiveFrom = fromDate || dateRange.from;
+      const effectiveTo = toDate || dateRange.to;
+      
       const requestData: { from_date?: string; to_date?: string } = {};
       if (fromDate) {
         requestData.from_date = format(fromDate, 'yyyy-MM-dd');
@@ -634,81 +637,81 @@ export default function WearableDashboard() {
       const responseData = response.data;
       console.log('🔍 Historical API response:', responseData);
       
+      // Generate all dates in range first (always show all dates on X-axis)
+      const allDatesInRange: Record<string, any> = {};
+      const totalDays = differenceInCalendarDays(effectiveTo, effectiveFrom) + 1;
+      
+      for (let i = 0; i < totalDays; i++) {
+        const currentDate = new Date(effectiveFrom);
+        currentDate.setDate(currentDate.getDate() + i);
+        const dateKey = format(currentDate, 'yyyy-MM-dd');
+        
+        allDatesInRange[dateKey] = {
+          date: format(currentDate, 'MMM d'),
+          fullDate: new Date(currentDate),
+          sleep: null,
+          activity: null,
+          heart: null,
+          stress: null,
+          calories: null,
+          body: null,
+          global: null,
+        };
+      }
+      
       // API returns: { historical: [{name: "sleep_score", score: "75", date: "..."}, ...], date_range: {...} }
       // Scores are flat array, need to group by date
       const historicalArray = responseData?.historical;
       
       if (historicalArray && Array.isArray(historicalArray) && historicalArray.length > 0) {
-        // Group scores by date (using date string without time)
-        const scoresByDate: Record<string, any> = {};
-        
+        // Fill in actual data from API
         for (const item of historicalArray) {
           if (!item.date || item.name === 'archetype') continue;
           
           const dateKey = format(new Date(item.date), 'yyyy-MM-dd');
-          if (!scoresByDate[dateKey]) {
-            scoresByDate[dateKey] = {
-              date: format(new Date(item.date), 'MMM d'),
-              fullDate: new Date(item.date),
-              sleep: 0,
-              activity: 0,
-              heart: 0,
-              stress: 0,
-              calories: 0,
-              body: 0,
-              global: 0,
-            };
-          }
           
-          // Map score name to our key
-          const scoreValue = parseFloat(item.score) || 0;
-          switch (item.name) {
-            case 'sleep_score':
-              scoresByDate[dateKey].sleep = scoreValue;
-              break;
-            case 'activity_score':
-              scoresByDate[dateKey].activity = scoreValue;
-              break;
-            case 'heart_health_score':
-            case 'heart_score':
-              scoresByDate[dateKey].heart = scoreValue;
-              break;
-            case 'stress_score':
-              scoresByDate[dateKey].stress = scoreValue;
-              break;
-            case 'calories_score':
-              scoresByDate[dateKey].calories = scoreValue;
-              break;
-            case 'body_score':
-              scoresByDate[dateKey].body = scoreValue;
-              break;
-            case 'global_score':
-              scoresByDate[dateKey].global = scoreValue;
-              break;
+          // Only update if this date is in our range
+          if (allDatesInRange[dateKey]) {
+            const scoreValue = parseFloat(item.score) || 0;
+            switch (item.name) {
+              case 'sleep_score':
+                allDatesInRange[dateKey].sleep = scoreValue;
+                break;
+              case 'activity_score':
+                allDatesInRange[dateKey].activity = scoreValue;
+                break;
+              case 'heart_health_score':
+              case 'heart_score':
+                allDatesInRange[dateKey].heart = scoreValue;
+                break;
+              case 'stress_score':
+                allDatesInRange[dateKey].stress = scoreValue;
+                break;
+              case 'calories_score':
+                allDatesInRange[dateKey].calories = scoreValue;
+                break;
+              case 'body_score':
+                allDatesInRange[dateKey].body = scoreValue;
+                break;
+              case 'global_score':
+                allDatesInRange[dateKey].global = scoreValue;
+                break;
+            }
           }
         }
-        
-        // Convert to array and sort by date
-        const formattedHistory = Object.values(scoresByDate).sort(
-          (a: any, b: any) => a.fullDate.getTime() - b.fullDate.getTime()
-        );
-        
-        console.log('🔍 Parsed history:', formattedHistory);
-        
-        if (formattedHistory.length > 0) {
-          setScoreHistory(formattedHistory);
-        } else {
-          console.log('🔍 No historical dates found, using generated data');
-          setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
-        }
-      } else {
-        // No historical data, generate fallback
-        console.log('🔍 No historical array, using generated data');
-        setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
       }
+      
+      // Convert to array and sort by date
+      const formattedHistory = Object.values(allDatesInRange).sort(
+        (a: any, b: any) => a.fullDate.getTime() - b.fullDate.getTime()
+      );
+      
+      console.log('🔍 Parsed history with all dates:', formattedHistory);
+      setScoreHistory(formattedHistory);
+      
     } catch (error: any) {
       console.error('❌ Failed to fetch historical scores:', error);
-      // Fallback to generated history
+      // Fallback to generated history with all dates
       setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
     }
   };
@@ -1060,12 +1063,15 @@ export default function WearableDashboard() {
                 />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fontSize: 9, fill: '#9CA3AF' }} 
+                  tick={{ fontSize: 8, fill: '#9CA3AF' }} 
                   stroke="#E5E7EB" 
                   axisLine={false} 
                   tickLine={false}
-                  interval={0}
-                  padding={{ left: 10, right: 10 }}
+                  interval={scoreHistory.length <= 7 ? 0 : scoreHistory.length <= 14 ? 1 : Math.floor(scoreHistory.length / 10)}
+                  padding={{ left: 5, right: 5 }}
+                  angle={scoreHistory.length > 14 ? -45 : 0}
+                  textAnchor={scoreHistory.length > 14 ? "end" : "middle"}
+                  height={scoreHistory.length > 14 ? 40 : 20}
                 />
                 <YAxis 
                   hide 
