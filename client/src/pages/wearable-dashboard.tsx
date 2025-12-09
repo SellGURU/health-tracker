@@ -28,7 +28,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Application from "@/api/app";
 
 // Types for API response
@@ -493,7 +493,7 @@ export default function WearableDashboard() {
   const [animatedScore, setAnimatedScore] = useState(0);
   const [presentScores, setPresentScores] = useState<string[]>([]);
   const [visibleScores, setVisibleScores] = useState<string[]>([]);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const isInitialLoadRef = useRef(true);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfDay(subDays(new Date(), 6)),
     to: startOfDay(new Date())
@@ -642,9 +642,9 @@ export default function WearableDashboard() {
           setPresentScores(detectedPresentScores);
           
           // Only set visible scores on initial load, don't reset user's filter choices
-          if (isInitialLoad) {
+          if (isInitialLoadRef.current) {
             setVisibleScores(detectedPresentScores);
-            setIsInitialLoad(false);
+            isInitialLoadRef.current = false;
           }
           
           const normalizedData: WellnessApiResponse = {
