@@ -417,7 +417,7 @@ function SleepStagesCircle() {
   );
 }
 
-function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
+function EmptyState() {
   return (
     <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900">
       <div className="max-w-lg w-full">
@@ -467,18 +467,6 @@ function EmptyState({ onViewDemo }: { onViewDemo: () => void }) {
               <p className="text-gray-500 dark:text-gray-400 text-sm pt-1">
                 Connect your wearable device to unlock your personalized insights.
               </p>
-            </div>
-            
-            <div className="w-full max-w-xs pt-2">
-              <Button
-                variant="outline"
-                onClick={onViewDemo}
-                className="w-full border-gray-200 dark:border-gray-700"
-                data-testid="button-view-demo"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                View Demo Data
-              </Button>
             </div>
           </div>
         </div>
@@ -676,7 +664,7 @@ export default function WearableDashboard() {
 
   if (!hasWearableData && !showDemo) {
     return (
-      <EmptyState onViewDemo={handleViewDemo} />
+      <EmptyState />
     );
   }
 
