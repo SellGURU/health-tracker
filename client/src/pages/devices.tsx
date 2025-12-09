@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookAppleHealth, RookConfig, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
+import { RookAppleHealth, RookConfig, RookEvents, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -247,8 +247,12 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         try{
           if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
             await RookHealthConnect.scheduleHealthConnectBackGround();
+            await RookHealthConnect.scheduleYesterdaySync({
+              doOnEnd: 'oldest' // یا 'latest' یا 'nothing' بر اساس نیازت
+            });
           } else if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'){
             await RookAppleHealth.enableBackGroundUpdates();
+            await RookAppleHealth.enableBackGroundEventsUpdates();
           }
           RookSummaries.sync({})
 
