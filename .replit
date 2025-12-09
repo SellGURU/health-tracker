@@ -19,7 +19,7 @@ localPort = 34979
 externalPort = 3000
 
 [[ports]]
-localPort = 45883
+localPort = 35335
 externalPort = 3001
 
 [workflows]
@@ -44,4 +44,4 @@ args = "npm run dev"
 waitForPort = 5000
 
 [agent]
-integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_database==1.0.0", "javascript_object_storage==1.0.0"]
+integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_database:1.0.0", "javascript_object_storage:1.0.0"]

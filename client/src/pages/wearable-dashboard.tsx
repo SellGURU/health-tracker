@@ -25,9 +25,34 @@ import {
   PersonStanding,
   Info,
   HelpCircle,
+  Loader2,
 } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
+import Application from "@/api/app";
+
+// Types for API response
+interface WellnessScores {
+  sleep: number | null;
+  activity: number | null;
+  heart: number | null;
+  stress: number | null;
+  calories: number | null;
+  body: number | null;
+  global: number | null;
+}
+
+interface WellnessHistoryItem {
+  date: string;
+  scores: WellnessScores;
+}
+
+interface WellnessApiResponse {
+  scores?: WellnessScores;
+  archetype?: string;
+  last_sync?: string;
+  history?: WellnessHistoryItem[];
+}
 import {
   LineChart,
   Line,
@@ -473,10 +498,89 @@ export default function WearableDashboard() {
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [scoreHistory, setScoreHistory] = useState(() => generateScoreHistory(startOfDay(subDays(new Date(), 6)), startOfDay(new Date())));
-  const globalScore = currentScores.scores.global / 10;
+  
+  // API state
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [wellnessData, setWellnessData] = useState<WellnessApiResponse | null>(null);
 
+  // Use API data if available, otherwise fallback to demo data
+  const scores = wellnessData?.scores || (showDemo ? currentScores.scores : null);
+  const archetype = wellnessData?.archetype || (showDemo ? currentScores.archetype : null);
+  const lastSync = wellnessData?.last_sync 
+    ? new Date(wellnessData.last_sync) 
+    : (showDemo ? currentScores.lastSync : null);
+  
+  const globalScore = scores?.global != null ? scores.global / 10 : 0;
+
+  // Fetch wellness scores from API
+  const fetchWellnessScores = async (fromDate?: Date, toDate?: Date) => {
+    try {
+      setIsLoading(true);
+      setApiError(null);
+      
+      const requestData: { from_date?: string; to_date?: string } = {};
+      if (fromDate) {
+        requestData.from_date = format(fromDate, 'yyyy-MM-dd');
+      }
+      if (toDate) {
+        requestData.to_date = format(toDate, 'yyyy-MM-dd');
+      }
+      
+      const response = await Application.getWellnessScores(requestData);
+      const data = response.data;
+      
+      // Validate response has expected structure
+      if (data && typeof data === 'object') {
+        setWellnessData(data);
+        setHasWearableData(true);
+        
+        // If API returns history, use it; otherwise generate mock history
+        if (data.history && Array.isArray(data.history) && data.history.length > 0) {
+          const formattedHistory = data.history.map((item: WellnessHistoryItem) => ({
+            date: format(new Date(item.date), 'MMM d'),
+            fullDate: new Date(item.date),
+            sleep: item.scores?.sleep ?? null,
+            activity: item.scores?.activity ?? null,
+            heart: item.scores?.heart ?? null,
+            stress: item.scores?.stress ?? null,
+            calories: item.scores?.calories ?? null,
+            body: item.scores?.body ?? null,
+            global: item.scores?.global ?? null,
+          }));
+          setScoreHistory(formattedHistory);
+        } else {
+          // Generate mock history if no history in API response
+          setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+        }
+      } else {
+        // Invalid response structure, show empty state
+        setHasWearableData(false);
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch wellness scores:', error);
+      // Don't show error for 401 (handled by axios interceptor)
+      if (error?.response?.status !== 401) {
+        setApiError('Unable to load wellness data');
+      }
+      setHasWearableData(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial fetch
   useEffect(() => {
-    setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+    fetchWellnessScores();
+  }, []);
+
+  // Fetch with date range when it changes (only if we have data)
+  useEffect(() => {
+    if (hasWearableData && !showDemo) {
+      fetchWellnessScores(dateRange.from, dateRange.to);
+    } else if (showDemo) {
+      setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+    }
   }, [dateRange]);
 
   const steps = getValueByType("Steps");
@@ -505,6 +609,11 @@ export default function WearableDashboard() {
   const handleViewDemo = () => {
     setShowDemo(true);
     setHasWearableData(true);
+    setIsLoading(false);
+  };
+
+  const handleRefresh = () => {
+    fetchWellnessScores(dateRange.from, dateRange.to);
   };
 
   const toggleScoreVisibility = (scoreKey: string) => {
@@ -546,6 +655,18 @@ export default function WearableDashboard() {
     setIsDatePickerOpen(false);
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Loading wellness data...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!hasWearableData && !showDemo) {
     return (
       <EmptyState onViewDemo={handleViewDemo} />
@@ -568,7 +689,7 @@ export default function WearableDashboard() {
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 flex items-center gap-1 hover:from-cyan-500/30 hover:to-blue-500/30 transition-all">
-                    {currentScores.archetype}
+                    {archetype || 'Unknown'}
                     <Info className="w-3 h-3 opacity-60" />
                   </button>
                 </TooltipTrigger>
@@ -577,8 +698,8 @@ export default function WearableDashboard() {
                   align="end"
                   className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                 >
-                  <p className="font-medium mb-1">{currentScores.archetype}</p>
-                  <p>{archetypeDescriptions[currentScores.archetype] || 'Your wellness archetype based on your health patterns.'}</p>
+                  <p className="font-medium mb-1">{archetype || 'Unknown'}</p>
+                  <p>{archetype ? (archetypeDescriptions[archetype] || 'Your wellness archetype based on your health patterns.') : 'Connect your wearable to see your archetype.'}</p>
                 </TooltipContent>
               </UITooltip>
             </TooltipProvider>
@@ -622,7 +743,7 @@ export default function WearableDashboard() {
           <TooltipProvider delayDuration={200}>
             <div className="grid grid-cols-3 gap-3">
               {metricsConfig.map((metric) => {
-                const scoreValue = currentScores?.scores?.[metric.key as keyof typeof currentScores.scores] ?? null;
+                const scoreValue = scores?.[metric.key as keyof WellnessScores] ?? null;
                 const hasValue = scoreValue !== null && scoreValue !== undefined;
                 const IconComponent = metric.icon;
                 
@@ -677,7 +798,12 @@ export default function WearableDashboard() {
           <div className="mt-4 pt-3 border-t border-gray-200/30 dark:border-gray-700/30">
             <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
               <RefreshCw className="w-2.5 h-2.5" />
-              <span>Last synced {format(currentScores.lastSync, 'MMM d')} at {format(currentScores.lastSync, 'h:mm a')}</span>
+              <span>
+                {lastSync 
+                  ? `Last synced ${format(lastSync, 'MMM d')} at ${format(lastSync, 'h:mm a')}`
+                  : 'Not synced yet'
+                }
+              </span>
             </div>
           </div>
         </div>
