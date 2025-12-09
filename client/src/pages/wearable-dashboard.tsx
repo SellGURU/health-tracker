@@ -805,12 +805,12 @@ export default function WearableDashboard() {
           }
         }
         
-        // Initialize null values for all standard score keys across all dates
+        // Initialize 0 values for all standard score keys across all dates (shows flat line at bottom)
         const standardKeys = ['sleep', 'activity', 'heart', 'stress', 'calories', 'body', 'global'];
         Object.keys(allDatesInRange).forEach(dateKey => {
           standardKeys.forEach(key => {
             if (allDatesInRange[dateKey][key] === undefined) {
-              allDatesInRange[dateKey][key] = null;
+              allDatesInRange[dateKey][key] = 0;
             }
           });
         });
@@ -1254,7 +1254,7 @@ export default function WearableDashboard() {
                       strokeOpacity={isGlobal ? 1 : 0.85}
                       dot={{ r: isGlobal ? 4 : 3, fill: color, stroke: '#fff', strokeWidth: isGlobal ? 2 : 1 }}
                       activeDot={{ r: isGlobal ? 6 : 5, fill: color, stroke: '#fff', strokeWidth: 2 }}
-                      connectNulls={false}
+                      connectNulls={true}
                     />
                   );
                 })}
