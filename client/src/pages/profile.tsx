@@ -70,8 +70,8 @@ export default function Profile() {
   const [clientInformation, setClientInformation] = useState<{
     action_plan: number;
     age: number;
-    active_client:boolean;
-    plan?:string;
+    active_client: boolean;
+    plan?: string;
     coach_username: [];
     connected_wearable: boolean;
     date_of_birth: string;
@@ -87,7 +87,6 @@ export default function Profile() {
     has_changed_password?: boolean;
     // plan: string;
   }>();
-
 
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
@@ -106,7 +105,6 @@ export default function Profile() {
     handleGetClientInformation();
   }, []);
 
-
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
@@ -115,7 +113,8 @@ export default function Profile() {
   const [isExporting, setIsExporting] = useState(false);
 
   // Check if password change is required
-  const isPasswordChangeRequired = clientInformation?.has_changed_password === false;
+  const isPasswordChangeRequired =
+    clientInformation?.has_changed_password === false;
 
   // Check if password change is required on mount
   // useEffect(() => {
@@ -146,14 +145,20 @@ export default function Profile() {
         variant: "destructive",
       });
     }
-  }, [location, isPasswordChangeRequired, showPasswordDialog, setLocation, toast]);
+  }, [
+    location,
+    isPasswordChangeRequired,
+    showPasswordDialog,
+    setLocation,
+    toast,
+  ]);
   const [editData, setEditData] = useState({
     firstName: "",
     lastName: "",
     dateOfBirth: "",
     gender: "",
   });
-  
+
   useEffect(() => {
     setEditData({
       firstName: clientInformation?.name?.split(" ")[0] || "",
@@ -303,11 +308,9 @@ export default function Profile() {
       const res = await Application.deleteAccount(deleteConfirmation);
       return res;
     },
-    onSuccess: () => {
-    },
-    onError: (error) => {
-    },
-  });  
+    onSuccess: () => {},
+    onError: (error) => {},
+  });
   const handleDeleteAccount = () => {
     const requiredText = `DELETE/${clientInformation?.name}`;
     if (deleteConfirmation === requiredText) {
@@ -342,6 +345,10 @@ export default function Profile() {
         handleGetClientInformation();
         // Also refresh auth service client information
         fetchClientInformation();
+        if (localStorage.getItem("registerpasswordchange") === "true") {
+          localStorage.removeItem("registerpasswordchange");
+          setLocation("/");
+        }
       } else {
         toast({
           title: "Password Change Failed",
@@ -538,7 +545,7 @@ export default function Profile() {
       description: "Permanently delete your account and data",
       action: () => setShowDeleteAccountDialog(true),
       badge: null,
-    },    
+    },
   ];
 
   const getSubscriptionBadge = (tier: string) => {
@@ -608,7 +615,12 @@ export default function Profile() {
 
       <div className="max-w-4xl mx-auto px-3 py-4 space-y-4">
         {/* Profile Overview Card */}
-        <ProfileInfo clientInformation={clientInformation} brandInfo={brandInfo} getMembershipDuration={getMembershipDuration} getSubscriptionBadge={getSubscriptionBadge} />
+        <ProfileInfo
+          clientInformation={clientInformation}
+          brandInfo={brandInfo}
+          getMembershipDuration={getMembershipDuration}
+          getSubscriptionBadge={getSubscriptionBadge}
+        />
 
         {/* Settings Sections */}
         <AccountSetting settingsItems={settingsItems} />
@@ -1342,12 +1354,15 @@ export default function Profile() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={showDeleteAccountDialog} onOpenChange={(open) => {
-          setShowDeleteAccountDialog(open);
-          if (!open) {
-            setDeleteConfirmation("");
-          }
-        }}>
+        <Dialog
+          open={showDeleteAccountDialog}
+          onOpenChange={(open) => {
+            setShowDeleteAccountDialog(open);
+            if (!open) {
+              setDeleteConfirmation("");
+            }
+          }}
+        >
           <DialogContent className="max-w-lg bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-thin bg-gradient-to-r from-gray-900 to-red-800 dark:from-white dark:to-red-200 bg-clip-text text-transparent flex items-center gap-3">
@@ -1355,16 +1370,19 @@ export default function Profile() {
                 Delete Account
               </DialogTitle>
               <DialogDescription className="text-gray-600 dark:text-gray-400 font-light">
-                This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+                This action cannot be undone. This will permanently delete your
+                account and remove all your data from our servers.
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="bg-red-50/50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/30 rounded-lg p-4">
                 <div className="flex gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium mb-2">This will permanently delete:</p>
+                    <p className="font-medium mb-2">
+                      This will permanently delete:
+                    </p>
                     <ul className="list-disc list-inside space-y-1 text-xs">
                       <li>Your profile and account information</li>
                       <li>All your health data and lab results</li>
@@ -1377,37 +1395,50 @@ export default function Profile() {
               </div>
 
               <div>
-                <Label htmlFor="delete-confirmation" className="text-gray-700 dark:text-gray-300 font-medium">
-                  Type <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-sm">DELETE/{clientInformation?.name}</span> to confirm
+                <Label
+                  htmlFor="delete-confirmation"
+                  className="text-gray-700 dark:text-gray-300 font-medium"
+                >
+                  Type{" "}
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-sm">
+                    DELETE/{clientInformation?.name}
+                  </span>{" "}
+                  to confirm
                 </Label>
                 <Input
                   id="delete-confirmation"
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder={`DELETE/${clientInformation?.name }`}
+                  placeholder={`DELETE/${clientInformation?.name}`}
                   className="mt-2 bg-white/80 dark:bg-gray-700/80 border-red-200/50 dark:border-red-800/30 focus:border-red-500 dark:focus:border-red-500"
                   data-testid="input-delete-confirmation"
                 />
               </div>
 
               <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-700/30 p-3 rounded-lg">
-                Once you delete your account, there is no going back. Please be certain.
+                Once you delete your account, there is no going back. Please be
+                certain.
               </div>
-              
+
               <div className="pt-4">
-                <Button 
+                <Button
                   onClick={handleDeleteAccount}
                   className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg"
-                  disabled={deleteConfirmation !== `DELETE/${clientInformation?.name}` || deleteAccountMutation.isPending}
+                  disabled={
+                    deleteConfirmation !==
+                      `DELETE/${clientInformation?.name}` ||
+                    deleteAccountMutation.isPending
+                  }
                   data-testid="button-delete-account"
                 >
-                  {deleteAccountMutation.isPending ? "Deleting Account..." : "Delete My Account Permanently"}
+                  {deleteAccountMutation.isPending
+                    ? "Deleting Account..."
+                    : "Delete My Account Permanently"}
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
-
       </div>
     </div>
   );

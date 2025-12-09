@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { RookAppleHealth } from "capacitor-rook-sdk";
 
 const healthModules = [
   {
@@ -278,6 +279,12 @@ export default function YouMenu() {
         });
       });
   };
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+      RookAppleHealth.enableBackGroundUpdates();
+      RookAppleHealth.enableBackGroundEventsUpdates();
+    }
+  }, []);  
   const handleGetHolisticPlanActionPlan = async () => {
     Application.getHolisticPlanActionPlan()
       .then((res) => {
@@ -771,7 +778,7 @@ export default function YouMenu() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`;
+                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
                         // setIframeUrl(url);
                         // setOpenIframe(true);
                         const newWindow = window.open(url, "_blank");
