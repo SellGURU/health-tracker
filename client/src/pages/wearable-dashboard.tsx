@@ -515,50 +515,95 @@ export default function WearableDashboard() {
         requestData.to_date = format(toDate, 'yyyy-MM-dd');
       }
       
+      console.log('🔍 Fetching wellness scores with:', requestData);
       const response = await Application.getWellnessScores(requestData);
       const data = response.data;
+      console.log('🔍 Wellness API response:', data);
       
-      // Validate response has expected structure with actual scores
-      const hasValidScores = data && 
-        typeof data === 'object' && 
-        data.scores && 
-        typeof data.scores === 'object' &&
-        Object.keys(data.scores).length > 0;
+      // API returns scores as an array: [{name: "activity_score", score: "82"}, ...]
+      // We need to convert this to our expected format
+      const scoresArray = data?.scores;
       
-      if (hasValidScores) {
-        setWellnessData(data);
-        setHasWearableData(true);
+      if (scoresArray && Array.isArray(scoresArray) && scoresArray.length > 0) {
+        // Helper to find score by name
+        const getScore = (name: string): number | null => {
+          const item = scoresArray.find((s: any) => s.name === name);
+          if (item && item.score !== undefined && item.score !== null) {
+            const num = parseFloat(item.score);
+            return isNaN(num) ? null : num;
+          }
+          return null;
+        };
         
-        // If API returns history, use it; otherwise generate mock history
-        if (data.history && Array.isArray(data.history) && data.history.length > 0) {
-          const formattedHistory = data.history.map((item: WellnessHistoryItem) => ({
-            date: format(new Date(item.date), 'MMM d'),
-            fullDate: new Date(item.date),
-            sleep: item.scores?.sleep ?? null,
-            activity: item.scores?.activity ?? null,
-            heart: item.scores?.heart ?? null,
-            stress: item.scores?.stress ?? null,
-            calories: item.scores?.calories ?? null,
-            body: item.scores?.body ?? null,
-            global: item.scores?.global ?? null,
-          }));
-          setScoreHistory(formattedHistory);
+        // Get archetype from array
+        const archetypeItem = scoresArray.find((s: any) => s.name === 'archetype');
+        const archetypeValue = archetypeItem?.score || null;
+        
+        // Build normalized scores object
+        const normalizedScores: WellnessScores = {
+          sleep: getScore('sleep_score'),
+          activity: getScore('activity_score'),
+          heart: getScore('heart_health_score'),
+          stress: getScore('stress_score'),
+          calories: getScore('calories_score'),
+          body: getScore('body_score'),
+          global: getScore('global_score'),
+        };
+        
+        console.log('🔍 Parsed scores:', normalizedScores, 'archetype:', archetypeValue);
+        
+        // Check if we have at least one valid score
+        const hasAnyScore = Object.values(normalizedScores).some(v => v !== null);
+        
+        if (hasAnyScore) {
+          const normalizedData: WellnessApiResponse = {
+            scores: normalizedScores,
+            archetype: archetypeValue,
+            last_sync: data?.latest_date || null,
+            history: data?.history || null,
+          };
+          
+          setWellnessData(normalizedData);
+          setHasWearableData(true);
+          
+          // If API returns history, use it; otherwise generate mock history
+          if (normalizedData.history && Array.isArray(normalizedData.history) && normalizedData.history.length > 0) {
+            const formattedHistory = normalizedData.history.map((item: WellnessHistoryItem) => ({
+              date: format(new Date(item.date), 'MMM d'),
+              fullDate: new Date(item.date),
+              sleep: item.scores?.sleep ?? 0,
+              activity: item.scores?.activity ?? 0,
+              heart: item.scores?.heart ?? 0,
+              stress: item.scores?.stress ?? 0,
+              calories: item.scores?.calories ?? 0,
+              body: item.scores?.body ?? 0,
+              global: item.scores?.global ?? 0,
+            }));
+            setScoreHistory(formattedHistory);
+          } else {
+            // Generate mock history if no history in API response
+            setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+          }
         } else {
-          // Generate mock history if no history in API response
-          setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+          // No valid scores data, show empty state
+          console.log('🔍 No valid scores found, showing empty state');
+          setWellnessData(null);
+          setHasWearableData(false);
         }
       } else {
-        // No valid scores data, show empty state
+        // No scores array, show empty state
+        console.log('🔍 No scores array in response, showing empty state');
         setWellnessData(null);
         setHasWearableData(false);
       }
     } catch (error: any) {
-      console.error('Failed to fetch wellness scores:', error);
-      // Don't show error for 401 (handled by axios interceptor)
+      console.error('❌ Failed to fetch wellness scores:', error);
+      setWellnessData(null);
+      setHasWearableData(false);
+      // Set error message unless it's a 401 (handled by axios interceptor)
       if (error?.response?.status !== 401) {
         setApiError('Unable to load wellness data');
       }
-      setHasWearableData(false);
     } finally {
       setIsLoading(false);
     }
