@@ -4,7 +4,7 @@ import { getTokenFromLocalStorage } from "../store/token";
 class Api {
   protected static base_url: string =
     // 'https://vercel-backend-one-roan.vercel.app/holisticare';
-    "https://vercel-backend-one-roan.vercel.app/holisticare_test";
+    "https://vercel-backend-one-roan.vercel.app/holisticare";
   protected static post(url: string, data?: any, config?: any) {
     if (!config?.noPending) {
     }
