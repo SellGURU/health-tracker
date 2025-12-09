@@ -499,7 +499,8 @@ export default function WearableDashboard() {
     ? new Date(wellnessData.last_sync) 
     : (showDemo ? currentScores.lastSync : null);
   
-  const globalScore = scores?.global != null ? scores.global / 10 : 0;
+  // Scores are already 0-100, no need to divide
+  const globalScore = scores?.global != null ? scores.global : 0;
 
   // Fetch wellness scores from API
   const fetchWellnessScores = async (fromDate?: Date, toDate?: Date) => {
@@ -640,9 +641,10 @@ export default function WearableDashboard() {
   }, [globalScore]);
 
   const getScoreLabel = (score: number) => {
-    if (score >= 8) return "Feeling Great!";
-    if (score >= 6) return "Good Day";
-    if (score >= 4) return "Fair";
+    // Scores are 0-100 scale
+    if (score >= 80) return "Feeling Great!";
+    if (score >= 60) return "Good Day";
+    if (score >= 40) return "Fair";
     return "Needs Attention";
   };
 
