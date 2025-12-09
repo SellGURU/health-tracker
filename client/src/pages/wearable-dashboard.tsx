@@ -766,71 +766,52 @@ export default function WearableDashboard() {
       const historicalArray = unwrappedData?.historical;
       console.log('🔍 Unwrapped historical array:', historicalArray);
       
-      // Track all unique score names from API
-      const detectedScoreKeys = new Set<string>();
+      // Helper function to normalize API name to consistent key
+      const normalizeToKey = (name: string): string | null => {
+        const nameLower = (name || '').toLowerCase();
+        
+        // Skip archetype
+        if (nameLower === 'archetype' || nameLower.includes('archetype')) return null;
+        
+        // Map to consistent keys used by wellness API
+        if (nameLower.includes('sleep')) return 'sleep';
+        if (nameLower.includes('activity')) return 'activity';
+        if (nameLower.includes('heart')) return 'heart';
+        if (nameLower.includes('stress')) return 'stress';
+        if (nameLower.includes('calor') || nameLower.includes('metabolic')) return 'calories';
+        if (nameLower.includes('body') || nameLower.includes('composition')) return 'body';
+        if (nameLower.includes('global') || nameLower.includes('wellness')) return 'global';
+        
+        return null;
+      };
       
       if (historicalArray && Array.isArray(historicalArray) && historicalArray.length > 0) {
-        // Fill in actual data from API using the exact API name as key
+        // Fill in actual data from API using normalized keys matching wellness API
         for (const item of historicalArray) {
           if (!item.date || !item.name) continue;
           
-          // Skip archetype entries
-          const nameLower = item.name.toLowerCase();
-          if (nameLower === 'archetype' || nameLower.includes('archetype')) continue;
+          const scoreKey = normalizeToKey(item.name);
+          if (!scoreKey) continue;
           
           const itemDate = new Date(item.date);
           const dateKey = format(itemDate, 'yyyy-MM-dd');
           const scoreValue = parseFloat(item.score);
           
-          // Create a normalized key from the API name (lowercase, no special chars)
-          const scoreKey = item.name.toLowerCase()
-            .replace(/\s*score\s*/gi, '')
-            .replace(/[^a-z0-9]/gi, '_')
-            .replace(/_+/g, '_')
-            .replace(/^_|_$/g, '')
-            .trim();
-          
           // Only update if this date is in our range
-          if (allDatesInRange[dateKey] && scoreKey) {
+          if (allDatesInRange[dateKey]) {
             allDatesInRange[dateKey][scoreKey] = isNaN(scoreValue) ? null : scoreValue;
-            detectedScoreKeys.add(scoreKey);
-            
-            // Store the original API name for display purposes
-            if (!scoreDetails[scoreKey]) {
-              setScoreDetails(prev => ({
-                ...prev,
-                [scoreKey]: {
-                  key: scoreKey,
-                  name: item.name,
-                  description: '',
-                  factors: [],
-                  score: scoreValue,
-                }
-              }));
-            }
           }
         }
         
-        // Initialize null values for all detected score keys across all dates
-        const scoreKeysArray = Array.from(detectedScoreKeys);
+        // Initialize null values for all standard score keys across all dates
+        const standardKeys = ['sleep', 'activity', 'heart', 'stress', 'calories', 'body', 'global'];
         Object.keys(allDatesInRange).forEach(dateKey => {
-          scoreKeysArray.forEach(scoreKey => {
-            if (allDatesInRange[dateKey][scoreKey] === undefined) {
-              allDatesInRange[dateKey][scoreKey] = null;
+          standardKeys.forEach(key => {
+            if (allDatesInRange[dateKey][key] === undefined) {
+              allDatesInRange[dateKey][key] = null;
             }
           });
         });
-        
-        // Update present scores and visible scores if this is initial load
-        if (detectedScoreKeys.size > 0) {
-          const newPresentScores = Array.from(detectedScoreKeys);
-          setPresentScores(newPresentScores);
-          
-          if (isInitialLoadRef.current) {
-            setVisibleScores(newPresentScores);
-            isInitialLoadRef.current = false;
-          }
-        }
       }
       
       // Convert to array and sort by date
@@ -838,6 +819,7 @@ export default function WearableDashboard() {
         (a: any, b: any) => a.fullDate.getTime() - b.fullDate.getTime()
       );
       
+      console.log('🔍 Processed score history:', formattedHistory);
       setScoreHistory(formattedHistory);
       
     } catch (error: any) {
