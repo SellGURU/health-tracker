@@ -479,13 +479,14 @@ export default function WearableDashboard() {
   const [hasWearableData, setHasWearableData] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
-  const [visibleScores, setVisibleScores] = useState<string[]>(['global', 'sleep', 'activity', 'heart', 'stress', 'calories', 'body']);
+  const [presentScores, setPresentScores] = useState<string[]>([]);
+  const [visibleScores, setVisibleScores] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfDay(subDays(new Date(), 6)),
     to: startOfDay(new Date())
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [scoreHistory, setScoreHistory] = useState(() => generateScoreHistory(startOfDay(subDays(new Date(), 6)), startOfDay(new Date())));
+  const [scoreHistory, setScoreHistory] = useState<any[]>([]);
   
   // API state
   const [isLoading, setIsLoading] = useState(true);
@@ -553,10 +554,31 @@ export default function WearableDashboard() {
         
         console.log('🔍 Parsed scores:', normalizedScores, 'archetype:', archetypeValue);
         
+        // Detect which scores are present (have non-null values)
+        const scoreKeyMap: Record<string, keyof WellnessScores> = {
+          sleep: 'sleep',
+          activity: 'activity',
+          heart: 'heart',
+          stress: 'stress',
+          calories: 'calories',
+          body: 'body',
+          global: 'global',
+        };
+        
+        const detectedPresentScores = Object.entries(scoreKeyMap)
+          .filter(([_, scoreKey]) => normalizedScores[scoreKey] !== null)
+          .map(([key]) => key);
+        
+        console.log('🔍 Present scores:', detectedPresentScores);
+        
         // Check if we have at least one valid score
-        const hasAnyScore = Object.values(normalizedScores).some(v => v !== null);
+        const hasAnyScore = detectedPresentScores.length > 0;
         
         if (hasAnyScore) {
+          setPresentScores(detectedPresentScores);
+          // Set visible scores to all present scores on first load
+          setVisibleScores(prev => prev.length === 0 ? detectedPresentScores : prev.filter(s => detectedPresentScores.includes(s)));
+          
           const normalizedData: WellnessApiResponse = {
             scores: normalizedScores,
             archetype: archetypeValue,
@@ -567,35 +589,21 @@ export default function WearableDashboard() {
           setWellnessData(normalizedData);
           setHasWearableData(true);
           
-          // If API returns history, use it; otherwise generate mock history
-          if (normalizedData.history && Array.isArray(normalizedData.history) && normalizedData.history.length > 0) {
-            const formattedHistory = normalizedData.history.map((item: WellnessHistoryItem) => ({
-              date: format(new Date(item.date), 'MMM d'),
-              fullDate: new Date(item.date),
-              sleep: item.scores?.sleep ?? 0,
-              activity: item.scores?.activity ?? 0,
-              heart: item.scores?.heart ?? 0,
-              stress: item.scores?.stress ?? 0,
-              calories: item.scores?.calories ?? 0,
-              body: item.scores?.body ?? 0,
-              global: item.scores?.global ?? 0,
-            }));
-            setScoreHistory(formattedHistory);
-          } else {
-            // Generate mock history if no history in API response
-            setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
-          }
+          // Fetch historical data from dedicated endpoint
+          fetchHistoricalScores(fromDate, toDate);
         } else {
           // No valid scores data, show empty state
           console.log('🔍 No valid scores found, showing empty state');
           setWellnessData(null);
           setHasWearableData(false);
+          setPresentScores([]);
         }
       } else {
         // No scores array, show empty state
         console.log('🔍 No scores array in response, showing empty state');
         setWellnessData(null);
         setHasWearableData(false);
+        setPresentScores([]);
       }
     } catch (error: any) {
       console.error('❌ Failed to fetch wellness scores:', error);
@@ -607,6 +615,101 @@ export default function WearableDashboard() {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fetch historical scores from dedicated endpoint
+  const fetchHistoricalScores = async (fromDate?: Date, toDate?: Date) => {
+    try {
+      const requestData: { from_date?: string; to_date?: string } = {};
+      if (fromDate) {
+        requestData.from_date = format(fromDate, 'yyyy-MM-dd');
+      }
+      if (toDate) {
+        requestData.to_date = format(toDate, 'yyyy-MM-dd');
+      }
+      
+      console.log('🔍 Fetching historical scores with:', requestData);
+      const response = await Application.getWellnessScoresHistorical(requestData);
+      const responseData = response.data;
+      console.log('🔍 Historical API response:', responseData);
+      
+      // API returns: { historical: [{name: "sleep_score", score: "75", date: "..."}, ...], date_range: {...} }
+      // Scores are flat array, need to group by date
+      const historicalArray = responseData?.historical;
+      
+      if (historicalArray && Array.isArray(historicalArray) && historicalArray.length > 0) {
+        // Group scores by date (using date string without time)
+        const scoresByDate: Record<string, any> = {};
+        
+        for (const item of historicalArray) {
+          if (!item.date || item.name === 'archetype') continue;
+          
+          const dateKey = format(new Date(item.date), 'yyyy-MM-dd');
+          if (!scoresByDate[dateKey]) {
+            scoresByDate[dateKey] = {
+              date: format(new Date(item.date), 'MMM d'),
+              fullDate: new Date(item.date),
+              sleep: 0,
+              activity: 0,
+              heart: 0,
+              stress: 0,
+              calories: 0,
+              body: 0,
+              global: 0,
+            };
+          }
+          
+          // Map score name to our key
+          const scoreValue = parseFloat(item.score) || 0;
+          switch (item.name) {
+            case 'sleep_score':
+              scoresByDate[dateKey].sleep = scoreValue;
+              break;
+            case 'activity_score':
+              scoresByDate[dateKey].activity = scoreValue;
+              break;
+            case 'heart_health_score':
+            case 'heart_score':
+              scoresByDate[dateKey].heart = scoreValue;
+              break;
+            case 'stress_score':
+              scoresByDate[dateKey].stress = scoreValue;
+              break;
+            case 'calories_score':
+              scoresByDate[dateKey].calories = scoreValue;
+              break;
+            case 'body_score':
+              scoresByDate[dateKey].body = scoreValue;
+              break;
+            case 'global_score':
+              scoresByDate[dateKey].global = scoreValue;
+              break;
+          }
+        }
+        
+        // Convert to array and sort by date
+        const formattedHistory = Object.values(scoresByDate).sort(
+          (a: any, b: any) => a.fullDate.getTime() - b.fullDate.getTime()
+        );
+        
+        console.log('🔍 Parsed history:', formattedHistory);
+        
+        if (formattedHistory.length > 0) {
+          setScoreHistory(formattedHistory);
+        } else {
+          console.log('🔍 No historical dates found, using generated data');
+          setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+        }
+      } else {
+        // No historical data, generate fallback
+        console.log('🔍 No historical array, using generated data');
+        setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
+      }
+    } catch (error: any) {
+      console.error('❌ Failed to fetch historical scores:', error);
+      // Fallback to generated history
+      setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
     }
   };
 
@@ -652,6 +755,11 @@ export default function WearableDashboard() {
     setShowDemo(true);
     setHasWearableData(true);
     setIsLoading(false);
+    // Set all scores as present and visible for demo
+    const allScores = ['global', 'sleep', 'activity', 'heart', 'stress', 'calories', 'body'];
+    setPresentScores(allScores);
+    setVisibleScores(allScores);
+    setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
   };
 
   const handleRefresh = () => {
@@ -912,9 +1020,9 @@ export default function WearableDashboard() {
             </Popover>
           </div>
           
-          {/* Score Legend Toggles */}
+          {/* Score Legend Toggles - Only show present scores */}
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {Object.keys(scoreColors).map((key) => (
+            {(showDemo ? Object.keys(scoreColors) : presentScores).map((key) => (
               <button
                 key={key}
                 onClick={() => toggleScoreVisibility(key)}
