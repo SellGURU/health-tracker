@@ -147,8 +147,8 @@ function Router() {
                 <Route path="/holistic-plans" component={HolisticPlans} />
                 <Route path="/not-found" component={NotFound} />
                 <Route path="/auth" component={YouMenu} />
-                <Route component={NotFound} />
                 <Route path="/wearable" component={WearableDashboard} />
+                <Route component={NotFound} />
               </Switch>
             </MobileLayout>
           )}
