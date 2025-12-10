@@ -320,64 +320,67 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           console.log("✅ User ID updated:", userId);
         }
 
-        // 3. Request Android permissions first (required for Health Connect)
+        // 3. Request Android permissions first (required for Samsung Health)
         const androidPerms = await RookPermissions.requestAndroidPermissions();
         console.log("✅ Android permissions:", androidPerms);
-        // 4. Request Health Connect permissions
-        // // 5. Schedule sync
-        try{
-          const permissions: Array<SamsungPermissionType> = [
-            "ACTIVITY_SUMMARY",
-            "BLOOD_GLUCOSE",
-            "BLOOD_OXYGEN",
-            "BLOOD_PRESSURE",
-            "BODY_COMPOSITION",
-            "EXERCISE",
-            "EXERCISE_LOCATION",
-            "FLOORS_CLIMBED",
-            "HEART_RATE",
-            "NUTRITION",
-            "SLEEP",
-            "STEPS",
-            "WATER_INTAKE"
-          ];
-          await RookSamsungHealth.checkSamsungHealthAvailability().then(async (res) => {
-            // toast({
-            //   title: "Samsung Health Availability",
-            //   description: res.toString(),
-            // });
-            console.log("✅ Samsung Health Availability:", res);
-            if(res.result.toString() === 'INSTALLED'){
-              await RookPermissions.requestSamsungHealthPermissions({
-                types: permissions,
-              })
-              RookSamsungHealth.enableBackGroundUpdates();
-              const isActive = await RookSamsungHealth.isBackGroundUpdatesEnable();
-              // const availability = await RookSamsungHealth.checkSamsungHealthAvailability();
-              toast({
-                title: "Samsung Health Availability",
-                description: isActive.toString(),
-              });
-              // RookSamsungHealth.enableBackGroundUpdates().then((res) => {
-              RookSummaries.sync({})
-              setIsConnectingSamsungHealth("connected");
-              
-              toast({
-                title: "Connected Successfully",
-                description: "Samsung Health has been connected successfully.",
-              });
-            }else {
-              setIsConnectingSamsungHealth("disconnected");
-            }
-          });
-        }catch(e: any){
+        
+        // 4. Check Samsung Health availability and request permissions
+        // Only request essential permissions to avoid crashes
+        const permissions: Array<SamsungPermissionType> = [
+          "STEPS",
+          "HEART_RATE",
+          "SLEEP",
+          "ACTIVITY_SUMMARY",
+          "EXERCISE",
+          "FLOORS_CLIMBED"
+        ];
+        
+        try {
+          const availabilityResult = await RookSamsungHealth.checkSamsungHealthAvailability();
+          console.log("✅ Samsung Health Availability:", availabilityResult);
+          
+          if (availabilityResult.result?.toString() === 'INSTALLED') {
+            // Request Samsung Health permissions
+            await RookPermissions.requestSamsungHealthPermissions({
+              types: permissions,
+            });
+            console.log("✅ Samsung Health permissions granted");
+            
+            // Enable background updates
+            await RookSamsungHealth.enableBackGroundUpdates();
+            console.log("✅ Background updates enabled");
+            
+            // Check if background updates are active
+            const isActive = await RookSamsungHealth.isBackGroundUpdatesEnable();
+            console.log("✅ Background updates status:", isActive);
+            
+            // Sync summaries
+            await RookSummaries.sync({});
+            console.log("✅ Summaries synced");
+            
+            setIsConnectingSamsungHealth("connected");
+            
+            toast({
+              title: "Connected Successfully",
+              description: "Samsung Health has been connected successfully.",
+            });
+          } else {
+            setIsConnectingSamsungHealth("disconnected");
+            toast({
+              title: "Samsung Health Not Available",
+              description: "Samsung Health is not installed on this device.",
+              variant: "destructive",
+            });
+          }
+        } catch (e: any) {
           setIsConnectingSamsungHealth("disconnected");
+          const errorMessage = e?.message || e?.toString() || "Unknown error";
+          console.error("❌ Error connecting to Samsung Health:", e);
           toast({
-            title: "Error",
-            description: `Failed to schedule yesterday sync: ${e?.message || e?.toString() || "Unknown error"}`,
+            title: "Connection Error",
+            description: `Failed to connect to Samsung Health: ${errorMessage}`,
             variant: "destructive",
           });
-          console.error("❌ Error scheduling yesterday sync:", e);
         }
 
         // 6. Set connected state only after all operations succeed
