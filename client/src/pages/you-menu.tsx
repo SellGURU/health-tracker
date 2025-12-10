@@ -1,4 +1,6 @@
 import Application from "@/api/app";
+import NotificationApi from "@/api/notification";
+import { App as CapacitorApp } from "@capacitor/app";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { RookAppleHealth } from "capacitor-rook-sdk";
 
 const healthModules = [
   {
@@ -91,6 +94,44 @@ const surveyIcons = {
   nerves: Brain,
   respiratory: Wind,
 };
+
+// Helper function to format time from seconds/milliseconds to appropriate unit
+function formatTime(timeValue: string | number | null | undefined): string {
+  if (!timeValue && timeValue !== 0) return "";
+  
+  // Convert to number if it's a string
+  let totalSeconds: number;
+  if (typeof timeValue === "string") {
+    // Extract number from string
+    const match = timeValue.match(/\d+/);
+    if (!match) return timeValue;
+    totalSeconds = parseInt(match[0], 10);
+  } else {
+    totalSeconds = Number(timeValue);
+  }
+  
+  // Check if it's a valid number
+  if (isNaN(totalSeconds)) return "";
+  
+  // If number is large (> 1000), assume it's in milliseconds, convert to seconds
+  if (totalSeconds > 1000) {
+    totalSeconds = Math.floor(totalSeconds / 1000);
+  }
+  
+  // Convert to minutes if >= 60 seconds
+  if (totalSeconds >= 60) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const remainingSeconds = totalSeconds % 60;
+    
+    if (remainingSeconds === 0) {
+      return `${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+    } else {
+      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ${remainingSeconds} ${remainingSeconds === 1 ? "second" : "seconds"}`;
+    }
+  }
+  
+  return `${totalSeconds} ${totalSeconds === 1 ? "second" : "seconds"}`;
+}
 
 export default function YouMenu() {
   const [brandInfo, setBrandInfo] = useState<{
@@ -155,6 +196,8 @@ export default function YouMenu() {
   >([]);
   const [openIframe, setOpenIframe] = useState(false);
   const [iframeUrl, setIframeUrl] = useState("");
+  const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  
   useEffect(() => {
     const handleMessage = (event: any) => {
       if (event.data?.type === "QUESTIONARY_SUBMITTED") {
@@ -169,6 +212,22 @@ export default function YouMenu() {
 
     return () => window.removeEventListener("message", handleMessage);
   }, []);
+  
+  // Check if opened window is closed and refetch questionnaires
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        handleGetAssignedQuestionaries();
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow]);
+  
   const handleIframeClosed = () => {
     handleGetAssignedQuestionaries();
   };
@@ -227,6 +286,12 @@ export default function YouMenu() {
         });
       });
   };
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+      RookAppleHealth.enableBackGroundUpdates();
+      RookAppleHealth.enableBackGroundEventsUpdates();
+    }
+  }, []);  
   const handleGetHolisticPlanActionPlan = async () => {
     Application.getHolisticPlanActionPlan()
       .then((res) => {
@@ -263,6 +328,22 @@ export default function YouMenu() {
         }
       }, 1000);
     }
+
+    CapacitorApp.addListener('appUrlOpen', (urlOpen: { url: string | URL; }) => {
+      const url = new URL(urlOpen.url);
+      const key = url.searchParams.get('key');
+      if (key === 'downloadReport') {
+      setTimeout(() => {
+        const element = document.getElementById('download-pdf-report-Box');
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 1000);        
+      }
+    });    
   }, []);
 
   const [currentView, setCurrentView] = useState<
@@ -673,7 +754,7 @@ export default function YouMenu() {
                       {questionnaire.title}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {questionnaire.Estimated_time || ""}
+                      {formatTime(questionnaire.Estimated_time || "")}
                     </div>
                   </div>
                 </div>
@@ -704,9 +785,13 @@ export default function YouMenu() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
-                        setIframeUrl(url);
-                        setOpenIframe(true);
+                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`;
+                        // setIframeUrl(url);
+                        // setOpenIframe(true);
+                        const newWindow = window.open(url, "_blank");
+                        if (newWindow) {
+                          setOpenedWindow(newWindow);
+                        }
                       }}
                       className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
                     >

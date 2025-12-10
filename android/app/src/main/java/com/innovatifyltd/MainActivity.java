@@ -1,14 +1,5 @@
-package com.example.app;
+package com.innovatifyltd;
 
-import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import com.innovatifyltd.plugins.SahhaPlugin;
 
-
-public class MainActivity extends BridgeActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-}
+public class MainActivity extends BridgeActivity {}

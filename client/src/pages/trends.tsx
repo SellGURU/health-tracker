@@ -225,7 +225,6 @@ export default function Trends() {
   };
   useEffect(() => {
     Application.getBiomarkersData().then((res) => {
-      console.log(res);
       setMochBiomarkers(res.data.biomarkers);
     });
   }, []);
@@ -283,10 +282,6 @@ export default function Trends() {
     setShowDetailModal(true);
   };
   const resolveOptimalRangesSelectedBiomarker = (biomarker: any) => {
-    console.log(
-      "biomarker => ",
-      biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange")
-    );
     if (
       biomarker?.chart_bounds?.filter((el: any) => el.status == "OptimalRange")
         .length > 0
@@ -396,9 +391,6 @@ export default function Trends() {
             const optimalRange = biomarker.chart_bounds.filter(
               (el: any) => el.status == "OptimalRange"
             )[0];
-
-            //     })
-            // }
             return (
               <Card
                 key={biomarker.name}

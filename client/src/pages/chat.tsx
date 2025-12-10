@@ -124,20 +124,36 @@ export default function ChatPage() {
         messagesEndRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
-          inline: "nearest",
+          inline: "end",
         });
-      }, 100);
+      }, 500);
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]); //
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages, displayedMessages]); //
   const handleGetMessagesId = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
         setMessages(res.data.messages);
         setConversationId(res.data.conversation_id);
+
+        // Initialize displayedMessages for all AI messages
+        const initDisplayedMessages: Record<number, string> = {};
+        res.data.messages.forEach((msg: Message) => {
+          if (msg.sender_type === "ai" || msg.sender_type === "coach") {
+            initDisplayedMessages[msg.conversation_id] = msg.message_text;
+          }
+        });
+        setDisplayedMessages(initDisplayedMessages);
+        
+        // Update previousCount to match loaded messages
+        if (res.data.messages.length > 0) {
+          setPreviousCount(res.data.messages.length);
+          const lastMsg = res.data.messages[res.data.messages.length - 1];
+          lastMessageIdRef.current = lastMsg.conversation_id;
+        }
 
         // Sync feedback state with server data
         const feedbackState: Record<number, "liked" | "disliked" | null> = {};
@@ -176,6 +192,9 @@ export default function ChatPage() {
   useEffect(() => {
     setMessages([]);
     setConversationId(0);
+    setDisplayedMessages({});
+    setPreviousCount(0);
+    lastMessageIdRef.current = null;
     setIsLoading(true);
     handleGetMessagesId();
   }, [activeMode]);
@@ -520,12 +539,15 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-2">
+      <div className="max-w-7xl mx-auto px-4 py-2 pb-4">
         {/* Mode Toggle */}
-        <SimpleModeSelect
-          activeMode={activeMode}
-          setActiveMode={setActiveMode}
-        />
+        <div className="sticky top-2 z-10 bg-white rounded-xl">
+          <SimpleModeSelect
+            activeMode={activeMode}
+            setActiveMode={setActiveMode}
+          />
+
+        </div>
         <div className="flex flex-col gap-6">
           {/* Chat Messages */}
           <Card
@@ -535,7 +557,7 @@ export default function ChatPage() {
           >
             <CardContent className="flex-1 p-0">
               <div
-                className="h-[calc(100vh-355px)] md:h-[calc(100vh-335px)] overflow-y-auto space-y-4"
+                className=" space-y-4"
                 style={{ scrollbarWidth: "thin" }}
               >
                 {messages.map((msg) => {
@@ -717,12 +739,12 @@ export default function ChatPage() {
                     className="w-[190px] mx-auto"
                   />
                 )}
-                <div ref={messagesEndRef} />
+                <div className="mt-3" ref={messagesEndRef} />
               </div>
             </CardContent>
           </Card>
         </div>
-        <div className="px-4 py-2 bg-transparent fixed bottom-16 md:bottom-[108px] left-0 right-0 z-10 max-w-md mx-auto w-full">
+        <div className="px-4 py-2 bg-white fixed bottom-16 md:bottom-[108px] left-0 right-0 z-10 max-w-md mx-auto w-full">
           <div className="flex gap-3">
             <div className="flex-1 relative">
               <Textarea
@@ -816,32 +838,32 @@ export default function ChatPage() {
 
       {/* References Modal */}
       <Dialog open={showReferencesModal} onOpenChange={setShowReferencesModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto sm:w-full">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 flex-wrap">
+              <BookOpen className="h-5 w-5 text-blue-600 flex-shrink-0" />
               References
             </DialogTitle>
             <DialogDescription>
               Sources and references used in this response
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
             {selectedReferences.map((reference, index) => (
               <div
                 key={index}
-                className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+                className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
               >
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
                       Source {index + 1}:
                     </span>
-                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 break-words break-all min-w-0 flex-1" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                       {reference.filename}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words break-all" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                     {reference.text}
                   </p>
                 </div>

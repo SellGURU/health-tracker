@@ -1,12 +1,22 @@
+import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail } from "@/lib/utils";
-import { Eye, EyeOff, Key, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Info, Key, Lock, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
-import Application from "@/api/app";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -30,10 +40,19 @@ export default function ForgotPasswordModal({
     confirmPassword: "",
   });
   const [isLoadingForgotPassword, setIsLoadingForgotPassword] = useState(false);
+  const [isLoadingForgotPasswordResend, setIsLoadingForgotPasswordResend] =
+    useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [codeExpireTime, setCodeExpireTime] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
-
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [errorsForgotPassword, setErrorsForgotPassword] = useState({
+    email: "",
+    resetCode: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   // Reset state when modal opens/closes
   useEffect(() => {
     if (open) {
@@ -43,9 +62,15 @@ export default function ForgotPasswordModal({
         newPassword: "",
         confirmPassword: "",
       });
-      setForgotPasswordStep(1);
       setCodeExpireTime(null);
       setTimeRemaining(0);
+      setErrorsForgotPassword({
+        email: "",
+        resetCode: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setForgotPasswordStep(1);
     }
   }, [open, initialEmail]);
 
@@ -54,64 +79,87 @@ export default function ForgotPasswordModal({
     if (codeExpireTime && forgotPasswordStep === 2) {
       const interval = setInterval(() => {
         const now = Date.now();
-        const remaining = Math.max(0, Math.floor((codeExpireTime - now) / 1000));
+        const remaining = Math.max(
+          0,
+          Math.floor((codeExpireTime - now) / 1000)
+        );
         setTimeRemaining(remaining);
-        
+
         if (remaining === 0) {
           clearInterval(interval);
         }
       }, 1000);
-      
+
       return () => clearInterval(interval);
     }
   }, [codeExpireTime, forgotPasswordStep]);
 
-  const handleForgotPasswordStep1 = async () => {
+  const handleForgotPasswordStep1 = async ({
+    resend = false,
+  }: {
+    resend?: boolean;
+  }) => {
+    if (!forgotPasswordData.email || forgotPasswordData.email.trim() === "") {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        email: "This field is required.",
+      });
+      return;
+    }
     if (!validateEmail(forgotPasswordData.email)) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        email: "Invalid email address. Please try again.",
       });
       return;
     }
 
-    setIsLoadingForgotPassword(true);
+    if (resend) {
+      setIsLoadingForgotPasswordResend(true);
+    } else {
+      setIsLoadingForgotPassword(true);
+    }
     try {
-      await Application.forgetPasswordSendVerification(forgotPasswordData.email);
-      
+      await Application.forgetPasswordSendVerification(
+        forgotPasswordData.email
+      );
+
       // Set expiration time to 10 minutes from now
       setCodeExpireTime(Date.now() + 10 * 60 * 1000);
-      
+
       toast({
         title: "Verification code sent",
         description: "Please check your email for the verification code.",
       });
       setForgotPasswordStep(2);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.response?.data?.detail || "Failed to send verification code. Please try again.",
-        variant: "destructive",
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        email:
+          error.response?.data?.detail ||
+          "Failed to send verification code. Please try again.",
       });
     } finally {
       setIsLoadingForgotPassword(false);
+      setIsLoadingForgotPasswordResend(false);
     }
   };
 
   const handleForgotPasswordStep2 = async () => {
     if (!forgotPasswordData.resetCode) {
-      toast({
-        title: "Code required",
-        description: "Please enter the verification code.",
-        variant: "destructive",
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        resetCode: "This field is required.",
       });
       return;
     }
 
     setIsLoadingForgotPassword(true);
     try {
-      await Application.forgetPasswordVerifyResetCode(forgotPasswordData.email, parseInt(forgotPasswordData.resetCode));
+      await Application.forgetPasswordVerifyResetCode(
+        forgotPasswordData.email,
+        parseInt(forgotPasswordData.resetCode)
+      );
       toast({
         title: "Code verified",
         description: "Please enter your new password.",
@@ -120,18 +168,16 @@ export default function ForgotPasswordModal({
     } catch (error: any) {
       const statusCode = error.response?.status;
       const detail = error.response?.data?.detail;
-      
+
       if (statusCode === 406) {
-        toast({
-          title: "Verification failed",
-          description: detail || "Invalid verification code.",
-          variant: "destructive",
+        setErrorsForgotPassword({
+          ...errorsForgotPassword,
+          resetCode: detail || "Invalid verification code.",
         });
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to verify code. Please try again.",
-          variant: "destructive",
+        setErrorsForgotPassword({
+          ...errorsForgotPassword,
+          resetCode: detail || "Failed to verify code. Please try again.",
         });
       }
     } finally {
@@ -141,31 +187,43 @@ export default function ForgotPasswordModal({
 
   const handleForgotPasswordStep3 = async () => {
     if (!forgotPasswordData.newPassword) {
-      toast({
-        title: "Password required",
-        description: "Please enter a new password.",
-        variant: "destructive",
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        newPassword: "This field is required.",
+      });
+      return;
+    }
+    if (
+      !forgotPasswordData.confirmPassword ||
+      forgotPasswordData.confirmPassword.trim() === ""
+    ) {
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        confirmPassword: "Please confirm your password",
       });
       return;
     }
 
     if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please make sure both passwords match.",
-        variant: "destructive",
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        confirmPassword: "Passwords do not match. Please try again.",
       });
       return;
     }
 
     setIsLoadingForgotPassword(true);
     try {
-      await Application.forgetPasswordResetPassword(forgotPasswordData.email, forgotPasswordData.newPassword);
+      await Application.forgetPasswordResetPassword(
+        forgotPasswordData.email,
+        forgotPasswordData.newPassword
+      );
       toast({
         title: "Password reset successful",
-        description: "Your password has been updated. Please sign in with your new password.",
+        description:
+          "Your password has been updated. Please sign in with your new password.",
       });
-      
+
       // Reset forgot password state
       onOpenChange(false);
       setForgotPasswordStep(1);
@@ -175,18 +233,26 @@ export default function ForgotPasswordModal({
         newPassword: "",
         confirmPassword: "",
       });
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        email: "",
+        resetCode: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
       setCodeExpireTime(null);
       setTimeRemaining(0);
-      
+
       // Call success callback if provided
       if (onSuccess) {
         onSuccess();
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.response?.data?.detail || "Failed to reset password. Please try again.",
-        variant: "destructive",
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        confirmPassword:
+          error.response?.data?.detail ||
+          "Failed to reset password. Please try again.",
       });
     } finally {
       setIsLoadingForgotPassword(false);
@@ -194,7 +260,7 @@ export default function ForgotPasswordModal({
   };
 
   const handleResendCode = async () => {
-    await handleForgotPasswordStep1();
+    await handleForgotPasswordStep1({ resend: true });
   };
 
   return (
@@ -224,25 +290,36 @@ export default function ForgotPasswordModal({
                     id="forgot-email"
                     type="email"
                     value={forgotPasswordData.email}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setForgotPasswordData((prev) => ({
                         ...prev,
                         email: e.target.value,
-                      }))
-                    }
+                      }));
+                      setErrorsForgotPassword({
+                        ...errorsForgotPassword,
+                        email: "",
+                      });
+                    }}
                     className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
                     placeholder="your@email.com"
                     data-testid="input-forgot-email"
                   />
                 </div>
+                {errorsForgotPassword.email && (
+                  <p className="text-red-500 text-[11px] mt-1">
+                    {errorsForgotPassword.email}
+                  </p>
+                )}
               </div>
               <Button
-                onClick={handleForgotPasswordStep1}
+                onClick={() => handleForgotPasswordStep1({ resend: false })}
                 disabled={isLoadingForgotPassword}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
                 data-testid="button-send-code"
               >
-                {isLoadingForgotPassword ? "Sending..." : "Send Verification Code"}
+                {isLoadingForgotPassword
+                  ? "Sending..."
+                  : "Send Verification Code"}
               </Button>
             </div>
           )}
@@ -251,12 +328,16 @@ export default function ForgotPasswordModal({
           {forgotPasswordStep === 2 && (
             <div className="space-y-4">
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                We sent a verification code to <span className="font-semibold">{forgotPasswordData.email}</span>
+                We sent a verification code to{" "}
+                <span className="font-semibold">
+                  {forgotPasswordData.email}
+                </span>
               </p>
-              
+
               {timeRemaining > 0 && (
                 <div className="text-xs text-gray-500 dark:text-gray-400 bg-green-50 dark:bg-green-900/20 p-2 rounded">
-                  Code expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                  Code expires in {Math.floor(timeRemaining / 60)}:
+                  {String(timeRemaining % 60).padStart(2, "0")}
                 </div>
               )}
 
@@ -270,20 +351,29 @@ export default function ForgotPasswordModal({
                     id="reset-code"
                     type="text"
                     value={forgotPasswordData.resetCode}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setForgotPasswordData((prev) => ({
                         ...prev,
-                        resetCode: e.target.value.replace(/\D/g, ''),
-                      }))
-                    }
+                        resetCode: e.target.value.replace(/\D/g, ""),
+                      }));
+                      setErrorsForgotPassword({
+                        ...errorsForgotPassword,
+                        resetCode: "",
+                      });
+                    }}
                     className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
                     placeholder="Enter 4-digit code"
                     maxLength={4}
                     data-testid="input-reset-code"
                   />
                 </div>
+                {errorsForgotPassword.resetCode && (
+                  <p className="text-red-500 text-[11px] mt-1">
+                    {errorsForgotPassword.resetCode}
+                  </p>
+                )}
               </div>
-              
+
               <div className="flex gap-2">
                 <Button
                   onClick={handleForgotPasswordStep2}
@@ -295,7 +385,9 @@ export default function ForgotPasswordModal({
                 </Button>
                 <Button
                   onClick={handleResendCode}
-                  disabled={isLoadingForgotPassword || timeRemaining > 540}
+                  disabled={
+                    isLoadingForgotPasswordResend || timeRemaining > 540
+                  }
                   variant="outline"
                   className="flex-1"
                   data-testid="button-resend-code"
@@ -312,23 +404,54 @@ export default function ForgotPasswordModal({
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Create a new password for your account.
               </p>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-sm font-medium">
-                  New Password
-                </Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="new-password" className="text-sm font-medium">
+                    New Password
+                  </Label>
+                  <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        aria-label="Password requirements"
+                        onMouseEnter={() => setIsInfoOpen(true)}
+                        onMouseLeave={() => setIsInfoOpen(false)}
+                      >
+                        <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-64 p-3 text-sm"
+                      side="top"
+                      sideOffset={8}
+                      onMouseEnter={() => setIsInfoOpen(true)}
+                      onMouseLeave={() => setIsInfoOpen(false)}
+                    >
+                      <p className="text-gray-700 dark:text-gray-300">
+                        At least 8 characters. (Use Uppercase & Lowercase
+                        letters, Numbers and Special characters)
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     id="new-password"
                     type={showNewPassword ? "text" : "password"}
                     value={forgotPasswordData.newPassword}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setForgotPasswordData((prev) => ({
                         ...prev,
                         newPassword: e.target.value,
-                      }))
-                    }
+                      }));
+                      setErrorsForgotPassword({
+                        ...errorsForgotPassword,
+                        newPassword: "",
+                      });
+                    }}
                     className="pl-10 pr-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
                     placeholder="Enter new password"
                     data-testid="input-new-password"
@@ -347,29 +470,59 @@ export default function ForgotPasswordModal({
                     )}
                   </Button>
                 </div>
+                {errorsForgotPassword.newPassword && (
+                  <p className="text-red-500 text-[11px] mt-1">
+                    {errorsForgotPassword.newPassword}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-new-password" className="text-sm font-medium">
+                <Label
+                  htmlFor="confirm-new-password"
+                  className="text-sm font-medium"
+                >
                   Confirm New Password
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     id="confirm-new-password"
-                    type={showNewPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     value={forgotPasswordData.confirmPassword}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setForgotPasswordData((prev) => ({
                         ...prev,
                         confirmPassword: e.target.value,
-                      }))
-                    }
+                      }));
+                      setErrorsForgotPassword({
+                        ...errorsForgotPassword,
+                        confirmPassword: "",
+                      });
+                    }}
                     className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
                     placeholder="Confirm new password"
                     data-testid="input-confirm-password"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
+                {errorsForgotPassword.confirmPassword && (
+                  <p className="text-red-500 text-[11px] mt-1">
+                    {errorsForgotPassword.confirmPassword}
+                  </p>
+                )}
               </div>
 
               <Button
@@ -387,4 +540,3 @@ export default function ForgotPasswordModal({
     </Dialog>
   );
 }
-

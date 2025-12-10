@@ -1,6 +1,6 @@
 {
   "name": "Holisticare",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.1.0",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@capacitor/push-notifications": "^7.0.2",
@@ -81,6 +83,7 @@
     "react-hook-form": "^7.55.0",
     "react-icons": "^5.4.0",
     "react-resizable-panels": "^2.1.7",
+    "react-router-dom": "^7.9.6",
     "react-tooltip": "^5.29.1",
     "recharts": "^2.15.2",
     "tailwind-merge": "^2.6.0",
