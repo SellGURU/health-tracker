@@ -159,7 +159,6 @@ export default function AuthPage() {
     setIsLoadingRegister(true);
     Auth.signup(registerData.email, registerData.password)
       .then(() => {
-        localStorage.setItem("registerpasswordchange", "true");
         CallLoginAuthApi(true);
         toast({
           title: "Account created!",

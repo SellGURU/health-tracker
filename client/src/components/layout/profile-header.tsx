@@ -80,6 +80,7 @@ export default function ProfileHeader() {
         if (res.data?.has_changed_password === false) {
           // Store flag to open password dialog
           localStorage.setItem("requirePasswordChange", "true");
+          localStorage.setItem("registerpasswordchange", "true");
           // Redirect to profile page only if not already there
           if (location !== "/profile") {
             navigate("/profile");
