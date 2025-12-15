@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { getTokenFromLocalStorage } from "../store/token";
+import { resolveBaseEndPoint} from "./base";
 class Api {
-  protected static base_url: string =
-    // 'https://vercel-backend-one-roan.vercel.app/holisticare';
-    "https://vercel-backend-one-roan.vercel.app/holisticare";
+  protected static base_url: string =resolveBaseEndPoint();
   protected static post(url: string, data?: any, config?: any) {
     if (!config?.noPending) {
     }
