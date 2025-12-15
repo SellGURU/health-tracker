@@ -46,6 +46,13 @@ import { env, resolveBaseUrl } from "@/api/base";
 
 const healthModules = [
   {
+    id: "wearable",
+    name: "Wearable",
+    icon: Activity,
+    color: "text-cyan-600",
+    path: "/wearable",
+  },
+  {
     id: "checkups",
     name: "Checkups",
     icon: Stethoscope,
@@ -1760,6 +1767,8 @@ export default function YouMenu() {
                   <Card
                     key={module.id}
                     className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => module.path && setLocation(module.path)}
+                    data-testid={`module-${module.id}`}
                   >
                     <CardContent className="p-3 text-center">
                       <IconComponent
