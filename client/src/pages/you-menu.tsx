@@ -42,7 +42,7 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth } from "capacitor-rook-sdk";
-import { baseUrl } from "@/api/base";
+import { env, resolveBaseUrl } from "@/api/base";
 
 const healthModules = [
   {
@@ -225,6 +225,13 @@ export default function YouMenu() {
   const handleIframeClosed = () => {
     handleGetAssignedQuestionaries();
   };
+
+  const resolveQuestionaryUrl = (questionnaire: any) => {
+    if (env == 'test') {
+      return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
+    }
+    return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}`;
+  }
 
   const [biomarkersData, setBiomarkersData] = useState<Biomarker[]>([]);
   const [holisticPlanActionPlan, setHolisticPlanActionPlan] = useState<{
@@ -779,7 +786,7 @@ export default function YouMenu() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const url = `${baseUrl}/questionary/${encodedMi}/${questionnaire.unique_id}`;
+                        const url = resolveQuestionaryUrl(questionnaire);
                         // setIframeUrl(url);
                         // setOpenIframe(true);
                         const newWindow = window.open(url, "_blank");

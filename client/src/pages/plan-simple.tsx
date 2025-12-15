@@ -1,5 +1,5 @@
 import Application from "@/api/app";
-import { baseUrl } from "@/api/base";
+import { resolveBaseUrl } from "@/api/base";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -849,7 +849,7 @@ export default function Plan() {
                 if (!task.Status) {
                   handleCheckTask(task.task_id);
                 }
-                const url = `${baseUrl}/checkin/${encodedMi}/${task.task_id}`;
+                const url = `${resolveBaseUrl()}/checkin/${encodedMi}/${task.task_id}`;
                 const newWindow = window.open(url, "_blank");
                 if (newWindow) {
                   setOpenedWindow(newWindow);
