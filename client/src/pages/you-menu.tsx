@@ -42,6 +42,7 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth } from "capacitor-rook-sdk";
+import { baseUrl } from "@/api/base";
 
 const healthModules = [
   {
@@ -778,7 +779,7 @@ export default function YouMenu() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const url = `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}`;
+                        const url = `${baseUrl}/questionary/${encodedMi}/${questionnaire.unique_id}`;
                         // setIframeUrl(url);
                         // setOpenIframe(true);
                         const newWindow = window.open(url, "_blank");
