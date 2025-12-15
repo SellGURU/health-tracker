@@ -495,7 +495,7 @@ function EmptyState() {
                   <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
                   <span className="text-gray-600 dark:text-gray-300">Heart Health Score</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-baseline gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
                   <span className="text-gray-600 dark:text-gray-300">Body Composition Score</span>
                 </div>
@@ -528,6 +528,32 @@ interface ScoreMetadata {
   score: number | null;
 }
 
+// Custom X axis tick to align first/last/middle labels differently
+const CustomizedXAxisTick = (props: any) => {
+  const { x, y, payload, index, dataLength } = props;
+
+  const anchor =
+    index === 0
+      ? "start"
+      : index === dataLength - 1
+      ? "end"
+      : "middle";
+
+  const adjustedY = (y ?? 0) + 8; // move labels a bit further down
+
+  return (
+    <text
+      x={x}
+      y={adjustedY}
+      textAnchor={anchor}
+      fill="#9CA3AF"
+      fontSize={8}
+    >
+      {payload.value}
+    </text>
+  );
+};
+
 export default function WearableDashboard() {
   const [hasWearableData, setHasWearableData] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
@@ -540,6 +566,7 @@ export default function WearableDashboard() {
     to: startOfDay(new Date())
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [rangeClickCount, setRangeClickCount] = useState(0);
   const [scoreHistory, setScoreHistory] = useState<any[]>([]);
   
   // Store score metadata from API (name, description, factors)
@@ -942,7 +969,7 @@ export default function WearableDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 pb-24">
+    <div className="min-h-screen  p-4 pb-4">
       <div className="max-w-lg mx-auto pt-4">
         <div className="space-y-4">
         
@@ -950,7 +977,7 @@ export default function WearableDashboard() {
         <div className="glass-card rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-teal-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 shadow-xl dark:from-blue-500/20 dark:via-teal-500/20 dark:to-purple-500/20" data-testid="card-wellness-snapshot">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Wellness Summary
             </h2>
             <TooltipProvider delayDuration={200}>
@@ -966,14 +993,14 @@ export default function WearableDashboard() {
                   align="end"
                   className="max-w-[250px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                 >
-                  <p className="font-medium mb-1">{archetype || 'Unknown'}</p>
-                  <p>{archetype ? (
+                  <p className="font-medium mb-1 text-justify">{archetype || 'Unknown'}</p>
+                  <p className="text-justify">{archetype ? (
                     scoreDetails['archetype']?.description || 
                     archetypeDescriptions[archetype] || 
                     'Your wellness archetype based on your health patterns.'
                   ) : 'Connect your wearable to see your archetype.'}</p>
                   {scoreDetails['archetype']?.factors?.length > 0 && (
-                    <p className="mt-1 text-gray-500">Key factors: {scoreDetails['archetype'].factors.join(', ')}</p>
+                    <p className="mt-1 text-gray-500 text-justify">Key factors: {scoreDetails['archetype'].factors.join(', ')}</p>
                   )}
                 </TooltipContent>
               </UITooltip>
@@ -985,10 +1012,11 @@ export default function WearableDashboard() {
             <div className="flex flex-col items-center mb-6">
               <CircularProgress value={animatedScore} max={100} size={140} strokeWidth={10}>
                 <div className="text-center">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                     {animatedScore.toFixed(1)}
                   </div>
-                  <div className="flex items-center justify-center gap-1 mt-1">
+                  <span className="text-xs opacity-60 text-gray-500 mt-[-8px] dark:text-gray-400">/100</span>
+                  <div className="flex items-center justify-center gap-1 ">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Global Score
                     </span>
@@ -1000,12 +1028,12 @@ export default function WearableDashboard() {
                       </TooltipTrigger>
                       <TooltipContent 
                         side="bottom" 
-                        className="max-w-[250px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                        className="max-w-[250px] text-justify text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                       >
                         <p>{scoreDetails['global']?.description || 'Your Global Wellness Score combines all metrics to give you an overall view of your health balance.'}</p>
-                        {scoreDetails['global']?.factors?.length > 0 && (
+                        {/* {scoreDetails['global']?.factors?.length > 0 && (
                           <p className="mt-1 text-gray-500">Includes: {scoreDetails['global'].factors.join(', ')}</p>
-                        )}
+                        )} */}
                       </TooltipContent>
                     </UITooltip>
                   </div>
@@ -1020,7 +1048,7 @@ export default function WearableDashboard() {
           {/* Individual Scores Grid */}
           <TooltipProvider delayDuration={200}>
             <div className="grid grid-cols-3 gap-3">
-              {metricsConfig.map((metric) => {
+              {metricsConfig.map((metric,index) => {
                 const scoreValue = scores?.[metric.key as keyof WellnessScores] ?? null;
                 const hasValue = scoreValue !== null && scoreValue !== undefined;
                 const IconComponent = metric.icon;
@@ -1069,10 +1097,10 @@ export default function WearableDashboard() {
                           </button>
                         </TooltipTrigger>
                         <TooltipContent 
-                          side="top" 
-                          className="max-w-[220px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                          side={index % 3 == 0 ? "right" : index % 3 == 1 ? "top" : "left"} 
+                          className="max-w-[220px] text-[10px]  leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
                         >
-                          <p className="whitespace-pre-line">{tooltipContent}</p>
+                          <p className="whitespace-pre-line text-justify">{tooltipContent}</p>
                         </TooltipContent>
                       </UITooltip>
                     </div>
@@ -1100,7 +1128,15 @@ export default function WearableDashboard() {
         <div className="glass-card rounded-2xl p-4 bg-white/60 dark:bg-white/10 backdrop-blur-xl border border-white/30 shadow-lg" data-testid="card-score-progression">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Score Progression</h3>
-            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+            <Popover 
+              open={isDatePickerOpen} 
+              onOpenChange={(open) => {
+                setIsDatePickerOpen(open);
+                if (open) {
+                  setRangeClickCount(0);
+                }
+              }}
+            >
               <PopoverTrigger asChild>
                 <button 
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-gray-600 dark:text-gray-300 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 border border-gray-200/50 dark:border-gray-600/50 transition-all duration-200"
@@ -1143,12 +1179,15 @@ export default function WearableDashboard() {
                   mode="range"
                   selected={{ from: dateRange.from, to: dateRange.to }}
                   onSelect={(range) => {
-                    if (range?.from && range?.to) {
-                      setDateRange({ from: range.from, to: range.to });
-                      setIsDatePickerOpen(false);
-                    } else if (range?.from) {
-                      setDateRange({ from: range.from, to: range.from });
-                    }
+                    if (!range) return;
+                    setDateRange({ from: range.from!, to: range.to ?? range.from! });
+                    setRangeClickCount((prev) => {
+                      const next = prev + 1;
+                      if (next >= 2 && range.from && range.to) {
+                        setIsDatePickerOpen(false);
+                      }
+                      return next;
+                    });
                   }}
                   disabled={(date) => isAfter(date, new Date())}
                   numberOfMonths={1}
@@ -1208,14 +1247,13 @@ export default function WearableDashboard() {
                 />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fontSize: 8, fill: '#9CA3AF' }} 
+                  tick={<CustomizedXAxisTick dataLength={scoreHistory.length} />}
                   stroke="#E5E7EB" 
                   axisLine={false} 
                   tickLine={false}
                   interval={scoreHistory.length <= 7 ? 0 : scoreHistory.length <= 14 ? 1 : Math.floor(scoreHistory.length / 10)}
                   padding={{ left: 5, right: 5 }}
                   angle={scoreHistory.length > 14 ? -45 : 0}
-                  textAnchor={scoreHistory.length > 14 ? "end" : "middle"}
                   height={scoreHistory.length > 14 ? 40 : 20}
                 />
                 <YAxis 
