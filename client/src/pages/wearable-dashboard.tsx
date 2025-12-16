@@ -577,6 +577,11 @@ export default function WearableDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [wellnessData, setWellnessData] = useState<WellnessApiResponse | null>(null);
+  
+  // Tooltip states for mobile support
+  const [archetypeTooltipOpen, setArchetypeTooltipOpen] = useState(false);
+  const [globalScoreTooltipOpen, setGlobalScoreTooltipOpen] = useState(false);
+  const [metricTooltipsOpen, setMetricTooltipsOpen] = useState<Record<string, boolean>>({});
 
   // Use API data if available, otherwise fallback to demo data
   const scores = wellnessData?.scores || (showDemo ? currentScores.scores : null);
@@ -970,7 +975,7 @@ export default function WearableDashboard() {
   }
 
   return (
-    <div className="min-h-screen  p-4 pb-4">
+    <div className="min-h-screen  p-4 pb-4 select-none">
       <div className="max-w-lg mx-auto pt-4">
         <div className="space-y-4">
         
@@ -981,10 +986,22 @@ export default function WearableDashboard() {
             <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Wellness Summary
             </h2>
-            <TooltipProvider delayDuration={200}>
-              <UITooltip>
+            <TooltipProvider delayDuration={0} skipDelayDuration={0}>
+              <UITooltip open={archetypeTooltipOpen} onOpenChange={setArchetypeTooltipOpen} delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <button className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 flex items-center gap-1 hover:from-cyan-500/30 hover:to-blue-500/30 transition-all">
+                  <button 
+                    className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 flex items-center gap-1 hover:from-cyan-500/30 hover:to-blue-500/30 transition-all touch-manipulation"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setArchetypeTooltipOpen(!archetypeTooltipOpen);
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setArchetypeTooltipOpen(!archetypeTooltipOpen);
+                    }}
+                  >
                     {archetype || 'Unknown'}
                     <Info className="w-3 h-3 opacity-60" />
                   </button>
@@ -992,16 +1009,18 @@ export default function WearableDashboard() {
                 <TooltipContent 
                   side="bottom" 
                   align="end"
-                  className="max-w-[250px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                  className="max-w-[250px] text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg z-50 select-none"
+                  style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}
+                  onPointerDownOutside={() => setArchetypeTooltipOpen(false)}
                 >
-                  <p className="font-medium mb-1 text-justify">{archetype || 'Unknown'}</p>
-                  <p className="text-justify">{archetype ? (
+                  <p className="font-medium mb-1 text-justify select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>{archetype || 'Unknown'}</p>
+                  <p className="text-justify select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>{archetype ? (
                     scoreDetails['archetype']?.description || 
                     archetypeDescriptions[archetype] || 
                     'Your wellness archetype based on your health patterns.'
                   ) : 'Connect your wearable to see your archetype.'}</p>
                   {scoreDetails['archetype']?.factors?.length > 0 && (
-                    <p className="mt-1 text-gray-500 text-justify">Key factors: {scoreDetails['archetype'].factors.join(', ')}</p>
+                    <p className="mt-1 text-gray-500 text-justify select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>Key factors: {scoreDetails['archetype'].factors.join(', ')}</p>
                   )}
                 </TooltipContent>
               </UITooltip>
@@ -1009,7 +1028,7 @@ export default function WearableDashboard() {
           </div>
           
           {/* Global Score Hero */}
-          <TooltipProvider delayDuration={200}>
+          <TooltipProvider delayDuration={0} skipDelayDuration={0}>
             <div className="flex flex-col items-center mb-6">
               <CircularProgress value={animatedScore} max={100} size={140} strokeWidth={10}>
                 <div className="text-center">
@@ -1021,19 +1040,33 @@ export default function WearableDashboard() {
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Global Score
                     </span>
-                    <UITooltip>
+                    <UITooltip open={globalScoreTooltipOpen} onOpenChange={setGlobalScoreTooltipOpen} delayDuration={0}>
                       <TooltipTrigger asChild>
-                        <button className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors">
+                        <button 
+                          className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors touch-manipulation"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setGlobalScoreTooltipOpen(!globalScoreTooltipOpen);
+                          }}
+                          onTouchStart={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setGlobalScoreTooltipOpen(!globalScoreTooltipOpen);
+                          }}
+                        >
                           <Info className="w-3 h-3 text-gray-400 dark:text-gray-500" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent 
                         side="bottom" 
-                        className="max-w-[250px] text-justify text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                        className="max-w-[250px] text-justify text-[10px] leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg z-50 select-none"
+                        style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}
+                        onPointerDownOutside={() => setGlobalScoreTooltipOpen(false)}
                       >
-                        <p>{scoreDetails['global']?.description || 'Your Global Wellness Score combines all metrics to give you an overall view of your health balance.'}</p>
+                        <p className="select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>{scoreDetails['global']?.description || 'Your Global Wellness Score combines all metrics to give you an overall view of your health balance.'}</p>
                         {/* {scoreDetails['global']?.factors?.length > 0 && (
-                          <p className="mt-1 text-gray-500">Includes: {scoreDetails['global'].factors.join(', ')}</p>
+                          <p className="mt-1 text-gray-500 select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>Includes: {scoreDetails['global'].factors.join(', ')}</p>
                         )} */}
                       </TooltipContent>
                     </UITooltip>
@@ -1047,7 +1080,7 @@ export default function WearableDashboard() {
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent dark:via-gray-600/50 mb-4" />
           
           {/* Individual Scores Grid */}
-          <TooltipProvider delayDuration={200}>
+          <TooltipProvider delayDuration={0} skipDelayDuration={0}>
             <div className="grid grid-cols-3 gap-3">
               {metricsConfig.map((metric,index) => {
                 const scoreValue = scores?.[metric.key as keyof WellnessScores] ?? null;
@@ -1091,17 +1124,35 @@ export default function WearableDashboard() {
                     </div>
                     <div className="flex items-center justify-center gap-0.5">
                       <span className="text-[10px] text-gray-500 dark:text-gray-400">{displayName}</span>
-                      <UITooltip>
+                      <UITooltip 
+                        open={metricTooltipsOpen[metric.key] || false} 
+                        onOpenChange={(open) => setMetricTooltipsOpen(prev => ({ ...prev, [metric.key]: open }))} 
+                        delayDuration={0}
+                      >
                         <TooltipTrigger asChild>
-                          <button className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors">
+                          <button 
+                            className="p-0.5 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded transition-colors touch-manipulation"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setMetricTooltipsOpen(prev => ({ ...prev, [metric.key]: !prev[metric.key] }));
+                            }}
+                            onTouchStart={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setMetricTooltipsOpen(prev => ({ ...prev, [metric.key]: !prev[metric.key] }));
+                            }}
+                          >
                             <Info className="w-2.5 h-2.5 text-gray-400 dark:text-gray-500" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent 
                           side={index % 3 == 0 ? "right" : index % 3 == 1 ? "top" : "left"} 
-                          className="max-w-[220px] text-[10px]  leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+                          className="max-w-[220px] text-[10px]  leading-relaxed bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg z-50 select-none"
+                          style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}
+                          onPointerDownOutside={() => setMetricTooltipsOpen(prev => ({ ...prev, [metric.key]: false }))}
                         >
-                          <p className="whitespace-pre-line text-justify">{tooltipContent}</p>
+                          <p className="whitespace-pre-line text-justify select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>{tooltipContent}</p>
                         </TooltipContent>
                       </UITooltip>
                     </div>
@@ -1227,9 +1278,13 @@ export default function WearableDashboard() {
             })}
           </div>
           
-          <div className="h-52">
+          <div className="h-52" style={{ touchAction: 'manipulation' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={scoreHistory} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <LineChart 
+                data={scoreHistory} 
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                style={{ touchAction: 'manipulation' }}
+              >
                 <defs>
                   {presentScores.map((key) => {
                     const color = getColorForScore(key);
@@ -1264,17 +1319,30 @@ export default function WearableDashboard() {
                 <Tooltip 
                   // Enable tap-to-show on mobile; recharts treats click as touch
                   trigger="click"
-                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  wrapperStyle={{ 
+                    pointerEvents: 'auto', 
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent'
+                  }}
                   contentStyle={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.98)', 
                     borderRadius: '12px', 
                     border: '1px solid rgba(0,0,0,0.05)',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                     fontSize: '11px',
-                    padding: '8px 12px'
+                    padding: '8px 12px',
+                    pointerEvents: 'auto',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    MozUserSelect: 'none',
+                    msUserSelect: 'none'
                   }}
-                  labelStyle={{ fontWeight: 600, marginBottom: 6, fontSize: '12px' }}
-                  itemStyle={{ padding: '2px 0' }}
+                  labelStyle={{ fontWeight: 600, marginBottom: 6, fontSize: '12px', userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}
+                  itemStyle={{ padding: '2px 0', userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}
+                  allowEscapeViewBox={{ x: false, y: false }}
+                  cursor={{ stroke: 'rgba(148, 163, 184, 0.3)', strokeWidth: 1 }}
                 />
                 {/* Dynamically render lines for all present scores */}
                 {presentScores.map((key) => {
