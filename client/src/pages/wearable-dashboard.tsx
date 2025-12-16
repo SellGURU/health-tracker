@@ -1262,6 +1262,9 @@ export default function WearableDashboard() {
                   domain={[0, 100]} 
                 />
                 <Tooltip 
+                  // Enable tap-to-show on mobile; recharts treats click as touch
+                  trigger="click"
+                  wrapperStyle={{ pointerEvents: 'auto' }}
                   contentStyle={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.98)', 
                     borderRadius: '12px', 
