@@ -321,7 +321,8 @@ const scoreColors: Record<string, string> = {
   activity: '#10B981',
   heart: '#EC4899',
   heart_health: '#EC4899',
-  stress: '#F59E0B',
+  // Align stress color with wellness palette
+  stress: '#F97316',
   calories: '#EAB308',
   calories_metabolic: '#EAB308',
   body: '#06B6D4',
@@ -1290,6 +1291,7 @@ export default function WearableDashboard() {
                       stroke={color} 
                       strokeWidth={isGlobal ? 3 : 1.5} 
                       strokeOpacity={isGlobal ? 1 : 0.85}
+
                       dot={{ r: isGlobal ? 4 : 3, fill: color, stroke: '#fff', strokeWidth: isGlobal ? 2 : 1 }}
                       activeDot={{ r: isGlobal ? 6 : 5, fill: color, stroke: '#fff', strokeWidth: 2 }}
                       connectNulls={true}
