@@ -505,7 +505,7 @@ function EmptyState() {
                   <span className="text-gray-600 dark:text-gray-300">Global Wellness Score</span>
                 </div>
                 <div className="flex items-center gap-2 col-span-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-sky-950" />
                   <span className="text-gray-600 dark:text-gray-300">Personal Health Archetype</span>
                 </div>
               </div>
