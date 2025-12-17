@@ -1,44 +1,44 @@
-import { SecureStorage } from "@aparajita/capacitor-secure-storage";
-import { Capacitor } from "@capacitor/core";
+// import { SecureStorage } from "@aparajita/capacitor-secure-storage";
+// import { Capacitor } from "@capacitor/core";
 
-const STORAGE_KEY = "health_credentials";
+// const STORAGE_KEY = "health_credentials";
 
-export type StoredCredentials = Record<string, unknown> & {
-  email: string;
-  password: string;
-};
+// export type StoredCredentials = Record<string, unknown> & {
+//   email: string;
+//   password: string;
+// };
 
-export const secureStorage = {
-  async save(email: string, password: string): Promise<void> {
-    if (Capacitor.getPlatform() === "web") return;
+// export const secureStorage = {
+//   async save(email: string, password: string): Promise<void> {
+//     if (Capacitor.getPlatform() === "web") return;
 
-    const data: StoredCredentials = {
-      email,
-      password,
-    };
+//     const data: StoredCredentials = {
+//       email,
+//       password,
+//     };
 
-    await SecureStorage.set(STORAGE_KEY, data);
-  },
+//     await SecureStorage.set(STORAGE_KEY, data);
+//   },
 
-  async get(): Promise<StoredCredentials | null> {
-    if (Capacitor.getPlatform() === "web") return null;
+//   async get(): Promise<StoredCredentials | null> {
+//     if (Capacitor.getPlatform() === "web") return null;
 
-    try {
-      const value = await SecureStorage.get(STORAGE_KEY);
-      if (!value) return null;
+//     try {
+//       const value = await SecureStorage.get(STORAGE_KEY);
+//       if (!value) return null;
 
-      return value as StoredCredentials;
-    } catch {
-      return null;
-    }
-  },
+//       return value as StoredCredentials;
+//     } catch {
+//       return null;
+//     }
+//   },
 
-  async clear(): Promise<void> {
-    if (Capacitor.getPlatform() === "web") return;
+//   async clear(): Promise<void> {
+//     if (Capacitor.getPlatform() === "web") return;
 
-    await SecureStorage.remove(STORAGE_KEY);
-  },
-};
+//     await SecureStorage.remove(STORAGE_KEY);
+//   },
+// };
 
 // import { SecureStorage } from '@aparajita/capacitor-secure-storage';
 
@@ -68,3 +68,51 @@ export const secureStorage = {
 // export async function clearCredentials() {
 //   await SecureStorage.remove(KEY);
 // }
+
+import { SecureStorage } from "@aparajita/capacitor-secure-storage";
+import { Capacitor } from "@capacitor/core";
+
+const STORAGE_KEY = "health_credentials";
+
+export type StoredCredentials = {
+  email: string;
+  password: string;
+};
+
+export const secureStorage = {
+  async save(email: string, password: string): Promise<void> {
+    if (Capacitor.getPlatform() === "web") return;
+
+    const data = {
+      email,
+      password,
+    };
+    const dataString = JSON.stringify(data);
+    await SecureStorage.set(STORAGE_KEY, dataString);
+  },
+
+  async get(): Promise<StoredCredentials | null> {
+    if (Capacitor.getPlatform() === "web") return null;
+
+    try {
+      const value = await SecureStorage.get(STORAGE_KEY);
+
+      if (!value) return null;
+
+      if (typeof value !== "string") {
+        return null;
+      }
+
+      return JSON.parse(value) as StoredCredentials;
+    } catch {
+      return null;
+    }
+  },
+
+  async clear(): Promise<void> {
+    if (Capacitor.getPlatform() === "web") return;
+    try {
+      await SecureStorage.remove(STORAGE_KEY);
+    } catch (ignore) {}
+  },
+};
