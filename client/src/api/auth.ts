@@ -5,6 +5,7 @@ interface AuthResponse {
     access_token: string;
     permission: any;
     encoded_mi: string;
+    refresh_token: string;
   };
 }
 class Auth extends Api {
@@ -27,6 +28,13 @@ class Auth extends Api {
         "Content-Type": "application/json",
       },
     });
+  }
+  static refreshToken(refreshToken: string): Promise<AuthResponse> {
+    const data = {
+      refresh_token: refreshToken,
+    };
+
+    return this.post("/auth/mobile_refresh", data, {});
   }
 
   static logOut() {
