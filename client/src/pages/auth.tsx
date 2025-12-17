@@ -1,4 +1,5 @@
 import Auth from "@/api/auth";
+import ForgotPasswordModal from "@/components/auth/forgot-password-modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -6,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword } from "@/lib/utils";
-import { useLocation } from "wouter";
+import { biometric } from "@/services/biometric";
+import { secureStorage } from "@/services/secureStorage";
 import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import ForgotPasswordModal from "@/components/auth/forgot-password-modal";
+import { useLocation } from "wouter";
 // import logoImage from "@assets/logo.png";
 
 export default function AuthPage() {
@@ -99,11 +101,14 @@ export default function AuthPage() {
     });
   };
   const [location, navigate] = useLocation();
-  const CallLoginAuthApi = async (isRegister = false) => {
+  const CallLoginAuthApi = async (
+    isRegister = false,
+    credentials?: { email: string; password: string }
+  ) => {
     setIsLoadingLogin(true);
     const data = {
-      email: loginData.email,
-      password: loginData.password,
+      email: credentials?.email || loginData.email,
+      password: credentials?.password || loginData.password,
     };
     if (isRegister) {
       data.email = registerData.email;
@@ -316,6 +321,35 @@ export default function AuthPage() {
   const handleForgotPasswordSuccess = () => {
     // Switch to login tab after successful password reset
     setCurrentTab("login");
+  };
+  const [biometricSupported, setBiometricSupported] = useState(false);
+
+
+  useEffect(() => {
+    (async () => {
+      const available = await biometric.isAvailable();
+      setBiometricSupported(available);
+    })();
+  }, []);
+
+  const handleBiometricLogin = async () => {
+    const ok = await biometric.authenticate();
+    if (!ok) return;
+
+    const creds = await secureStorage.get();
+    if (!creds) {
+      toast({
+        title: "No saved credentials",
+        description: "Please login first normally",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    CallLoginAuthApi(false, {
+      email: creds.email as string,
+      password: creds.password as string,
+    });
   };
 
   return (
@@ -536,6 +570,11 @@ export default function AuthPage() {
                       <LogIn className="w-4 h-4 mr-2" />
                       {isLoadingLogin ? "Logging in..." : "Log in"}
                     </Button>
+                    {biometricSupported && (
+                      <Button onClick={handleBiometricLogin}>
+                        Login with Biometrics
+                      </Button>
+                    )}
                   </form>
 
                   {/* Test credentials button */}
