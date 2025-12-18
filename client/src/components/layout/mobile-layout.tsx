@@ -127,7 +127,7 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
         </header>
       )}
 
-      <div className=" flex-1 overflow-y-auto pb-20 " >
+      <div id="main-scroll-container" className=" flex-1 overflow-y-auto overscroll-contain pb-20" >
         {useProfileHeader ? (
           children
         ) : (
