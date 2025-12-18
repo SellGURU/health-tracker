@@ -327,8 +327,9 @@ const scoreColors: Record<string, string> = {
   calories_metabolic: '#EAB308',
   body: '#06B6D4',
   body_composition: '#06B6D4',
-  global: '#3B82F6',
-  global_wellness: '#3B82F6',
+  // Use a more distinct indigo for Global vs Body
+  global: '#6b7280',
+  global_wellness: '#6b7280',
 };
 
 // Get color for a score key (prefer predefined, fallback to generated)
@@ -501,7 +502,7 @@ function EmptyState() {
                   <span className="text-gray-600 dark:text-gray-300">Body Composition Score</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
                   <span className="text-gray-600 dark:text-gray-300">Global Wellness Score</span>
                 </div>
                 <div className="flex items-center gap-2 col-span-2">
