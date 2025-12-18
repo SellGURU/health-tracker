@@ -101,6 +101,65 @@ export default function AuthPage() {
     });
   };
   const [location, navigate] = useLocation();
+  // const CallLoginAuthApi = async (
+  //   isRegister = false,
+  //   credentials?: { email: string; password: string }
+  // ) => {
+  //   setIsLoadingLogin(true);
+  //   const data = {
+  //     email: credentials?.email || loginData.email,
+  //     password: credentials?.password || loginData.password,
+  //   };
+  //   if (isRegister) {
+  //     data.email = registerData.email;
+  //     data.password = registerData.password;
+  //   }
+  //   Auth.login(data.email, data.password)
+  //     .then((res) => {
+  //       localStorage.setItem("health_session", res.data.access_token);
+  //       localStorage.setItem("token", res.data.access_token);
+  //       localStorage.setItem("encoded_mi", res.data.encoded_mi);
+  //       if (!isRegister) {
+  //         toast({
+  //           title: "Welcome back!",
+  //           description: "You have successfully signed in.",
+  //         });
+  //       }
+  //       setTimeout(() => {
+  //         navigate("/");
+  //         // window.location.reload();
+  //       }, 500);
+  //     })
+  //     .catch((res) => {
+  //       if (res.response.data.detail) {
+  //         if (
+  //           res.response.data.detail.includes("email") ||
+  //           res.response.data.detail.includes("Email")
+  //         ) {
+  //           setErrorsLogin({
+  //             ...errorsLogin,
+  //             email: res.response.data.detail,
+  //           });
+  //         } else if (
+  //           res.response.data.detail.includes("password") ||
+  //           res.response.data.detail.includes("Password")
+  //         ) {
+  //           setErrorsLogin({
+  //             ...errorsLogin,
+  //             password: res.response.data.detail,
+  //           });
+  //         } else {
+  //           setErrorsLogin({
+  //             ...errorsLogin,
+  //             email: res.response.data.detail,
+  //           });
+  //         }
+  //       }
+  //     })
+  //     .finally(() => {
+  //       setIsLoadingLogin(false);
+  //     });
+  // };
   const CallLoginAuthApi = async (
     isRegister = false,
     credentials?: { email: string; password: string }
@@ -114,32 +173,50 @@ export default function AuthPage() {
       data.email = registerData.email;
       data.password = registerData.password;
     }
+
     Auth.login(data.email, data.password)
-      .then((res) => {
+      .then(async (res) => {
         localStorage.setItem("health_session", res.data.access_token);
         localStorage.setItem("token", res.data.access_token);
         localStorage.setItem("encoded_mi", res.data.encoded_mi);
+
         if (!isRegister) {
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
+
+          const isAvailable = await biometric.isAvailable();
+          if (isAvailable) {
+            const userWantsBiometric = window.confirm(
+              "Do you want to enable biometric login for future logins?"
+            );
+
+            if (userWantsBiometric) {
+              await secureStorage.save(data.email, data.password);
+
+              toast({
+                title: "Biometric enabled",
+                description: "You can now login with biometric.",
+              });
+            } else {
+              await secureStorage.clear();
+            }
+          }
         }
+
         setTimeout(() => {
           navigate("/");
           // window.location.reload();
         }, 500);
       })
       .catch((res) => {
-        if (res.response.data.detail) {
+        if (res.response?.data?.detail) {
           if (
             res.response.data.detail.includes("email") ||
             res.response.data.detail.includes("Email")
           ) {
-            setErrorsLogin({
-              ...errorsLogin,
-              email: res.response.data.detail,
-            });
+            setErrorsLogin({ ...errorsLogin, email: res.response.data.detail });
           } else if (
             res.response.data.detail.includes("password") ||
             res.response.data.detail.includes("Password")
@@ -149,10 +226,7 @@ export default function AuthPage() {
               password: res.response.data.detail,
             });
           } else {
-            setErrorsLogin({
-              ...errorsLogin,
-              email: res.response.data.detail,
-            });
+            setErrorsLogin({ ...errorsLogin, email: res.response.data.detail });
           }
         }
       })
@@ -323,7 +397,6 @@ export default function AuthPage() {
     setCurrentTab("login");
   };
   const [biometricSupported, setBiometricSupported] = useState(false);
-
 
   useEffect(() => {
     (async () => {
