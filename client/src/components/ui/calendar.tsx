@@ -26,7 +26,7 @@ function Calendar({
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           // Give nav hover a distinct background so it differs from selected range
-          "h-7 w-7 bg-transparent p-0 opacity-60 hover:opacity-100 hover:bg-muted"
+          "h-7 w-7 p-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-700 dark:text-cyan-300 hover:from-cyan-500/20 hover:to-blue-500/20 hover:bg-transparent hover:text-cyan-700 dark:hover:text-cyan-300"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -35,20 +35,35 @@ function Calendar({
         head_cell:
           "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
         row: "flex w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        cell: 
+          "h-9 w-9  text-center text-sm p-0 relative " +
+          // All selected cells: primary background
+          "[&:has([aria-selected])]:bg-primary " +
+          // Middle range cells: override with lower opacity using !important to force it
+          "[&:has([aria-selected].day-range-middle)]:!bg-primary/20 " +
+          // Rounded corners for range
+          "[&:has([aria-selected].day-range-end)]:rounded-r-md " +
+          "first:[&:has([aria-selected])]:rounded-l-md " +
+          "last:[&:has([aria-selected])]:rounded-r-md " +
+          // Outside days
+          "[&:has([aria-selected].day-outside)]:bg-accent/50 " +
+          "focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          "h-9 w-9 p-0 m-0 font-normal aria-selected:opacity-100 hover:bg-transparent hover:text-foreground"
         ),
         day_range_end: "day-range-end",
+        // Remove button background so cell background shows through seamlessly
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+          "bg-transparent text-primary-foreground hover:bg-transparent hover:text-primary-foreground focus:bg-transparent focus:text-primary-foreground",
         day_today: "bg-accent text-accent-foreground",
         day_outside:
           "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
         day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+        // Middle range: remove button background so cell background (with lower opacity) shows through
+        // Use !important to override day_selected background
+        day_range_middle: 
+          "!bg-blue-200 !text-gray-500 ",
         day_hidden: "invisible",
         ...classNames,
       }}
