@@ -511,7 +511,7 @@ export default function ChatPage() {
       top: el.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, displayedMessages]);
+  }, [messages]);
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
       {/* Disclaimer Toast */}
