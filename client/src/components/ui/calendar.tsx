@@ -50,7 +50,7 @@ function Calendar({
           "focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 m-0 font-normal aria-selected:opacity-100 hover:bg-transparent hover:text-foreground"
+          "h-9 w-9 p-0 m-0 font-normal !rounded-none aria-selected:opacity-100 hover:bg-transparent hover:text-foreground"
         ),
         day_range_end: "day-range-end",
         // Remove button background so cell background shows through seamlessly
