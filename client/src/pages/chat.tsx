@@ -329,7 +329,10 @@ export default function ChatPage() {
       });
       return;
     }
-
+    let lastUsedId = 1
+    if (userMessages.length > 2) {
+      lastUsedId = userMessages[userMessages.length - 2].conversation_id;
+    }
     const userMessage = userMessages[userMessages.length - 1];
 
     setIsRegenerating(true);
@@ -345,7 +348,7 @@ export default function ChatPage() {
 
     try {
       const res = await Application.sendMessage({
-        conversation_id: userMessage.conversation_id,
+        conversation_id: lastUsedId,
         message_to: activeMode,
         text: userMessage.message_text,
       });
@@ -602,7 +605,7 @@ export default function ChatPage() {
                           }`}
                         >
                           <p
-                            className={`text-sm ${
+                            className={`text-sm break-words break-all ${
                               msg.sender_type === "patient"
                                 ? "text-white"
                                 : "text-gray-800 dark:text-gray-200"
