@@ -29,9 +29,9 @@ class Auth extends Api {
       },
     });
   }
-  static refreshToken(refreshToken: string): Promise<AuthResponse> {
+  static refreshToken(): Promise<AuthResponse> {
     const data = {
-      refresh_token: refreshToken,
+      refresh_token: localStorage.getItem("refresh_token"),
     };
 
     return this.post("/auth/mobile_refresh", data, {});
