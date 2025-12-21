@@ -1,35 +1,3 @@
-// import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
-// import { Capacitor } from "@capacitor/core";
-
-// export const biometric = {
-//   async isAvailable(): Promise<boolean> {
-//     if (Capacitor.getPlatform() === "web") return false;
-
-//     try {
-//       const result = await BiometricAuth.checkBiometry();
-//       return result.isAvailable;
-//     } catch (err) {
-//       console.error("Biometric check failed", err);
-//       return false;
-//     }
-//   },
-
-//   async authenticate(): Promise<boolean> {
-//     if (Capacitor.getPlatform() === "web") return false;
-
-//     try {
-//       await BiometricAuth.authenticate({
-//         reason: "Authenticate to continue",
-//         iosFallbackTitle: "Use Passcode",
-//       });
-//       return true;
-//     } catch (error: any) {
-//       console.error("Biometric authentication failed:", error);
-//       return false;
-//     }
-//   },
-// };
-
 import {
   BiometricAuth,
   BiometryType,
