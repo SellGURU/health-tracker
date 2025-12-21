@@ -56,7 +56,7 @@ function Calendar({
         // Remove button background so cell background shows through seamlessly
         day_selected:
           "bg-transparent text-primary-foreground hover:bg-transparent hover:text-primary-foreground focus:bg-transparent focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
+        day_today: "border border-cyan-400/60 text-cyan-700 dark:text-cyan-300 bg-transparent ",
         day_outside:
           "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
         day_disabled: "text-muted-foreground opacity-50",
