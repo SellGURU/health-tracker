@@ -9,7 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { biometric } from "@/services/biometric";
 import { secureStorage } from "@/services/secureStorage";
-import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
+import { BiometryType } from "@aparajita/capacitor-biometric-auth";
+import {
+  Eye,
+  EyeOff,
+  Fingerprint,
+  LogIn,
+  ScanFace,
+  UserPlus,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 // import logoImage from "@assets/logo.png";
@@ -186,21 +194,26 @@ export default function AuthPage() {
             description: "You have successfully signed in.",
           });
 
-          const isAvailable = await biometric.isAvailable();
-          if (isAvailable) {
-            const userWantsBiometric = window.confirm(
-              "Do you want to enable biometric login for future logins?"
-            );
+          const biometricEnabled = localStorage.getItem("biometric_enabled");
+          if (biometricEnabled) {
+            const isAvailable = await biometric.getBiometryType();
+            if (isAvailable) {
+              const userWantsBiometric = window.confirm(
+                "Do you want to enable biometric login for future logins?"
+              );
 
-            if (userWantsBiometric) {
-              await secureStorage.save(data.email, data.password);
+              if (userWantsBiometric) {
+                await secureStorage.save(data.email, data.password);
+                localStorage.setItem("biometric_enabled", "true");
 
-              toast({
-                title: "Biometric enabled",
-                description: "You can now login with biometric.",
-              });
-            } else {
-              await secureStorage.clear();
+                toast({
+                  title: "Biometric enabled",
+                  description: "You can now login with biometric.",
+                });
+              } else {
+                await secureStorage.clear();
+                localStorage.setItem("biometric_enabled", "false");
+              }
             }
           }
         }
@@ -396,12 +409,13 @@ export default function AuthPage() {
     // Switch to login tab after successful password reset
     setCurrentTab("login");
   };
-  const [biometricSupported, setBiometricSupported] = useState(false);
+
+  const [biometryType, setBiometryType] = useState<BiometryType | null>(null);
 
   useEffect(() => {
     (async () => {
-      const available = await biometric.isAvailable();
-      setBiometricSupported(available);
+      const type = await biometric.getBiometryType();
+      setBiometryType(type);
     })();
   }, []);
 
@@ -411,6 +425,7 @@ export default function AuthPage() {
 
     const creds = await secureStorage.get();
     if (!creds) {
+      localStorage.removeItem("biometric_enabled");
       toast({
         title: "No saved credentials",
         description: "Please login first normally",
@@ -643,11 +658,39 @@ export default function AuthPage() {
                       <LogIn className="w-4 h-4 mr-2" />
                       {isLoadingLogin ? "Logging in..." : "Log in"}
                     </Button>
-                    {biometricSupported && (
-                      <Button onClick={handleBiometricLogin}>
-                        Login with Biometrics
-                      </Button>
-                    )}
+                    <div className="flex flex-col items-center">
+                      {biometryType && (
+                        <div className="flex justify-center">
+                          <Button
+                            onClick={handleBiometricLogin}
+                            variant="outline"
+                            className="rounded-full p-4 h-16 w-16 border-2 border-primary/50 hover:bg-primary/10 transition-all"
+                            title="Login with Biometrics"
+                          >
+                            {biometryType === BiometryType.faceId ||
+                            biometryType === BiometryType.faceAuthentication ? (
+                              <ScanFace
+                                className="h-8 w-8 text-primary"
+                                strokeWidth={1.5}
+                              />
+                            ) : (
+                              <Fingerprint
+                                className="h-8 w-8 text-primary"
+                                strokeWidth={1.5}
+                              />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                      {biometryType && (
+                        <p className="text-center text-sm text-muted-foreground mt-2">
+                          {biometryType === BiometryType.faceId ||
+                          biometryType === BiometryType.faceAuthentication
+                            ? "Login with Face Recognition"
+                            : "Login with Fingerprint"}
+                        </p>
+                      )}
+                    </div>
                   </form>
 
                   {/* Test credentials button */}
