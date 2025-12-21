@@ -329,7 +329,10 @@ export default function ChatPage() {
       });
       return;
     }
-
+    let lastUsedId = 1
+    if (userMessages.length > 2) {
+      lastUsedId = userMessages[userMessages.length - 2].conversation_id;
+    }
     const userMessage = userMessages[userMessages.length - 1];
 
     setIsRegenerating(true);
@@ -345,7 +348,7 @@ export default function ChatPage() {
 
     try {
       const res = await Application.sendMessage({
-        conversation_id: userMessage.conversation_id,
+        conversation_id: lastUsedId,
         message_to: activeMode,
         text: userMessage.message_text,
       });
@@ -511,7 +514,7 @@ export default function ChatPage() {
       top: el.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, displayedMessages]);
+  }, [messages]);
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
       {/* Disclaimer Toast */}
@@ -603,7 +606,7 @@ export default function ChatPage() {
                           }`}
                         >
                           <p
-                            className={`text-sm ${
+                            className={`text-sm break-words break-all ${
                               msg.sender_type === "patient"
                                 ? "text-white"
                                 : "text-gray-800 dark:text-gray-200"
