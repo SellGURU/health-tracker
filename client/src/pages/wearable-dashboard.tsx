@@ -506,7 +506,7 @@ function EmptyState() {
                   <span className="text-gray-600 dark:text-gray-300">Global Wellness Score</span>
                 </div>
                 <div className="flex items-center gap-2 col-span-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-sky-950" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#FEE8B0]" />
                   <span className="text-gray-600 dark:text-gray-300">Personal Health Archetype</span>
                 </div>
               </div>
@@ -1123,8 +1123,9 @@ export default function WearableDashboard() {
                     >
                       {hasValue ? Math.round(scoreValue) : '—'}
                     </div>
-                    <div className="flex items-center justify-center gap-0.5">
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{displayName}</span>
+                    <div className={` flex items-start text-[10px] text-gray-500 dark:text-gray-400 justify-center`}>
+                      
+                   {displayName}
                       <UITooltip 
                         open={metricTooltipsOpen[metric.key] || false} 
                         onOpenChange={(open) => setMetricTooltipsOpen(prev => ({ ...prev, [metric.key]: open }))} 
