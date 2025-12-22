@@ -5,16 +5,16 @@ const baseTestUrl = 'https://holisticare-develop.vercel.app'
 let  env: 'test' | 'production' = 'production';
 
 const resolveBaseEndPoint = () => {
-  if (env == 'test') {
+  if (env == "test") {
     return baseTestEndPoint;
   }
   return baseProductEndPoint;
-}
+};
 const resolveBaseUrl = () => {
-  if (env === 'test') {
+  if (env === "test") {
     return baseTestUrl;
   }
   return baseProductUrl;
-}
+};
 
-export {resolveBaseEndPoint, resolveBaseUrl, env};
+export { resolveBaseEndPoint, resolveBaseUrl, env };

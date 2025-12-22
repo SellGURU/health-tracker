@@ -287,7 +287,7 @@ export default function ProfileHeader() {
         </h1>
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2 pt-4">
+      <div className="flex items-center gap-1 sm:gap-2 ">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <Button
@@ -550,6 +550,14 @@ export default function ProfileHeader() {
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/monitor" className="cursor-pointer">
+                <Activity className="mr-2 h-4 w-4" />
+                Results
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />            
 
             <DropdownMenuItem
               onTouchEnd={() => setShowLogoutDialog(true)}
