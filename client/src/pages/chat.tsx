@@ -605,7 +605,7 @@ export default function ChatPage() {
                           }`}
                         >
                           <p
-                            className={`text-sm break-words break-all ${
+                            className={`text-sm break-words text-justify ${
                               msg.sender_type === "patient"
                                 ? "text-white"
                                 : "text-gray-800 dark:text-gray-200"
@@ -870,11 +870,11 @@ export default function ChatPage() {
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
                       Source {index + 1}:
                     </span>
-                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 break-words break-all min-w-0 flex-1" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 break-words text-justify min-w-0 flex-1" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                       {reference.filename}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words break-all" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words text-justify" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                     {reference.text}
                   </p>
                 </div>
