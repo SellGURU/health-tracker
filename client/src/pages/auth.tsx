@@ -60,6 +60,16 @@ export default function AuthPage() {
     terms: false,
   });
 
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  useEffect(() => {
+    const biometricEnabled = localStorage.getItem("biometric_enabled");
+    if (biometricEnabled === "true") {
+      setBiometricEnabled(true);
+    } else {
+      setBiometricEnabled(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (stage === 1) {
       const timer = setTimeout(() => {
@@ -195,7 +205,7 @@ export default function AuthPage() {
           });
 
           const biometricEnabled = localStorage.getItem("biometric_enabled");
-          if (biometricEnabled) {
+          if (biometricEnabled !== "true") {
             const isAvailable = await biometric.getBiometryType();
             if (isAvailable) {
               const userWantsBiometric = window.confirm(
@@ -212,7 +222,7 @@ export default function AuthPage() {
                 });
               } else {
                 await secureStorage.clear();
-                localStorage.setItem("biometric_enabled", "false");
+                localStorage.removeItem("biometric_enabled");
               }
             }
           }
@@ -659,7 +669,7 @@ export default function AuthPage() {
                       {isLoadingLogin ? "Logging in..." : "Log in"}
                     </Button>
                     <div className="flex flex-col items-center">
-                      {biometryType && (
+                      {biometryType && biometricEnabled && (
                         <div className="flex justify-center">
                           <Button
                             onClick={handleBiometricLogin}
@@ -682,7 +692,7 @@ export default function AuthPage() {
                           </Button>
                         </div>
                       )}
-                      {biometryType && (
+                      {biometryType && biometricEnabled && (
                         <p className="text-center text-sm text-muted-foreground mt-2">
                           {biometryType === BiometryType.faceId ||
                           biometryType === BiometryType.faceAuthentication
