@@ -226,6 +226,9 @@ export default function AuthPage() {
               }
             }
           }
+        } else {
+          await secureStorage.save(data.email, data.password);
+          localStorage.setItem("biometric_enabled", "true");
         }
 
         setTimeout(() => {
