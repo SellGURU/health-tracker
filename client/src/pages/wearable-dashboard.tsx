@@ -1123,7 +1123,8 @@ export default function WearableDashboard() {
                     >
                       {hasValue ? Math.round(scoreValue) : '—'}
                     </div>
-                    <div className=" items-start text-[10px] text-gray-500 dark:text-gray-400 justify-center">
+                    <div className={` flex items-start text-[10px] text-gray-500 dark:text-gray-400 justify-center`}>
+                      
                    {displayName}
                       <UITooltip 
                         open={metricTooltipsOpen[metric.key] || false} 
