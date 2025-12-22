@@ -212,10 +212,14 @@ export default function ProfileHeader() {
   const handleLogout = async () => {
     Auth.logOut();
     const brandInfo = localStorage.getItem("brand_info");
+    const biometricEnabled = localStorage.getItem("biometric_enabled");
     localStorage.clear();
     // Restore brand_info if it existed
     if (brandInfo) {
       localStorage.setItem("brand_info", brandInfo);
+    }
+    if (biometricEnabled) {
+      localStorage.setItem("biometric_enabled", biometricEnabled);
     }
     navigate("/");
     window.location.reload();
@@ -283,7 +287,7 @@ export default function ProfileHeader() {
           />
         </div>
         <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}
+          {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
         </h1>
       </div>
 
@@ -333,7 +337,9 @@ export default function ProfileHeader() {
                           className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20 px-2 py-1"
                         >
                           <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                          <span className="hidden sm:inline">Mark all read</span>
+                          <span className="hidden sm:inline">
+                            Mark all read
+                          </span>
                           <span className="sm:hidden">Read</span>
                         </Button>
                       )}
@@ -508,9 +514,7 @@ export default function ProfileHeader() {
                   style={{
                     background: `linear-gradient(to right, ${
                       brandInfo ? brandInfo?.primary_color : `#3b82f6`
-                    }, ${
-                      brandInfo ? brandInfo?.secondary_color : `#a855f7`
-                    })`,
+                    }, ${brandInfo ? brandInfo?.secondary_color : `#a855f7`})`,
                   }}
                 >
                   {(
