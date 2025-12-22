@@ -287,7 +287,7 @@ export default function ProfileHeader() {
         </h1>
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2 pt-4">
+      <div className="flex items-center gap-1 sm:gap-2 ">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <Button
