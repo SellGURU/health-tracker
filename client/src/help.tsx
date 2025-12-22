@@ -17,6 +17,9 @@ const resolveAnalyseIcon = (name: string) => {
   if (name == "Inflammatory Health") {
     return "/icons/biomarkers/medicine.svg";
   }
+  if(name == 'Inflammation'){
+    return "/icons/biomarkers/medicine.svg";
+  }
   if (name == "Total Body Mass") {
     return "/icons/biomarkers/Abdominal.svg";
   }
