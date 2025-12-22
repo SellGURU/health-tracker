@@ -1,4 +1,5 @@
 import axios from "axios";
+import Auth from "./auth";
 // import { useToast } from "@/hooks/use-toast";
 
 // const { toast } = useToast();
@@ -22,14 +23,22 @@ axios.interceptors.response.use(
       
       if (!isLoginEndpoint) {
         // Save brand_info before clearing localStorage
-        const brandInfo = localStorage.getItem("brand_info");
-        localStorage.clear();
-        // Restore brand_info if it existed
-        if (brandInfo) {
-          localStorage.setItem("brand_info", brandInfo);
-        }
-        window.location.href = "/auth";
-        // window.location.reload();
+        Auth.refreshToken().then((res) => {
+          localStorage.setItem("health_session", res.data.access_token);
+          localStorage.setItem("token", res.data.access_token);
+          localStorage.setItem("encoded_mi", res.data.encoded_mi);
+          localStorage.setItem("refresh_token", res.data.refresh_token);
+        }).catch((err) => {
+            const brandInfo = localStorage.getItem("brand_info");
+            localStorage.clear();
+            // Restore brand_info if it existed
+            if (brandInfo) {
+              localStorage.setItem("brand_info", brandInfo);
+            }
+            window.location.href = "/auth";
+            // window.location.reload();
+
+        });
       }
     }
 
