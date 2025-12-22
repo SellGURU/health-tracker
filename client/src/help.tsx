@@ -81,7 +81,7 @@ const resolveAnalyseIcon = (name: string) => {
     return "/icons/biomarkers/cell.svg";
   }
   if (name == "Hormone Health") {
-    return "/icons/biomarkers/HormoneHealth.svg";
+    return "/icons/biomarkers/hormonehealth.svg";
   }
   if (name == "Immune Health and Inflammation") {
     return "/icons/biomarkers/egg2.svg";
