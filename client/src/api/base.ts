@@ -1,4 +1,4 @@
-const baseProductEndPoint = "https://vercel-backend-one-roan.vercel.app/holisticare_test";
+const baseProductEndPoint = "https://vercel-backend-one-roan.vercel.app/holisticare";
 const baseTestEndPoint = "https://vercel-backend-one-roan.vercel.app/holisticare_test";
 const baseProductUrl = 'https://holisticare.vercel.app'
 const baseTestUrl = 'https://holisticare-develop.vercel.app'
