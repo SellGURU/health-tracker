@@ -18,6 +18,7 @@ import ChatPage from "@/pages/chat";
 import EducationalPage from "@/pages/educational";
 import PlanPage from "@/pages/plan-simple";
 import ActionPlanPage from "@/pages/action-plan";
+import WearableDashboard from "@/pages/wearable-dashboard";
 import Devices from "@/pages/devices";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
@@ -146,6 +147,7 @@ function Router() {
                 <Route path="/holistic-plans" component={HolisticPlans} />
                 <Route path="/not-found" component={NotFound} />
                 <Route path="/auth" component={YouMenu} />
+                <Route path="/wearable" component={WearableDashboard} />
                 <Route component={NotFound} />
               </Switch>
             </MobileLayout>
