@@ -550,14 +550,14 @@ export default function ProfileHeader() {
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            {/* <DropdownMenuItem asChild>
               <Link href="/monitor" className="cursor-pointer">
                 <Activity className="mr-2 h-4 w-4" />
                 Results
               </Link>
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator />            
+            <DropdownMenuSeparator />             */}
 
             <DropdownMenuItem
               onTouchEnd={() => setShowLogoutDialog(true)}
