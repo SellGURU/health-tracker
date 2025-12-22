@@ -234,10 +234,10 @@ export default function YouMenu() {
   };
 
   const resolveQuestionaryUrl = (questionnaire: any) => {
-    if (env == 'test') {
-      return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
-    }
-    return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}`;
+    // if (env == 'test') {
+    return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
+    // }
+    // return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}`;
   }
 
   const [biomarkersData, setBiomarkersData] = useState<Biomarker[]>([]);
