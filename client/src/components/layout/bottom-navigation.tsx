@@ -6,6 +6,7 @@ import {
   MessageCircle,
   BookOpen,
   Target,
+  Activity,
 } from "lucide-react";
 import { subscribe } from "@/lib/event";
 import { useState } from "react";
@@ -13,6 +14,7 @@ import { useState } from "react";
 const navItems = [
   { path: "/", icon: Home, label: "Home" },
   { path: "/wearable", icon: Watch, label: "Wellness" },
+  { path: "/monitor", icon: Activity, label: "Nutrition" },
   { path: "/chat", icon: MessageCircle, label: "Chat", isSpecial: true },
   { path: "/plan", icon: Target, label: "Plan" },
   { path: "/educational", icon: BookOpen, label: "Educational" },
