@@ -206,7 +206,9 @@ export default function AuthPage() {
     setPendingCredentials(null);
     setShowBiometricModal(false);
 
-    navigate("/");
+    setTimeout(() => {
+      navigate("/");
+    }, 500);
   };
   const handleEnableBiometric = async () => {
     if (!pendingCredentials) return;
