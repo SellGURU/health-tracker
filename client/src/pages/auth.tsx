@@ -250,7 +250,7 @@ export default function AuthPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="flex gap-2 justify-end">
+          <DialogFooter className="flex gap-2 justify-end flex-nowrap">
             <Button variant="outline" onClick={handleDisableBiometric}>
               Not now
             </Button>
