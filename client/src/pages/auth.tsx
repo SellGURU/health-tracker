@@ -191,9 +191,17 @@ export default function AuthPage() {
     email: string;
     password: string;
   } | null>(null);
+  const [sessionData, setSessionData] = useState<any>(null);
+  const setLocalStorageData = (data: any) => {
+    localStorage.setItem("health_session", data.access_token);
+    localStorage.setItem("token", data.access_token);
+    localStorage.setItem("encoded_mi", data.encoded_mi);
+    localStorage.setItem("refresh_token", data.refresh_token);
+  };
   const handleDisableBiometric = async () => {
     await secureStorage.clear();
     localStorage.removeItem("biometric_enabled");
+    setLocalStorageData(sessionData);
 
     setPendingCredentials(null);
     setShowBiometricModal(false);
@@ -202,6 +210,7 @@ export default function AuthPage() {
   };
   const handleEnableBiometric = async () => {
     if (!pendingCredentials) return;
+    setLocalStorageData(sessionData);
 
     await secureStorage.save(
       pendingCredentials.email,
@@ -268,10 +277,7 @@ export default function AuthPage() {
 
     Auth.login(data.email, data.password)
       .then(async (res) => {
-        localStorage.setItem("health_session", res.data.access_token);
-        localStorage.setItem("token", res.data.access_token);
-        localStorage.setItem("encoded_mi", res.data.encoded_mi);
-        localStorage.setItem("refresh_token", res.data.refresh_token);
+        setSessionData(res.data);
         if (!isRegister) {
           toast({
             title: "Welcome back!",
@@ -279,37 +285,39 @@ export default function AuthPage() {
           });
 
           const biometricEnabled = localStorage.getItem("biometric_enabled");
-          if (biometricEnabled !== "true") {
-            const isAvailable = await biometric.getBiometryType();
-            if (isAvailable) {
-              setPendingCredentials({
-                email: data.email,
-                password: data.password,
-              });
-              setShowBiometricModal(true);
-              // const userWantsBiometric = window.confirm(
-              //   "Do you want to enable biometric login for future logins?"
-              // );
+          const isAvailable = await biometric.getBiometryType();
+          if (biometricEnabled !== "true" && isAvailable) {
+            // if (isAvailable) {
+            setPendingCredentials({
+              email: data.email,
+              password: data.password,
+            });
+            setShowBiometricModal(true);
+            // const userWantsBiometric = window.confirm(
+            //   "Do you want to enable biometric login for future logins?"
+            // );
 
-              // if (userWantsBiometric) {
-              //   await secureStorage.save(data.email, data.password);
-              //   localStorage.setItem("biometric_enabled", "true");
+            // if (userWantsBiometric) {
+            //   await secureStorage.save(data.email, data.password);
+            //   localStorage.setItem("biometric_enabled", "true");
 
-              //   toast({
-              //     title: "Biometric enabled",
-              //     description: "You can now login with biometric.",
-              //   });
-              // } else {
-              //   await secureStorage.clear();
-              //   localStorage.removeItem("biometric_enabled");
-              // }
-            }
+            //   toast({
+            //     title: "Biometric enabled",
+            //     description: "You can now login with biometric.",
+            //   });
+            // } else {
+            //   await secureStorage.clear();
+            //   localStorage.removeItem("biometric_enabled");
+            // }
+            // }
           } else {
+            setLocalStorageData(res.data);
             setTimeout(() => {
               navigate("/");
             }, 500);
           }
         } else {
+          setLocalStorageData(res.data);
           await secureStorage.save(data.email, data.password);
           localStorage.setItem("biometric_enabled", "true");
           setTimeout(() => {
