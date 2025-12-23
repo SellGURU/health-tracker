@@ -314,12 +314,11 @@ export default function AuthPage() {
             setLocalStorageData(res.data);
             setTimeout(() => {
               navigate("/");
-            }, 500);
+            }, 100);
           }
         } else {
           setLocalStorageData(res.data);
           await secureStorage.save(data.email, data.password);
-          localStorage.setItem("biometric_enabled", "true");
           setTimeout(() => {
             navigate("/");
           }, 500);
