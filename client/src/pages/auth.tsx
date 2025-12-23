@@ -228,7 +228,7 @@ export default function AuthPage() {
     setShowBiometricModal(false);
     setTimeout(() => {
       navigate("/");
-    }, 500);
+    }, 100);
   };
 
   const BiometricModal = () => {
