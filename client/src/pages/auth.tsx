@@ -2,6 +2,14 @@ import Auth from "@/api/auth";
 import ForgotPasswordModal from "@/components/auth/forgot-password-modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -178,6 +186,72 @@ export default function AuthPage() {
   //       setIsLoadingLogin(false);
   //     });
   // };
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [pendingCredentials, setPendingCredentials] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
+  const handleDisableBiometric = async () => {
+    await secureStorage.clear();
+    localStorage.removeItem("biometric_enabled");
+
+    setPendingCredentials(null);
+    setShowBiometricModal(false);
+
+    navigate("/");
+  };
+  const handleEnableBiometric = async () => {
+    if (!pendingCredentials) return;
+
+    await secureStorage.save(
+      pendingCredentials.email,
+      pendingCredentials.password
+    );
+
+    localStorage.setItem("biometric_enabled", "true");
+
+    toast({
+      title: "Biometric enabled",
+      description: "You can now login with biometric.",
+    });
+
+    setPendingCredentials(null);
+    setShowBiometricModal(false);
+    setTimeout(() => {
+      navigate("/");
+    }, 500);
+  };
+
+  const BiometricModal = () => {
+    return (
+      <Dialog
+        open={showBiometricModal}
+        onOpenChange={() => {
+          setShowBiometricModal(false);
+          navigate("/");
+        }}
+      >
+        <DialogContent className="w-[95vw] max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              🔐 Biometric Login
+            </DialogTitle>
+            <DialogDescription>
+              Do you allow us to use biometric authentication for future logins?
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={handleDisableBiometric}>
+              Not now
+            </Button>
+            <Button onClick={handleEnableBiometric}>Enable</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   const CallLoginAuthApi = async (
     isRegister = false,
     credentials?: { email: string; password: string }
@@ -208,33 +282,44 @@ export default function AuthPage() {
           if (biometricEnabled !== "true") {
             const isAvailable = await biometric.getBiometryType();
             if (isAvailable) {
-              const userWantsBiometric = window.confirm(
-                "Do you want to enable biometric login for future logins?"
-              );
+              setPendingCredentials({
+                email: data.email,
+                password: data.password,
+              });
+              setShowBiometricModal(true);
+              // const userWantsBiometric = window.confirm(
+              //   "Do you want to enable biometric login for future logins?"
+              // );
 
-              if (userWantsBiometric) {
-                await secureStorage.save(data.email, data.password);
-                localStorage.setItem("biometric_enabled", "true");
+              // if (userWantsBiometric) {
+              //   await secureStorage.save(data.email, data.password);
+              //   localStorage.setItem("biometric_enabled", "true");
 
-                toast({
-                  title: "Biometric enabled",
-                  description: "You can now login with biometric.",
-                });
-              } else {
-                await secureStorage.clear();
-                localStorage.removeItem("biometric_enabled");
-              }
+              //   toast({
+              //     title: "Biometric enabled",
+              //     description: "You can now login with biometric.",
+              //   });
+              // } else {
+              //   await secureStorage.clear();
+              //   localStorage.removeItem("biometric_enabled");
+              // }
             }
+          } else {
+            setTimeout(() => {
+              navigate("/");
+            }, 500);
           }
         } else {
           await secureStorage.save(data.email, data.password);
           localStorage.setItem("biometric_enabled", "true");
+          setTimeout(() => {
+            navigate("/");
+          }, 500);
         }
 
-        setTimeout(() => {
-          navigate("/");
-          // window.location.reload();
-        }, 500);
+        // setTimeout(() => {
+        //   navigate("/");
+        // }, 500);
       })
       .catch((res) => {
         if (res.response?.data?.detail) {
@@ -935,6 +1020,7 @@ export default function AuthPage() {
         initialEmail={loginData.email}
         onSuccess={handleForgotPasswordSuccess}
       />
+      <BiometricModal />
     </div>
   );
 }
