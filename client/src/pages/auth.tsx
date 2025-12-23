@@ -295,6 +295,7 @@ export default function AuthPage() {
             });
             setShowBiometricModal(true);
           } else {
+            await secureStorage.save(data.email, data.password);
             setLocalStorageData(res.data);
             setTimeout(() => {
               navigate("/");
@@ -302,7 +303,6 @@ export default function AuthPage() {
           }
         } else {
           setLocalStorageData(res.data);
-          await secureStorage.save(data.email, data.password);
           setTimeout(() => {
             navigate("/");
           }, 500);
