@@ -273,7 +273,7 @@ export default function ProfileHeader() {
   });
 
   return (
-    <div className="flex relative items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30  shadow-lg">
+    <div className="flex relative items-center justify-between p-3 sm:p-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:pt-[calc(env(safe-area-inset-top)+1rem)] bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
       <div className="flex items-center gap-2 ">
         <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
           <img
@@ -283,7 +283,7 @@ export default function ProfileHeader() {
           />
         </div>
         <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {brandInfo ? (brandInfo?.name|| "HolistiCare") : "HolistiCare"}
+          {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
         </h1>
       </div>
 
@@ -333,7 +333,9 @@ export default function ProfileHeader() {
                           className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20 px-2 py-1"
                         >
                           <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                          <span className="hidden sm:inline">Mark all read</span>
+                          <span className="hidden sm:inline">
+                            Mark all read
+                          </span>
                           <span className="sm:hidden">Read</span>
                         </Button>
                       )}
@@ -508,9 +510,7 @@ export default function ProfileHeader() {
                   style={{
                     background: `linear-gradient(to right, ${
                       brandInfo ? brandInfo?.primary_color : `#3b82f6`
-                    }, ${
-                      brandInfo ? brandInfo?.secondary_color : `#a855f7`
-                    })`,
+                    }, ${brandInfo ? brandInfo?.secondary_color : `#a855f7`})`,
                   }}
                 >
                   {(

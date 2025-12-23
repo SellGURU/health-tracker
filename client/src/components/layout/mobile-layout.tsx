@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Bell, Moon, Search, Sun } from "lucide-react";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
 import ProfileHeader from "./profile-header";
@@ -30,6 +30,7 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { token, notifications } = usePushNotifications();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const platform = Capacitor.getPlatform();
     if(platform === 'ios' || platform === 'android'){
@@ -56,6 +57,12 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
   useEffect(() => {
     getBrandInfo();
   }, []);
+
+  // Reset scroll position whenever the route changes so each page starts at top
+  useEffect(() => {
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location]);
 
   // Pages that should use the ProfileHeader instead of the default global header
   const useProfileHeader = true; // Use ProfileHeader for all pages for consistency
@@ -127,7 +134,7 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
         </header>
       )}
 
-      <div id="main-scroll-container" className=" flex-1 overflow-y-auto overscroll-contain pb-20" >
+      <div id="main-scroll-container" ref={scrollContainerRef} className=" flex-1 overflow-y-auto overscroll-contain pb-20 " >
         {useProfileHeader ? (
           children
         ) : (
