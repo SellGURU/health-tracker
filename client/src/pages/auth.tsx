@@ -228,7 +228,7 @@ export default function AuthPage() {
     setShowBiometricModal(false);
     setTimeout(() => {
       navigate("/");
-    }, 100);
+    }, 500);
   };
 
   const BiometricModal = () => {
@@ -287,34 +287,16 @@ export default function AuthPage() {
           const biometricEnabled = localStorage.getItem("biometric_enabled");
           const isAvailable = await biometric.getBiometryType();
           if (biometricEnabled !== "true" && isAvailable) {
-            // if (isAvailable) {
             setPendingCredentials({
               email: data.email,
               password: data.password,
             });
             setShowBiometricModal(true);
-            // const userWantsBiometric = window.confirm(
-            //   "Do you want to enable biometric login for future logins?"
-            // );
-
-            // if (userWantsBiometric) {
-            //   await secureStorage.save(data.email, data.password);
-            //   localStorage.setItem("biometric_enabled", "true");
-
-            //   toast({
-            //     title: "Biometric enabled",
-            //     description: "You can now login with biometric.",
-            //   });
-            // } else {
-            //   await secureStorage.clear();
-            //   localStorage.removeItem("biometric_enabled");
-            // }
-            // }
           } else {
             setLocalStorageData(res.data);
             setTimeout(() => {
               navigate("/");
-            }, 100);
+            }, 500);
           }
         } else {
           setLocalStorageData(res.data);
@@ -323,10 +305,6 @@ export default function AuthPage() {
             navigate("/");
           }, 500);
         }
-
-        // setTimeout(() => {
-        //   navigate("/");
-        // }, 500);
       })
       .catch((res) => {
         if (res.response?.data?.detail) {
@@ -538,6 +516,11 @@ export default function AuthPage() {
       });
       return;
     }
+
+    setLoginData({
+      email: creds.email as string,
+      password: creds.password as string,
+    });
 
     CallLoginAuthApi(false, {
       email: creds.email as string,
