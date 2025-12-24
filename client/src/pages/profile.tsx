@@ -114,7 +114,7 @@ export default function Profile() {
   const [isExporting, setIsExporting] = useState(false);
 
   // Check if password change is required
-  const isPasswordChangeRequired =
+  let isPasswordChangeRequired =
     clientInformation?.has_changed_password === false;
 
   // Check if password change is required on mount
@@ -350,10 +350,8 @@ export default function Profile() {
         handleGetClientInformation();
         // Also refresh auth service client information
         fetchClientInformation();
-        if (localStorage.getItem("registerpasswordchange") === "true") {
-          localStorage.removeItem("registerpasswordchange");
-          setLocation("/");
-        }
+        
+        setLocation("/");
       } else {
         toast({
           title: "Password Change Failed",

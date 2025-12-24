@@ -17,6 +17,9 @@ const resolveAnalyseIcon = (name: string) => {
   if (name == "Inflammatory Health") {
     return "/icons/biomarkers/medicine.svg";
   }
+  if(name == 'Inflammation'){
+    return "/icons/biomarkers/medicine.svg";
+  }
   if (name == "Total Body Mass") {
     return "/icons/biomarkers/Abdominal.svg";
   }
@@ -81,7 +84,7 @@ const resolveAnalyseIcon = (name: string) => {
     return "/icons/biomarkers/cell.svg";
   }
   if (name == "Hormone Health") {
-    return "/icons/biomarkers/HormoneHealth.svg";
+    return "/icons/biomarkers/hormonehealth.svg";
   }
   if (name == "Immune Health and Inflammation") {
     return "/icons/biomarkers/egg2.svg";
