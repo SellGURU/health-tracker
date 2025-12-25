@@ -63,7 +63,10 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: "auto" });
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [location]);
-
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+    setIsDarkMode(true);
+  }, []);
   // Pages that should use the ProfileHeader instead of the default global header
   const useProfileHeader = true; // Use ProfileHeader for all pages for consistency
 
