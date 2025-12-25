@@ -39,7 +39,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
@@ -198,6 +198,7 @@ export default function YouMenu() {
   const [openIframe, setOpenIframe] = useState(false);
   const [iframeUrl, setIframeUrl] = useState("");
   const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  const wasHiddenRef = useRef(false);
   
   useEffect(() => {
     const handleMessage = (event: any) => {
@@ -408,7 +409,7 @@ export default function YouMenu() {
   }, [openedWindow]);
 
   // Listen for app state changes and page visibility changes to refresh questionnaires
-  // This works for both native (Android/iOS) and web platforms
+  // This works even if the window is still open - refreshes when user returns to app
   useEffect(() => {
     if (!openedWindow) return;
 
@@ -417,19 +418,22 @@ export default function YouMenu() {
     if (Capacitor.isNativePlatform()) {
       appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
         // When app comes to foreground and we have an opened window, refresh questionnaires
+        // This works even if the window is still open
         if (state.isActive && openedWindow) {
           handleGetAssignedQuestionaries();
-          setOpenedWindow(null);
         }
       });
     }
 
     // Handle page visibility changes (works for both web and native)
+    // This refreshes data when user switches back to the app tab, even if window is still open
     const handleVisibilityChange = () => {
-      // When page becomes visible and we have an opened window, refresh questionnaires
-      if (document.visibilityState === 'visible' && openedWindow) {
+      if (document.visibilityState === 'hidden') {
+        wasHiddenRef.current = true;
+      } else if (document.visibilityState === 'visible' && wasHiddenRef.current && openedWindow) {
+        // User returned to the app - refresh data even if window is still open
         handleGetAssignedQuestionaries();
-        setOpenedWindow(null);
+        wasHiddenRef.current = false;
       }
     };
 
@@ -441,7 +445,7 @@ export default function YouMenu() {
       }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [openedWindow]);
+  }, [openedWindow, handleGetAssignedQuestionaries]);
 
   const handleUpgrade = () => {
     toast({
