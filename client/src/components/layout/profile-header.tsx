@@ -55,19 +55,43 @@ export default function ProfileHeader() {
   const [isUnReadNotif, setIsUnReadNotif] = useState(false);
   const [hadNotifications, setHadNotifications] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  function applyTheme(dark: boolean) {
+    const root = document.documentElement;
+    root.classList.toggle("dark", dark);
+  }
+  
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  
+    // initial: only apply if you don't already have a manual preference
+    setIsDarkMode(mq.matches);
+    applyTheme(mq.matches);
+  
+    const onChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+      applyTheme(e.matches);
+    };
+  
+    mq.addEventListener?.("change", onChange) ?? mq.addListener(onChange);
+  
+    return () => {
+      mq.removeEventListener?.("change", onChange) ?? mq.removeListener(onChange);
+    };
+  }, []);
+  
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-    } else {
-      document.documentElement.classList.add("dark");
-    }
+    const currentlyDark = document.documentElement.classList.contains("dark");
+    const next = !currentlyDark;
+  
+    applyTheme(next);
+    setIsDarkMode(next);
+  
     toast({
-      title: isDarkMode ? "Light mode enabled" : "Dark mode enabled",
+      title: next ? "Dark mode enabled" : "Light mode enabled",
       description: "Theme preference saved",
     });
   };
-
+  
   const notificationRef = useRef<HTMLDivElement>(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [clientInformation, setClientInformation] = useState<{
