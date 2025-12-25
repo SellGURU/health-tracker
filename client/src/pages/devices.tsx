@@ -21,6 +21,7 @@ import { Capacitor } from "@capacitor/core";
 import { Watch, ArrowLeft, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import Api from "@/api/api";
 
 export default function Devices() {
   const { fetchClientInformation } = useAuth();
@@ -210,6 +211,23 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   async function revokeRookDataSource(sourceOrId: string) {
     const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
     const body = { data_source: sourceOrId };
+    if(!clientInformation){
+      return;
+    }
+    const response = await fetch(
+      `https://api.rook-connect.com/api/v1/user_id/${clientInformation?.id || '1'}/data_sources/revoke_auth`,
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+            "Authorization": "Basic YzJmNDk2MWItOWQzYy00ZmYwLTkxNWUtZjcwNjU1ODkyYjg5OlFIOHUxOE9qTG9mc1NSdm1FRG1HQmdqdjFmcnAzZmFwZGJEQQ==",
+            "Content-Type": "application/json",
+        },
+      }
+    );   
+    if(response){
+      fetchDevicesData()
+    } 
     // TODO: Implement revoke API call
   }
 
@@ -870,7 +888,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                                   title: "Disconnect",
                                   description: `Disconnect from ${source.name}`,
                                 });
-                                fetchDevicesData();
+                                // fetchDevicesData();
                               });
                             } else {
                               window.open(
