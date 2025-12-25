@@ -14,7 +14,7 @@ import { RookAppleHealth, RookConfig, RookEvents, RookHealthConnect, RookPermiss
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Watch, ArrowLeft } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import Api from "@/api/api";
 
@@ -108,6 +108,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  const wasHiddenRef = useRef(false);
 
   // Restore connection state from localStorage on component mount
   useEffect(() => {
@@ -201,6 +202,65 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       fetchDevicesData();
     }
   }, [clientInformation?.id, fetchDevicesData]);
+
+  // Check if opened window is closed and refetch devices data (only for web)
+  useEffect(() => {
+    if (!openedWindow) return;
+    
+    // Skip window.closed check on native platforms
+    if (Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        fetchDevicesData();
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow, fetchDevicesData]);
+
+  // Listen for app state changes and page visibility changes to refresh devices data
+  // This works even if the window is still open - refreshes when user returns to app
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    // Handle app state changes for native platforms
+    let appStateListener: any = null;
+    if (Capacitor.isNativePlatform()) {
+      appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
+        // When app comes to foreground and we have an opened window, refresh devices data
+        // This works even if the window is still open
+        if (state.isActive && openedWindow) {
+          fetchDevicesData();
+        }
+      });
+    }
+
+    // Handle page visibility changes (works for both web and native)
+    // This refreshes data when user switches back to the app tab, even if window is still open
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        wasHiddenRef.current = true;
+      } else if (document.visibilityState === 'visible' && wasHiddenRef.current && openedWindow) {
+        // User returned to the app - refresh data even if window is still open
+        fetchDevicesData();
+        wasHiddenRef.current = false;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (appStateListener) {
+        appStateListener.remove();
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [openedWindow, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
     const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
