@@ -8,18 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { RookAppleHealth, RookConfig, RookEvents, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
-import { Watch, ArrowLeft, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Watch, ArrowLeft } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import Api from "@/api/api";
 
@@ -51,12 +46,6 @@ export default function Devices() {
   useEffect(() => {
     handleGetClientInformation();
   }, []);
-
-  useEffect(() => {
-    if (clientInformation?.id) {
-      fetchDevicesData();
-    }
-  }, [clientInformation?.id]);
 
   // Helper function to detect if device is Samsung
   const isSamsungDevice = () => {
@@ -118,9 +107,9 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
-  const [samsungHealthError, setSamsungHealthError] = useState<string | null>(null);
-  const [samsungHealthLogs, setSamsungHealthLogs] = useState<string[]>([]);
-  const [hasError, setHasError] = useState(false);
+  const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  const wasHiddenRef = useRef(false);
+
   // Restore connection state from localStorage on component mount
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
@@ -157,7 +146,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     });
   };
 
-  const fetchDevicesData = async () => {
+  const fetchDevicesData = useCallback(async () => {
     if (!clientInformation?.id) {
       toast({
         title: "Error",
@@ -206,7 +195,72 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     } finally {
       setIsLoadingDevices(false);
     }
-  };
+  }, [clientInformation?.id, toast]);
+
+  useEffect(() => {
+    if (clientInformation?.id) {
+      fetchDevicesData();
+    }
+  }, [clientInformation?.id, fetchDevicesData]);
+
+  // Check if opened window is closed and refetch devices data (only for web)
+  useEffect(() => {
+    if (!openedWindow) return;
+    
+    // Skip window.closed check on native platforms
+    if (Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        fetchDevicesData();
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow, fetchDevicesData]);
+
+  // Listen for app state changes and page visibility changes to refresh devices data
+  // This works even if the window is still open - refreshes when user returns to app
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    // Handle app state changes for native platforms
+    let appStateListener: any = null;
+    if (Capacitor.isNativePlatform()) {
+      appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
+        // When app comes to foreground and we have an opened window, refresh devices data
+        // This works even if the window is still open
+        if (state.isActive && openedWindow) {
+          fetchDevicesData();
+        }
+      });
+    }
+
+    // Handle page visibility changes (works for both web and native)
+    // This refreshes data when user switches back to the app tab, even if window is still open
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        wasHiddenRef.current = true;
+      } else if (document.visibilityState === 'visible' && wasHiddenRef.current && openedWindow) {
+        // User returned to the app - refresh data even if window is still open
+        fetchDevicesData();
+        wasHiddenRef.current = false;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (appStateListener) {
+        appStateListener.remove();
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [openedWindow, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
     const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
@@ -607,38 +661,9 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                              Samsung Health
-                            </h4>
-                            {samsungHealthError && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <AlertCircle className="w-4 h-4 text-red-500 cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-xs">
-                                    <div className="space-y-2">
-                                      <p className="font-semibold text-red-600 dark:text-red-400">Error:</p>
-                                      <p className="text-xs">{samsungHealthError}</p>
-                                      {samsungHealthLogs.length > 0 && (
-                                        <div className="mt-2 pt-2 border-t">
-                                          <p className="font-semibold text-xs mb-1">Logs:</p>
-                                          <div className="max-h-40 overflow-y-auto text-xs space-y-1">
-                                            {samsungHealthLogs.map((log, idx) => (
-                                              <div key={idx} className="font-mono text-[10px] break-words">
-                                                {log}
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
+                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            Samsung Health
+                          </h4>
                           <Badge
                             variant={
                               isConnectingSamsungHealth === 'connected' ? "default" : "outline"
@@ -670,27 +695,15 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                           }`}
                           onClick={() => {
                             if (isConnectingSamsungHealth === 'connected') {
-                              try {
-                                RookSamsungHealth.disableBackGroundUpdates();
-                                setIsConnectingSamsungHealth('disconnected');
-                                setSamsungHealthError(null);
-                                setSamsungHealthLogs([]);
-                                setHasError(false);
-                                localStorage.removeItem('samsung_health_device_connection_state');
-                              } catch (e: any) {
-                                const errorMsg = `Error disconnecting: ${e?.message || e?.toString() || 'Unknown error'}`;
-                                setHasError(true);
-                                // addLog(errorMsg, 'error');
-                                setSamsungHealthError(errorMsg);
-                              }
+                              // clearConnectionState();
+                              RookSamsungHealth.disableBackGroundUpdates();
+                              setIsConnectingSamsungHealth('disconnected');
+                              localStorage.removeItem('samsung_health_device_connection_state');
                             } else {
+                              // connectSdk();
                               if(isSamsungDevice()){
                                 executeSamsungHealthConnection();
                               } else {
-                                const errorMsg = "Samsung Health is not installed on this device";
-                                setHasError(true);
-                                // addLog(errorMsg, 'error');/
-                                setSamsungHealthError(errorMsg);
                                 toast({
                                   title: "Error",
                                   description: "Samsung Health is not installed on this device.",
@@ -773,10 +786,13 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                                 // fetchDevicesData();
                               });
                             } else {
-                              window.open(
+                              const newWindow = window.open(
                                 source.authorization_url,
                                 "_blank"
                               );
+                              if (newWindow) {
+                                setOpenedWindow(newWindow);
+                              }
                               toast({
                                 title: "Connecting",
                                 description: `Opening ${source.name} authorization...`,
@@ -851,4 +867,3 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     </div>
   );
 }
-
