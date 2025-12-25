@@ -12,8 +12,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { RookAppleHealth, RookConfig, RookEvents, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { Watch, ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import Api from "@/api/api";
 
@@ -45,12 +46,6 @@ export default function Devices() {
   useEffect(() => {
     handleGetClientInformation();
   }, []);
-
-  useEffect(() => {
-    if (clientInformation?.id) {
-      fetchDevicesData();
-    }
-  }, [clientInformation?.id]);
 
   // Helper function to detect if device is Samsung
   const isSamsungDevice = () => {
@@ -112,6 +107,8 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+
   // Restore connection state from localStorage on component mount
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
@@ -148,7 +145,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     });
   };
 
-  const fetchDevicesData = async () => {
+  const fetchDevicesData = useCallback(async () => {
     if (!clientInformation?.id) {
       toast({
         title: "Error",
@@ -197,7 +194,13 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     } finally {
       setIsLoadingDevices(false);
     }
-  };
+  }, [clientInformation?.id, toast]);
+
+  useEffect(() => {
+    if (clientInformation?.id) {
+      fetchDevicesData();
+    }
+  }, [clientInformation?.id, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
     const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
@@ -723,10 +726,13 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                                 // fetchDevicesData();
                               });
                             } else {
-                              window.open(
+                              const newWindow = window.open(
                                 source.authorization_url,
                                 "_blank"
                               );
+                              if (newWindow) {
+                                setOpenedWindow(newWindow);
+                              }
                               toast({
                                 title: "Connecting",
                                 description: `Opening ${source.name} authorization...`,
