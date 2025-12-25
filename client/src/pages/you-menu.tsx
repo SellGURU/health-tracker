@@ -39,7 +39,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
@@ -204,6 +204,7 @@ export default function YouMenu() {
       if (event.data?.type === "QUESTIONARY_SUBMITTED") {
         setOpenIframe(false);
         setIframeUrl("");
+        setOpenedWindow(null); // Clear opened window state
 
         handleIframeClosed();
       }
@@ -213,21 +214,6 @@ export default function YouMenu() {
 
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-  
-  // Check if opened window is closed and refetch questionnaires
-  useEffect(() => {
-    if (!openedWindow) return;
-
-    const checkWindowClosed = setInterval(() => {
-      if (openedWindow.closed) {
-        handleGetAssignedQuestionaries();
-        setOpenedWindow(null);
-        clearInterval(checkWindowClosed);
-      }
-    }, 1000); // Check every second
-
-    return () => clearInterval(checkWindowClosed);
-  }, [openedWindow]);
   
   const handleIframeClosed = () => {
     handleGetAssignedQuestionaries();
@@ -259,19 +245,6 @@ export default function YouMenu() {
     Application.getClientInformation()
       .then((res) => {
         setClientInformation(res.data);
-      })
-      .catch((res) => {
-        toast({
-          title: "Error",
-          description: res.response.data.detail,
-          variant: "destructive",
-        });
-      });
-  };
-  const handleGetAssignedQuestionaries = async () => {
-    Application.getAssignedQuestionaries()
-      .then((res) => {
-        setQuestionnaires(res.data);
       })
       .catch((res) => {
         toast({
@@ -398,6 +371,77 @@ export default function YouMenu() {
   const [chronologicalAge, setChronologicalAge] = useState(25);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  const handleGetAssignedQuestionaries = async () => {
+    Application.getAssignedQuestionaries()
+      .then((res) => {
+        setQuestionnaires(res.data);
+      })
+      .catch((res) => {
+        toast({
+          title: "Error",
+          description: res.response.data.detail,
+          variant: "destructive",
+        });
+      });
+  };
+
+  // Check if opened window is closed and refetch questionnaires
+  // Only check window.closed on web platform, not on mobile (Android/iOS)
+  useEffect(() => {
+    if (!openedWindow) return;
+    
+    // Skip window.closed check on native platforms - rely on message listener instead
+    if (Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        handleGetAssignedQuestionaries();
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow]);
+
+  // Listen for app state changes and page visibility changes to refresh questionnaires
+  // This works for both native (Android/iOS) and web platforms
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    // Handle app state changes for native platforms
+    let appStateListener: any = null;
+    if (Capacitor.isNativePlatform()) {
+      appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
+        // When app comes to foreground and we have an opened window, refresh questionnaires
+        if (state.isActive && openedWindow) {
+          handleGetAssignedQuestionaries();
+          setOpenedWindow(null);
+        }
+      });
+    }
+
+    // Handle page visibility changes (works for both web and native)
+    const handleVisibilityChange = () => {
+      // When page becomes visible and we have an opened window, refresh questionnaires
+      if (document.visibilityState === 'visible' && openedWindow) {
+        handleGetAssignedQuestionaries();
+        setOpenedWindow(null);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (appStateListener) {
+        appStateListener.remove();
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [openedWindow]);
 
   const handleUpgrade = () => {
     toast({
