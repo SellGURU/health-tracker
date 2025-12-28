@@ -79,19 +79,7 @@ export default function ProfileHeader() {
     };
   }, []);
   
-  const toggleDarkMode = () => {
-    const currentlyDark = document.documentElement.classList.contains("dark");
-    const next = !currentlyDark;
-  
-    applyTheme(next);
-    setIsDarkMode(next);
-  
-    toast({
-      title: next ? "Dark mode enabled" : "Light mode enabled",
-      description: "Theme preference saved",
-    });
-  };
-  
+
   const notificationRef = useRef<HTMLDivElement>(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [clientInformation, setClientInformation] = useState<{
@@ -332,13 +320,7 @@ export default function ProfileHeader() {
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2 ">
-      <Button variant="ghost" size="sm" onClick={toggleDarkMode}>
-                {isDarkMode ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-              </Button>
+
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <Button
