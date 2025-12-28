@@ -519,36 +519,58 @@ export default function ChatPage() {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
       {/* Disclaimer Toast */}
       {showDisclaimer && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/60 dark:to-orange-900/60 border-b border-amber-200 dark:border-amber-700/50 shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-800/70 rounded-full flex items-center justify-center">
-                    <span className="text-amber-600 dark:text-amber-300 text-sm font-bold">
-                      !
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-amber-800 dark:text-amber-100">
-                    For wellness purposes only — not medical advice.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-end mt-2 w-full">
-              <Button
-                onClick={handleDismissDisclaimer}
-                size="sm"
-                className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white text-xs px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                OK, I Understand
-              </Button>
+  <div className="fixed top-0 left-0 right-0 z-50 
+    bg-gradient-to-r 
+    from-amber-50 to-orange-50
+    dark:from-slate-900 dark:to-slate-800
+    border-b 
+    border-amber-200 
+    dark:border-slate-700
+    shadow-lg"
+  >
+    <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {/* Icon */}
+          <div className="flex-shrink-0">
+            <div className="
+              w-8 h-8 rounded-full flex items-center justify-center
+              bg-amber-100 text-amber-700
+              dark:bg-slate-700 dark:text-amber-300
+            ">
+              <span className="text-sm font-bold">!</span>
             </div>
           </div>
+
+          {/* Text */}
+          <p className="
+            text-sm font-medium
+            text-amber-800
+            dark:text-slate-200
+          ">
+            For wellness purposes only — not medical advice.
+          </p>
         </div>
-      )}
+
+        {/* Button */}
+        <Button
+          onClick={handleDismissDisclaimer}
+          size="sm"
+          className="
+            text-xs px-4 py-1.5 rounded-full
+            bg-amber-600 hover:bg-amber-700 text-white
+            dark:bg-slate-700 dark:hover:bg-slate-600
+            dark:text-slate-100
+            shadow-sm hover:shadow-md
+            transition-all duration-200
+          "
+        >
+          OK, I Understand
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
 
       <div className="max-w-7xl mx-auto px-4 py-2 pb-4">
         {/* Mode Toggle */}
