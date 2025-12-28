@@ -509,6 +509,8 @@ export default function YouMenu() {
   // For showing health-related cards - using hasRequiredData as indicator
   const hasHealthData = hasRequiredData;
   const [loadingHtmlReport, setLoadingHtmlReport] = useState(false);
+  const [htmlReport, setHtmlReport] = useState<string>("");
+  const [showHtmlReport, setShowHtmlReport] = useState(false);
   const handleGetHtmlReport = () => {
     if (!holisticPlanActionPlan.latest_deep_analysis) return;
 
@@ -517,7 +519,7 @@ export default function YouMenu() {
     Application.getHtmlReport()
       .then((res) => {
         try {
-          const blobUrl = res.data;
+          const blobUrl = res.data.pdf;
 
           const link = document.createElement("a");
           link.href = blobUrl;
@@ -525,6 +527,13 @@ export default function YouMenu() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          fetch(res.data.html).then(response => response.blob()).then(res => res.text())
+          .then(html => {
+            const blob = new Blob([html], { type: "text/html" });
+            const blobUrl = URL.createObjectURL(blob);
+            setHtmlReport(blobUrl);
+            setShowHtmlReport(true);
+          });
         } catch (error: any) {
           console.error("Error downloading file:", error);
         }
@@ -543,6 +552,23 @@ export default function YouMenu() {
 
   const renderMainView = () => (
     <div className="space-y-4">
+      {showHtmlReport && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-white dark:bg-neutral-900 w-[100%] h-[100%] overflow-hidden relative">
+           <div className="w-full fixed top-0 bg-white h-10 flex justify-end items-center px-4 z-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowHtmlReport(false)}
+              className="h-8 w-8"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+           </div>
+           <iframe src={htmlReport} style={{ width: "100%", height: "calc(100vh - 40px)",marginTop: "40px" }} />
+          </div>
+        </div>
+      )}      
       {/* Age Cards - Prominent Display */}
       <div
         className={`grid gap-3 ${
@@ -969,6 +995,7 @@ export default function YouMenu() {
           </CardContent>
         </Card>
       )}
+
     </div>
   );
 
