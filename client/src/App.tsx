@@ -34,7 +34,8 @@ import {
 } from "@/components/version";
 
 function Router() {
-  const { isAuthenticated, fetchClientInformation, needsPasswordChange } = useAuth();
+  const { isAuthenticated, fetchClientInformation, needsPasswordChange } =
+    useAuth();
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const isOnboardingCompleted =
@@ -51,23 +52,30 @@ function Router() {
       StatusBar.setBackgroundColor({ color: "#ffffff" });
     }
   }, []);
+  const {
+    showUpdateModal,
+    showUnsupportedModal,
+    downloadLink,
+    playStoreLink,
+    setShowUpdateModal,
+  } = useVersionCheck();
 
   // Check password change requirement after login
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('🔍 Checking password change requirement...');
+      console.log("🔍 Checking password change requirement...");
       fetchClientInformation().then(() => {
         const needsChange = needsPasswordChange();
-        console.log('🔍 Needs password change:', needsChange);
-        
-        if (needsChange) {
-          console.log('🔍 Redirecting to profile page...');
+        console.log("🔍 Needs password change:", needsChange);
+
+        if (needsChange && !showUpdateModal && !showUnsupportedModal) {
+          console.log("🔍 Redirecting to profile page...");
           // Store flag to open password dialog
           localStorage.setItem("requirePasswordChange", "true");
-          
+
           // Redirect to profile page
           setLocation("/profile");
-          
+
           // Show toast notification
           toast({
             title: "Password Change Required",
@@ -77,22 +85,36 @@ function Router() {
         }
       });
     }
-  }, [isAuthenticated, fetchClientInformation, needsPasswordChange, setLocation, toast]);
-
-  const {
+  }, [
+    isAuthenticated,
+    fetchClientInformation,
+    needsPasswordChange,
+    setLocation,
+    toast,
     showUpdateModal,
     showUnsupportedModal,
-    downloadLink,
-    playStoreLink,
-    setShowUpdateModal,
-  } = useVersionCheck();
+  ]);
+
   // Prevent navigation to other pages if password change is required
   useEffect(() => {
-    if (isAuthenticated && needsPasswordChange() && location !== "/profile") {
+    if (
+      isAuthenticated &&
+      needsPasswordChange() &&
+      location !== "/profile" &&
+      !showUpdateModal &&
+      !showUnsupportedModal
+    ) {
       setLocation("/profile");
       localStorage.setItem("requirePasswordChange", "true");
     }
-  }, [location, isAuthenticated, needsPasswordChange, setLocation]);
+  }, [
+    location,
+    isAuthenticated,
+    needsPasswordChange,
+    setLocation,
+    showUpdateModal,
+    showUnsupportedModal,
+  ]);
 
   if (!isAuthenticated) {
     return (
