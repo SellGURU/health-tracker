@@ -8,19 +8,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { RookAppleHealth, RookConfig, RookEvents, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
-import { Watch, ArrowLeft, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Watch, ArrowLeft } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
+import Api from "@/api/api";
 
 export default function Devices() {
   const { fetchClientInformation } = useAuth();
@@ -50,12 +46,6 @@ export default function Devices() {
   useEffect(() => {
     handleGetClientInformation();
   }, []);
-
-  useEffect(() => {
-    if (clientInformation?.id) {
-      fetchDevicesData();
-    }
-  }, [clientInformation?.id]);
 
   // Helper function to detect if device is Samsung
   const isSamsungDevice = () => {
@@ -117,9 +107,9 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
-  const [samsungHealthError, setSamsungHealthError] = useState<string | null>(null);
-  const [samsungHealthLogs, setSamsungHealthLogs] = useState<string[]>([]);
-  const [hasError, setHasError] = useState(false);
+  const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  const wasHiddenRef = useRef(false);
+
   // Restore connection state from localStorage on component mount
   useEffect(() => {
     const savedConnectionState = localStorage.getItem('health_device_connection_state');
@@ -156,7 +146,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     });
   };
 
-  const fetchDevicesData = async () => {
+  const fetchDevicesData = useCallback(async () => {
     if (!clientInformation?.id) {
       toast({
         title: "Error",
@@ -205,11 +195,93 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     } finally {
       setIsLoadingDevices(false);
     }
-  };
+  }, [clientInformation?.id, toast]);
+
+  useEffect(() => {
+    if (clientInformation?.id) {
+      fetchDevicesData();
+    }
+  }, [clientInformation?.id, fetchDevicesData]);
+
+  // Check if opened window is closed and refetch devices data (only for web)
+  useEffect(() => {
+    if (!openedWindow) return;
+    
+    // Skip window.closed check on native platforms
+    if (Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const checkWindowClosed = setInterval(() => {
+      if (openedWindow.closed) {
+        fetchDevicesData();
+        setOpenedWindow(null);
+        clearInterval(checkWindowClosed);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkWindowClosed);
+  }, [openedWindow, fetchDevicesData]);
+
+  // Listen for app state changes and page visibility changes to refresh devices data
+  // This works even if the window is still open - refreshes when user returns to app
+  useEffect(() => {
+    if (!openedWindow) return;
+
+    // Handle app state changes for native platforms
+    let appStateListener: any = null;
+    if (Capacitor.isNativePlatform()) {
+      appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
+        // When app comes to foreground and we have an opened window, refresh devices data
+        // This works even if the window is still open
+        if (state.isActive && openedWindow) {
+          fetchDevicesData();
+        }
+      });
+    }
+
+    // Handle page visibility changes (works for both web and native)
+    // This refreshes data when user switches back to the app tab, even if window is still open
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        wasHiddenRef.current = true;
+      } else if (document.visibilityState === 'visible' && wasHiddenRef.current && openedWindow) {
+        // User returned to the app - refresh data even if window is still open
+        fetchDevicesData();
+        wasHiddenRef.current = false;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (appStateListener) {
+        appStateListener.remove();
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [openedWindow, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
     const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
     const body = { data_source: sourceOrId };
+    if(!clientInformation){
+      return;
+    }
+    const response = await fetch(
+      `https://api.rook-connect.com/api/v1/user_id/${clientInformation?.id || '1'}/data_sources/revoke_auth`,
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+            "Authorization": "Basic YzJmNDk2MWItOWQzYy00ZmYwLTkxNWUtZjcwNjU1ODkyYjg5OlFIOHUxOE9qTG9mc1NSdm1FRG1HQmdqdjFmcnAzZmFwZGJEQQ==",
+            "Content-Type": "application/json",
+        },
+      }
+    );   
+    if(response){
+      fetchDevicesData()
+    } 
     // TODO: Implement revoke API call
   }
 
@@ -255,6 +327,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         // // 5. Schedule sync
         try{
           if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
+            await RookPermissions.requestAndroidBackgroundPermissions();
             await RookHealthConnect.scheduleHealthConnectBackGround();
             await RookHealthConnect.scheduleYesterdaySync({
               doOnEnd: 'oldest' // یا 'latest' یا 'nothing' بر اساس نیازت
@@ -318,219 +391,101 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     }
   };
 
-  // Helper function to add log
-  const addLog = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
-    const timestamp = new Date().toLocaleTimeString('en-US');
-    const logMessage = `[${timestamp}] ${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'} ${message}`;
-    console.log(logMessage);
-    // Only save logs to state if there's an error (to show in tooltip)
-    if (type === 'error') {
-      setHasError(true);
-      setSamsungHealthLogs(prev => [...prev.slice(-19), logMessage]); // Keep last 20 logs
-    } else if (hasError) {
-      // If error occurred, save all subsequent logs too
-      setSamsungHealthLogs(prev => [...prev.slice(-19), logMessage]); // Keep last 20 logs
-    }
-  };
-
-  const executeSamsungHealthConnection = () => {
+  const executeSamsungHealthConnection = async () => {
     setIsConnectingSamsungHealth("connecting");
-    setSamsungHealthError(null);
-    setSamsungHealthLogs([]);
-    
-    const initRook = async (userId: string) => {
-      try {
-        addLog("Starting Samsung Health connection...", 'info');
-        addLog(`User ID: ${userId}`, 'info');
-        
-        // 1. Initialize Rook SDK
-        try {
-          addLog("Initializing Rook SDK...", 'info');
-          await RookConfig.initRook({
-            environment: "production",
-            clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-            password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-            enableBackgroundSync: true,
-            enableEventsBackgroundSync: true,
-          });
-          addLog("Rook SDK initialized successfully", 'success');
-        } catch (initError: any) {
-          const errorMsg = `Error initializing Rook SDK: ${initError?.message || initError?.toString() || 'Unknown error'}`;
-          setHasError(true);
-          addLog(errorMsg, 'error');
-          setSamsungHealthError(errorMsg);
-          throw initError;
-        }
 
-        // 2. Update User ID
-        try {
-          if (RookConfig.updateUserId) {
-            addLog("Updating User ID...", 'info');
-            await RookConfig.updateUserId({
-              userId: userId,
-            });
-            addLog(`User ID updated: ${userId}`, 'success');
-          } else {
-            addLog("updateUserId is not available", 'info');
-          }
-        } catch (userIdError: any) {
-          const errorMsg = `Error updating User ID: ${userIdError?.message || userIdError?.toString() || 'Unknown error'}`;
-          setHasError(true);
-          addLog(errorMsg, 'error');
-          setSamsungHealthError(errorMsg);
-          throw userIdError;
-        }
-
-        // 3. Request Android permissions first (required for Samsung Health)
-        try {
-          addLog("Requesting Android permissions...", 'info');
-          const androidPerms = await RookPermissions.requestAndroidPermissions();
-          addLog(`Android permissions granted: ${JSON.stringify(androidPerms)}`, 'success');
-        } catch (androidPermError: any) {
-          const errorMsg = `Error requesting Android permissions: ${androidPermError?.message || androidPermError?.toString() || 'Unknown error'}`;
-          setHasError(true);
-          addLog(errorMsg, 'error');
-          setSamsungHealthError(errorMsg);
-          throw androidPermError;
-        }
-        
-        // 4. Check Samsung Health availability and request permissions
-        const permissions: Array<SamsungPermissionType> = [
-          "STEPS",
-          "HEART_RATE",
-          "SLEEP",
-          "ACTIVITY_SUMMARY",
-          "EXERCISE",
-          "FLOORS_CLIMBED"
-        ];
-        
-        try {
-          addLog("Checking Samsung Health availability...", 'info');
-          const availabilityResult = await RookSamsungHealth.checkSamsungHealthAvailability();
-          addLog(`Availability result: ${JSON.stringify(availabilityResult)}`, 'info');
-          
-          if (availabilityResult.result?.toString() === 'INSTALLED') {
-            addLog("Samsung Health is installed", 'success');
-            
-            // Request Samsung Health permissions
-            try {
-              addLog("Requesting Samsung Health permissions...", 'info');
-              addLog(`Requested permissions: ${permissions.join(', ')}`, 'info');
-              await RookPermissions.requestSamsungHealthPermissions({
-                types: permissions,
-              });
-              addLog("Samsung Health permissions granted", 'success');
-            } catch (permError: any) {
-              const errorMsg = `Error requesting Samsung Health permissions: ${permError?.message || permError?.toString() || 'Unknown error'}`;
-              setHasError(true);
-              addLog(errorMsg, 'error');
-              setSamsungHealthError(errorMsg);
-              throw permError;
-            }
-            
-            // Enable background updates
-            try {
-              addLog("Enabling background updates...", 'info');
-              await RookSamsungHealth.enableBackGroundUpdates();
-              addLog("Background updates enabled", 'success');
-            } catch (bgError: any) {
-              const errorMsg = `Error enabling background updates: ${bgError?.message || bgError?.toString() || 'Unknown error'}`;
-              setHasError(true);
-              addLog(errorMsg, 'error');
-              setSamsungHealthError(errorMsg);
-              throw bgError;
-            }
-            
-            // Check if background updates are active
-            try {
-              addLog("Checking background updates status...", 'info');
-              const isActive = await RookSamsungHealth.isBackGroundUpdatesEnable();
-              addLog(`Background updates status: ${JSON.stringify(isActive)}`, 'info');
-            } catch (checkError: any) {
-              const errorMsg = `Error checking background updates status: ${checkError?.message || checkError?.toString() || 'Unknown error'}`;
-              setHasError(true);
-              addLog(errorMsg, 'error');
-              // This error is non-critical, continue
-            }
-            
-            // Sync summaries with error handling and delay to ensure SDK is ready
-            try {
-              addLog("Syncing summaries...", 'info');
-              await new Promise(resolve => setTimeout(resolve, 500));
-              await RookSummaries.sync({});
-              addLog("Summaries synced successfully", 'success');
-            } catch (syncError: any) {
-              const errorMsg = `Error syncing summaries (non-critical): ${syncError?.message || syncError?.toString() || 'Unknown error'}`;
-              setHasError(true);
-              addLog(errorMsg, 'error');
-              // This error is non-critical, continue
-            }
-            
-            setIsConnectingSamsungHealth("connected");
-            setSamsungHealthError(null);
-            setHasError(false);
-            setSamsungHealthLogs([]); // Clear logs on successful connection
-            addLog("Connection established successfully", 'success');
-            
-            toast({
-              title: "Connected Successfully",
-              description: "Samsung Health has been connected successfully.",
-            });
-          } else {
-            const errorMsg = `Samsung Health نصب نشده است. نتیجه: ${availabilityResult.result?.toString() || 'نامشخص'}`;
-            addLog(errorMsg, 'error');
-            setSamsungHealthError(errorMsg);
-            setIsConnectingSamsungHealth("disconnected");
-            toast({
-              title: "Samsung Health Not Available",
-              description: "Samsung Health is not installed on this device.",
-              variant: "destructive",
-            });
-          }
-        } catch (e: any) {
-          const errorMsg = `Error connecting to Samsung Health: ${e?.message || e?.toString() || 'Unknown error'}`;
-          setHasError(true);
-          addLog(errorMsg, 'error');
-          setSamsungHealthError(errorMsg);
-          setIsConnectingSamsungHealth("disconnected");
-          console.error("❌ Error connecting to Samsung Health:", e);
-          toast({
-            title: "Connection Error",
-            description: `Failed to connect to Samsung Health: ${errorMsg}`,
-            variant: "destructive",
-          });
-        }
-
-      } catch (e: any) {
-        const errorMsg = `خطا در مقداردهی اولیه Rook: ${e?.message || e?.toString() || 'خطای ناشناخته'}`;
-        addLog(errorMsg, 'error');
-        setSamsungHealthError(errorMsg);
-        console.error("❌ Error initializing Rook:", e);
-        setIsConnectingSamsungHealth("disconnected");
-        
-        toast({
-          title: "Connection Failed",
-          description: `Failed to connect to Samsung Health: ${errorMsg}`,
-          variant: "destructive",
-        });
+    try {
+      if (!clientInformation?.id) {
+        throw new Error("User ID not found");
       }
-    };
 
-    if (clientInformation?.id) {
-      initRook(clientInformation.id);
-    } else {
-      const errorMsg = "User ID not found";
-      setHasError(true);
-      addLog(errorMsg, 'error');
-      setSamsungHealthError(errorMsg);
+      const userId = clientInformation.id;
+
+      /* ------------------------------------------------------------------ */
+      /* 1️⃣ Init Rook SDK */
+      /* ------------------------------------------------------------------ */
+      await RookConfig.initRook({
+        environment: "production",
+        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
+        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+        enableBackgroundSync: false, // ⛔️ فعلاً خاموش
+        enableEventsBackgroundSync: false,
+      });
+
+      console.log("✅ Rook initialized");
+
+      /* ------------------------------------------------------------------ */
+      /* 2️⃣ Update User ID */
+      /* ------------------------------------------------------------------ */
+      await RookConfig.updateUserId({ userId });
+      console.log("✅ User ID updated:", userId);
+
+      /* ------------------------------------------------------------------ */
+      /* 3️⃣ Android Runtime Permissions (Capacitor) */
+      /* ------------------------------------------------------------------ */
+      const androidPerms = await RookPermissions.requestAndroidPermissions();
+      console.log("✅ Android permissions:", androidPerms);
+
+      /* ------------------------------------------------------------------ */
+      /* 4️⃣ Check Samsung Health availability (SAFE) */
+      /* ------------------------------------------------------------------ */
+      const availability =
+        await RookSamsungHealth
+          .checkSamsungHealthAvailability()
+          .catch(() => null);
+
+      if (!availability || availability.result !== "INSTALLED") {
+        throw new Error("Samsung Health is not installed or not ready");
+      }
+
+      console.log("✅ Samsung Health available");
+
+      /* ------------------------------------------------------------------ */
+      /* 5️⃣ Request Samsung Health permissions (SAFE SET ONLY) */
+      /* ------------------------------------------------------------------ */
+      await RookPermissions.requestSamsungHealthPermissions({
+        types: ["STEPS", "HEART_RATE", "SLEEP"],
+      });
+
+      console.log("✅ Samsung Health permissions granted");
+
+      /* ------------------------------------------------------------------ */
+      /* 6️⃣ Wait for provider binding (CRITICAL) */
+      /* ------------------------------------------------------------------ */
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      /* ------------------------------------------------------------------ */
+      /* 7️⃣ Initial sync (NON-CRITICAL) */
+      /* ------------------------------------------------------------------ */
+      try {
+        await RookSummaries.sync({});
+        console.log("✅ Summaries synced");
+      } catch (syncError) {
+        console.warn("⚠️ Sync skipped:", syncError);
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* 8️⃣ Success */
+      /* ------------------------------------------------------------------ */
+      setIsConnectingSamsungHealth("connected");
+
       toast({
-        title: "Error",
-        description: "User ID not found. Please try again.",
+        title: "Connected Successfully",
+        description: "Samsung Health connected successfully.",
+      });
+
+    } catch (error: any) {
+      console.error("❌ Samsung Health connection failed:", error);
+
+      setIsConnectingSamsungHealth("disconnected");
+
+      toast({
+        title: "Connection Failed",
+        description: error?.message || "Failed to connect Samsung Health",
         variant: "destructive",
       });
-      setIsConnectingSamsungHealth("disconnected");
-    }     
-  }
+    }
+  };
 
   useEffect(() => {
     // Sync connection state with backend
@@ -577,7 +532,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         }
       });
     }
-  }, [devicesData?.data_sources, isConnecting]);
+  }, [devicesData?.data_sources, isConnecting, isConnectingSamsungHealth]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
@@ -707,38 +662,9 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                              Samsung Health
-                            </h4>
-                            {samsungHealthError && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <AlertCircle className="w-4 h-4 text-red-500 cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="max-w-xs">
-                                    <div className="space-y-2">
-                                      <p className="font-semibold text-red-600 dark:text-red-400">Error:</p>
-                                      <p className="text-xs">{samsungHealthError}</p>
-                                      {samsungHealthLogs.length > 0 && (
-                                        <div className="mt-2 pt-2 border-t">
-                                          <p className="font-semibold text-xs mb-1">Logs:</p>
-                                          <div className="max-h-40 overflow-y-auto text-xs space-y-1">
-                                            {samsungHealthLogs.map((log, idx) => (
-                                              <div key={idx} className="font-mono text-[10px] break-words">
-                                                {log}
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
+                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                            Samsung Health
+                          </h4>
                           <Badge
                             variant={
                               isConnectingSamsungHealth === 'connected' ? "default" : "outline"
@@ -770,27 +696,15 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                           }`}
                           onClick={() => {
                             if (isConnectingSamsungHealth === 'connected') {
-                              try {
-                                RookSamsungHealth.disableBackGroundUpdates();
-                                setIsConnectingSamsungHealth('disconnected');
-                                setSamsungHealthError(null);
-                                setSamsungHealthLogs([]);
-                                setHasError(false);
-                                localStorage.removeItem('samsung_health_device_connection_state');
-                              } catch (e: any) {
-                                const errorMsg = `Error disconnecting: ${e?.message || e?.toString() || 'Unknown error'}`;
-                                setHasError(true);
-                                addLog(errorMsg, 'error');
-                                setSamsungHealthError(errorMsg);
-                              }
+                              // clearConnectionState();
+                              RookSamsungHealth.disableBackGroundUpdates();
+                              setIsConnectingSamsungHealth('disconnected');
+                              localStorage.removeItem('samsung_health_device_connection_state');
                             } else {
+                              // connectSdk();
                               if(isSamsungDevice()){
                                 executeSamsungHealthConnection();
                               } else {
-                                const errorMsg = "Samsung Health is not installed on this device";
-                                setHasError(true);
-                                addLog(errorMsg, 'error');
-                                setSamsungHealthError(errorMsg);
                                 toast({
                                   title: "Error",
                                   description: "Samsung Health is not installed on this device.",
@@ -870,13 +784,16 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                                   title: "Disconnect",
                                   description: `Disconnect from ${source.name}`,
                                 });
-                                fetchDevicesData();
+                                // fetchDevicesData();
                               });
                             } else {
-                              window.open(
+                              const newWindow = window.open(
                                 source.authorization_url,
                                 "_blank"
                               );
+                              if (newWindow) {
+                                setOpenedWindow(newWindow);
+                              }
                               toast({
                                 title: "Connecting",
                                 description: `Opening ${source.name} authorization...`,
@@ -951,4 +868,3 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     </div>
   );
 }
-
