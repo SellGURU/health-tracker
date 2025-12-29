@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
-import { RookAppleHealth } from "capacitor-rook-sdk";
+import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
 
 const healthModules = [
@@ -293,6 +293,14 @@ export default function YouMenu() {
     handleGetAssignedQuestionaries();
     handleGetBiomarkersData();
     handleGetHolisticPlanActionPlan();
+  }, []);
+  useEffect(() => {
+    const syncSummaries = async () => {
+      if(Capacitor.isNativePlatform() ) {
+        await RookSummaries.sync({});
+      }
+    }
+    syncSummaries();
   }, []);
 
   // Auto-scroll to download report button when ?downloadReport is in URL
