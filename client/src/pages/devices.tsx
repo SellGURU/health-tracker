@@ -624,8 +624,8 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                           }
                           className={`text-xs h-7 ${
                             isConnecting === 'connected'
-                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                              ? "border-red-200 text-red-600 md:hover:bg-red-50  dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                              : "bg-blue-600 md:hover:bg-blue-700 text-white"
                           }`}
                           onClick={() => {
                             if (isConnecting === 'connected') {
@@ -774,8 +774,8 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                           }
                           className={`text-xs h-7 ${
                             source.connected
-                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                              ? "border-red-200 text-red-600 md:hover:bg-red-50  dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                              : "bg-blue-600 md:hover:bg-blue-700 text-white"
                           }`}
                           onClick={() => {
                             if (source.connected) {
