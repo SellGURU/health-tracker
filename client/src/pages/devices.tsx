@@ -327,6 +327,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         // // 5. Schedule sync
         try{
           if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
+            await RookPermissions.requestAndroidBackgroundPermissions();
             await RookHealthConnect.scheduleHealthConnectBackGround();
             await RookHealthConnect.scheduleYesterdaySync({
               doOnEnd: 'oldest' // یا 'latest' یا 'nothing' بر اساس نیازت
