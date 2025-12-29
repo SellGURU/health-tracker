@@ -532,7 +532,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         }
       });
     }
-  }, [devicesData?.data_sources, isConnecting]);
+  }, [devicesData?.data_sources, isConnecting, isConnectingSamsungHealth]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
