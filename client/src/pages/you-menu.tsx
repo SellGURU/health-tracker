@@ -783,8 +783,8 @@ export default function YouMenu() {
                   mx-auto rounded-xl
                   transition-all duration-500
                   hover:shadow-[0_25px_60px_-15px_rgba(16,185,129,0.6)]
-                  bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500
-                  shadow-2xl p-5"
+                  bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50
+                  shadow-2xl p-2"
       >
         {/* Decorative shapes */}
         <div className="absolute -top-5 -left-5 w-24 h-24 rounded-full bg-white/10 blur-3xl animate-pulse-slow"></div>
@@ -793,24 +793,24 @@ export default function YouMenu() {
 
         <CardContent className="relative flex flex-col items-center text-center text-white pt-6">
           {/* Icon */}
-          <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-lg shadow-lg flex items-center justify-center mb-4">
-            <Activity className="w-10 h-10 text-white" />
-          </div>
+          {/* <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-lg shadow-lg flex items-center justify-center mb-4">
+            <Activity className="w-5 h-5 text-white" />
+          </div> */}
 
           {/* Title */}
-          <h3 className="text-lg font-medium mb-1">
+          <h3 className="text-lg text-gray-700 dark:text-gray-100 font-medium mb-1">
             Wellness Dashboard
           </h3>
 
           {/* Subtitle */}
-          <p className="text-sm text-white/80 max-w-[280px] mb-6">
-            See your daily wellness signals — mood, energy, stress & balance
+          <p className="text-sm text-gray-500 dark:text-gray-100 max-w-[280px] mb-6">
+            See your daily wellness sleep, movement, stress, heart rhythms, and body metrics
           </p>
 
           {/* CTA Button */}
           <button
             onClick={() => setLocation("/wearable")}
-            className="flex items-center gap-2 bg-white/20 backdrop-blur-lg px-5 py-2 rounded-full hover:bg-white/30 transition-colors"
+            className="flex items-center gap-2 bg-emerald-400 backdrop-blur-lg px-5 py-2 rounded-full hover:bg-emerald-500 transition-colors"
           >
             <span className="text-sm font-medium text-white">Go to Dashboard</span>
             <ArrowRight className="w-4 h-4 text-white" />
