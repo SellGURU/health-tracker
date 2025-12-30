@@ -809,7 +809,7 @@ export default function YouMenu() {
 
           {/* CTA Button */}
           <button
-            onClick={() => setLocation("/wellness")}
+            onClick={() => setLocation("/wearable")}
             className="flex items-center gap-2 bg-white/20 backdrop-blur-lg px-5 py-2 rounded-full hover:bg-white/30 transition-colors"
           >
             <span className="text-sm font-medium text-white">Go to Dashboard</span>
