@@ -17,6 +17,7 @@ import { Capacitor } from "@capacitor/core";
 import {
   Activity,
   ArrowLeft,
+  ArrowRight,
   Baby,
   BookOpen,
   Brain,
@@ -26,6 +27,7 @@ import {
   Download,
   Droplets,
   Heart,
+  HeartPulse,
   Loader2,
   Moon,
   Pill,
@@ -774,6 +776,41 @@ export default function YouMenu() {
           </CardContent>
         </Card>
       )}
+<Card
+  className="cursor-pointer hover:shadow-2xl transition-all duration-500 
+             bg-gradient-to-br from-emerald-50/50 via-white/50 to-lime-50/50 
+             dark:from-emerald-900/20 dark:via-gray-800/50 dark:to-lime-900/20 
+             border-0 shadow-xl backdrop-blur-lg"
+  onClick={() => setLocation("/wearable")}
+>
+  <CardContent className="p-4 relative">
+    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-lime-500/5 rounded-lg"></div>
+
+    <div className="relative flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-lime-500 
+                        rounded-full flex items-center justify-center shadow-lg">
+          <HeartPulse className="w-5 h-5 text-white" />
+        </div>
+
+        <div>
+          <h3 className="font-thin text-base text-gray-900 dark:text-gray-100 mb-1">
+            Wellness
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
+            Mind, body & daily balance
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+        <span className="text-xs font-light">View dashboard</span>
+        <ArrowRight className="w-4 h-4" />
+      </div>
+    </div>
+  </CardContent>
+</Card>
+      
 
       {/* Assigned Questionnaires Section */}
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
