@@ -53,6 +53,7 @@ import {
   ClipboardList,
   Zap,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
@@ -183,16 +184,13 @@ export default function Profile() {
 
   // Notification preferences
   const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    labResults: true,
-    goalReminders: true,
-    weeklyReports: true,
-    chatMessages: true,
+    emailNotifications: false,
+    pushNotifications: false,
+    chatMessages: false,
     questionnaire_assigned: false,
-    systemUpdates: false,
-    marketingEmails: false,
   });
+  const [isLoadingNotificationSettings, setIsLoadingNotificationSettings] =
+    useState(false);
 
   // Load notification settings when dialog opens
   const loadNotificationSettings = async () => {
@@ -207,12 +205,6 @@ export default function Profile() {
         pushNotifications: Boolean(channels.push),
         chatMessages: Boolean(content.chat_messages),
         questionnaire_assigned: Boolean(content.questionnaire_assigned),
-        // Map available content types to existing toggles if present
-        // labResults: Boolean(content.lab_results ?? prev.labResults),
-        // goalReminders: Boolean(content.goal_reminders ?? prev.goalReminders),
-        // weeklyReports: Boolean(content.weekly_reports ?? prev.weeklyReports),
-        // systemUpdates: Boolean(content.system_updates ?? prev.systemUpdates),
-        // marketingEmails: Boolean(content.marketing_emails ?? prev.marketingEmails),
       }));
     } catch (error: any) {
       toast({
@@ -350,7 +342,7 @@ export default function Profile() {
         handleGetClientInformation();
         // Also refresh auth service client information
         fetchClientInformation();
-        
+
         setLocation("/");
       } else {
         toast({
@@ -417,45 +409,41 @@ export default function Profile() {
   };
 
   const saveNotificationSettings = async () => {
-    try {
-      const payload = {
-        channels: {
-          email: !!notificationSettings.emailNotifications,
-          push: !!notificationSettings.pushNotifications,
-        },
-        content_types: {
-          chat_messages: !!notificationSettings.chatMessages,
-          questionnaire_assigned: !!notificationSettings.questionnaire_assigned,
-          // lab_results: !!notificationSettings.labResults,
-          // goal_reminders: !!notificationSettings.goalReminders,
-          // weekly_reports: !!notificationSettings.weeklyReports,
-          // system_updates: !!notificationSettings.systemUpdates,
-          // marketing_emails: !!notificationSettings.marketingEmails,
-        },
-      };
-      const res = await Application.saveNotifications(payload);
-      if (res?.status === 200) {
-        toast({
-          title: "Notifications updated",
-          description: "Your notification preferences have been saved.",
-        });
-        setShowNotificationsDialog(false);
-      } else {
+    setIsLoadingNotificationSettings(true);
+    const payload = {
+      channels: {
+        email: !!notificationSettings.emailNotifications,
+        push: !!notificationSettings.pushNotifications,
+      },
+      content_types: {
+        chat_messages: !!notificationSettings.chatMessages,
+        questionnaire_assigned: !!notificationSettings.questionnaire_assigned,
+      },
+    };
+    await Application.saveNotifications(payload)
+      .then((res) => {
+        if (res?.status === 200) {
+          toast({
+            title: "Notifications updated",
+            description: "Your notification preferences have been saved.",
+          });
+        }
+      })
+      .catch((error) => {
         toast({
           title: "Failed to save notifications",
-          description: res?.data?.detail || "Unexpected server response.",
+          description:
+            error?.response?.data?.detail ||
+            (error instanceof Error
+              ? error.message
+              : "Unexpected server response."),
           variant: "destructive",
         });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Failed to save notifications",
-        description:
-          error?.response?.data?.detail ||
-          (error instanceof Error ? error.message : "Please try again."),
-        variant: "destructive",
+      })
+      .finally(() => {
+        setShowNotificationsDialog(false);
+        setIsLoadingNotificationSettings(false);
       });
-    }
   };
 
   const savePrivacySettings = async () => {
@@ -507,13 +495,13 @@ export default function Profile() {
       badge:
         connectedDevices.length > 0 ? connectedDevices.length.toString() : null,
     },
-    // {
-    //   icon: Bell,
-    //   title: "Notifications",
-    //   description: "Manage your notification preferences",
-    //   action: () => setShowNotificationsDialog(true),
-    //   badge: null,
-    // },
+    {
+      icon: Bell,
+      title: "Notifications",
+      description: "Manage your notification preferences",
+      action: () => setShowNotificationsDialog(true),
+      badge: null,
+    },
     // {
     //   icon: Shield,
     //   title: "Privacy & Data",
@@ -1005,8 +993,13 @@ export default function Profile() {
               <Button
                 onClick={saveNotificationSettings}
                 className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
+                disabled={isLoadingNotificationSettings}
               >
-                Save Preferences
+                {isLoadingNotificationSettings ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Save Preferences"
+                )}
               </Button>
               <Button
                 variant="outline"
