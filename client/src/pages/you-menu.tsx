@@ -41,10 +41,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
+import { isColorDark } from "@/help";
+import { AppContext } from "@/store/app";
 
 const healthModules = [
   {
@@ -137,19 +139,7 @@ function formatTime(timeValue: string | number | null | undefined): string {
 }
 
 export default function YouMenu() {
-  const [brandInfo, setBrandInfo] = useState<{
-    last_update: string;
-    logo: string;
-    name: string;
-    headline: string;
-    primary_color: string;
-    secondary_color: string;
-    tone: string;
-    focus_area: string;
-  }>();
-  subscribe("brand_info", (data: any) => {
-    setBrandInfo(data.detail.information);
-  });
+  const { brandInfo } = useContext(AppContext);
   const [clientInformation, setClientInformation] = useState<{
     show_phenoage: boolean;
     action_plan: number;
@@ -1055,31 +1045,47 @@ export default function YouMenu() {
                 </div>
               </div>
               {hasHtmlReport && (
-                <>
+                <div className="flex items-center gap-1 ">
                   <Button
                     id="download-pdf-report-Box"
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    className={`w-full   text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]`}
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                      color: `${
+                        brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+                      }`,
+                    }}
                     onClick={handleGetHtmlReport}
                   >
                     {loadingHtmlReport ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Download PDF Report"
+                      "Download Report"
                     )}
                   </Button>
 
                   <Button
                     id="view-pdf-report-Box"
-                    className="w-full bg-gradient-to-r mt-3 from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    className="w-full    font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.secondary_color : undefined
+                      }`,
+                      color: `${
+                        brandInfo ? isColorDark(brandInfo?.secondary_color||'#000000') ? "white" : "black" : undefined
+                      }`,
+                    }}
                     onClick={handleViewHtmlReport}
                   >
                     {loadingViewHtmlReport ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      "View PDF Report"
+                      "View Report"
                     )}
                   </Button>
-                </>
+                </div>
               )}
             </div>
           </CardContent>
