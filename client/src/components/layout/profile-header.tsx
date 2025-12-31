@@ -42,6 +42,7 @@ import {
   DialogFooter,
 } from "../ui/dialog";
 import { subscribe } from "@/lib/event";
+import { useVersionCheck } from "@/hooks/use-version-check";
 // import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
 
 export default function ProfileHeader() {
@@ -72,12 +73,18 @@ export default function ProfileHeader() {
     has_changed_password?: boolean;
   }>();
 
+  const { showUpdateModal, showUnsupportedModal } = useVersionCheck();
+
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
       .then((res) => {
         setClientInformation(res.data);
         // Check if password change is required
-        if (res.data?.has_changed_password === false) {
+        if (
+          res.data?.has_changed_password === false &&
+          !showUpdateModal &&
+          !showUnsupportedModal
+        ) {
           // Store flag to open password dialog
           localStorage.setItem("requirePasswordChange", "true");
           // Redirect to profile page only if not already there
