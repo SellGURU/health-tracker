@@ -42,10 +42,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
+import { isColorDark } from "@/help";
+import { AppContext } from "@/store/app";
 
 const healthModules = [
   {
@@ -138,19 +140,7 @@ function formatTime(timeValue: string | number | null | undefined): string {
 }
 
 export default function YouMenu() {
-  const [brandInfo, setBrandInfo] = useState<{
-    last_update: string;
-    logo: string;
-    name: string;
-    headline: string;
-    primary_color: string;
-    secondary_color: string;
-    tone: string;
-    focus_area: string;
-  }>();
-  subscribe("brand_info", (data: any) => {
-    setBrandInfo(data.detail.information);
-  });
+  const { brandInfo } = useContext(AppContext);
   const [clientInformation, setClientInformation] = useState<{
     show_phenoage: boolean;
     action_plan: number;
@@ -520,6 +510,8 @@ export default function YouMenu() {
   // For showing health-related cards - using hasRequiredData as indicator
   const hasHealthData = hasRequiredData;
   const [loadingHtmlReport, setLoadingHtmlReport] = useState(false);
+  const [htmlReport, setHtmlReport] = useState<string>("");
+  const [showHtmlReport, setShowHtmlReport] = useState(false);
   const handleGetHtmlReport = () => {
     if (!holisticPlanActionPlan.latest_deep_analysis) return;
 
@@ -528,7 +520,7 @@ export default function YouMenu() {
     Application.getHtmlReport()
       .then((res) => {
         try {
-          const blobUrl = res.data;
+          const blobUrl = res.data.pdf;
 
           const link = document.createElement("a");
           link.href = blobUrl;
@@ -536,6 +528,7 @@ export default function YouMenu() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+
         } catch (error: any) {
           console.error("Error downloading file:", error);
         }
@@ -551,9 +544,59 @@ export default function YouMenu() {
         setLoadingHtmlReport(false);
       });
   };
+  const [loadingViewHtmlReport, setLoadingViewHtmlReport] = useState(false);
+  const handleViewHtmlReport = () => {
+    if (!holisticPlanActionPlan.latest_deep_analysis) return;
+
+    setLoadingViewHtmlReport(true);
+
+    Application.getHtmlReport()
+      .then((res) => {
+        try {
+          fetch(res.data.html).then(response => response.blob()).then(res => res.text())
+          .then(html => {
+            const blob = new Blob([html], { type: "text/html" });
+            const blobUrl = URL.createObjectURL(blob);
+            setHtmlReport(blobUrl);
+            setShowHtmlReport(true);
+          });          
+
+        } catch (error: any) {
+          console.error("Error downloading file:", error);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setLoadingViewHtmlReport(false);
+        setLoadingHtmlReport(false);
+      });
+  };
 
   const renderMainView = () => (
     <div className="space-y-4">
+      {showHtmlReport && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-white dark:bg-neutral-900 w-[100%] h-[100%] overflow-hidden relative">
+           <div className="w-full fixed top-0 bg-white h-10 flex justify-end items-center px-4 z-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowHtmlReport(false)}
+              className="h-8 w-8"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+           </div>
+           <iframe src={htmlReport} style={{ width: "100%", height: "calc(100vh - 40px)",marginTop: "40px" }} />
+          </div>
+        </div>
+      )}      
       {/* Age Cards - Prominent Display */}
       <div
         className={`grid gap-3 ${
@@ -1046,24 +1089,53 @@ export default function YouMenu() {
                 </div>
               </div>
               {hasHtmlReport && (
-                <>
+                <div className="flex items-center gap-1 ">
                   <Button
                     id="download-pdf-report-Box"
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    className={`w-full   text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]`}
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                      color: `${
+                        brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+                      }`,
+                    }}
                     onClick={handleGetHtmlReport}
                   >
                     {loadingHtmlReport ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Download PDF Report"
+                      "Download Report"
                     )}
                   </Button>
-                </>
+
+                  <Button
+                    id="view-pdf-report-Box"
+                    className="w-full    font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.secondary_color : undefined
+                      }`,
+                      color: `${
+                        brandInfo ? isColorDark(brandInfo?.secondary_color||'#000000') ? "white" : "black" : undefined
+                      }`,
+                    }}
+                    onClick={handleViewHtmlReport}
+                  >
+                    {loadingViewHtmlReport ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "View Report"
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
       )}
+
     </div>
   );
 
