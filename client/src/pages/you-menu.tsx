@@ -31,8 +31,10 @@ import {
   Loader2,
   Moon,
   Pill,
+  Plus,
   RefreshCw,
   Shield,
+  Smartphone,
   Stethoscope,
   Target,
   Thermometer,
@@ -46,7 +48,7 @@ import { useEffect, useState, useCallback, useRef, useContext } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
-import { isColorDark } from "@/help";
+import { formatDate, isColorDark } from "@/help";
 import { AppContext } from "@/store/app";
 
 const healthModules = [
@@ -140,7 +142,7 @@ function formatTime(timeValue: string | number | null | undefined): string {
 }
 
 export default function YouMenu() {
-  const { brandInfo } = useContext(AppContext);
+  const { brandInfo, wellnessScore } = useContext(AppContext);
   const [clientInformation, setClientInformation] = useState<{
     show_phenoage: boolean;
     action_plan: number;
@@ -834,73 +836,143 @@ export default function YouMenu() {
           Wellness Dashboard
         </h3>
         <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Last synced 5 mins ago
+          {wellnessScore.latest_date ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Last synced {formatDate(wellnessScore.latest_date)}
+            </>
+          ):
+          (
+            <>
+              <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+              waiting for connection
+            </>
+          )
+          }
         </p>
       </div>
 
-      <RefreshCw className="w-4 h-4 text-gray-400" />
+      {/* <RefreshCw className="w-4 h-4 text-gray-400" /> */}
     </div>
+    {
+      wellnessScore.latest_date && (
+        <>
+          {/* Metrics */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Moon className="w-4 h-4 text-indigo-500" />
+                <span className="text-xs tracking-wide text-gray-500">SLEEP</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {wellnessScore.scores.filter((el: any) => {
+                  return el.name.toLowerCase().includes('sleep');
+                })[0]?.score || 0} <span className="text-xs font-normal text-gray-500"></span>
+              </p>
+            </div>
 
-    {/* Metrics */}
-    <div className="grid grid-cols-2 gap-3 mb-5">
-      <div className="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Moon className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs tracking-wide text-gray-500">SLEEP</span>
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs tracking-wide text-gray-500">Activity</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {wellnessScore.scores.filter((el: any) => {
+                  return el.name.toLowerCase().includes('activity score');
+                })[0]?.score || 0}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-yellow-50 dark:bg-yellow-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                <span className="text-xs tracking-wide text-gray-500">STRESS</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {wellnessScore.scores.filter((el: any) => {
+                  return el.name.toLowerCase().includes('stress score');
+                })[0]?.score || 0}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Heart className="w-4 h-4 text-rose-500" />
+                <span className="text-xs tracking-wide text-gray-500">HEART</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {wellnessScore.scores.filter((el: any) => {
+                return el.name.toLowerCase().includes('heart health score');
+              })[0]?.score || 0}
+              </p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
+            Monitor your daily habits to optimize your recovery and longevity.
+          </p>
+
+          {/* CTA */}
+          <button
+            onClick={() => setLocation("/wearable")}
+            className="w-full flex items-center justify-center gap-2
+                      bg-emerald-500 hover:bg-emerald-600
+                      text-white text-sm font-medium
+                      py-3 rounded-xl transition-colors"
+          >
+            Go to Dashboard
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </>
+      )
+    }
+    {wellnessScore.latest_date == null &&
+    <>
+    <div className="flex flex-col items-center text-center px-4">
+      <div className="relative mb-6">
+        <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
+          <Activity className="w-8 h-8 text-emerald-500" />
         </div>
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          7.4 <span className="text-xs font-normal text-gray-500">HRS</span>
-        </p>
+
+        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
+                        bg-white border border-gray-200
+                        flex items-center justify-center shadow-sm">
+          <Smartphone className="w-4 h-4 text-indigo-500" />
+        </div>
       </div>
 
-      <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Activity className="w-4 h-4 text-emerald-500" />
-          <span className="text-xs tracking-wide text-gray-500">STEPS</span>
-        </div>
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          8,432
-        </p>
-      </div>
+      {/* Empty text */}
+      <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+        No Wellness Data
+      </h4>
 
-      <div className="rounded-xl bg-yellow-50 dark:bg-yellow-900/20 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Zap className="w-4 h-4 text-yellow-500" />
-          <span className="text-xs tracking-wide text-gray-500">STRESS</span>
-        </div>
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Low
-        </p>
-      </div>
+      <p className="text-sm text-gray-500 leading-relaxed mb-6">
+        Connect your wearable or health app to start tracking your daily
+        recovery and longevity.
+      </p>
 
-      <div className="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Heart className="w-4 h-4 text-rose-500" />
-          <span className="text-xs tracking-wide text-gray-500">HEART</span>
-        </div>
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          68 <span className="text-xs font-normal text-gray-500">BPM</span>
-        </p>
-      </div>
-    </div>
-
-    {/* Description */}
-    <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
-      Monitor your daily habits to optimize your recovery and longevity.
-    </p>
-
-    {/* CTA */}
-    <button
-      onClick={() => setLocation("/wearable")}
-      className="w-full flex items-center justify-center gap-2
-                 bg-emerald-500 hover:bg-emerald-600
-                 text-white text-sm font-medium
-                 py-3 rounded-xl transition-colors"
-    >
-      Go to Dashboard
-      <ArrowRight className="w-4 h-4" />
-    </button>
+      {/* CTA */}
+      <button
+        onClick={() => setLocation("/devices")}
+        style={{
+          background: `${
+            brandInfo ? brandInfo?.primary_color : undefined
+          }`,
+          color: `${
+            brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+          }`,
+        }}
+        className="w-full flex items-center justify-center gap-2
+                   text-sm font-medium
+                   py-3 rounded-xl transition-colors"
+      >
+        <Plus className="w-4 h-4" />
+        Connect Device
+      </button>
+    </div>    
+    </>
+    }
   </CardContent>
 </Card>
 
