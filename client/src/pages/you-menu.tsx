@@ -31,7 +31,10 @@ import {
   Loader2,
   Moon,
   Pill,
+  Plus,
+  RefreshCw,
   Shield,
+  Smartphone,
   Stethoscope,
   Target,
   Thermometer,
@@ -41,10 +44,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext } from "react";
 import { useLocation } from "wouter";
 import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
+import { formatDate, isColorDark } from "@/help";
+import { AppContext } from "@/store/app";
 
 const healthModules = [
   {
@@ -137,19 +142,7 @@ function formatTime(timeValue: string | number | null | undefined): string {
 }
 
 export default function YouMenu() {
-  const [brandInfo, setBrandInfo] = useState<{
-    last_update: string;
-    logo: string;
-    name: string;
-    headline: string;
-    primary_color: string;
-    secondary_color: string;
-    tone: string;
-    focus_area: string;
-  }>();
-  subscribe("brand_info", (data: any) => {
-    setBrandInfo(data.detail.information);
-  });
+  const { brandInfo, wellnessScore } = useContext(AppContext);
   const [clientInformation, setClientInformation] = useState<{
     show_phenoage: boolean;
     action_plan: number;
@@ -519,6 +512,8 @@ export default function YouMenu() {
   // For showing health-related cards - using hasRequiredData as indicator
   const hasHealthData = hasRequiredData;
   const [loadingHtmlReport, setLoadingHtmlReport] = useState(false);
+  const [htmlReport, setHtmlReport] = useState<string>("");
+  const [showHtmlReport, setShowHtmlReport] = useState(false);
   const handleGetHtmlReport = () => {
     if (!holisticPlanActionPlan.latest_deep_analysis) return;
 
@@ -527,7 +522,7 @@ export default function YouMenu() {
     Application.getHtmlReport()
       .then((res) => {
         try {
-          const blobUrl = res.data;
+          const blobUrl = res.data.pdf;
 
           const link = document.createElement("a");
           link.href = blobUrl;
@@ -535,6 +530,7 @@ export default function YouMenu() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+
         } catch (error: any) {
           console.error("Error downloading file:", error);
         }
@@ -550,9 +546,59 @@ export default function YouMenu() {
         setLoadingHtmlReport(false);
       });
   };
+  const [loadingViewHtmlReport, setLoadingViewHtmlReport] = useState(false);
+  const handleViewHtmlReport = () => {
+    if (!holisticPlanActionPlan.latest_deep_analysis) return;
+
+    setLoadingViewHtmlReport(true);
+
+    Application.getHtmlReport()
+      .then((res) => {
+        try {
+          fetch(res.data.html).then(response => response.blob()).then(res => res.text())
+          .then(html => {
+            const blob = new Blob([html], { type: "text/html" });
+            const blobUrl = URL.createObjectURL(blob);
+            setHtmlReport(blobUrl);
+            setShowHtmlReport(true);
+          });          
+
+        } catch (error: any) {
+          console.error("Error downloading file:", error);
+        }
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err?.response?.data?.detail,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setLoadingViewHtmlReport(false);
+        setLoadingHtmlReport(false);
+      });
+  };
 
   const renderMainView = () => (
     <div className="space-y-4">
+      {showHtmlReport && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-white dark:bg-neutral-900 w-[100%] h-[100%] overflow-hidden relative">
+           <div className="w-full fixed top-0 bg-white h-10 flex justify-end items-center px-4 z-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowHtmlReport(false)}
+              className="h-8 w-8"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+           </div>
+           <iframe src={htmlReport} style={{ width: "100%", height: "calc(100vh - 40px)",marginTop: "40px" }} />
+          </div>
+        </div>
+      )}      
       {/* Age Cards - Prominent Display */}
       <div
         className={`grid gap-3 ${
@@ -776,47 +822,167 @@ export default function YouMenu() {
           </CardContent>
         </Card>
       )}
-
+ {/* wellneess */}
       <Card
-        className="cursor-pointer relative overflow-hidden
-                  w-full  h-auto
-                  mx-auto rounded-xl
-                  transition-all duration-500
-                  hover:shadow-[0_25px_60px_-15px_rgba(16,185,129,0.6)]
-                  bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50
-                  shadow-2xl p-2"
-      >
-        {/* Decorative shapes */}
-        <div className="absolute -top-5 -left-5 w-24 h-24 rounded-full bg-white/10 blur-3xl animate-pulse-slow"></div>
-        <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-white/5 blur-2xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent_70%)]"></div>
+  className="w-full  mx-auto rounded-2xl
+             bg-white dark:bg-gray-900
+             shadow-xl border border-gray-100 dark:border-gray-800"
+>
+  <CardContent className="p-5">
+    {/* Header */}
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+          Wellness Dashboard
+        </h3>
+        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+          {wellnessScore.latest_date ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Last synced {formatDate(wellnessScore.latest_date)}
+            </>
+          ):
+          (
+            <>
+              <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+              waiting for connection
+            </>
+          )
+          }
+        </p>
+      </div>
 
-        <CardContent className="relative flex flex-col items-center text-center text-white pt-6">
-          {/* Icon */}
-          {/* <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-lg shadow-lg flex items-center justify-center mb-4">
-            <Activity className="w-5 h-5 text-white" />
-          </div> */}
+      {/* <RefreshCw className="w-4 h-4 text-gray-400" /> */}
+    </div>
+    {
+      wellnessScore.latest_date && (
+        <>
+          {/* Metrics */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Moon className="w-4 h-4 text-indigo-500" />
+                <span className="text-xs tracking-wide text-gray-500">SLEEP</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {wellnessScore.scores.filter((el: any) => {
+                  return el.name.toLowerCase().includes('sleep');
+                })[0]?.score || 0} <span className="text-xs font-normal text-gray-500"></span>
+              </p>
+            </div>
 
-          {/* Title */}
-          <h3 className="text-lg text-gray-700 dark:text-gray-100 font-medium mb-1">
-            Wellness Dashboard
-          </h3>
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs tracking-wide text-gray-500">Activity</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {wellnessScore.scores.filter((el: any) => {
+                  return el.name.toLowerCase().includes('activity score');
+                })[0]?.score || 0}
+              </p>
+            </div>
 
-          {/* Subtitle */}
-          <p className="text-sm text-gray-500 dark:text-gray-100 max-w-[280px] mb-6">
-            See your daily wellness sleep, movement, stress, heart rhythms, and body metrics
+            <div className="rounded-xl bg-yellow-50 dark:bg-yellow-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                <span className="text-xs tracking-wide text-gray-500">STRESS</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {wellnessScore.scores.filter((el: any) => {
+                  return el.name.toLowerCase().includes('stress score');
+                })[0]?.score || 0}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Heart className="w-4 h-4 text-rose-500" />
+                <span className="text-xs tracking-wide text-gray-500">HEART</span>
+              </div>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {wellnessScore.scores.filter((el: any) => {
+                return el.name.toLowerCase().includes('heart health score');
+              })[0]?.score || 0}
+              </p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
+            Monitor your daily habits to optimize your recovery and longevity.
           </p>
 
-          {/* CTA Button */}
+          {/* CTA */}
           <button
             onClick={() => setLocation("/wearable")}
-            className="flex items-center gap-2 bg-emerald-400 backdrop-blur-lg px-5 py-2 rounded-full hover:bg-emerald-500 transition-colors"
+            className="w-full flex items-center justify-center gap-2
+                    text-sm font-medium
+                      py-3 rounded-xl transition-colors"
+          style={{
+            background: `${
+              brandInfo ? brandInfo?.primary_color : undefined
+            }`,
+            color: `${
+              brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+            }`,
+          }}
           >
-            <span className="text-sm font-medium text-white">Go to Dashboard</span>
-            <ArrowRight className="w-4 h-4 text-white" />
+            Go to Dashboard
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </CardContent>
-      </Card>
+        </>
+      )
+    }
+    {wellnessScore.latest_date == null &&
+    <>
+    <div className="flex flex-col items-center text-center px-4">
+      <div className="relative mb-6">
+        <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
+          <Activity className="w-8 h-8 text-emerald-500" />
+        </div>
+
+        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
+                        bg-white border border-gray-200
+                        flex items-center justify-center shadow-sm">
+          <Smartphone className="w-4 h-4 text-indigo-500" />
+        </div>
+      </div>
+
+      {/* Empty text */}
+      <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+        No Wellness Data
+      </h4>
+
+      <p className="text-sm text-gray-500 leading-relaxed mb-6">
+        Connect your wearable or health app to start tracking your daily
+        recovery and longevity.
+      </p>
+
+      {/* CTA */}
+      <button
+        onClick={() => setLocation("/devices")}
+        style={{
+          background: `${
+            brandInfo ? brandInfo?.primary_color : undefined
+          }`,
+          color: `${
+            brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+          }`,
+        }}
+        className="w-full flex items-center justify-center gap-2
+                   text-sm font-medium
+                   py-3 rounded-xl transition-colors"
+      >
+        <Plus className="w-4 h-4" />
+        Connect Device
+      </button>
+    </div>    
+    </>
+    }
+  </CardContent>
+</Card>
+
 
       {/* Assigned Questionnaires Section */}
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
@@ -1002,24 +1168,53 @@ export default function YouMenu() {
                 </div>
               </div>
               {hasHtmlReport && (
-                <>
+                <div className="flex items-center gap-1 ">
                   <Button
                     id="download-pdf-report-Box"
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    className={`w-full   text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]`}
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.primary_color : undefined
+                      }`,
+                      color: `${
+                        brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+                      }`,
+                    }}
                     onClick={handleGetHtmlReport}
                   >
                     {loadingHtmlReport ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Download PDF Report"
+                      "Download Report"
                     )}
                   </Button>
-                </>
+
+                  <Button
+                    id="view-pdf-report-Box"
+                    className="w-full    font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    style={{
+                      background: `${
+                        brandInfo ? brandInfo?.secondary_color : undefined
+                      }`,
+                      color: `${
+                        brandInfo ? isColorDark(brandInfo?.secondary_color||'#000000') ? "white" : "black" : undefined
+                      }`,
+                    }}
+                    onClick={handleViewHtmlReport}
+                  >
+                    {loadingViewHtmlReport ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "View Report"
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
       )}
+
     </div>
   );
 
