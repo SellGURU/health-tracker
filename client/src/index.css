@@ -86,19 +86,29 @@
   }
 
   /* Improve text clarity */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 600;
     letter-spacing: -0.025em;
     text-rendering: optimizeLegibility;
   }
 
-  p, span, div, label {
+  p,
+  span,
+  div,
+  label {
     font-weight: 400;
     letter-spacing: 0;
     text-rendering: optimizeLegibility;
   }
 
-  input, textarea, button {
+  input,
+  textarea,
+  button {
     font-family: inherit;
     font-feature-settings: inherit;
     text-rendering: optimizeLegibility;
@@ -116,30 +126,46 @@
   }
 
   /* Ensure crisp text on all devices */
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-variant-ligatures: none;
     text-rendering: geometricPrecision;
     font-kerning: auto;
   }
-  
+
   /* Force sharp text rendering */
-  input, button, select, textarea, label, span, div, p, h1, h2, h3, h4, h5, h6 {
+  input,
+  button,
+  select,
+  textarea,
+  label,
+  span,
+  div,
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
     text-rendering: geometricPrecision !important;
     font-smooth: never !important;
     font-variant-ligatures: none !important;
   }
-  
+
   /* Override for better text rendering */
-  .text-sm, .text-xs {
+  .text-sm,
+  .text-xs {
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
   }
-  
+
   .text-base {
     font-size: 1rem;
     line-height: 1.5rem;
@@ -149,11 +175,19 @@
 
 /* Custom health app styles */
 .health-gradient {
-  background: linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(142, 76%, 36%) 100%);
+  background: linear-gradient(
+    135deg,
+    hsl(207, 90%, 54%) 0%,
+    hsl(142, 76%, 36%) 100%
+  );
 }
 
 .medical-pattern {
-  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.15) 1px,
+    transparent 0
+  );
   background-size: 20px 20px;
 }
 
@@ -186,7 +220,8 @@
 
 /* Animation for health score */
 @keyframes pulse-health {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -234,11 +269,11 @@
 
 /* Blue-teal gradient utilities */
 .gradient-teal-blue {
-  background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
 }
 
 .gradient-text-teal-blue {
-  background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -268,42 +303,12 @@
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }
 
-/* Custom scrollbar styles */
-/* Webkit browsers (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+:root {
+  --nav-height: 69px; /* mobile */
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+@media (min-width: 768px) {
+  :root {
+    --nav-height: 109px; /* web */
+  }
 }
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Dark mode scrollbar */
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-.dark * {
-  scrollbar-color: #475569 transparent;
-}
-
