@@ -234,4 +234,47 @@ const resolveAnalyseIcon = (name: string) => {
   return "/icons/biomarkers/red-blood-cells.svg";
 };
 
-export { resolveAnalyseIcon };
+function isColorDark(hexColor: string) {
+  const hex = hexColor.replace("#", "");
+
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+
+  return luminance < 128; // true = dark
+}
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  // کمتر از ۳ روز
+  if (diffDays < 3) {
+    if (diffSeconds < 60) {
+      return `${diffSeconds} sec ago`;
+    }
+    if (diffMinutes < 60) {
+      return `${diffMinutes} min ago`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours} hours ago`;
+    }
+    return `${diffDays} days ago`;
+  }
+
+  // بیشتر از ۳ روز → تاریخ معمولی
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export { resolveAnalyseIcon, isColorDark, formatDate };
