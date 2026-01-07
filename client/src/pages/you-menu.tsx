@@ -782,7 +782,7 @@ export default function YouMenu() {
                   size="icon"
                   className="rounded-full bg-red-500 hover:bg-red-600"
                   onClick={() => {
-                    window.open(`https://test`, "_blank");
+                    window.open(`https://holisticare.io/#form`, "_blank");
                   }}
                 >
                   <ArrowRight className="w-5 h-5" />
