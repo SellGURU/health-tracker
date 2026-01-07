@@ -448,6 +448,30 @@ export default function AuthPage() {
             ...errorsRegister,
             password: res.response.data.detail,
           });
+        } else if (
+          res.response.data.detail == "Client must be at least 18 years old."
+        ) {
+          setRegisterStep(1);
+          setErrorsRegister({
+            ...errorsRegister,
+            dateOfBirth: res.response.data.detail,
+          });
+        } else if (
+          res.response.data.detail.includes("first_name") ||
+          res.response.data.detail.includes("First Name")
+        ) {
+          setErrorsRegister({
+            ...errorsRegister,
+            firstName: res.response.data.detail,
+          });
+        } else if (
+          res.response.data.detail.includes("last_name") ||
+          res.response.data.detail.includes("Last Name")
+        ) {
+          setErrorsRegister({
+            ...errorsRegister,
+            lastName: res.response.data.detail,
+          });
         } else {
           setErrorsRegister({
             ...errorsRegister,
@@ -547,6 +571,14 @@ export default function AuthPage() {
         ...errorsRegister,
         dateOfBirth: "This field is required.",
       });
+      return;
+    }
+    if (
+      errorsRegister.dateOfBirth ||
+      errorsRegister.firstName ||
+      errorsRegister.lastName ||
+      errorsRegister.gender
+    ) {
       return;
     }
     setRegisterStep(2);
