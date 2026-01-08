@@ -334,7 +334,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
             });
           } else if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'){
             await RookAppleHealth.enableBackGroundUpdates();
-            await RookAppleHealth.enableBackGroundEventsUpdates();
+            // await RookAppleHealth.enableBackGroundEventsUpdates();
           }
           
           // Sync summaries with error handling and delay to ensure SDK is ready
