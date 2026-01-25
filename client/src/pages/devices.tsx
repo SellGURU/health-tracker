@@ -338,16 +338,16 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           }
           
           // Sync summaries with error handling and delay to ensure SDK is ready
-          try {
-            // Add a small delay to ensure everything is initialized
-            await new Promise(resolve => setTimeout(resolve, 500));
-            await RookSummaries.sync({});
-            console.log("✅ Summaries synced");
-          } catch (syncError: any) {
-            console.error("❌ Error syncing summaries (non-critical):", syncError);
-            // Don't fail the entire connection if sync fails
-            // This is a non-critical operation
-          }
+          // try {
+          //   // Add a small delay to ensure everything is initialized
+          //   await new Promise(resolve => setTimeout(resolve, 500));
+          //   await RookSummaries.sync({});
+          //   console.log("✅ Summaries synced");
+          // } catch (syncError: any) {
+          //   console.error("❌ Error syncing summaries (non-critical):", syncError);
+          //   // Don't fail the entire connection if sync fails
+          //   // This is a non-critical operation
+          // }
 
         }catch(e: any){
           toast({
