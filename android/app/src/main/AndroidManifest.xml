@@ -58,6 +58,13 @@
         </activity-alias>
     </application>
 
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        tools:node="remove" />
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
