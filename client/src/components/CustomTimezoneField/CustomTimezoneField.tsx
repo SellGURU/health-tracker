@@ -1,5 +1,5 @@
 import useModalAutoClose from "@/hooks/UseModalAutoClose";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 
 interface Props {
@@ -9,7 +9,15 @@ interface Props {
 
 export default function CustomTimezoneField({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState(value?.label || "");
+  const [query, setQuery] = useState(value || "");
+  useEffect(() => {
+    if (value) {
+      const timezone = options.find((o: any) => o.value === value);
+      if (timezone) {
+        setQuery(timezone.label);
+      }
+    }
+  }, [value]);
 
   const { options } = useTimezoneSelect({
     labelStyle: "original",
@@ -18,7 +26,7 @@ export default function CustomTimezoneField({ value, onChange }: Props) {
 
   const filtered = useMemo(() => {
     return options.filter((o: any) =>
-      o.label.toLowerCase().includes(query.toLowerCase())
+      o.label.toLowerCase().includes(query.toLowerCase()),
     );
   }, [query, options]);
 
