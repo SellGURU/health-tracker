@@ -480,7 +480,7 @@ export default function YouMenu() {
 
   const handleSurveyAnswer = (
     questionId: string,
-    answer: string | string[]
+    answer: string | string[],
   ) => {
     setSurveyAnswers((prev) => ({
       ...prev,
@@ -758,10 +758,7 @@ export default function YouMenu() {
       )}
 
       {brandInfo?.name === "Default Clinic" && (
-        <Card
-          className="bg-gradient-to-br from-red-50/50 via-white/50 to-red-50/50 dark:from-red-900/20 dark:via-gray-800/50 dark:to-red-900/20 border-0 shadow-xl backdrop-blur-lg"
-          onClick={() => setLocation("/plan")}
-        >
+        <Card className="bg-gradient-to-br from-red-50/50 via-white/50 to-red-50/50 dark:from-red-900/20 dark:via-gray-800/50 dark:to-red-900/20 border-0 shadow-xl backdrop-blur-lg">
           <CardContent className="p-4 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-500/5 rounded-lg"></div>
             <div className="relative flex items-center justify-between">
@@ -1218,7 +1215,7 @@ export default function YouMenu() {
                         Generated{" "}
                         {
                           holisticPlanActionPlan.latest_deep_analysis.split(
-                            "T"
+                            "T",
                           )[0]
                         }
                       </p>
@@ -1802,7 +1799,7 @@ export default function YouMenu() {
                         } else {
                           handleSurveyAnswer(
                             currentQuestion.id,
-                            currentAnswers.filter((a) => a !== option)
+                            currentAnswers.filter((a) => a !== option),
                           );
                         }
                       }}
