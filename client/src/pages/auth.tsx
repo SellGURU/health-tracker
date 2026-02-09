@@ -28,6 +28,7 @@ import { biometric } from "@/services/biometric";
 import { secureStorage } from "@/services/secureStorage";
 import { BiometryType } from "@aparajita/capacitor-biometric-auth";
 import {
+  ArrowLeft,
   ArrowRight,
   Eye,
   EyeOff,
@@ -75,6 +76,7 @@ export default function AuthPage() {
     lastName: "",
     gender: "",
     dateOfBirth: "",
+    phone: "",
   });
   const [stage, setStage] = useState(1);
   const [fadeClass, setFadeClass] = useState("opacity-100");
@@ -276,7 +278,7 @@ export default function AuthPage() {
 
     await secureStorage.save(
       pendingCredentials.email,
-      pendingCredentials.password
+      pendingCredentials.password,
     );
 
     localStorage.setItem("biometric_enabled", "true");
@@ -340,7 +342,7 @@ export default function AuthPage() {
 
   const CallLoginAuthApi = async (
     isRegister = false,
-    credentials?: { email: string; password: string }
+    credentials?: { email: string; password: string },
   ) => {
     setIsLoadingLogin(true);
     const data = {
@@ -471,6 +473,15 @@ export default function AuthPage() {
           setErrorsRegister({
             ...errorsRegister,
             lastName: res.response.data.detail,
+          });
+        } else if (
+          res.response.data.detail.includes("phone_number") ||
+          res.response.data.detail.includes("phone number")
+        ) {
+          setRegisterStep(2);
+          setErrorsRegister({
+            ...errorsRegister,
+            phone: res.response.data.detail,
           });
         } else {
           setErrorsRegister({
@@ -1099,9 +1110,9 @@ export default function AuthPage() {
                       </>
                     ) : registerStep === 2 ? (
                       <>
-                        <div className="w-full h-[70px] text-left">
+                        <div className="w-full text-left">
                           <label className="text-sm text-white">
-                            Phone Number
+                            Phone Number (Optional)
                           </label>
                           <div className="mt-1">
                             <PhoneInput
@@ -1112,6 +1123,10 @@ export default function AuthPage() {
                                   ...prev,
                                   phone: value,
                                 }));
+                                setErrorsRegister({
+                                  ...errorsRegister,
+                                  phone: "",
+                                });
                               }}
                               placeholder="234 567 890"
                               containerClass="custom-phone-input"
@@ -1124,12 +1139,17 @@ export default function AuthPage() {
                               }}
                             />
                           </div>
+                          {errorsRegister.phone && (
+                            <p className="text-red-500 text-[11px] mt-1">
+                              {errorsRegister.phone}
+                            </p>
+                          )}
                         </div>
 
                         {/* Time Zone */}
                         <div className="w-full text-left mt-2">
                           <label className="text-sm text-white">
-                            Time Zone
+                            Time Zone (Optional)
                           </label>
                           <div className="mt-[3px]">
                             <CustomTimezoneField
@@ -1148,7 +1168,7 @@ export default function AuthPage() {
                             htmlFor="register-address"
                             className="text-white text-sm"
                           >
-                            Address
+                            Address (Optional)
                           </Label>
                           <Input
                             id="register-address"
@@ -1170,7 +1190,7 @@ export default function AuthPage() {
                             htmlFor="register-photo"
                             className="text-white text-sm"
                           >
-                            Client’s Photo
+                            Client’s Photo (Optional)
                           </Label>
                           <div
                             onClick={() =>
@@ -1229,14 +1249,14 @@ export default function AuthPage() {
                                 ];
                                 if (!allowedTypes.includes(file.type)) {
                                   setPhotoError(
-                                    "File exceeds 3 MB or has an unsupported format."
+                                    "File exceeds 3 MB or has an unsupported format.",
                                   );
                                   return;
                                 }
 
                                 if (file.size > maxSizeInBytes) {
                                   setPhotoError(
-                                    "File exceeds 3 MB or has an unsupported format."
+                                    "File exceeds 3 MB or has an unsupported format.",
                                   );
                                   return;
                                 }
@@ -1256,18 +1276,27 @@ export default function AuthPage() {
                             </div>
                           )}
                         </div>
-                        <Button
-                          type="button"
-                          onClick={() => {
-                            if (!photoError) {
-                              setRegisterStep(3);
-                            }
-                          }}
-                          className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-5 cursor-pointer"
-                        >
-                          Continue
-                          <ArrowRight className="w-4 h-4 mr-2" />
-                        </Button>
+                        <div className="flex items-center justify-between mt-5">
+                          <Button
+                            type="button"
+                            onClick={() => setRegisterStep(1)}
+                            className="w-[13%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                          >
+                            <ArrowLeft className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              if (!photoError) {
+                                setRegisterStep(3);
+                              }
+                            }}
+                            className="w-[85%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                          >
+                            Continue
+                            <ArrowRight className="w-4 h-4 mr-2" />
+                          </Button>
+                        </div>
                       </>
                     ) : (
                       <>
@@ -1426,7 +1455,7 @@ export default function AuthPage() {
                                   onClick={() => {
                                     window.open(
                                       "https://holisticare.io/legal/patients-privacy-policy/",
-                                      "_blank"
+                                      "_blank",
                                     );
                                   }}
                                   // href="https://holisticare.io/legal/patients-privacy-policy/"
@@ -1442,7 +1471,7 @@ export default function AuthPage() {
                                   onClick={() => {
                                     window.open(
                                       "https://holisticare.io/legal/patients-terms-of-service/",
-                                      "_blank"
+                                      "_blank",
                                     );
                                   }}
                                   // href="https://holisticare.io/legal/patients-terms-of-service/"
@@ -1462,16 +1491,25 @@ export default function AuthPage() {
                             )}
                           </div>
 
-                          <Button
-                            type="submit"
-                            className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-6 cursor-pointer"
-                            disabled={isLoadingRegister}
-                          >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            {isLoadingRegister
-                              ? "Creating account..."
-                              : "Create Account"}
-                          </Button>
+                          <div className="flex items-center justify-between mt-6">
+                            <Button
+                              type="button"
+                              onClick={() => setRegisterStep(2)}
+                              className="w-[13%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                            >
+                              <ArrowLeft className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              type="submit"
+                              className="w-[85%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                              disabled={isLoadingRegister}
+                            >
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              {isLoadingRegister
+                                ? "Creating account..."
+                                : "Create Account"}
+                            </Button>
+                          </div>
                         </form>
                       </>
                     )}
