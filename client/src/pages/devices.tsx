@@ -1,4 +1,5 @@
 import Application from "@/api/app";
+import { fetchRookAuthorizers, getRookConfigForSdk, revokeRookDataSource as revokeRookDataSourceApi } from "@/api/rook";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +17,6 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
-import Api from "@/api/api";
 
 export default function Devices() {
   const { fetchClientInformation } = useAuth();
@@ -158,31 +158,13 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
 
     setIsLoadingDevices(true);
     try {
-      const response = await fetch(
-        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
-        {
-          method: "GET",
-          headers: {
-            Authorization:
-              "Basic Y2xpZW50X3V1aWQ6UUg4dTE4T2pMb2ZzU1J2bUVEbUdCZ2p2MWZycDNmYXBkYkRB",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await fetchRookAuthorizers(clientInformation.id);
       setDevicesData(data);
 
       toast({
         title: "Success",
         description: "Devices data loaded successfully",
       });
-
-
     } catch (error) {
       console.error("Error fetching devices data:", error);
       toast({
@@ -263,26 +245,18 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   }, [openedWindow, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
-    const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
-    const body = { data_source: sourceOrId };
-    if(!clientInformation){
-      return;
+    if (!clientInformation?.id) return;
+    try {
+      await revokeRookDataSourceApi(clientInformation.id, sourceOrId);
+      fetchDevicesData();
+    } catch (e) {
+      console.error("Revoke Rook data source error:", e);
+      toast({
+        title: "Error",
+        description: e instanceof Error ? e.message : "Failed to revoke",
+        variant: "destructive",
+      });
     }
-    const response = await fetch(
-      `https://api.rook-connect.com/api/v1/user_id/${clientInformation?.id || '1'}/data_sources/revoke_auth`,
-      {
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-            "Authorization": "Basic YzJmNDk2MWItOWQzYy00ZmYwLTkxNWUtZjcwNjU1ODkyYjg5OlFIOHUxOE9qTG9mc1NSdm1FRG1HQmdqdjFmcnAzZmFwZGJEQQ==",
-            "Content-Type": "application/json",
-        },
-      }
-    );   
-    if(response){
-      fetchDevicesData()
-    } 
-    // TODO: Implement revoke API call
   }
 
   const connectSdk = () => {
@@ -293,12 +267,22 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     setIsConnecting("connecting");
 
     const initRook = async (userId: string) => {
+      const rookConfig = getRookConfigForSdk();
+      if (!rookConfig) {
+        toast({
+          title: "Configuration Error",
+          description: "Rook credentials not configured. Set VITE_ROOK_CLIENT_UUID and VITE_ROOK_PASSWORD.",
+          variant: "destructive",
+        });
+        setIsConnecting("disconnected");
+        return;
+      }
       try {
         // 1. Initialize Rook SDK
         await RookConfig.initRook({
           environment: "production",
-          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+          clientUUID: rookConfig.clientUUID,
+          password: rookConfig.password,
           enableBackgroundSync: true,
           enableEventsBackgroundSync: true,
         });
@@ -404,10 +388,14 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       /* ------------------------------------------------------------------ */
       /* 1️⃣ Init Rook SDK */
       /* ------------------------------------------------------------------ */
+      const rookConfig = getRookConfigForSdk();
+      if (!rookConfig) {
+        throw new Error("Rook credentials not configured. Set VITE_ROOK_CLIENT_UUID and VITE_ROOK_PASSWORD.");
+      }
       await RookConfig.initRook({
         environment: "production",
-        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+        clientUUID: rookConfig.clientUUID,
+        password: rookConfig.password,
         enableBackgroundSync: false, // ⛔️ فعلاً خاموش
         enableEventsBackgroundSync: false,
       });
