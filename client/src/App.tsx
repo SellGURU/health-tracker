@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/lib/auth";
+import Application from "@/api/app";
+import { enablePlatformBackgroundSync, initializeRookForUser, isIOSRookPlatform } from "@/lib/rook";
 import AuthPage from "@/pages/auth";
 import Dashboard from "@/pages/dashboard";
 import LabUpload from "@/pages/lab-upload";
@@ -25,6 +27,7 @@ import NotFound from "@/pages/not-found";
 // import { usePushNotifications } from "./hooks/use-pushNotification";
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { StatusBar } from "@capacitor/status-bar";
 import { useToast } from "./hooks/use-toast";
 import { useVersionCheck } from "./hooks/use-version-check";
@@ -79,6 +82,50 @@ function Router() {
       });
     }
   }, [isAuthenticated, fetchClientInformation, needsPasswordChange, setLocation, toast]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    const bootstrapRook = async () => {
+      try {
+        const response = await Application.getClientInformation();
+        const userId = response?.data?.id;
+
+        if (isCancelled || !userId) {
+          return;
+        }
+
+        await initializeRookForUser({ userId });
+
+        if (isIOSRookPlatform()) {
+          try {
+            await enablePlatformBackgroundSync();
+          } catch (error) {
+            console.warn("ROOK iOS background sync is not ready yet:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to bootstrap ROOK:", error);
+      }
+    };
+
+    void bootstrapRook();
+
+    const appStateListener = CapacitorApp.addListener("appStateChange", (state) => {
+      if (state.isActive) {
+        void bootstrapRook();
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+      appStateListener.remove();
+    };
+  }, [isAuthenticated]);
 
   const {
     showUpdateModal,

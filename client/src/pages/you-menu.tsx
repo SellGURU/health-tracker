@@ -46,7 +46,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback, useRef, useContext } from "react";
 import { useLocation } from "wouter";
-import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import { env, resolveBaseUrl } from "@/api/base";
 import { formatDate, isColorDark } from "@/help";
 import { AppContext } from "@/store/app";
@@ -263,12 +262,6 @@ export default function YouMenu() {
         });
       });
   };
-  useEffect(() => {
-    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
-      RookAppleHealth.enableBackGroundUpdates();
-      RookAppleHealth.enableBackGroundEventsUpdates();
-    }
-  }, []);  
   const handleGetHolisticPlanActionPlan = async () => {
     Application.getHolisticPlanActionPlan()
       .then((res) => {
@@ -288,14 +281,6 @@ export default function YouMenu() {
     handleGetAssignedQuestionaries();
     handleGetBiomarkersData();
     handleGetHolisticPlanActionPlan();
-  }, []);
-  useEffect(() => {
-    const syncSummaries = async () => {
-      if(Capacitor.isNativePlatform() ) {
-        await RookSummaries.sync({});
-      }
-    }
-    syncSummaries();
   }, []);
 
   // Auto-scroll to download report button when ?downloadReport is in URL

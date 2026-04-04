@@ -25,11 +25,15 @@
 	<key>NSHealthShareUsageDescription</key>
 	<string>This app requires access to your health and fitness data in order to track your workouts and activity levels.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>This app requires permission to write healt data to HealthKit.</string>
+	<string>This app requires permission to write health data to HealthKit.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

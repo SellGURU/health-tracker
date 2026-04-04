@@ -8,20 +8,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { RookAppleHealth, RookConfig, RookEvents, RookHealthConnect, RookPermissions, RookSamsungHealth, RookSummaries, SamsungPermissionType } from "capacitor-rook-sdk";
+import { RookHealthConnect, RookPermissions, RookSamsungHealth } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Watch, ArrowLeft } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useLocation } from "wouter";
-import Api from "@/api/api";
+import {
+  ROOK_BASIC_AUTH,
+  ROOK_CLIENT_UUID,
+  enablePlatformBackgroundSync,
+  getPlatformHealthSourceName,
+  initializeRookForUser,
+  requestPlatformHealthPermissions,
+  syncRookSummaries,
+} from "@/lib/rook";
 
 export default function Devices() {
-  const { fetchClientInformation } = useAuth();
   const { toast } = useToast();
-  const [location, setLocation] = useLocation();
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   
   const [clientInformation, setClientInformation] = useState<{
@@ -107,6 +111,8 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const [isConnecting, setIsConnecting] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   const [isConnectingSamsungHealth, setIsConnectingSamsungHealth] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  const [isSyncingPlatformData, setIsSyncingPlatformData] = useState(false);
+  const [isSyncingSamsungData, setIsSyncingSamsungData] = useState(false);
   const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
   const wasHiddenRef = useRef(false);
 
@@ -159,12 +165,11 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     setIsLoadingDevices(true);
     try {
       const response = await fetch(
-        `https://api.rook-connect.com/api/v1/client_uuid/c2f4961b-9d3c-4ff0-915e-f70655892b89/user_id/${clientInformation.id}/data_sources/authorizers`,
+        `https://api.rook-connect.com/api/v1/client_uuid/${ROOK_CLIENT_UUID}/user_id/${clientInformation.id}/data_sources/authorizers`,
         {
           method: "GET",
           headers: {
-            Authorization:
-              "Basic Y2xpZW50X3V1aWQ6UUg4dTE4T2pMb2ZzU1J2bUVEbUdCZ2p2MWZycDNmYXBkYkRB",
+            Authorization: ROOK_BASIC_AUTH,
             "Content-Type": "application/json",
           },
         }
@@ -263,7 +268,6 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   }, [openedWindow, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
-    const encodedCreds = btoa(`c2f4961b-9d3c-4ff0-915e-f70655892b89:QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA`);
     const body = { data_source: sourceOrId };
     if(!clientInformation){
       return;
@@ -274,7 +278,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         method: "POST",
         body: JSON.stringify(body),
         headers: {
-            "Authorization": "Basic YzJmNDk2MWItOWQzYy00ZmYwLTkxNWUtZjcwNjU1ODkyYjg5OlFIOHUxOE9qTG9mc1NSdm1FRG1HQmdqdjFmcnAzZmFwZGJEQQ==",
+            "Authorization": ROOK_BASIC_AUTH,
             "Content-Type": "application/json",
         },
       }
@@ -289,105 +293,45 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     setShowPermissionModal(true);
   };
 
-  const executeConnection = () => {
+  const executeConnection = async () => {
     setIsConnecting("connecting");
-
-    const initRook = async (userId: string) => {
-      try {
-        // 1. Initialize Rook SDK
-        await RookConfig.initRook({
-          environment: "production",
-          clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-          password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
-          enableBackgroundSync: true,
-          enableEventsBackgroundSync: true,
-        });
-        console.log("✅ Initialized Rook SDK");
-
-        // 2. Update User ID
-        if (RookConfig.updateUserId) {
-          await RookConfig.updateUserId({
-            userId: userId,
-          });
-          console.log("✅ User ID updated:", userId);
-        }
-
-        // 3. Request Android permissions first (required for Health Connect)
-        if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
-          const androidPerms = await RookPermissions.requestAndroidPermissions();
-          console.log("✅ Android permissions:", androidPerms);
-          const perms = await RookPermissions.requestAllHealthConnectPermissions();
-          console.log("✅ HealthConnect permissions:", perms);
-
-        } else if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'){
-          const iosPerms = await RookPermissions.requestAllAppleHealthPermissions();
-          console.log("✅ Apple Health permissions:", iosPerms);
-        }
-        // 4. Request Health Connect permissions
-        // // 5. Schedule sync
-        try{
-          if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'){
-            await RookPermissions.requestAndroidBackgroundPermissions();
-            await RookHealthConnect.scheduleHealthConnectBackGround();
-            await RookHealthConnect.scheduleYesterdaySync({
-              doOnEnd: 'oldest' // یا 'latest' یا 'nothing' بر اساس نیازت
-            });
-          } else if(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'){
-            await RookAppleHealth.enableBackGroundUpdates();
-            // await RookAppleHealth.enableBackGroundEventsUpdates();
-          }
-          
-          // Sync summaries with error handling and delay to ensure SDK is ready
-          // try {
-          //   // Add a small delay to ensure everything is initialized
-          //   await new Promise(resolve => setTimeout(resolve, 500));
-          //   await RookSummaries.sync({});
-          //   console.log("✅ Summaries synced");
-          // } catch (syncError: any) {
-          //   console.error("❌ Error syncing summaries (non-critical):", syncError);
-          //   // Don't fail the entire connection if sync fails
-          //   // This is a non-critical operation
-          // }
-
-        }catch(e: any){
-          toast({
-            title: "Error",
-            description: `Failed to schedule yesterday sync: ${e?.message || e?.toString() || "Unknown error"}`,
-            variant: "destructive",
-          });
-          console.error("❌ Error scheduling yesterday sync:", e);
-        }
-
-        // 6. Set connected state only after all operations succeed
-        setIsConnecting("connected");
-        
-        toast({
-          title: "Connected Successfully",
-          description: "Health Connect has been connected successfully.",
-        });
-      } catch (e: any) {
-        console.error("❌ Error initializing Rook:", e);
-        setIsConnecting("disconnected");
-        
-        // Show user-friendly error message
-        const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
-        toast({
-          title: "Connection Failed",
-          description: `Failed to connect to Health Connect: ${errorMessage}`,
-          variant: "destructive",
-        });
-      }
-    };
-
-    if (clientInformation?.id) {
-      initRook(clientInformation.id);
-    } else {
+    if (!clientInformation?.id) {
       toast({
         title: "Error",
         description: "User ID not found. Please try again.",
         variant: "destructive",
       });
       setIsConnecting("disconnected");
+      return;
+    }
+
+    try {
+      await initializeRookForUser({ userId: clientInformation.id });
+      await requestPlatformHealthPermissions();
+      await enablePlatformBackgroundSync();
+
+      try {
+        await syncRookSummaries();
+        console.log("✅ Summaries synced");
+      } catch (syncError) {
+        console.warn("⚠️ Initial sync skipped:", syncError);
+      }
+
+      setIsConnecting("connected");
+      toast({
+        title: "Connected Successfully",
+        description: `${getPlatformHealthSourceName()} connected successfully. Background sync is enabled and Sync Now is available as a fallback.`,
+      });
+    } catch (e: any) {
+      console.error("❌ Error initializing Rook:", e);
+      setIsConnecting("disconnected");
+
+      const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
+      toast({
+        title: "Connection Failed",
+        description: `Failed to connect to ${getPlatformHealthSourceName()}: ${errorMessage}`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -404,27 +348,16 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       /* ------------------------------------------------------------------ */
       /* 1️⃣ Init Rook SDK */
       /* ------------------------------------------------------------------ */
-      await RookConfig.initRook({
-        environment: "production",
-        clientUUID: "c2f4961b-9d3c-4ff0-915e-f70655892b89",
-        password: "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA",
+      await initializeRookForUser({
         enableBackgroundSync: false, // ⛔️ فعلاً خاموش
         enableEventsBackgroundSync: false,
+        userId,
       });
-
-      console.log("✅ Rook initialized");
-
-      /* ------------------------------------------------------------------ */
-      /* 2️⃣ Update User ID */
-      /* ------------------------------------------------------------------ */
-      await RookConfig.updateUserId({ userId });
-      console.log("✅ User ID updated:", userId);
 
       /* ------------------------------------------------------------------ */
       /* 3️⃣ Android Runtime Permissions (Capacitor) */
       /* ------------------------------------------------------------------ */
-      const androidPerms = await RookPermissions.requestAndroidPermissions();
-      console.log("✅ Android permissions:", androidPerms);
+      await requestPlatformHealthPermissions();
 
       /* ------------------------------------------------------------------ */
       /* 4️⃣ Check Samsung Health availability (SAFE) */
@@ -458,7 +391,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       /* 7️⃣ Initial sync (NON-CRITICAL) */
       /* ------------------------------------------------------------------ */
       try {
-        await RookSummaries.sync({});
+        await syncRookSummaries();
         console.log("✅ Summaries synced");
       } catch (syncError) {
         console.warn("⚠️ Sync skipped:", syncError);
@@ -487,6 +420,56 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     }
   };
 
+  const handlePlatformDisconnect = async () => {
+    try {
+      if (Capacitor.getPlatform() === "android") {
+        await RookHealthConnect.cancelHealthConnectBackGround();
+      }
+    } catch (error) {
+      console.warn("Failed to stop platform background sync:", error);
+    } finally {
+      clearConnectionState();
+    }
+  };
+
+  const handleManualSync = async (target: "platform" | "samsung") => {
+    const isPlatformSync = target === "platform";
+    const setSyncing = isPlatformSync ? setIsSyncingPlatformData : setIsSyncingSamsungData;
+
+    if (!clientInformation?.id) {
+      toast({
+        title: "Error",
+        description: "User ID not found. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSyncing(true);
+
+    try {
+      await initializeRookForUser({
+        userId: clientInformation.id,
+        enableBackgroundSync: target === "platform",
+        enableEventsBackgroundSync: target === "platform",
+      });
+      await syncRookSummaries();
+
+      toast({
+        title: "Sync Completed",
+        description: `${isPlatformSync ? getPlatformHealthSourceName() : "Samsung Health"} data sync was triggered successfully.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Sync Failed",
+        description: error?.message || "Unable to sync health data right now.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   useEffect(() => {
     // Sync connection state with backend
     if(isConnecting === "connected"){
@@ -502,7 +485,11 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       }
     } else if(isConnecting === "disconnected") {
       const platformInfo = getPlatformInfo();
-      if(!platformInfo.isIOS){
+      if(platformInfo.isIOS){
+        Application.disConnectVariable('Apple Health').catch((err) => {
+          console.error("Failed to disconnect Apple Health variable:", err);
+        });
+      } else {
         Application.disConnectVariable('Health Connect').catch((err) => {
           console.error("Failed to disconnect Health Connect variable:", err);
         });
@@ -617,27 +604,39 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                         <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
                           {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
                         </p>
-                        <Button
-                          size="sm"
-                          variant={
-                            isConnecting === 'connected' ? "outline" : "default"
-                          }
-                          className={`text-xs h-7 ${
-                            isConnecting === 'connected'
-                              ? "border-red-200 text-red-600 md:hover:bg-red-50  dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                              : "bg-blue-600 md:hover:bg-blue-700 text-white"
-                          }`}
-                          onClick={() => {
-                            if (isConnecting === 'connected') {
-                              RookHealthConnect.cancelHealthConnectBackGround()
-                              clearConnectionState();
-                            } else {
-                              connectSdk();
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant={
+                              isConnecting === 'connected' ? "outline" : "default"
                             }
-                          }}
-                        >
-                          {isConnecting === 'connected' ? "Disconnect" : "Connect"}
-                        </Button>
+                            className={`text-xs h-7 ${
+                              isConnecting === 'connected'
+                                ? "border-red-200 text-red-600 md:hover:bg-red-50  dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                : "bg-blue-600 md:hover:bg-blue-700 text-white"
+                            }`}
+                            onClick={() => {
+                              if (isConnecting === 'connected') {
+                                void handlePlatformDisconnect();
+                              } else {
+                                connectSdk();
+                              }
+                            }}
+                          >
+                            {isConnecting === 'connected' ? "Disconnect" : "Connect"}
+                          </Button>
+                          {isConnecting === "connected" && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="text-xs h-7"
+                              disabled={isSyncingPlatformData}
+                              onClick={() => void handleManualSync("platform")}
+                            >
+                              {isSyncingPlatformData ? "Syncing..." : "Sync Now"}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -684,26 +683,24 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                         <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
                           Samsung Health helps you stay on top of your wellness by tracking your daily activities and fitness data with ease. It connects smoothly with compatible devices like smartwatches and fitness bands, giving you real-time insights into your workouts, steps, heart rate, and more. You can view detailed trends, monitor your progress over time, and stay motivated with personalized stats. All your information syncs wirelessly across devices, so your health data is always accessible whenever and wherever you need it.
                         </p>
-                        <Button
-                          size="sm"
-                          variant={
-                            isConnectingSamsungHealth === 'connected' ? "outline" : "default"
-                          }
-                          className={`text-xs h-7 ${
-                            isConnectingSamsungHealth === 'connected'
-                              ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                              : "bg-blue-600 hover:bg-blue-700 text-white"
-                          }`}
-                          onClick={() => {
-                            if (isConnectingSamsungHealth === 'connected') {
-                              // clearConnectionState();
-                              RookSamsungHealth.disableBackGroundUpdates();
-                              setIsConnectingSamsungHealth('disconnected');
-                              localStorage.removeItem('samsung_health_device_connection_state');
-                            } else {
-                              // connectSdk();
-                              if(isSamsungDevice()){
-                                executeSamsungHealthConnection();
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant={
+                              isConnectingSamsungHealth === 'connected' ? "outline" : "default"
+                            }
+                            className={`text-xs h-7 ${
+                              isConnectingSamsungHealth === 'connected'
+                                ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                            }`}
+                            onClick={() => {
+                              if (isConnectingSamsungHealth === 'connected') {
+                                RookSamsungHealth.disableBackGroundUpdates();
+                                setIsConnectingSamsungHealth('disconnected');
+                                localStorage.removeItem('samsung_health_device_connection_state');
+                              } else if (isSamsungDevice()) {
+                                void executeSamsungHealthConnection();
                               } else {
                                 toast({
                                   title: "Error",
@@ -711,11 +708,22 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
                                   variant: "destructive",
                                 });
                               }
-                            }
-                          }}
-                        >
-                          {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
-                        </Button>
+                            }}
+                          >
+                            {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
+                          </Button>
+                          {isConnectingSamsungHealth === "connected" && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="text-xs h-7"
+                              disabled={isSyncingSamsungData}
+                              onClick={() => void handleManualSync("samsung")}
+                            >
+                              {isSyncingSamsungData ? "Syncing..." : "Sync Now"}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
