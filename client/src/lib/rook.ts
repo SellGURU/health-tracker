@@ -35,6 +35,12 @@ export function isAndroidRookPlatform(): boolean {
   return isNativeRookPlatform() && Capacitor.getPlatform() === "android";
 }
 
+export function isRookSummarySyncSupported(): boolean {
+  // The installed iOS plugin exposes background update APIs but does not
+  // implement the Capacitor "sync" selector used by RookSummaries.sync({}).
+  return isNativeRookPlatform() && !isIOSRookPlatform();
+}
+
 export function getPlatformHealthSourceName(): string {
   return isIOSRookPlatform() ? "Apple Health" : "Health Connect";
 }
@@ -117,7 +123,7 @@ export async function enablePlatformBackgroundSync(): Promise<void> {
 }
 
 export async function syncRookSummaries(): Promise<void> {
-  if (!isNativeRookPlatform()) {
+  if (!isRookSummarySyncSupported()) {
     return;
   }
 

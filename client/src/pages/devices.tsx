@@ -20,6 +20,8 @@ import {
   enablePlatformBackgroundSync,
   getPlatformHealthSourceName,
   initializeRookForUser,
+  isIOSRookPlatform,
+  isRookSummarySyncSupported,
   requestPlatformHealthPermissions,
   syncRookSummaries,
 } from "@/lib/rook";
@@ -310,17 +312,19 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       await requestPlatformHealthPermissions();
       await enablePlatformBackgroundSync();
 
-      try {
+      if (isRookSummarySyncSupported()) {
         await syncRookSummaries();
         console.log("✅ Summaries synced");
-      } catch (syncError) {
-        console.warn("⚠️ Initial sync skipped:", syncError);
+      } else if (isIOSRookPlatform()) {
+        console.log("ℹ️ iOS summary sync is handled by ROOK background delivery in this SDK version");
       }
 
       setIsConnecting("connected");
       toast({
         title: "Connected Successfully",
-        description: `${getPlatformHealthSourceName()} connected successfully. Background sync is enabled and Sync Now is available as a fallback.`,
+        description: isIOSRookPlatform()
+          ? `${getPlatformHealthSourceName()} connected successfully. Background sync is enabled and your data will upload automatically.`
+          : `${getPlatformHealthSourceName()} connected successfully. Background sync is enabled and Sync Now is available as a fallback.`,
       });
     } catch (e: any) {
       console.error("❌ Error initializing Rook:", e);
@@ -453,6 +457,15 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         enableBackgroundSync: target === "platform",
         enableEventsBackgroundSync: target === "platform",
       });
+
+      if (!isRookSummarySyncSupported()) {
+        toast({
+          title: "Automatic Sync Enabled",
+          description: "Apple Health uses background delivery in this version. Reopen the app later to confirm new data has synced.",
+        });
+        return;
+      }
+
       await syncRookSummaries();
 
       toast({
