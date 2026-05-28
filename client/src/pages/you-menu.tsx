@@ -1,6 +1,5 @@
 import Application from "@/api/app";
-import NotificationApi from "@/api/notification";
-import { App as CapacitorApp } from "@capacitor/app";
+import { resolveBaseUrl } from "@/api/base";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,12 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
+import { formatDate, isColorDark } from "@/help";
 import { useToast } from "@/hooks/use-toast";
-import { subscribe } from "@/lib/event";
+import { AppContext } from "@/store/app";
+import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import { RookAppleHealth, RookSummaries } from "capacitor-rook-sdk";
 import {
   Activity,
   ArrowLeft,
@@ -24,15 +26,14 @@ import {
   Calendar,
   CheckCircle,
   ChevronRight,
+  Contact2,
   Download,
   Droplets,
   Heart,
-  HeartPulse,
   Loader2,
   Moon,
   Pill,
   Plus,
-  RefreshCw,
   Shield,
   Smartphone,
   Stethoscope,
@@ -44,11 +45,8 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useRef, useContext } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { env, resolveBaseUrl } from "@/api/base";
-import { formatDate, isColorDark } from "@/help";
-import { AppContext } from "@/store/app";
 
 const healthModules = [
   {
@@ -105,7 +103,7 @@ const surveyIcons = {
 // Helper function to format time from seconds/milliseconds to appropriate unit
 function formatTime(timeValue: string | number | null | undefined): string {
   if (!timeValue && timeValue !== 0) return "";
-  
+
   // Convert to number if it's a string
   let totalSeconds: number;
   if (typeof timeValue === "string") {
@@ -116,27 +114,29 @@ function formatTime(timeValue: string | number | null | undefined): string {
   } else {
     totalSeconds = Number(timeValue);
   }
-  
+
   // Check if it's a valid number
   if (isNaN(totalSeconds)) return "";
-  
+
   // If number is large (> 1000), assume it's in milliseconds, convert to seconds
   if (totalSeconds > 1000) {
     totalSeconds = Math.floor(totalSeconds / 1000);
   }
-  
+
   // Convert to minutes if >= 60 seconds
   if (totalSeconds >= 60) {
     const minutes = Math.floor(totalSeconds / 60);
     const remainingSeconds = totalSeconds % 60;
-    
+
     if (remainingSeconds === 0) {
       return `${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
     } else {
-      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ${remainingSeconds} ${remainingSeconds === 1 ? "second" : "seconds"}`;
+      return `${minutes} ${
+        minutes === 1 ? "minute" : "minutes"
+      } ${remainingSeconds} ${remainingSeconds === 1 ? "second" : "seconds"}`;
     }
   }
-  
+
   return `${totalSeconds} ${totalSeconds === 1 ? "second" : "seconds"}`;
 }
 
@@ -193,7 +193,7 @@ export default function YouMenu() {
   const [iframeUrl, setIframeUrl] = useState("");
   const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
   const wasHiddenRef = useRef(false);
-  
+
   useEffect(() => {
     const handleMessage = (event: any) => {
       if (event.data?.type === "QUESTIONARY_SUBMITTED") {
@@ -209,17 +209,19 @@ export default function YouMenu() {
 
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-  
+
   const handleIframeClosed = () => {
     handleGetAssignedQuestionaries();
   };
 
   const resolveQuestionaryUrl = (questionnaire: any) => {
     // if (env == 'test') {
-    return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`;
+    return `${resolveBaseUrl()}/questionary/${encodedMi}/${
+      questionnaire.unique_id
+    }/${questionnaire.forms_unique_id}`;
     // }
     // return `${resolveBaseUrl()}/questionary/${encodedMi}/${questionnaire.unique_id}`;
-  }
+  };
 
   const [biomarkersData, setBiomarkersData] = useState<Biomarker[]>([]);
   const [holisticPlanActionPlan, setHolisticPlanActionPlan] = useState<{
@@ -262,6 +264,12 @@ export default function YouMenu() {
         });
       });
   };
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios") {
+      RookAppleHealth.enableBackGroundUpdates();
+      RookAppleHealth.enableBackGroundEventsUpdates();
+    }
+  }, []);
   const handleGetHolisticPlanActionPlan = async () => {
     Application.getHolisticPlanActionPlan()
       .then((res) => {
@@ -282,6 +290,14 @@ export default function YouMenu() {
     handleGetBiomarkersData();
     handleGetHolisticPlanActionPlan();
   }, []);
+  useEffect(() => {
+    const syncSummaries = async () => {
+      if (Capacitor.isNativePlatform()) {
+        await RookSummaries.sync({});
+      }
+    };
+    syncSummaries();
+  }, []);
 
   // Auto-scroll to download report button when ?downloadReport is in URL
   useEffect(() => {
@@ -299,21 +315,21 @@ export default function YouMenu() {
       }, 1000);
     }
 
-    CapacitorApp.addListener('appUrlOpen', (urlOpen: { url: string | URL; }) => {
+    CapacitorApp.addListener("appUrlOpen", (urlOpen: { url: string | URL }) => {
       const url = new URL(urlOpen.url);
-      const key = url.searchParams.get('key');
-      if (key === 'downloadReport') {
-      setTimeout(() => {
-        const element = document.getElementById('download-pdf-report-Box');
-        if (element) {
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-          });
-        }
-      }, 1000);        
+      const key = url.searchParams.get("key");
+      if (key === "downloadReport") {
+        setTimeout(() => {
+          const element = document.getElementById("download-pdf-report-Box");
+          if (element) {
+            element.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        }, 1000);
       }
-    });    
+    });
   }, []);
 
   const [currentView, setCurrentView] = useState<
@@ -379,7 +395,7 @@ export default function YouMenu() {
   // Only check window.closed on web platform, not on mobile (Android/iOS)
   useEffect(() => {
     if (!openedWindow) return;
-    
+
     // Skip window.closed check on native platforms - rely on message listener instead
     if (Capacitor.isNativePlatform()) {
       return;
@@ -404,7 +420,7 @@ export default function YouMenu() {
     // Handle app state changes for native platforms
     let appStateListener: any = null;
     if (Capacitor.isNativePlatform()) {
-      appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
+      appStateListener = CapacitorApp.addListener("appStateChange", (state) => {
         // When app comes to foreground and we have an opened window, refresh questionnaires
         // This works even if the window is still open
         if (state.isActive && openedWindow) {
@@ -416,22 +432,26 @@ export default function YouMenu() {
     // Handle page visibility changes (works for both web and native)
     // This refreshes data when user switches back to the app tab, even if window is still open
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         wasHiddenRef.current = true;
-      } else if (document.visibilityState === 'visible' && wasHiddenRef.current && openedWindow) {
+      } else if (
+        document.visibilityState === "visible" &&
+        wasHiddenRef.current &&
+        openedWindow
+      ) {
         // User returned to the app - refresh data even if window is still open
         handleGetAssignedQuestionaries();
         wasHiddenRef.current = false;
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       if (appStateListener) {
         appStateListener.remove();
       }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [openedWindow, handleGetAssignedQuestionaries]);
 
@@ -460,7 +480,7 @@ export default function YouMenu() {
 
   const handleSurveyAnswer = (
     questionId: string,
-    answer: string | string[]
+    answer: string | string[],
   ) => {
     setSurveyAnswers((prev) => ({
       ...prev,
@@ -515,7 +535,6 @@ export default function YouMenu() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-
         } catch (error: any) {
           console.error("Error downloading file:", error);
         }
@@ -558,16 +577,16 @@ export default function YouMenu() {
     Application.getHtmlReport()
       .then((res) => {
         try {
-          fetch(res.data.html).then(response => response.blob()).then(res => res.text())
-          .then(html => {
-            const blob = new Blob([html], { type: "text/html" });
-            const blobUrl = URL.createObjectURL(blob);
-            setHtmlReport(blobUrl);
-            setShowHtmlReport(true);
-            // Add hash to URL for history
-            window.history.pushState({ viewReport: true }, "", "#viewReport");
-          });          
-
+          fetch(res.data.html)
+            .then((response) => response.blob())
+            .then((res) => res.text())
+            .then((html) => {
+              const blob = new Blob([html], { type: "text/html" });
+              const blobUrl = URL.createObjectURL(blob);
+              setHtmlReport(blobUrl);
+              setShowHtmlReport(true);
+              window.history.pushState({ viewReport: true }, "", "#viewReport");
+            });
         } catch (error: any) {
           console.error("Error downloading file:", error);
         }
@@ -603,20 +622,27 @@ export default function YouMenu() {
       {showHtmlReport && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
           <div className="bg-white dark:bg-neutral-900 w-[100%] h-[100%] overflow-hidden relative">
-           <div className="w-full fixed top-0 bg-white h-10 flex justify-end items-center px-4 z-10">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCloseHtmlReport}
-              className="h-8 w-8"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-           </div>
-           <iframe src={htmlReport} style={{ width: "100%", height: "calc(100vh - 40px)",marginTop: "40px" }} />
+            <div className="w-full fixed top-0 bg-white h-10 flex justify-end items-center px-4 z-10">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCloseHtmlReport}
+                className="h-8 w-8"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <iframe
+              src={htmlReport}
+              style={{
+                width: "100%",
+                height: "calc(100vh - 40px)",
+                marginTop: "40px",
+              }}
+            />
           </div>
         </div>
-      )}      
+      )}
       {/* Age Cards - Prominent Display */}
       <div
         className={`grid gap-3 ${
@@ -763,6 +789,39 @@ export default function YouMenu() {
         </Card>
       )}
 
+      {brandInfo?.name === "Default Clinic" && (
+        <Card className="bg-gradient-to-br from-red-50/50 via-white/50 to-red-50/50 dark:from-red-900/20 dark:via-gray-800/50 dark:to-red-900/20 border-0 shadow-xl backdrop-blur-lg">
+          <CardContent className="p-4 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-500/5 rounded-lg"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Contact2 className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex flex-col w-[70%]">
+                  <h3 className="font-thin text-base text-gray-900 dark:text-gray-100 mb-1">
+                    Contact Us
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
+                    Since you are not a clinical member, please contact us.
+                  </p>
+                </div>
+                <Button
+                  variant="default"
+                  size="icon"
+                  className="rounded-full bg-red-500 hover:bg-red-600"
+                  onClick={() => {
+                    window.open(`https://holisticare.io/#form`, "_blank");
+                  }}
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Your Plan Card */}
       <Card
         className={`hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-teal-50/50 via-white/50 to-cyan-50/50 dark:from-teal-900/20 dark:via-gray-800/50 dark:to-cyan-900/20 border-0 shadow-xl backdrop-blur-lg ${hasHealthData ? "cursor-pointer" : ""}`}
@@ -853,167 +912,182 @@ export default function YouMenu() {
           )}
         </CardContent>
       </Card>
- {/* wellneess */}
+      {/* wellneess */}
       <Card
-  className="w-full  mx-auto rounded-2xl
+        className="w-full  mx-auto rounded-2xl
              bg-white dark:bg-gray-900
              shadow-xl border border-gray-100 dark:border-gray-800"
->
-  <CardContent className="p-5">
-    {/* Header */}
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
-          Wellness Dashboard
-        </h3>
-        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-          {wellnessScore.latest_date ? (
-            <>
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              Last synced {formatDate(wellnessScore.latest_date)}
-            </>
-          ):
-          (
-            <>
-              <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-              waiting for connection
-            </>
-          )
-          }
-        </p>
-      </div>
-
-      {/* <RefreshCw className="w-4 h-4 text-gray-400" /> */}
-    </div>
-    {
-      wellnessScore.latest_date && (
-        <>
-          {/* Metrics */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Moon className="w-4 h-4 text-indigo-500" />
-                <span className="text-xs tracking-wide text-gray-500">SLEEP</span>
-              </div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {wellnessScore.scores.filter((el: any) => {
-                  return el.name.toLowerCase().includes('sleep');
-                })[0]?.score || 0} <span className="text-xs font-normal text-gray-500"></span>
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs tracking-wide text-gray-500">Activity</span>
-              </div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {wellnessScore.scores.filter((el: any) => {
-                  return el.name.toLowerCase().includes('activity');
-                })[0]?.score || 0}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-yellow-50 dark:bg-yellow-900/20 p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <span className="text-xs tracking-wide text-gray-500">STRESS</span>
-              </div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {wellnessScore.scores.filter((el: any) => {
-                  return el.name.toLowerCase().includes('stress');
-                })[0]?.score || 0}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Heart className="w-4 h-4 text-rose-500" />
-                <span className="text-xs tracking-wide text-gray-500">HEART</span>
-              </div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {wellnessScore.scores.filter((el: any) => {
-                return el.name.toLowerCase().includes('heart');
-              })[0]?.score || 0}
+      >
+        <CardContent className="p-5">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+                Wellness Dashboard
+              </h3>
+              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                {wellnessScore.latest_date ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Last synced {formatDate(wellnessScore.latest_date)}
+                  </>
+                ) : (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+                    waiting for connection
+                  </>
+                )}
               </p>
             </div>
           </div>
+          {wellnessScore.latest_date && (
+            <>
+              {/* Metrics */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Moon className="w-4 h-4 text-indigo-500" />
+                    <span className="text-xs tracking-wide text-gray-500">
+                      SLEEP
+                    </span>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {wellnessScore.scores.filter((el: any) => {
+                      return el.name.toLowerCase().includes("sleep");
+                    })[0]?.score || 0}{" "}
+                    <span className="text-xs font-normal text-gray-500"></span>
+                  </p>
+                </div>
 
-          {/* Description */}
-          <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
-            Monitor your daily habits to optimize your recovery and longevity.
-          </p>
+                <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-4 h-4 text-emerald-500" />
+                    <span className="text-xs tracking-wide text-gray-500">
+                      Activity
+                    </span>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {wellnessScore.scores.filter((el: any) => {
+                      return el.name.toLowerCase().includes("activity score");
+                    })[0]?.score || 0}
+                  </p>
+                </div>
 
-          {/* CTA */}
-          <button
-            onClick={() => setLocation("/wearable")}
-            className="w-full flex items-center justify-center gap-2
+                <div className="rounded-xl bg-yellow-50 dark:bg-yellow-900/20 p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    <span className="text-xs tracking-wide text-gray-500">
+                      STRESS
+                    </span>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {wellnessScore.scores.filter((el: any) => {
+                      return el.name.toLowerCase().includes("stress score");
+                    })[0]?.score || 0}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Heart className="w-4 h-4 text-rose-500" />
+                    <span className="text-xs tracking-wide text-gray-500">
+                      HEART
+                    </span>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {wellnessScore.scores.filter((el: any) => {
+                      return el.name
+                        .toLowerCase()
+                        .includes("heart health score");
+                    })[0]?.score || 0}
+                  </p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
+                Monitor your daily habits to optimize your recovery and
+                longevity.
+              </p>
+
+              {/* CTA */}
+              <button
+                onClick={() => setLocation("/wearable")}
+                className="w-full flex items-center justify-center gap-2
                     text-sm font-medium
                       py-3 rounded-xl transition-colors"
-          style={{
-            background: `${
-              brandInfo ? brandInfo?.primary_color : undefined
-            }`,
-            color: `${
-              brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
-            }`,
-          }}
-          >
-            Go to Dashboard
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </>
-      )
-    }
-    {wellnessScore.latest_date == null &&
-    <>
-    <div className="flex flex-col items-center text-center px-4">
-      <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
-          <Activity className="w-8 h-8 text-emerald-500" />
-        </div>
+                style={{
+                  background: `${
+                    brandInfo ? brandInfo?.primary_color : undefined
+                  }`,
+                  color: `${
+                    brandInfo
+                      ? isColorDark(brandInfo?.primary_color || "#000000")
+                        ? "white"
+                        : "black"
+                      : undefined
+                  }`,
+                }}
+              >
+                Go to Dashboard
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
+          {wellnessScore.latest_date == null && (
+            <>
+              <div className="flex flex-col items-center text-center px-4">
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <Activity className="w-8 h-8 text-emerald-500" />
+                  </div>
 
-        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
+                  <div
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
                         bg-white border border-gray-200
-                        flex items-center justify-center shadow-sm">
-          <Smartphone className="w-4 h-4 text-indigo-500" />
-        </div>
-      </div>
+                        flex items-center justify-center shadow-sm"
+                  >
+                    <Smartphone className="w-4 h-4 text-indigo-500" />
+                  </div>
+                </div>
 
-      {/* Empty text */}
-      <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
-        No Wellness Data
-      </h4>
+                {/* Empty text */}
+                <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  No Wellness Data
+                </h4>
 
-      <p className="text-sm text-gray-500 leading-relaxed mb-6">
-        Connect your wearable or health app to start tracking your daily
-        recovery and longevity.
-      </p>
+                <p className="text-sm text-gray-500 leading-relaxed mb-6">
+                  Connect your wearable or health app to start tracking your
+                  daily recovery and longevity.
+                </p>
 
-      {/* CTA */}
-      <button
-        onClick={() => setLocation("/devices")}
-        style={{
-          background: `${
-            brandInfo ? brandInfo?.primary_color : undefined
-          }`,
-          color: `${
-            brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
-          }`,
-        }}
-        className="w-full flex items-center justify-center gap-2
+                {/* CTA */}
+                <button
+                  onClick={() => setLocation("/devices")}
+                  style={{
+                    background: `${
+                      brandInfo ? brandInfo?.primary_color : undefined
+                    }`,
+                    color: `${
+                      brandInfo
+                        ? isColorDark(brandInfo?.primary_color || "#000000")
+                          ? "white"
+                          : "black"
+                        : undefined
+                    }`,
+                  }}
+                  className="w-full flex items-center justify-center gap-2
                    text-sm font-medium
                    py-3 rounded-xl transition-colors"
-      >
-        <Plus className="w-4 h-4" />
-        Connect Device
-      </button>
-    </div>    
-    </>
-    }
-  </CardContent>
-</Card>
-
+                >
+                  <Plus className="w-4 h-4" />
+                  Connect Device
+                </button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Assigned Questionnaires Section */}
       <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
@@ -1119,6 +1193,14 @@ export default function YouMenu() {
                 </div>
               </div>
             ))}
+            {questionnaires.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-2 mt-2">
+                <img src="icons/direct.svg" className="w-14 h-14" />
+                <p className="text-sm text-gray-700 dark:text-gray-400">
+                  No assigned questionnaires
+                </p>
+              </div>
+            )}
           </div>
           )}
         </CardContent>
@@ -1211,7 +1293,7 @@ export default function YouMenu() {
                         Generated{" "}
                         {
                           holisticPlanActionPlan.latest_deep_analysis.split(
-                            "T"
+                            "T",
                           )[0]
                         }
                       </p>
@@ -1251,7 +1333,11 @@ export default function YouMenu() {
                         brandInfo ? brandInfo?.primary_color : undefined
                       }`,
                       color: `${
-                        brandInfo ? isColorDark(brandInfo?.primary_color||'#000000') ? "white" : "black" : undefined
+                        brandInfo
+                          ? isColorDark(brandInfo?.primary_color || "#000000")
+                            ? "white"
+                            : "black"
+                          : undefined
                       }`,
                     }}
                     onClick={handleGetHtmlReport}
@@ -1271,7 +1357,11 @@ export default function YouMenu() {
                         brandInfo ? brandInfo?.secondary_color : undefined
                       }`,
                       color: `${
-                        brandInfo ? isColorDark(brandInfo?.secondary_color||'#000000') ? "white" : "black" : undefined
+                        brandInfo
+                          ? isColorDark(brandInfo?.secondary_color || "#000000")
+                            ? "white"
+                            : "black"
+                          : undefined
                       }`,
                     }}
                     onClick={handleViewHtmlReport}
@@ -1288,7 +1378,6 @@ export default function YouMenu() {
           )}
         </CardContent>
       </Card>
-
     </div>
   );
 
@@ -1788,7 +1877,7 @@ export default function YouMenu() {
                         } else {
                           handleSurveyAnswer(
                             currentQuestion.id,
-                            currentAnswers.filter((a) => a !== option)
+                            currentAnswers.filter((a) => a !== option),
                           );
                         }
                       }}

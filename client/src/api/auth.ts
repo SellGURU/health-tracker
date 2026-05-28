@@ -8,6 +8,18 @@ interface AuthResponse {
     refresh_token: string;
   };
 }
+interface SignupData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  dateOfBirth: Date | null;
+  address: string;
+  phone: string;
+  timeZone: string;
+  photo: string;
+}
 class Auth extends Api {
   static login(username: string, password: string): Promise<AuthResponse> {
     const data = {
@@ -17,10 +29,18 @@ class Auth extends Api {
 
     return this.post("/auth/mobile_token", data, {});
   }
-  static signup(username: string, password: string) {
+  static signup(signupData: SignupData) {
     const data = {
-      email: username,
-      password: password,
+      email: signupData.email,
+      password: signupData.password,
+      first_name: signupData.firstName,
+      last_name: signupData.lastName,
+      gender: signupData.gender,
+      date_of_birth: signupData.dateOfBirth,
+      address: signupData.address,
+      phone_number: signupData.phone,
+      timezone: signupData.timeZone,
+      picture: signupData.photo,
     };
 
     return this.post("/auth/mobile_register", data, {
