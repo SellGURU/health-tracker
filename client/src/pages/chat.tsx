@@ -135,6 +135,26 @@ export default function ChatPage() {
   // useEffect(() => {
   //   scrollToBottom();
   // }, [messages, displayedMessages]); //
+  const formatText = (text: string) => {
+    // ابتدا بولدها رو جایگزین می‌کنیم
+    const boldedText = text.replace(/\*(.*?)\*/g, (_match, p1) => `<strong>${p1}</strong>`);
+
+    // سپس لینک‌ها رو جایگزین می‌کنیم
+    const linkifiedText = boldedText.replace(
+      /(https?:\/\/[^\s]+)/g,
+      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-green-400 underline">${url}</a>`
+    );
+
+    // متن رو به خطوط تقسیم می‌کنیم
+    const lines = linkifiedText.split('\n');
+
+    return lines.map((line, index) => (
+      <span key={index}>
+        <span dangerouslySetInnerHTML={{ __html: line }} />
+        <br />
+      </span>
+    ));
+  };  
   const handleGetMessagesId = async () => {
     Application.getMessagesId({ message_from: activeMode })
       .then((res) => {
@@ -617,9 +637,10 @@ export default function ChatPage() {
                                 : "text-gray-800 dark:text-gray-200"
                             }`}
                           >
+
                             {msg.sender_type === "ai"
-                              ? displayedMessages[msg.conversation_id] || ""
-                              : msg.message_text}
+                              ?  displayedMessages[msg.conversation_id] || ""
+                              : formatText(msg.message_text)}
                           </p>
                           <div className="flex items-center justify-between mt-2">
                             <p
