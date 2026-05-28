@@ -4,9 +4,13 @@ const baseTestEndPoint =
   "https://vercel-backend-one-roan.vercel.app/holisticare_test";
 const baseProductUrl = "https://holisticare.vercel.app";
 const baseTestUrl = "https://holisticare-develop.vercel.app";
-let env: "test" | "production" = "test";
-
+const localurl= 'http://127.0.0.1:3901'
+let env: "test" | "production"| "local" = "production";
+  
 const resolveBaseEndPoint = () => {
+  if (env == "local") {
+    return localurl;
+  }
   if (env == "test") {
     return baseTestEndPoint;
   }
