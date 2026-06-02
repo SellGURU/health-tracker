@@ -35,8 +35,11 @@ import {
   Check,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 
 type ChatMode = "coach" | "ai";
+
+const isIOS = Capacitor.getPlatform() === "ios";
 
 interface Message {
   conversation_id: number;
@@ -85,6 +88,12 @@ const coaches: Coach[] = [
 
 export default function ChatPage() {
   const [activeMode, setActiveMode] = useState<ChatMode>("coach");
+
+  useEffect(() => {
+    if (isIOS && activeMode !== "coach") {
+      setActiveMode("coach");
+    }
+  }, [activeMode]);
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(coaches[0]);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -583,7 +592,8 @@ export default function ChatPage() {
         {/* Mode Toggle */}
         <div className="sticky top-2 z-10 bg-white rounded-xl">
           <SimpleModeSelect
-            disabled={true}
+            disabled={isIOS}
+            hideAi={isIOS}
             activeMode={activeMode}
             setActiveMode={setActiveMode}
           />

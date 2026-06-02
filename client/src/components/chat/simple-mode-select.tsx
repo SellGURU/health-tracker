@@ -7,10 +7,12 @@ export default function SimpleModeSelect({
   activeMode,
   setActiveMode,
   disabled = false,
+  hideAi = false,
 }: {
   activeMode: ChatMode;
   setActiveMode: (mode: ChatMode) => void;
   disabled?: boolean;
+  hideAi?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -60,7 +62,7 @@ export default function SimpleModeSelect({
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const items: { value: ChatMode; title: string; desc: string }[] = [
+  const allItems: { value: ChatMode; title: string; desc: string }[] = [
     {
       value: "ai",
       title: "AI Copilot",
@@ -72,6 +74,10 @@ export default function SimpleModeSelect({
       desc: "Expert guidance",
     },
   ];
+
+  const items = hideAi
+    ? allItems.filter((it) => it.value !== "ai")
+    : allItems;
 
   return (
     <div ref={rootRef} className="mb-2 w-full relative">
