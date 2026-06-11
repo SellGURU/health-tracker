@@ -133,6 +133,16 @@ export default function Profile() {
     }
   }, []);
 
+  // Re-open the dialog from real data once client info loads. The localStorage
+  // flag above is one-shot and can be consumed while the post-login
+  // navigation/toast race closes the dialog (clientInformation is still
+  // loading at that point, so the dialog's close-guard is inactive).
+  useEffect(() => {
+    if (isPasswordChangeRequired && !showPasswordDialog) {
+      setShowPasswordDialog(true);
+    }
+  }, [isPasswordChangeRequired]);
+
   // Prevent navigation away if password change is required
   useEffect(() => {
     if (isPasswordChangeRequired && location !== "/profile") {
