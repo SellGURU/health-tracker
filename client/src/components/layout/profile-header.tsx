@@ -41,8 +41,47 @@ import {
   DialogContent,
   DialogFooter,
 } from "../ui/dialog";
-import { subscribe } from "@/lib/event";
+import { subscribe, unsubscribe } from "@/lib/event";
+import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 // import logoImage from "@assets/Logo5 2_1753791920091_1757240780580.png";
+
+type BrandInfo = {
+  last_update: string;
+  logo: string;
+  name: string;
+  headline: string;
+  primary_color: string;
+  secondary_color: string;
+  tone: string;
+  focus_area: string;
+};
+
+type ClientInformation = {
+  action_plan: number;
+  age: number;
+  coach_username: [];
+  connected_wearable: boolean;
+  date_of_birth: string;
+  email: string;
+  id: string;
+  lab_test: number;
+  member_since: string;
+  name: string;
+  pheno_age: number;
+  sex: string;
+  verified_account: boolean;
+  has_changed_password?: boolean;
+};
+
+const readStored = <T,>(key: string): T | undefined => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : undefined;
+  } catch {
+    return undefined;
+  }
+};
 
 export default function ProfileHeader() {
   const [notificationCount, setNotificationCount] = useState(0);
@@ -55,27 +94,19 @@ export default function ProfileHeader() {
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  const [clientInformation, setClientInformation] = useState<{
-    action_plan: number;
-    age: number;
-    coach_username: [];
-    connected_wearable: boolean;
-    date_of_birth: string;
-    email: string;
-    id: string;
-    lab_test: number;
-    member_since: string;
-    name: string;
-    pheno_age: number;
-    sex: string;
-    verified_account: boolean;
-    has_changed_password?: boolean;
-  }>();
+  const [clientInformation, setClientInformation] = useState<
+    ClientInformation | undefined
+  >(() => readStored<ClientInformation>("client_information"));
 
   const handleGetClientInformation = async () => {
     Application.getClientInformation()
       .then((res) => {
         setClientInformation(res.data);
+        try {
+          localStorage.setItem("client_information", JSON.stringify(res.data));
+        } catch {
+          // ignore storage write failures (private mode, quota, etc.)
+        }
         // Check if password change is required
         if (res.data?.has_changed_password === false) {
           // Store flag to open password dialog
@@ -92,16 +123,59 @@ export default function ProfileHeader() {
           });
         }
       })
-      .catch((res) => {
-        toast({
-          title: "Error",
-          description: res?.response?.data?.detail,
-          variant: "destructive",
-        });
+      .catch((err) => {
+        // Keep any cached value; don't blank the header on transient errors
+        // (e.g. network not ready right after resuming from background).
+        console.error("Failed to fetch client information", err);
       });
   };
+
+  const handleGetBrandInfo = async () => {
+    Application.getBrandInfo()
+      .then((res) => {
+        const info: BrandInfo | undefined = res?.data?.brand_elements;
+        if (info) {
+          setBrandInfo(info);
+          try {
+            localStorage.setItem("brand_info", JSON.stringify(info));
+          } catch {
+            // ignore storage write failures
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch brand info", err);
+      });
+  };
+
   useEffect(() => {
     handleGetClientInformation();
+  }, []);
+
+  // Refetch user + brand info whenever the app returns to the foreground.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let listener: { remove: () => void } | undefined;
+    let cancelled = false;
+
+    CapacitorApp.addListener("appStateChange", (state) => {
+      if (state.isActive) {
+        handleGetClientInformation();
+        handleGetBrandInfo();
+      }
+    }).then((handle) => {
+      if (cancelled) {
+        handle.remove();
+      } else {
+        listener = handle;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      listener?.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -261,20 +335,24 @@ export default function ProfileHeader() {
         return "text-gray-600 dark:text-gray-400";
     }
   };
-  const [brandInfo, setBrandInfo] = useState<{
-    last_update: string;
-    logo: string;
-    name: string;
-    headline: string;
-    primary_color: string;
-    secondary_color: string;
-    tone: string;
-    focus_area: string;
-  }>();
-  subscribe("brand_info", (data: any) => {
-    setBrandInfo(data.detail.information);
-    localStorage.setItem("brand_info", JSON.stringify(data.detail.information));
-  });
+  const [brandInfo, setBrandInfo] = useState<BrandInfo | undefined>(() =>
+    readStored<BrandInfo>("brand_info")
+  );
+
+  useEffect(() => {
+    const handler = (data: any) => {
+      const info = data?.detail?.information;
+      if (!info) return;
+      setBrandInfo(info);
+      try {
+        localStorage.setItem("brand_info", JSON.stringify(info));
+      } catch {
+        // ignore storage write failures
+      }
+    };
+    subscribe("brand_info", handler);
+    return () => unsubscribe("brand_info", handler);
+  }, []);
 
   return (
     <div className="flex relative items-center justify-between p-3 sm:p-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:pt-[calc(env(safe-area-inset-top)+1rem)] bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">

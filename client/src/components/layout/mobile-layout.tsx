@@ -139,7 +139,7 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
         ref={scrollContainerRef}
         className={`flex-1 overscroll-contain min-h-0 ${
           location === "/chat"
-            ? "overflow-hidden flex flex-col"
+            ? "overflow-hidden"
             : "overflow-y-auto pb-20"
         }`}
       >

@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
+import { useChatViewport } from "@/hooks/use-keyboard-inset";
 
 type ChatMode = "coach" | "ai";
 
@@ -106,9 +106,9 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const lastMessageIdRef = useRef<number | null>(null);
-  const keyboardInset = useKeyboardInset();
-  const [isInputFocused, setIsInputFocused] = useState(false);
+  const { height: viewportHeight, keyboardOpen } = useChatViewport(rootRef);
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -548,8 +548,7 @@ export default function ChatPage() {
   }, [messages, scrollToBottom]);
 
   useEffect(() => {
-    const isKeyboardOpen = isInputFocused || keyboardInset > 50;
-    if (isKeyboardOpen) {
+    if (keyboardOpen) {
       document.body.setAttribute("data-chat-keyboard", "open");
       scrollToBottom("auto");
     } else {
@@ -559,28 +558,20 @@ export default function ChatPage() {
     return () => {
       document.body.removeAttribute("data-chat-keyboard");
     };
-  }, [isInputFocused, keyboardInset, scrollToBottom]);
+  }, [keyboardOpen, scrollToBottom]);
 
   const handleInputFocus = () => {
-    setIsInputFocused(true);
     scrollToBottom("auto");
     setTimeout(() => scrollToBottom("smooth"), 300);
   };
 
-  const handleInputBlur = () => {
-    setTimeout(() => {
-      if (document.activeElement !== textareaRef.current) {
-        setIsInputFocused(false);
-      }
-    }, 150);
-  };
-
   return (
     <div
-      className="flex flex-col h-full min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative"
+      ref={rootRef}
+      className="flex flex-col h-full min-h-0 overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative"
       style={
-        keyboardInset > 50
-          ? { height: `calc(100% - ${keyboardInset}px)` }
+        keyboardOpen && viewportHeight
+          ? { height: `${viewportHeight}px` }
           : undefined
       }
     >
@@ -833,14 +824,13 @@ export default function ChatPage() {
           </CardContent>
         </Card>
 
-        {/* Input - stays above keyboard via flex layout + viewport resize */}
+        {/* Input - pinned to the bottom of the visible viewport */}
         <div
-          className="shrink-0 px-0 py-2 bg-white dark:bg-gray-900 border-t border-gray-200/50 dark:border-gray-700/50 z-20 w-full"
+          className="shrink-0 px-0 pt-2 bg-white dark:bg-gray-900 border-t border-gray-200/50 dark:border-gray-700/50 z-20 w-full"
           style={{
-            paddingBottom:
-              keyboardInset > 50
-                ? "0.5rem"
-                : "max(0.5rem, env(safe-area-inset-bottom))",
+            paddingBottom: keyboardOpen
+              ? "0.5rem"
+              : "max(0.5rem, env(safe-area-inset-bottom))",
           }}
         >
           <div className="flex gap-3">
@@ -856,7 +846,6 @@ export default function ChatPage() {
                 }
                 className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
                 onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
                 onKeyPress={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();

@@ -63,7 +63,7 @@ export default function BottomNavigation() {
               >
                 <div
                   className={cn(
-                    "rounded-full p-1.5 sm:p-2 mb-1 transition-all duration-300",
+                    "rounded-full p-2.5 sm:p-2 mb-1 transition-all duration-300",
                     isActive
                       ? `shadow-lg`
                       : "bg-gray-200/50 dark:bg-gray-700/50"
@@ -84,8 +84,8 @@ export default function BottomNavigation() {
                         ? "text-white"
                         : "text-gray-600 dark:text-gray-400",
                       item.isSpecial
-                        ? "w-5 h-5 sm:w-6 sm:h-6"
-                        : "w-4 h-4 sm:w-5 sm:h-5"
+                        ? "w-7 h-7 sm:w-6 sm:h-6"
+                        : "w-6 h-6 sm:w-5 sm:h-5"
                     )}
                   />
                 </div>

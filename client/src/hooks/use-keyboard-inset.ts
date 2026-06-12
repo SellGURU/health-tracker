@@ -1,38 +1,70 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, RefObject } from "react";
+
+interface ChatViewportState {
+  /** Pixel height the element should take to fill the visible viewport. */
+  height?: number;
+  /** True when the on-screen keyboard is open. */
+  keyboardOpen: boolean;
+}
 
 /**
- * Tracks the on-screen keyboard height using the Visual Viewport API.
- * Also exposes `--keyboard-inset` on :root for CSS fallbacks.
+ * Sizes a chat container to exactly fill the visible (visual) viewport, so the
+ * input bar stays pinned directly above the on-screen keyboard with no gap.
+ *
+ * Works on iOS Safari (resizes-visual) and Android Chrome by measuring the
+ * element's top against the Visual Viewport API.
  */
-export function useKeyboardInset() {
-  const [inset, setInset] = useState(0);
+export function useChatViewport(
+  ref: RefObject<HTMLElement>,
+): ChatViewportState {
+  const [state, setState] = useState<ChatViewportState>({
+    height: undefined,
+    keyboardOpen: false,
+  });
 
   useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
+    const vv = window.visualViewport;
 
-    const update = () => {
-      const keyboardHeight = Math.max(
+    const compute = () => {
+      const viewportHeight = vv ? vv.height : window.innerHeight;
+      const offsetTop = vv ? vv.offsetTop : 0;
+      const inset = Math.max(
         0,
-        window.innerHeight - viewport.height - viewport.offsetTop,
+        window.innerHeight - viewportHeight - offsetTop,
       );
-      setInset(keyboardHeight);
-      document.documentElement.style.setProperty(
-        "--keyboard-inset",
-        `${keyboardHeight}px`,
-      );
+
+      let height: number | undefined;
+      const el = ref.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        // Element top relative to the visible viewport top.
+        const topInViewport = rect.top - offsetTop;
+        height = Math.max(0, Math.round(viewportHeight - topInViewport));
+      }
+
+      setState((prev) => {
+        const keyboardOpen = inset > 80;
+        if (prev.height === height && prev.keyboardOpen === keyboardOpen) {
+          return prev;
+        }
+        return { height, keyboardOpen };
+      });
     };
 
-    viewport.addEventListener("resize", update);
-    viewport.addEventListener("scroll", update);
-    update();
+    compute();
+
+    vv?.addEventListener("resize", compute);
+    vv?.addEventListener("scroll", compute);
+    window.addEventListener("resize", compute);
+    window.addEventListener("orientationchange", compute);
 
     return () => {
-      viewport.removeEventListener("resize", update);
-      viewport.removeEventListener("scroll", update);
-      document.documentElement.style.removeProperty("--keyboard-inset");
+      vv?.removeEventListener("resize", compute);
+      vv?.removeEventListener("scroll", compute);
+      window.removeEventListener("resize", compute);
+      window.removeEventListener("orientationchange", compute);
     };
-  }, []);
+  }, [ref]);
 
-  return inset;
+  return state;
 }
