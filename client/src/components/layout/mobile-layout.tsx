@@ -134,7 +134,15 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
         </header>
       )}
 
-      <div id="main-scroll-container" ref={scrollContainerRef} className=" flex-1 overflow-y-auto overscroll-contain pb-20 " >
+      <div
+        id="main-scroll-container"
+        ref={scrollContainerRef}
+        className={`flex-1 overscroll-contain min-h-0 ${
+          location === "/chat"
+            ? "overflow-hidden flex flex-col"
+            : "overflow-y-auto pb-20"
+        }`}
+      >
         {useProfileHeader ? (
           children
         ) : (

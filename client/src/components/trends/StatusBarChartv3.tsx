@@ -36,19 +36,49 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
     return '#FBAD37';
   };
 
+  const isValidBarColor = (color?: string | null) => {
+    if (!color || color.trim() === '') return false;
+    const normalized = color.trim().toLowerCase();
+    if (
+      normalized === 'transparent' ||
+      normalized === 'none' ||
+      normalized === 'inherit' ||
+      normalized === 'currentcolor' ||
+      normalized === 'white' ||
+      normalized === '#fff' ||
+      normalized === '#ffffff'
+    ) {
+      return false;
+    }
+    return (
+      /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(normalized) ||
+      /^(rgb|rgba|hsl|hsla)\(/.test(normalized)
+    );
+  };
+
+  const resolveSegmentColor = (status: string, color?: string | null) => {
+    if (isValidBarColor(color)) {
+      return color!.trim();
+    }
+    return resolveColor(status);
+  };
+
   const createGradient = (data: any[], index: number) => {
     const sortedData = sortByRange(data);
     const currentItem = sortedData[index];
     const nextItem = sortedData[index + 1];
 
-    const currentColor = currentItem.color || resolveColor(currentItem.status);
+    const currentColor = resolveSegmentColor(
+      currentItem.status,
+      currentItem.color,
+    );
 
     // If this is the last item or there's no next item, return solid color
     if (!nextItem) {
       return currentColor;
     }
 
-    const nextColor = nextItem.color || resolveColor(nextItem.status);
+    const nextColor = resolveSegmentColor(nextItem.status, nextItem.color);
 
     // Create gradient only at the boundary (last 20% of current segment)
     return `linear-gradient(to right, ${currentColor} 80%, ${nextColor} 100%)`;
@@ -99,7 +129,7 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
 
   const sortByRange = (data: any) => {
     // console.log(data);
-    return data.sort((a: any, b: any) => {
+    return [...data].sort((a: any, b: any) => {
       const lowA = parseFloat(a.low ?? '');
       const lowB = parseFloat(b.low ?? '');
 
@@ -186,18 +216,18 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
               }}
             >
               <div
-                className={`absolute w-full px-1 ${isCustom ? 'text-[#888888]' : 'text-[#005f73]'}  flex justify-center left-[-4px] top-[-35px] opacity-90 text-[10px]`}
+                className={`absolute w-full px-[1px] ${isCustom ? 'text-[#888888]' : 'text-[#005f73]'}  flex justify-center left-[-4px] top-[-35px] opacity-90 leading-tight text-[8px] min-[360px]:text-[9px] sm:text-[10px]`}
               >
                 <TooltipText tooltipValue={el.label}>{el.label}</TooltipText>
               </div>
               <div
-                className={`absolute w-full px-1 ${isCustom ? 'text-[#B0B0B0]' : 'text-[#005f73]'}  flex justify-center left-[-4px] top-[-20px] opacity-90 text-[10px]`}
+                className={`absolute w-full px-[1px] ${isCustom ? 'text-[#B0B0B0]' : 'text-[#005f73]'}  flex justify-center items-center flex-nowrap left-[-4px] top-[-20px] opacity-90 leading-tight text-[8px] min-[360px]:text-[9px] sm:text-[10px]`}
               >
-                {el.label != '' && <>(</>}
+                {el.label != '' && <span className="shrink-0">(</span>}
                 <TooltipText tooltipValue={getRangeString(el)}>
                   <>{getRangeString(el)}</>
                 </TooltipText>
-                {el.label != '' && <>)</>}
+                {el.label != '' && <span className="shrink-0">)</span>}
               </div>
               {(() => {
                 const markerMode = getStatusMarkerMode(

@@ -34,8 +34,9 @@ import {
   BookOpen,
   Check,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 
 type ChatMode = "coach" | "ai";
 
@@ -103,7 +104,11 @@ export default function ChatPage() {
   const [previousCount, setPreviousCount] = useState(0);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastMessageIdRef = useRef<number | null>(null);
+  const keyboardInset = useKeyboardInset();
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [conversationId, setConversationId] = useState<number>(0);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -128,18 +133,17 @@ export default function ChatPage() {
       filename: string;
     }>
   >([]);
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      // Use setTimeout to ensure DOM is updated
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-          inline: "end",
-        });
-      }, 500);
-    }
-  };
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    requestAnimationFrame(() => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior,
+      });
+    });
+  }, []);
 
   // useEffect(() => {
   //   scrollToBottom();
@@ -540,16 +544,46 @@ export default function ChatPage() {
   //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   // }, [messages, displayedMessages]);
   useEffect(() => {
-    const el = document.getElementById("main-scroll-container");
-    if (!el) return;
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
+  useEffect(() => {
+    const isKeyboardOpen = isInputFocused || keyboardInset > 50;
+    if (isKeyboardOpen) {
+      document.body.setAttribute("data-chat-keyboard", "open");
+      scrollToBottom("auto");
+    } else {
+      document.body.removeAttribute("data-chat-keyboard");
+    }
+
+    return () => {
+      document.body.removeAttribute("data-chat-keyboard");
+    };
+  }, [isInputFocused, keyboardInset, scrollToBottom]);
+
+  const handleInputFocus = () => {
+    setIsInputFocused(true);
+    scrollToBottom("auto");
+    setTimeout(() => scrollToBottom("smooth"), 300);
+  };
+
+  const handleInputBlur = () => {
+    setTimeout(() => {
+      if (document.activeElement !== textareaRef.current) {
+        setIsInputFocused(false);
+      }
+    }, 150);
+  };
+
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative">
+    <div
+      className="flex flex-col h-full min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20 relative"
+      style={
+        keyboardInset > 50
+          ? { height: `calc(100% - ${keyboardInset}px)` }
+          : undefined
+      }
+    >
       {/* Disclaimer Toast */}
       {showDisclaimer && (
         <div
@@ -588,9 +622,9 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-2 pb-4">
+      <div className="flex flex-col flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 py-2">
         {/* Mode Toggle */}
-        <div className="sticky top-2 z-10 bg-white rounded-xl">
+        <div className="shrink-0 z-10 bg-white rounded-xl">
           <SimpleModeSelect
             disabled={isIOS}
             hideAi={isIOS}
@@ -598,15 +632,19 @@ export default function ChatPage() {
             setActiveMode={setActiveMode}
           />
         </div>
-        <div className="flex flex-col gap-6">
-          {/* Chat Messages */}
-          <Card
-            className={`${
-              activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
-            } !bg-transparent !border-none !shadow-none`}
-          >
-            <CardContent className="flex-1 p-0">
-              <div className=" space-y-4" style={{ scrollbarWidth: "thin" }}>
+
+        {/* Chat Messages */}
+        <Card
+          className={`flex-1 min-h-0 ${
+            activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
+          } !bg-transparent !border-none !shadow-none`}
+        >
+          <CardContent className="flex flex-col h-full min-h-0 p-0">
+            <div
+              ref={messagesContainerRef}
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-4"
+              style={{ scrollbarWidth: "thin" }}
+            >
                 {messages.map((msg) => {
                   // Use unique key for reported messages
                   const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
@@ -791,19 +829,24 @@ export default function ChatPage() {
                   />
                 )}
                 <div className="mt-3" ref={messagesEndRef} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Input - stays above keyboard via flex layout + viewport resize */}
         <div
-          className="px-4 py-2 bg-white fixed left-0 right-0 z-20 max-w-md mx-auto w-full"
+          className="shrink-0 px-0 py-2 bg-white dark:bg-gray-900 border-t border-gray-200/50 dark:border-gray-700/50 z-20 w-full"
           style={{
-            bottom: `calc(var(--nav-height) + env(safe-area-inset-bottom))`,
+            paddingBottom:
+              keyboardInset > 50
+                ? "0.5rem"
+                : "max(0.5rem, env(safe-area-inset-bottom))",
           }}
         >
           <div className="flex gap-3">
             <div className="flex-1 relative">
               <Textarea
+                ref={textareaRef}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={
@@ -812,6 +855,8 @@ export default function ChatPage() {
                     : "Ask your AI copilot anything..."
                 }
                 className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
                 onKeyPress={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -821,6 +866,7 @@ export default function ChatPage() {
               />
             </div>
             <Button
+              onMouseDown={(e) => e.preventDefault()}
               onClick={sendMessage}
               disabled={!message.trim()}
               className={`h-[40px] w-[40px] rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 ${

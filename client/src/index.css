@@ -300,6 +300,11 @@
 
 :root {
   --nav-height: 69px; /* mobile */
+  --keyboard-inset: 0px;
+}
+
+body[data-chat-keyboard="open"] [data-bottom-nav] {
+  display: none;
 }
 
 @media (min-width: 768px) {
