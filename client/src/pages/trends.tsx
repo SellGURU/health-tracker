@@ -223,14 +223,17 @@ export default function Trends() {
     }
     return "#FBAD37";
   };
+  // values/date are newest-first, status is oldest-first (newest = last element)
+  const getLatestStatus = (obj: any) =>
+    obj?.status?.[obj.status.length - 1] ?? "";
   useEffect(() => {
     Application.getBiomarkersData().then((res) => {
       setMochBiomarkers(res.data.biomarkers);
     });
   }, []);
   const findMatchingLabel = (obj: any) => {
-    const value = parseFloat(obj.values[obj.values.length - 1]); // آخرین مقدار
-    const status = obj.status[obj.status.length - 1]; // آخرین استاتوس
+    const value = parseFloat(obj.values[0]); // latest value (values are newest-first)
+    const status = getLatestStatus(obj); // latest status (status is oldest-first)
 
     for (const bound of obj.chart_bounds) {
       const low =
@@ -439,7 +442,9 @@ export default function Trends() {
                       </p>
                       <Badge
                         style={{
-                          backgroundColor: resolveColor(biomarker.status),
+                          backgroundColor: resolveColor(
+                            getLatestStatus(biomarker)
+                          ),
                         }}
                         className={`text-xs flex-shrink-0 px-2 py-1`}
                       >
@@ -549,7 +554,9 @@ export default function Trends() {
             <DialogHeader>
               <div className="flex items-center gap-2">
                 <div
-                  style={{ color: resolveColor(selectedBiomarker.status[0]) }}
+                  style={{
+                    color: resolveColor(getLatestStatus(selectedBiomarker)),
+                  }}
                   className={`w-10 h-10 bg-gradient-to-br rounded-lg flex items-center justify-center shadow-lg`}
                 >
                   {/* <Droplets></Droplets> */}
@@ -605,20 +612,21 @@ export default function Trends() {
                         <Badge
                           style={{
                             backgroundColor: resolveColor(
-                              selectedBiomarker.status[0]
+                              getLatestStatus(selectedBiomarker)
                             ),
                           }}
                           className="mt-2 text-xs"
                         >
                           {selectedBiomarker.chart_bounds.filter(
                             (el: any) =>
-                              el.status == selectedBiomarker.status[0]
+                              el.status == getLatestStatus(selectedBiomarker)
                           )[0]?.label != ""
                             ? selectedBiomarker.chart_bounds.filter(
                                 (el: any) =>
-                                  el.status == selectedBiomarker.status[0]
+                                  el.status ==
+                                  getLatestStatus(selectedBiomarker)
                               )[0]?.label
-                            : selectedBiomarker.status[0].toUpperCase()}
+                            : getLatestStatus(selectedBiomarker).toUpperCase()}
                         </Badge>
                       </div>
                     </CardContent>

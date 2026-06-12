@@ -52,7 +52,9 @@ const BiomarkerChart = ({ biomarker, isCheced }: biomarkerChartProps) => {
                     {active && (
                       <HistoricalChart
                         statusBar={active?.chart_bounds}
-                        dataStatus={active.status}
+                        // status is oldest-first; reverse it to newest-first so
+                        // it lines up index-by-index with values and dates
+                        dataStatus={[...active.status].reverse()}
                         dataPoints={[...active.values]}
                         labels={[...active.date]}
                       ></HistoricalChart>

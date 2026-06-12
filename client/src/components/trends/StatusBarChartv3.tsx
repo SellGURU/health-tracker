@@ -153,15 +153,17 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
     data: any,
   ): 'unique' | 'inRange' | 'none' => {
     if (!status || !data) return 'none';
+    // status is oldest-first, so the latest status is the last element
+    const latestStatus = status[status.length - 1];
     const sameStatusRanges = sortByRange(data).filter(
-      (item: any) => item.status === status?.[0],
+      (item: any) => item.status === latestStatus,
     );
     if (sameStatusRanges.length === 1) {
-      if (status[0] == el.status) return 'unique';
+      if (latestStatus == el.status) return 'unique';
       return 'none';
     }
     if (
-      status[0] == el.status &&
+      latestStatus == el.status &&
       values &&
       (el.low === null || Number(values[0]) > Number(el.low)) &&
       (el.high === null || Number(values[0]) <= Number(el.high))
