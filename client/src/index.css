@@ -219,6 +219,12 @@
   height: 100dvh;
   background: white;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  /* Allow tall pages without the fixed app shell (e.g. login/register) to
+     scroll. In-app pages use MobileLayout which fills 100dvh exactly, so they
+     don't overflow here and the header/footer stay fixed. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 448px) {
