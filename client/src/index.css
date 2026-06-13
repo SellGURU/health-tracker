@@ -63,6 +63,9 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-variant-ligatures: none;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   body {
@@ -78,6 +81,16 @@
     -moz-osx-font-smoothing: grayscale;
     font-display: swap;
     image-rendering: -webkit-optimize-contrast;
+    /* Lock the document so only the in-app scroll container scrolls.
+       Prevents the header/footer from moving with rubber-band overscroll. */
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   /* Improve text clarity */
