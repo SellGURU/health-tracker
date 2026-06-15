@@ -1,12 +1,13 @@
 import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Eye, EyeOff, Info } from "lucide-react";
+import { Eye, EyeOff, Info, Lock, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface PasswordData {
@@ -109,8 +110,16 @@ const ChangePasswordDialog = ({
     }
   }, [open]);
 
+  const inputClass = (hasError?: string) =>
+    `h-11 rounded-xl border-gray-200 bg-gray-50/80 pr-11 shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-red-500/40 dark:border-gray-700 dark:bg-gray-800/60 ${
+      hasError ? "border-red-500 dark:border-red-500" : ""
+    }`;
+
+  const toggleClass =
+    "absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 rounded-lg p-0 text-gray-500 hover:bg-gray-200/70 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700/70 dark:hover:text-gray-200";
+
   return (
-    <Dialog
+    <Sheet
       open={open}
       onOpenChange={(open) => {
         // Prevent closing if password change is required
@@ -125,20 +134,58 @@ const ChangePasswordDialog = ({
         onOpenChange(open);
       }}
     >
-      <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-red-800 dark:from-white dark:to-red-200 bg-clip-text text-transparent">
-            Change Password
-          </DialogTitle>
-          <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-            Enter your current password and choose a new one
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div>
+      <SheetContent
+        side="bottom"
+        onInteractOutside={(e) => {
+          if (isPasswordChangeRequired) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (isPasswordChangeRequired) e.preventDefault();
+        }}
+        className="mx-auto flex max-h-[92dvh] w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+      >
+        {/* Drag handle */}
+        <div className="flex flex-shrink-0 justify-center pb-1 pt-3">
+          <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+        </div>
+
+        {/* Header */}
+        <SheetHeader className="flex-shrink-0 space-y-0 px-5 pb-3 pt-1 text-left">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-500/15 to-pink-500/15">
+                <Lock className="h-5 w-5 text-red-600 dark:text-red-400" />
+              </span>
+              <div className="min-w-0">
+                <SheetTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                  Change Password
+                </SheetTitle>
+                <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                  Enter your current password and choose a new one
+                </SheetDescription>
+              </div>
+            </div>
+            {!isPasswordChangeRequired && (
+              <SheetClose asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Close"
+                  className="h-8 w-8 flex-shrink-0 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </SheetClose>
+            )}
+          </div>
+        </SheetHeader>
+
+        {/* Form */}
+        <div className="flex-1 space-y-4 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-2">
+          <div className="space-y-1.5">
             <Label
               htmlFor="currentPassword"
-              className="text-gray-700 dark:text-gray-300 font-medium"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Current Password
             </Label>
@@ -152,35 +199,20 @@ const ChangePasswordDialog = ({
                     ...prev,
                     currentPassword: e.target.value,
                   }));
-                  // Clear error when user starts typing
-                  // if (errors.currentPassword) {
-                  //   setErrors((prev) => {
-                  //     const newErrors = { ...prev };
-                  //     delete newErrors.currentPassword;
-                  //     return newErrors;
-                  //   });
-                  // }
                 }}
                 onBlur={() => {
-                  const error = validateCurrentPassword(
-                    passwordData.currentPassword
-                  );
-                  // setErrors((prev) => ({
-                  //   ...prev,
-                  //   currentPassword: error,
-                  // }));
+                  validateCurrentPassword(passwordData.currentPassword);
                 }}
-                className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
-                  errors.currentPassword
-                    ? "border-red-500 dark:border-red-500"
-                    : ""
-                }`}
+                className={inputClass(errors.currentPassword)}
               />
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                size="icon"
+                aria-label={
+                  showPasswords.current ? "Hide password" : "Show password"
+                }
+                className={toggleClass}
                 onClick={() =>
                   setShowPasswords((prev) => ({
                     ...prev,
@@ -196,16 +228,15 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.currentPassword && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.currentPassword}
-              </p>
+              <p className="text-xs text-red-500">{errors.currentPassword}</p>
             )}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-1.5">
               <Label
                 htmlFor="newPassword"
-                className="text-gray-700 dark:text-gray-300 font-medium"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 New Password
               </Label>
@@ -213,12 +244,12 @@ const ChangePasswordDialog = ({
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="inline-flex items-center justify-center rounded-full p-0.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
                     aria-label="Password requirements"
                     onMouseEnter={() => setIsInfoOpen(true)}
                     onMouseLeave={() => setIsInfoOpen(false)}
                   >
-                    <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <Info className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
@@ -245,31 +276,17 @@ const ChangePasswordDialog = ({
                     ...prev,
                     newPassword: e.target.value,
                   }));
-                  // Clear error when user starts typing
-                  // if (errors.newPassword) {
-                  //   setErrors((prev) => {
-                  //     const newErrors = { ...prev };
-                  //     delete newErrors.newPassword;
-                  //     return newErrors;
-                  //   });
-                  // }
                 }}
-                onBlur={() => {
-                  // const error = validateNewPassword(passwordData.newPassword);
-                  // setErrors((prev) => ({
-                  //   ...prev,
-                  //   newPassword: error,
-                  // }));
-                }}
-                className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
-                  errors.newPassword ? "border-red-500 dark:border-red-500" : ""
-                }`}
+                className={inputClass(errors.newPassword)}
               />
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                size="icon"
+                aria-label={
+                  showPasswords.new ? "Hide password" : "Show password"
+                }
+                className={toggleClass}
                 onClick={() =>
                   setShowPasswords((prev) => ({
                     ...prev,
@@ -285,13 +302,14 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.newPassword && (
-              <p className="text-xs text-red-500 mt-1">{errors.newPassword}</p>
+              <p className="text-xs text-red-500">{errors.newPassword}</p>
             )}
           </div>
-          <div>
+
+          <div className="space-y-1.5">
             <Label
               htmlFor="confirmPassword"
-              className="text-gray-700 dark:text-gray-300 font-medium"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Confirm New Password
             </Label>
@@ -305,7 +323,6 @@ const ChangePasswordDialog = ({
                     ...prev,
                     confirmPassword: e.target.value,
                   }));
-                  // Clear error when user starts typing
                   if (errors.confirmPassword) {
                     setErrors((prev) => {
                       const newErrors = { ...prev };
@@ -324,17 +341,16 @@ const ChangePasswordDialog = ({
                     confirmPassword: error,
                   }));
                 }}
-                className={`bg-gradient-to-r from-white/80 to-red-50/50 dark:from-gray-700/80 dark:to-red-900/20 border-red-200/50 dark:border-red-800/30 backdrop-blur-sm shadow-inner pr-10 ${
-                  errors.confirmPassword
-                    ? "border-red-500 dark:border-red-500"
-                    : ""
-                }`}
+                className={inputClass(errors.confirmPassword)}
               />
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                size="icon"
+                aria-label={
+                  showPasswords.confirm ? "Hide password" : "Show password"
+                }
+                className={toggleClass}
                 onClick={() =>
                   setShowPasswords((prev) => ({
                     ...prev,
@@ -350,21 +366,13 @@ const ChangePasswordDialog = ({
               </Button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.confirmPassword}
-              </p>
+              <p className="text-xs text-red-500">{errors.confirmPassword}</p>
             )}
           </div>
+
           <Button
             onClick={() => {
-              // Validate all fields
-
               if (passwordData.newPassword !== passwordData.confirmPassword) {
-                // toast({
-                //   title: "Passwords don't match",
-                //   description: "Please ensure both password fields match.",
-                //   variant: "destructive",
-                // });
                 setErrors((prev) => ({
                   ...prev,
                   confirmPassword: "Passwords do not match",
@@ -391,22 +399,18 @@ const ChangePasswordDialog = ({
                     newPassword: err.response.data.detail.new_password,
                     currentPassword: err.response.data.detail.current_password,
                   }));
-                  // toast({
-                  //   title: "Invalid password",
-                  //   description: "Please enter a valid password",
-                  // });
                 });
             }}
             disabled={changePasswordMutation.isPending}
-            className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 w-full rounded-xl bg-gradient-to-r from-red-600 to-pink-600 font-medium text-white shadow-lg transition-all hover:from-red-700 hover:to-pink-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {changePasswordMutation.isPending
               ? "Changing..."
               : "Change Password"}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -41,6 +40,14 @@ import {
   DialogContent,
   DialogFooter,
 } from "../ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetClose,
+} from "../ui/sheet";
 import { subscribe, unsubscribe } from "@/lib/event";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
@@ -299,41 +306,42 @@ export default function ProfileHeader() {
     window.location.reload();
   };
 
-  const getColorClasses = (color: string, read: boolean) => {
-    const baseOpacity = read ? "30" : "60";
-    const hoverOpacity = read ? "40" : "80";
-
-    switch (color) {
-      case "emerald":
-        return `bg-gradient-to-r from-emerald-50/${baseOpacity} to-teal-50/${baseOpacity} dark:from-emerald-900/20 dark:to-teal-900/20 hover:from-emerald-100/${hoverOpacity} hover:to-teal-100/${hoverOpacity} dark:hover:from-emerald-900/30 dark:hover:to-teal-900/30`;
-      case "blue":
-        return `bg-gradient-to-r from-blue-50/${baseOpacity} to-cyan-50/${baseOpacity} dark:from-blue-900/20 dark:to-cyan-900/20 hover:from-blue-100/${hoverOpacity} hover:to-cyan-100/${hoverOpacity} dark:hover:from-blue-900/30 dark:hover:to-cyan-900/30`;
-      case "purple":
-        return `bg-gradient-to-r from-purple-50/${baseOpacity} to-indigo-50/${baseOpacity} dark:from-purple-900/20 dark:to-indigo-900/20 hover:from-purple-100/${hoverOpacity} hover:to-indigo-100/${hoverOpacity} dark:hover:from-purple-900/30 dark:hover:to-indigo-900/30`;
-      case "orange":
-        return `bg-gradient-to-r from-orange-50/${baseOpacity} to-amber-50/${baseOpacity} dark:from-orange-900/20 dark:to-amber-900/20 hover:from-orange-100/${hoverOpacity} hover:to-amber-100/${hoverOpacity} dark:hover:from-orange-900/30 dark:hover:to-amber-900/30`;
-      case "green":
-        return `bg-gradient-to-r from-green-50/${baseOpacity} to-emerald-50/${baseOpacity} dark:from-green-900/20 dark:to-emerald-900/20 hover:from-green-100/${hoverOpacity} hover:to-emerald-100/${hoverOpacity} dark:hover:from-green-900/30 dark:hover:to-emerald-900/30`;
-      default:
-        return `bg-gradient-to-r from-gray-50/${baseOpacity} to-white/${baseOpacity} dark:from-gray-700/20 dark:to-gray-800/20 hover:from-gray-100/${hoverOpacity} hover:to-white/${hoverOpacity} dark:hover:from-gray-700/30 dark:hover:to-gray-800/30`;
-    }
-  };
-
-  const getIconColor = (color: string) => {
-    switch (color) {
-      case "emerald":
-        return "text-emerald-600 dark:text-emerald-400";
-      case "blue":
-        return "text-blue-600 dark:text-blue-400";
-      case "purple":
-        return "text-purple-600 dark:text-purple-400";
-      case "orange":
-        return "text-orange-600 dark:text-orange-400";
-      case "green":
-        return "text-green-600 dark:text-green-400";
-      default:
-        return "text-gray-600 dark:text-gray-400";
-    }
+  // Static class map so Tailwind doesn't purge dynamically built color classes.
+  const getNotifColor = (color: string) => {
+    const map: Record<string, { chip: string; icon: string; bar: string }> = {
+      emerald: {
+        chip: "bg-emerald-100 dark:bg-emerald-900/40",
+        icon: "text-emerald-600 dark:text-emerald-400",
+        bar: "bg-emerald-500",
+      },
+      blue: {
+        chip: "bg-blue-100 dark:bg-blue-900/40",
+        icon: "text-blue-600 dark:text-blue-400",
+        bar: "bg-blue-500",
+      },
+      purple: {
+        chip: "bg-purple-100 dark:bg-purple-900/40",
+        icon: "text-purple-600 dark:text-purple-400",
+        bar: "bg-purple-500",
+      },
+      orange: {
+        chip: "bg-orange-100 dark:bg-orange-900/40",
+        icon: "text-orange-600 dark:text-orange-400",
+        bar: "bg-orange-500",
+      },
+      green: {
+        chip: "bg-green-100 dark:bg-green-900/40",
+        icon: "text-green-600 dark:text-green-400",
+        bar: "bg-green-500",
+      },
+    };
+    return (
+      map[color] ?? {
+        chip: "bg-gray-100 dark:bg-gray-700/50",
+        icon: "text-gray-600 dark:text-gray-400",
+        bar: "bg-gray-400",
+      }
+    );
   };
   const [brandInfo, setBrandInfo] = useState<BrandInfo | undefined>(() =>
     readStored<BrandInfo>("brand_info")
@@ -389,194 +397,186 @@ export default function ProfileHeader() {
           </Button>
         </div>
 
-        {/* Notification Portal */}
-        {showNotifications &&
-          createPortal(
-            <>
-              {/* Background Overlay */}
-              <div
-                className="absolute inset-0 bg-black/20 backdrop-blur-sm z-[999998]"
-                onClick={() => setShowNotifications(false)}
-              />
-              {/* Notification Panel */}
-              <div className="absolute right-[5%] sm:right-[15%] md:right-[28%] xl:right-[35%] 2xl:right-[39%] top-16 w-[95%] max-w-[420px] sm:w-[480px] md:w-[520px] lg:w-[560px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/20 dark:border-gray-700/20 shadow-2xl rounded-2xl max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-hidden z-[999999]">
-                {/* Header */}
-                <div className="p-2.5 sm:p-3 md:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 dark:text-gray-100">
+        {/* Notifications Sheet */}
+        <Sheet open={showNotifications} onOpenChange={setShowNotifications}>
+          <SheetContent
+            side="bottom"
+            className="mx-auto w-full max-w-md sm:max-w-lg flex max-h-[85dvh] flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+          >
+            {/* Drag handle */}
+            <div className="flex flex-shrink-0 justify-center pb-1 pt-3">
+              <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+            </div>
+
+            {/* Header */}
+            <SheetHeader className="flex-shrink-0 space-y-0 px-5 pb-3 pt-1 text-left">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/15 to-purple-500/15">
+                    <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </span>
+                  <div className="min-w-0">
+                    <SheetTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
                       Notifications
-                    </h3>
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      {isUnReadNotif && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={markAllAsRead}
-                          className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20 px-2 py-1"
-                        >
-                          <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                          <span className="hidden sm:inline">
-                            Mark all read
-                          </span>
-                          <span className="sm:hidden">Read</span>
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowNotifications(false)}
-                        className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                      >
-                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </Button>
-                    </div>
+                    </SheetTitle>
+                    <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                      {notificationCount > 0
+                        ? `${notificationCount} unread notification${
+                            notificationCount !== 1 ? "s" : ""
+                          }`
+                        : "You're all caught up"}
+                    </SheetDescription>
                   </div>
-                  {(notificationCount > 0 || isUnReadNotif) && (
-                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      You have {notificationCount} unread notification
-                      {notificationCount !== 1 ? "s" : ""}
-                    </div>
-                  )}
                 </div>
-
-                {/* Notifications List */}
-                <div className="max-h-[300px] sm:max-h-[400px] md:max-h-[480px] overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-6 sm:p-8 text-center">
-                      <Bell className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-2 sm:mb-3" />
-                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                        No notifications
-                      </p>
-                      {hadNotifications && (
-                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500 mt-1">
-                          You're all caught up!
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-2 sm:space-y-3 p-2 sm:p-3 md:p-4">
-                      {notifications.map((notification) => {
-                        const IconComponent = notification.icon;
-                        return (
-                          <div
-                            key={notification.id}
-                            className={`p-2.5 sm:p-3 md:p-4 rounded-xl transition-all duration-300 cursor-pointer group ${getColorClasses(
-                              notification.color,
-                              notification.read_status
-                            )} ${
-                              !notification.read_status
-                                ? "border-l-4 border-blue-500"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              !notification.read_status &&
-                              markAsRead(notification.id)
-                            }
-                          >
-                            <div className="flex items-start gap-2 sm:gap-2.5 md:gap-3">
-                              <div
-                                className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  notification.read_status
-                                    ? "bg-gray-200/50 dark:bg-gray-700/50"
-                                    : `bg-gradient-to-br from-${notification.color}-500/20 to-${notification.color}-600/20 dark:from-${notification.color}-400/20 dark:to-${notification.color}-500/20`
-                                }`}
-                              >
-                                <IconComponent
-                                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 ${
-                                    notification.read_status
-                                      ? "text-gray-500"
-                                      : getIconColor(notification.color)
-                                  }`}
-                                />
-                              </div>
-
-                              <div className="flex-1 min-w-0">
-                                {/* Title Row with Buttons */}
-                                <div className="flex items-start justify-between gap-1 sm:gap-2 mb-0.5 sm:mb-1">
-                                  <h4
-                                    className={`text-[11px] sm:text-xs md:text-sm font-medium break-words flex-1 min-w-0 pr-1 ${
-                                      notification.read_status
-                                        ? "text-gray-600 dark:text-gray-400"
-                                        : "text-gray-900 dark:text-gray-100"
-                                    }`}
-                                  >
-                                    {notification.title}
-                                  </h4>
-                                  <div className="flex items-center gap-0.5 sm:gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
-                                    {!notification.read_status && (
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          markAsRead(notification.id);
-                                        }}
-                                        className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 hover:bg-blue-100/60 dark:hover:bg-blue-900/30"
-                                      >
-                                        <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                                      </Button>
-                                    )}
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeNotification(notification.id);
-                                      }}
-                                      className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 hover:bg-red-100/60 dark:hover:bg-red-900/30"
-                                    >
-                                      <X className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                                    </Button>
-                                  </div>
-                                </div>
-                                {/* Message Row - Full Width */}
-                                <div
-                                  className={`text-[10px] sm:text-xs leading-relaxed break-words ${
-                                    notification.read_status
-                                      ? "text-gray-500 dark:text-gray-500"
-                                      : "text-gray-700 dark:text-gray-300"
-                                  }`}
-                                >
-                                  {notification.message}
-                                </div>
-                                {/* <div className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
-                                  <div
-                                    className={`w-1 h-1 rounded-full ${
-                                    notification.read_status
-                                        ? "bg-gray-400"
-                                        : "bg-blue-500 animate-pulse"
-                                    }`}
-                                  />
-                                  {notification.time}
-                                </div> */}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer */}
-                {/* {notifications.length > 0 && (
-                  <div className="p-3 border-t border-gray-200/30 dark:border-gray-700/30">
+                <div className="flex flex-shrink-0 items-center gap-1">
+                  {isUnReadNotif && (
                     <Button
                       variant="ghost"
-                      className="w-full text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-900/20"
-                      onClick={() => {
-                        setShowNotifications(false);
-                        // Navigate to notifications page if it exists
-                      }}
+                      size="sm"
+                      onClick={markAllAsRead}
+                      className="h-8 rounded-full px-3 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
                     >
-                      View all notifications
+                      <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                      Mark all read
                     </Button>
-                  </div>
-                )} */}
+                  )}
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Close notifications"
+                      className="h-8 w-8 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </SheetClose>
+                </div>
               </div>
-            </>,
-            document.body
-          )}
+            </SheetHeader>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-1">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+                  <div className="relative mb-4">
+                    <span className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30">
+                      <Bell className="h-9 w-9 text-blue-500/70 dark:text-blue-400/70" />
+                    </span>
+                    <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 shadow-lg ring-4 ring-white dark:ring-gray-900">
+                      <Check className="h-4 w-4 text-white" />
+                    </span>
+                  </div>
+                  <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    No notifications
+                  </h4>
+                  <p className="mt-1 max-w-[16rem] text-sm text-gray-500 dark:text-gray-400">
+                    {hadNotifications
+                      ? "You're all caught up! New updates will show up here."
+                      : "We'll let you know when something needs your attention."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 py-2">
+                  {notifications.map((notification, index) => {
+                    const IconComponent = notification.icon;
+                    const colors = getNotifColor(notification.color);
+                    const unread = !notification.read_status;
+                    return (
+                      <div
+                        key={notification.id}
+                        onClick={() => unread && markAsRead(notification.id)}
+                        style={{
+                          animationDelay: `${Math.min(index * 40, 240)}ms`,
+                          animationFillMode: "backwards",
+                        }}
+                        className={`group relative flex animate-in cursor-pointer items-start gap-3 rounded-2xl p-3 transition-colors duration-200 fade-in slide-in-from-bottom-1 ${
+                          unread
+                            ? "bg-blue-50/70 hover:bg-blue-100/70 dark:bg-blue-950/30 dark:hover:bg-blue-950/50"
+                            : "bg-gray-50/70 hover:bg-gray-100/70 dark:bg-gray-800/40 dark:hover:bg-gray-800/60"
+                        }`}
+                      >
+                        {unread && (
+                          <span
+                            className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full ${colors.bar}`}
+                          />
+                        )}
+                        <span
+                          className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                            unread
+                              ? colors.chip
+                              : "bg-gray-200/70 dark:bg-gray-700/50"
+                          }`}
+                        >
+                          <IconComponent
+                            className={`h-5 w-5 ${
+                              unread
+                                ? colors.icon
+                                : "text-gray-500 dark:text-gray-400"
+                            }`}
+                          />
+                        </span>
+
+                        <div className="min-w-0 flex-1 py-0.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4
+                              className={`break-words text-sm font-semibold ${
+                                unread
+                                  ? "text-gray-900 dark:text-gray-100"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }`}
+                            >
+                              {notification.title}
+                            </h4>
+                            {unread && (
+                              <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                            )}
+                          </div>
+                          <p
+                            className={`mt-0.5 break-words text-xs leading-relaxed ${
+                              unread
+                                ? "text-gray-600 dark:text-gray-300"
+                                : "text-gray-500 dark:text-gray-500"
+                            }`}
+                          >
+                            {notification.message}
+                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            {unread && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead(notification.id);
+                                }}
+                                className="h-7 rounded-full px-2.5 text-xs text-blue-600 hover:bg-blue-100/70 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                              >
+                                <Check className="mr-1 h-3 w-3" />
+                                Mark read
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeNotification(notification.id);
+                              }}
+                              className="h-7 rounded-full px-2.5 text-xs text-gray-500 hover:bg-red-100/70 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                            >
+                              <X className="mr-1 h-3 w-3" />
+                              Dismiss
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Profile Dropdown */}
         <DropdownMenu>
