@@ -2,32 +2,28 @@ import Application from "@/api/app";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import type { LabResult } from "@shared/schema";
-import { useQuery } from "@tanstack/react-query";
 import {
-  BarChart3,
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Activity,
   Brain,
   CheckCircle,
-  Droplets,
-  Minus,
+  ChevronRight,
+  FlaskConical,
   Search,
-  TrendingDown,
-  TrendingUp,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { resolveAnalyseIcon } from "../help";
 import BiomarkerChart from "@/components/trends/biomarkerChart";
-import Toggle from "@/components/trends/Toggle";
 
 // Mock biomarker data for enhanced UI
 // const mockBiomarkers = [
@@ -196,15 +192,12 @@ import Toggle from "@/components/trends/Toggle";
 // ];
 
 export default function Trends() {
-  const { toast } = useToast();
   const [mockBiomarkers, setMochBiomarkers] = useState<Array<any>>([]);
-  const [expandedCards, setExpandedCards] = useState<{
-    [key: string]: boolean;
-  }>({});
   const [selectedBiomarker, setSelectedBiomarker] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [activeTab, setActiveTab] = useState("results");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "focus">("all");
   const resolveColor = (key: string) => {
     if (key == "Needs Focus" || key == "CriticalRange") {
       return "#B2302E";
@@ -269,17 +262,6 @@ export default function Trends() {
   //   return aHigh - bHigh;
   // });
 
-  const { data: labResults = [] } = useQuery<LabResult[]>({
-    queryKey: ["/api/lab-results", { limit: 100 }],
-  });
-
-  const toggleCardExpansion = (biomarkerId: string) => {
-    setExpandedCards((prev) => ({
-      ...prev,
-      [biomarkerId]: !prev[biomarkerId],
-    }));
-  };
-
   const openDetailModal = (biomarker: any) => {
     setSelectedBiomarker(biomarker);
     setShowDetailModal(true);
@@ -298,57 +280,30 @@ export default function Trends() {
     );
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      normal: {
-        variant: "default",
-        color:
-          "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
-      },
-      high: {
-        variant: "destructive",
-        color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-      },
-      low: {
-        variant: "secondary",
-        color:
-          "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-      },
-      critical: {
-        variant: "destructive",
-        color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-      },
-    };
-    return variants[status as keyof typeof variants] || variants.normal;
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case "improving":
-        return <TrendingUp className="w-4 h-4 text-emerald-500" />;
-      case "declining":
-        return <TrendingDown className="w-4 h-4 text-red-500" />;
-      default:
-        return <Minus className="w-4 h-4 text-blue-500" />;
-    }
-  };
+  const summary = useMemo(() => {
+    const total = mockBiomarkers.length;
+    const needsFocus = mockBiomarkers.filter((b) => b.outofref).length;
+    const inRange = total - needsFocus;
+    const lastUpdated = mockBiomarkers.reduce<Date | null>((latest, b) => {
+      const d = b.date?.[0] ? new Date(b.date[0]) : null;
+      if (!d) return latest;
+      return !latest || d > latest ? d : latest;
+    }, null);
+    return { total, needsFocus, inRange, lastUpdated };
+  }, [mockBiomarkers]);
 
   const filteredBiomarkers = useMemo(() => {
-    if (!searchQuery) return mockBiomarkers;
-    return mockBiomarkers.filter((biomarker) =>
-      biomarker.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery, mockBiomarkers]);
-  const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>(
-    {}
-  );
-
-  const handleToggleChange = (biomarkerName: string, value: boolean) => {
-    setToggleStates((prevState) => ({
-      ...prevState,
-      [biomarkerName]: value,
-    }));
-  };
+    let list = mockBiomarkers;
+    if (statusFilter === "focus") {
+      list = list.filter((biomarker) => biomarker.outofref);
+    }
+    if (searchQuery) {
+      list = list.filter((biomarker) =>
+        biomarker.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    return list;
+  }, [searchQuery, mockBiomarkers, statusFilter]);
 
   const resolveOptimalRange = (Range: any) => {
     return (
@@ -366,419 +321,433 @@ export default function Trends() {
   };
   
   return (
-    <div className="min-h-screen pb-8 relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
-      <div className="w-full max-w-sm mx-auto px-3 py-4 overflow-hidden">
-        {/* Your Results Header */}
-        <div className="mb-4">
-          <h2 className="text-xl font-thin bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent mb-2">
-            Your Results
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 font-light mb-3">
-            Click on any biomarker to view detailed information
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 pb-8 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
+      <div className="mx-auto w-full max-w-md px-4 py-4">
+        {/* Page header */}
+        <div className="mb-5">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+              <FlaskConical className="h-5 w-5 text-white" />
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                Your Results
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Biomarker insights from your latest tests
+              </p>
+            </div>
+          </div>
 
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 z-[1] transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+          {/* Summary card */}
+          {summary.total > 0 && (
+            <Card className="mb-4 overflow-hidden rounded-2xl border-0 bg-white/80 shadow-md backdrop-blur-sm dark:bg-gray-800/80">
+              <CardContent className="p-4">
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="rounded-xl bg-blue-50/80 px-2 py-2.5 dark:bg-blue-900/20">
+                    <p className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                      {summary.total}
+                    </p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      Total
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-emerald-50/80 px-2 py-2.5 dark:bg-emerald-900/20">
+                    <p className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">
+                      {summary.inRange}
+                    </p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      In range
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-amber-50/80 px-2 py-2.5 dark:bg-amber-900/20">
+                    <p className="text-lg font-semibold text-amber-700 dark:text-amber-300">
+                      {summary.needsFocus}
+                    </p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                      Needs focus
+                    </p>
+                  </div>
+                </div>
+                {summary.lastUpdated && (
+                  <p className="mt-3 text-center text-[11px] text-gray-400 dark:text-gray-500">
+                    Last updated{" "}
+                    {summary.lastUpdated.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Search */}
+          <div className="relative mb-3">
+            <Search className="absolute left-3.5 top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search biomarkers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
+              className="h-11 rounded-xl border-gray-200/80 bg-white/90 pl-10 pr-4 text-sm shadow-sm backdrop-blur-sm dark:border-gray-700/80 dark:bg-gray-800/90"
             />
+          </div>
+
+          {/* Filter chips */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setStatusFilter("all")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                statusFilter === "all"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                  : "bg-white/80 text-gray-600 hover:bg-gray-100 dark:bg-gray-800/80 dark:text-gray-400 dark:hover:bg-gray-700"
+              }`}
+            >
+              All ({summary.total})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("focus")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                statusFilter === "focus"
+                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md"
+                  : "bg-white/80 text-gray-600 hover:bg-gray-100 dark:bg-gray-800/80 dark:text-gray-400 dark:hover:bg-gray-700"
+              }`}
+            >
+              Needs focus ({summary.needsFocus})
+            </button>
           </div>
         </div>
 
-        {/* Biomarker Cards - Single Column */}
+        {/* Biomarker list */}
         <div className="space-y-3">
-          {filteredBiomarkers.map((biomarker: any) => {
-            const optimalRange = biomarker.chart_bounds.filter(
-              (el: any) => el.status == "OptimalRange"
-            )[0];
-            return (
-              <Card
-                key={biomarker.name}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-lg"
-                onClick={() => openDetailModal(biomarker)}
-              >
-                <CardContent className="p-4 flex flex-col items-start w-full">
-                  {/* Card Header */}
-                  <div className="mb-3 w-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div
-                        className={`w-8 h-8 bg-gradient-to-br rounded-lg flex items-center justify-center shadow-lg flex-shrink-0`}
-                      >
-                        {/* <Droplets color="red"></Droplets> */}
-                        <img
-                          src={resolveAnalyseIcon(biomarker.subcategory)}
-                          className="w-4 h-4"
-                        />
-                        {/* <Icon className="w-5 h-5 text-white" /> */}
-                      </div>
-                      <div className="flex items-center justify-between w-full">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
-                          {biomarker.name}
-                        </h3>
-                        <div className="flex invisible gap-2 justify-end items-center">
-                          <div className="text-[12px] font-medium text-[#383838]">
-                            Historical Chart
-                          </div>
-                          <Toggle
-                            setChecked={(value: boolean) => {
-                              handleToggleChange(biomarker.name, value);
-                            }}
-                            checked={toggleStates[biomarker.name] || false}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          ></Toggle>
-                        </div>
-                      </div>
+          {filteredBiomarkers.map((biomarker: any) => (
+            <Card
+              key={biomarker.name}
+              className="cursor-pointer overflow-hidden rounded-2xl border-0 bg-white/90 shadow-md transition-all duration-200 hover:shadow-lg active:scale-[0.99] dark:bg-gray-800/90"
+              onClick={() => openDetailModal(biomarker)}
+            >
+              <CardContent className="p-4">
+                <div className="mb-3 flex items-start gap-3">
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-50 shadow-sm dark:bg-gray-700/80">
+                    <img
+                      src={resolveAnalyseIcon(biomarker.subcategory)}
+                      alt=""
+                      className="h-5 w-5"
+                    />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {biomarker.name}
+                      </h3>
+                      <ChevronRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-300 dark:text-gray-600" />
                     </div>
-                    <div className="flex items-center justify-between w-full">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Last test:{" "}
-                        {new Date(biomarker.date[0]).toLocaleDateString()}
-                      </p>
-                      <Badge
-                        style={{
-                          backgroundColor: resolveColor(
-                            getLatestStatus(biomarker)
-                          ),
-                        }}
-                        className={`text-xs flex-shrink-0 px-2 py-1`}
-                      >
-                        {findMatchingLabel(biomarker)}
-                      </Badge>
-                    </div>
+                    <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">
+                      {biomarker.date?.[0]
+                        ? `Last test · ${new Date(biomarker.date[0]).toLocaleDateString()}`
+                        : "No test date"}
+                    </p>
                   </div>
+                  <Badge
+                    style={{
+                      backgroundColor: resolveColor(getLatestStatus(biomarker)),
+                    }}
+                    className="flex-shrink-0 border-0 px-2 py-0.5 text-[10px] font-medium text-white"
+                  >
+                    {findMatchingLabel(biomarker)}
+                  </Badge>
+                </div>
 
-                  <div className="w-full flex justify-between items-center mb-1">
-                    {/* Current Value */}
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-base font-bold text-gray-900 dark:text-gray-100">
-                        {biomarker.values[0].toLocaleString()}
-                      </span>
-                      <span className="text-xs text-gray-600 dark:text-gray-400">
-                        {biomarker.unit}
-                      </span>
-                    </div>
-
-                    {/* Reference Range */}
-                    <div className="mb-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        Optimal Range
-                      </div>
-                      <div className="text-sm flex flex-wrap gap-4 font-medium text-gray-700 dark:text-gray-300">
-                        {resolveOptimalRangesSelectedBiomarker(biomarker).map(
-                          (el: any, index: number) => {
-                            return (
-                              <div
-                                key={el.status}
-                                className="flex items-center"
-                              >
-                                {resolveOptimalRangesSelectedBiomarker(
-                                  biomarker
-                                ).length -
-                                  1 ==
-                                  index &&
-                                  index != 0 && <div className=" mr-4">-</div>}
-                                {resolveOptimalRange(el)}
-                                {/* <div className="ml-2"></div> */}
-                              </div>
-                            );
-                          }
-                        )}
-                      </div>
-                    </div>
+                <div className="mb-3 flex items-end justify-between gap-4">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                      {biomarker.values[0]?.toLocaleString?.() ??
+                        biomarker.values[0]}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {biomarker.unit}
+                    </span>
                   </div>
+                  <div className="text-right">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-400">
+                      Optimal
+                    </p>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                      {resolveOptimalRangesSelectedBiomarker(biomarker)
+                        .map((el: any) => {
+                          const parts: string[] = [];
+                          if (el.low == null) parts.push("<");
+                          if (el.high == null) parts.push(">");
+                          if (el.low != null) parts.push(String(el.low));
+                          if (
+                            el.low != null &&
+                            el.high != null &&
+                            el.low !== el.high
+                          )
+                            parts.push("-");
+                          if (el.high != null && el.low !== el.high)
+                            parts.push(String(el.high));
+                          return parts.join("");
+                        })
+                        .join(" · ") || "—"}
+                    </p>
+                  </div>
+                </div>
 
-                  {biomarker.chart_bounds.length > 0 ? (
-                    <>
-                      <div className="w-full">
-                        <BiomarkerChart
-                          biomarker={biomarker}
-                          isCheced={toggleStates[biomarker.name] || false}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex justify-center items-center mt-10 w-full">
-                        <div className="flex flex-col items-center justify-center">
-                          <img
-                            src="/icons/Empty/detailAnalyseEmpty.svg"
-                            alt=""
-                            className="w-[180px]"
-                          />
-                          <div className="text-Text-Primary text-center mt-[-30px] text-sm font-medium">
-                            No Detailed Analysis Available Yet!
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+                {biomarker.chart_bounds.length > 0 ? (
+                  <div className="rounded-xl bg-gray-50/80 p-2 dark:bg-gray-900/30">
+                    <BiomarkerChart biomarker={biomarker} isCheced={false} />
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-xl bg-gray-50/60 py-6 dark:bg-gray-900/20">
+                    <img
+                      src="/icons/Empty/detailAnalyseEmpty.svg"
+                      alt=""
+                      className="w-[140px] opacity-80"
+                    />
+                    <p className="-mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                      No detailed analysis yet
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+
           {filteredBiomarkers.length === 0 && (
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <img
-                src="/icons/direct.svg"
-                alt="No biomarkers"
-                className="w-[60px] mx-auto"
-              />
-              <div className="text-center text-gray-700 dark:text-gray-400 text-sm">
-                No Results Available Yet
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 font-light text-center text-xs">
-                Once your test results are uploaded, you'll see detailed results
-                here
+            <div className="flex flex-col items-center rounded-2xl bg-white/60 px-6 py-12 text-center dark:bg-gray-800/40">
+              <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+                <Activity className="h-8 w-8 text-blue-500/70 dark:text-blue-400/70" />
+              </span>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {searchQuery || statusFilter === "focus"
+                  ? "No matching results"
+                  : "No results yet"}
+              </h3>
+              <p className="mt-1 max-w-[16rem] text-sm text-gray-500 dark:text-gray-400">
+                {searchQuery || statusFilter === "focus"
+                  ? "Try adjusting your search or filter."
+                  : "Once your test results are uploaded, you'll see detailed biomarker insights here."}
               </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Detailed Information Modal */}
+      {/* Biomarker detail sheet */}
       {selectedBiomarker && (
-        <Dialog
+        <Sheet
           open={showDetailModal}
-          onOpenChange={() => {
-            setShowDetailModal(false);
-            setActiveTab("results");
+          onOpenChange={(open) => {
+            setShowDetailModal(open);
+            if (!open) setActiveTab("results");
           }}
         >
-          <DialogContent className="max-w-sm mx- ">
-            <DialogHeader>
-              <div className="flex items-center gap-2">
-                <div
-                  style={{
-                    color: resolveColor(getLatestStatus(selectedBiomarker)),
-                  }}
-                  className={`w-10 h-10 bg-gradient-to-br rounded-lg flex items-center justify-center shadow-lg`}
-                >
-                  {/* <Droplets></Droplets> */}
-                  <img
-                    src={resolveAnalyseIcon(selectedBiomarker.subcategory)}
-                  />
-                </div>
-                <div>
-                  <DialogTitle className="text-lg font-thin">
-                    {selectedBiomarker.name}
-                  </DialogTitle>
-                  <DialogDescription className="text-sm">
-                    Detailed analysis and recommendations
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
+          <SheetContent
+            side="bottom"
+            className="mx-auto flex max-h-[88dvh] w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+          >
+            <div className="flex flex-shrink-0 justify-center pb-1 pt-3">
+              <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+            </div>
 
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="mt-4 h-[60vh] overflow-y-auto"
-            >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="results" className="text-xs">
-                  Results
-                </TabsTrigger>
-                <TabsTrigger value="improve" className="text-xs">
-                  How to Improve
-                </TabsTrigger>
-                <TabsTrigger value="insights" className="text-xs">
-                  Insights
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="results" className="space-y-4 mt-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {/* Current Value Card */}
-                  <Card
-                    className={`bg-gradient-to-br ${selectedBiomarker.bgColor}`}
+            <SheetHeader className="flex-shrink-0 space-y-0 px-5 pb-3 pt-1 text-left">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl shadow-sm"
+                    style={{
+                      backgroundColor: `${resolveColor(getLatestStatus(selectedBiomarker))}22`,
+                    }}
                   >
-                    <CardContent className="p-4">
-                      <h3 className="text-base font-medium mb-3">
-                        Current Value
-                      </h3>
-                      <div className="text-center">
-                        <div className="text-3xl font-thin text-gray-900 dark:text-gray-100 mb-2">
-                          {selectedBiomarker.values[0].toLocaleString()}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {selectedBiomarker.unit}
-                        </div>
-                        <Badge
-                          style={{
-                            backgroundColor: resolveColor(
-                              getLatestStatus(selectedBiomarker)
-                            ),
-                          }}
-                          className="mt-2 text-xs"
-                        >
-                          {selectedBiomarker.chart_bounds.filter(
-                            (el: any) =>
-                              el.status == getLatestStatus(selectedBiomarker)
-                          )[0]?.label != ""
-                            ? selectedBiomarker.chart_bounds.filter(
-                                (el: any) =>
-                                  el.status ==
-                                  getLatestStatus(selectedBiomarker)
-                              )[0]?.label
-                            : getLatestStatus(selectedBiomarker).toUpperCase()}
-                        </Badge>
+                    <img
+                      src={resolveAnalyseIcon(selectedBiomarker.subcategory)}
+                      alt=""
+                      className="h-5 w-5"
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <SheetTitle className="truncate text-base font-semibold text-gray-900 dark:text-gray-100">
+                      {selectedBiomarker.name}
+                    </SheetTitle>
+                    <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                      Detailed analysis and recommendations
+                    </SheetDescription>
+                  </div>
+                </div>
+                <SheetClose asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Close"
+                    className="h-8 w-8 flex-shrink-0 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </SheetClose>
+              </div>
+            </SheetHeader>
+
+            <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
+                <TabsList className="mb-4 grid h-10 w-full grid-cols-3 rounded-xl bg-gray-100/80 p-1 dark:bg-gray-800/80">
+                  <TabsTrigger
+                    value="results"
+                    className="rounded-lg text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+                  >
+                    Results
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="improve"
+                    className="rounded-lg text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+                  >
+                    Improve
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="insights"
+                    className="rounded-lg text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+                  >
+                    Insights
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="results" className="mt-0 space-y-3">
+                  <Card className="overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-900/20 dark:to-indigo-900/10">
+                    <CardContent className="p-4 text-center">
+                      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+                        Current value
+                      </p>
+                      <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                        {selectedBiomarker.values[0]?.toLocaleString?.() ??
+                          selectedBiomarker.values[0]}
                       </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {selectedBiomarker.unit}
+                      </p>
+                      <Badge
+                        style={{
+                          backgroundColor: resolveColor(
+                            getLatestStatus(selectedBiomarker)
+                          ),
+                        }}
+                        className="mt-2 border-0 text-xs text-white"
+                      >
+                        {selectedBiomarker.chart_bounds.filter(
+                          (el: any) =>
+                            el.status == getLatestStatus(selectedBiomarker)
+                        )[0]?.label != ""
+                          ? selectedBiomarker.chart_bounds.filter(
+                              (el: any) =>
+                                el.status ==
+                                getLatestStatus(selectedBiomarker)
+                            )[0]?.label
+                          : getLatestStatus(selectedBiomarker).toUpperCase()}
+                      </Badge>
                     </CardContent>
                   </Card>
 
-                  {/* Reference Range Card */}
-                  <Card className="bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10">
-                    <CardContent className="p-4">
-                      <h3 className="text-base font-medium mb-3">
-                        Reference Range
-                      </h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            Optimal Range:
-                          </span>
+                  <Card className="rounded-2xl border-0 bg-gray-50/80 dark:bg-gray-800/50">
+                    <CardContent className="space-y-3 p-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">
+                          Optimal range
+                        </span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">
                           {resolveOptimalRangesSelectedBiomarker(
                             selectedBiomarker
-                          ).length ? (
-                            resolveOptimalRangesSelectedBiomarker(
-                              selectedBiomarker
-                            ).map((el: any, index: number) => {
-                              return (
-                                <div
-                                  key={el.status}
-                                  className="flex items-center"
-                                >
-                                  {resolveOptimalRangesSelectedBiomarker(
-                                    selectedBiomarker
-                                  ).length -
-                                    1 ==
-                                    index &&
-                                    index != 0 && (
-                                      <div className=" mr-4">-</div>
-                                    )}
+                          ).length
+                            ? resolveOptimalRangesSelectedBiomarker(
+                                selectedBiomarker
+                              ).map((el: any, index: number) => (
+                                <span key={el.status} className="inline-flex">
+                                  {index > 0 && <span className="mx-1">-</span>}
                                   {resolveOptimalRange(el)}
-                                </div>
-                              );
-                            })
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              No reference range available yet.
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            Last Test:
-                          </span>
-                          {selectedBiomarker.date?.[0] ? (
-                            <span className="text-sm font-medium">
-                              {new Date(
+                                </span>
+                              ))
+                            : "Not available"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">
+                          Last test
+                        </span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">
+                          {selectedBiomarker.date?.[0]
+                            ? new Date(
                                 selectedBiomarker.date[0]
-                              ).toLocaleDateString()}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              No test date available.
-                            </span>
-                          )}
-                        </div>
+                              ).toLocaleDateString()
+                            : "Not available"}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
 
-                {/* Description */}
-                <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-base font-medium mb-2">
-                      About This Biomarker
-                    </h3>
-                    {selectedBiomarker.more_info ? (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed text-justify">
-                        {selectedBiomarker.more_info}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-gray-400 italic text-justify">
-                        No description is available for this biomarker yet.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="improve" className="space-y-3 mt-4">
-                <h3 className="text-base font-medium">
-                  Recommendations to Improve
-                </h3>
-                <div className="grid gap-3">
-                  <Card className="bg-gradient-to-br from-emerald-50/80 to-teal-50/60 dark:from-emerald-900/20 dark:to-teal-900/10">
-                    <CardContent className="p-3">
-                      <div className="flex items-start gap-2">
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <CheckCircle className="w-3 h-3 text-white" />
-                        </div>
-                        {selectedBiomarker.how_to_improve ? (
-                          <p className="text-sm text-gray-700 dark:text-gray-300 text-justify">
-                            {selectedBiomarker.how_to_improve}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-gray-400 italic text-justify">
-                            No specific recommendations are available for this
-                            biomarker yet.
-                          </p>
-                        )}
-                      </div>
+                  <Card className="rounded-2xl border-0">
+                    <CardContent className="p-4">
+                      <h3 className="mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        About this biomarker
+                      </h3>
+                      {selectedBiomarker.more_info ? (
+                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                          {selectedBiomarker.more_info}
+                        </p>
+                      ) : (
+                        <p className="text-sm italic text-gray-400">
+                          No description available yet.
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="insights" className="space-y-3 mt-4">
-                <h3 className="text-base font-medium">AI-Generated Insights</h3>
-                <div className="grid gap-3">
-                  <Card className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-900/20 dark:to-indigo-900/10">
-                    <CardContent className="p-3">
-                      <div className="flex items-start gap-2">
-                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Brain className="w-3 h-3 text-white" />
-                        </div>
-                        {selectedBiomarker.insight ? (
-                          <p className="text-sm text-gray-700 dark:text-gray-300 text-justify">
-                            {selectedBiomarker.insight}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-gray-400 italic text-justify">
-                            No AI insights have been generated for this
-                            biomarker yet.
-                          </p>
-                        )}
-                      </div>
+                <TabsContent value="improve" className="mt-0 space-y-3">
+                  <Card className="rounded-2xl border-0 bg-gradient-to-br from-emerald-50/80 to-teal-50/60 dark:from-emerald-900/20 dark:to-teal-900/10">
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500">
+                        <CheckCircle className="h-3.5 w-3.5 text-white" />
+                      </span>
+                      {selectedBiomarker.how_to_improve ? (
+                        <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                          {selectedBiomarker.how_to_improve}
+                        </p>
+                      ) : (
+                        <p className="text-sm italic text-gray-400">
+                          No recommendations available yet.
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
+                </TabsContent>
 
-            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowDetailModal(false);
-                  setActiveTab("results");
-                }}
-                className="text-sm min-h-[44px]"
-              >
-                Close
-              </Button>
+                <TabsContent value="insights" className="mt-0 space-y-3">
+                  <Card className="rounded-2xl border-0 bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-900/20 dark:to-indigo-900/10">
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-500">
+                        <Brain className="h-3.5 w-3.5 text-white" />
+                      </span>
+                      {selectedBiomarker.insight ? (
+                        <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                          {selectedBiomarker.insight}
+                        </p>
+                      ) : (
+                        <p className="text-sm italic text-gray-400">
+                          No AI insights generated yet.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
-          </DialogContent>
-        </Dialog>
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   );

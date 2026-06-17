@@ -1,11 +1,5 @@
 import Application from "@/api/app";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,6 +7,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail } from "@/lib/utils";
 import { Eye, EyeOff, Info, Key, Lock, Mail } from "lucide-react";
@@ -53,7 +54,13 @@ export default function ForgotPasswordModal({
     newPassword: "",
     confirmPassword: "",
   });
-  // Reset state when modal opens/closes
+
+  const fieldInputClass =
+    "h-11 rounded-xl border-gray-200 bg-gray-50/80 pl-10 pr-11 shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500/40 dark:border-gray-700 dark:bg-gray-800/60";
+  const fieldLabelClass = "text-sm font-medium text-gray-700 dark:text-gray-300";
+  const toggleClass =
+    "absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 rounded-lg p-0 text-gray-500 hover:bg-gray-200/70 dark:hover:bg-gray-700/70";
+
   useEffect(() => {
     if (open) {
       setForgotPasswordData({
@@ -74,7 +81,6 @@ export default function ForgotPasswordModal({
     }
   }, [open, initialEmail]);
 
-  // Timer for code expiration
   useEffect(() => {
     if (codeExpireTime && forgotPasswordStep === 2) {
       const interval = setInterval(() => {
@@ -84,26 +90,15 @@ export default function ForgotPasswordModal({
           Math.floor((codeExpireTime - now) / 1000)
         );
         setTimeRemaining(remaining);
-
-        if (remaining === 0) {
-          clearInterval(interval);
-        }
+        if (remaining === 0) clearInterval(interval);
       }, 1000);
-
       return () => clearInterval(interval);
     }
   }, [codeExpireTime, forgotPasswordStep]);
 
-  const handleForgotPasswordStep1 = async ({
-    resend = false,
-  }: {
-    resend?: boolean;
-  }) => {
-    if (!forgotPasswordData.email || forgotPasswordData.email.trim() === "") {
-      setErrorsForgotPassword({
-        ...errorsForgotPassword,
-        email: "This field is required.",
-      });
+  const handleForgotPasswordStep1 = async ({ resend = false }: { resend?: boolean }) => {
+    if (!forgotPasswordData.email?.trim()) {
+      setErrorsForgotPassword({ ...errorsForgotPassword, email: "This field is required." });
       return;
     }
     if (!validateEmail(forgotPasswordData.email)) {
@@ -114,19 +109,12 @@ export default function ForgotPasswordModal({
       return;
     }
 
-    if (resend) {
-      setIsLoadingForgotPasswordResend(true);
-    } else {
-      setIsLoadingForgotPassword(true);
-    }
+    if (resend) setIsLoadingForgotPasswordResend(true);
+    else setIsLoadingForgotPassword(true);
+
     try {
-      await Application.forgetPasswordSendVerification(
-        forgotPasswordData.email
-      );
-
-      // Set expiration time to 10 minutes from now
+      await Application.forgetPasswordSendVerification(forgotPasswordData.email);
       setCodeExpireTime(Date.now() + 10 * 60 * 1000);
-
       toast({
         title: "Verification code sent",
         description: "Please check your email for the verification code.",
@@ -147,10 +135,7 @@ export default function ForgotPasswordModal({
 
   const handleForgotPasswordStep2 = async () => {
     if (!forgotPasswordData.resetCode) {
-      setErrorsForgotPassword({
-        ...errorsForgotPassword,
-        resetCode: "This field is required.",
-      });
+      setErrorsForgotPassword({ ...errorsForgotPassword, resetCode: "This field is required." });
       return;
     }
 
@@ -160,26 +145,14 @@ export default function ForgotPasswordModal({
         forgotPasswordData.email,
         parseInt(forgotPasswordData.resetCode)
       );
-      toast({
-        title: "Code verified",
-        description: "Please enter your new password.",
-      });
+      toast({ title: "Code verified", description: "Please enter your new password." });
       setForgotPasswordStep(3);
     } catch (error: any) {
-      const statusCode = error.response?.status;
       const detail = error.response?.data?.detail;
-
-      if (statusCode === 406) {
-        setErrorsForgotPassword({
-          ...errorsForgotPassword,
-          resetCode: detail || "Invalid verification code.",
-        });
-      } else {
-        setErrorsForgotPassword({
-          ...errorsForgotPassword,
-          resetCode: detail || "Failed to verify code. Please try again.",
-        });
-      }
+      setErrorsForgotPassword({
+        ...errorsForgotPassword,
+        resetCode: detail || "Failed to verify code. Please try again.",
+      });
     } finally {
       setIsLoadingForgotPassword(false);
     }
@@ -187,23 +160,16 @@ export default function ForgotPasswordModal({
 
   const handleForgotPasswordStep3 = async () => {
     if (!forgotPasswordData.newPassword) {
-      setErrorsForgotPassword({
-        ...errorsForgotPassword,
-        newPassword: "This field is required.",
-      });
+      setErrorsForgotPassword({ ...errorsForgotPassword, newPassword: "This field is required." });
       return;
     }
-    if (
-      !forgotPasswordData.confirmPassword ||
-      forgotPasswordData.confirmPassword.trim() === ""
-    ) {
+    if (!forgotPasswordData.confirmPassword?.trim()) {
       setErrorsForgotPassword({
         ...errorsForgotPassword,
         confirmPassword: "Please confirm your password",
       });
       return;
     }
-
     if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
       setErrorsForgotPassword({
         ...errorsForgotPassword,
@@ -220,133 +186,127 @@ export default function ForgotPasswordModal({
       );
       toast({
         title: "Password reset successful",
-        description:
-          "Your password has been updated. Please sign in with your new password.",
+        description: "Your password has been updated. Please sign in.",
       });
-
-      // Reset forgot password state
       onOpenChange(false);
       setForgotPasswordStep(1);
-      setForgotPasswordData({
-        email: "",
-        resetCode: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-      setErrorsForgotPassword({
-        ...errorsForgotPassword,
-        email: "",
-        resetCode: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      setForgotPasswordData({ email: "", resetCode: "", newPassword: "", confirmPassword: "" });
       setCodeExpireTime(null);
       setTimeRemaining(0);
-
-      // Call success callback if provided
-      if (onSuccess) {
-        onSuccess();
-      }
+      onSuccess?.();
     } catch (error: any) {
       setErrorsForgotPassword({
         ...errorsForgotPassword,
         confirmPassword:
-          error.response?.data?.detail ||
-          "Failed to reset password. Please try again.",
+          error.response?.data?.detail || "Failed to reset password. Please try again.",
       });
     } finally {
       setIsLoadingForgotPassword(false);
     }
   };
 
-  const handleResendCode = async () => {
-    await handleForgotPasswordStep1({ resend: true });
-  };
+  const stepTitles = ["Reset Password", "Enter Code", "New Password"];
+  const stepDescriptions = [
+    "We'll send a verification code to your email.",
+    "Enter the code we sent to your inbox.",
+    "Create a new secure password.",
+  ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-green-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-green-900/20 backdrop-blur-xl border-0 shadow-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-green-800 dark:from-white dark:to-green-200 bg-clip-text text-transparent flex items-center gap-2">
-            <Key className="w-5 h-5 text-green-600" />
-            Reset Password
-          </DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="mx-auto flex max-h-[92dvh] w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+      >
+        <div className="flex flex-shrink-0 justify-center pb-1 pt-3">
+          <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+        </div>
 
-        <div className="space-y-4 mt-4">
-          {/* Step 1: Email */}
+        <SheetHeader className="flex-shrink-0 space-y-0 px-5 pb-3 pt-1 text-left">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15">
+              <Key className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </span>
+            <div>
+              <SheetTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {stepTitles[forgotPasswordStep - 1]}
+              </SheetTitle>
+              <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                {stepDescriptions[forgotPasswordStep - 1]}
+              </SheetDescription>
+            </div>
+          </div>
+          <div className="mt-3 flex gap-1.5">
+            {[1, 2, 3].map((step) => (
+              <span
+                key={step}
+                className={`h-1 flex-1 rounded-full transition-colors ${
+                  forgotPasswordStep >= step
+                    ? "bg-emerald-500"
+                    : "bg-gray-200 dark:bg-gray-700"
+                }`}
+              />
+            ))}
+          </div>
+        </SheetHeader>
+
+        <div className="flex-1 space-y-4 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
           {forgotPasswordStep === 1 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Enter your email address and we'll send you a verification code.
-              </p>
-              <div className="space-y-2">
-                <Label htmlFor="forgot-email" className="text-sm font-medium">
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="forgot-email" className={fieldLabelClass}>
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <Input
                     id="forgot-email"
                     type="email"
                     value={forgotPasswordData.email}
                     onChange={(e) => {
-                      setForgotPasswordData((prev) => ({
-                        ...prev,
-                        email: e.target.value,
-                      }));
-                      setErrorsForgotPassword({
-                        ...errorsForgotPassword,
-                        email: "",
-                      });
+                      setForgotPasswordData((prev) => ({ ...prev, email: e.target.value }));
+                      setErrorsForgotPassword({ ...errorsForgotPassword, email: "" });
                     }}
-                    className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
+                    className={fieldInputClass}
                     placeholder="your@email.com"
                     data-testid="input-forgot-email"
                   />
                 </div>
                 {errorsForgotPassword.email && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errorsForgotPassword.email}
-                  </p>
+                  <p className="text-xs text-red-500">{errorsForgotPassword.email}</p>
                 )}
               </div>
               <Button
                 onClick={() => handleForgotPasswordStep1({ resend: false })}
                 disabled={isLoadingForgotPassword}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                className="h-11 w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white hover:from-emerald-700 hover:to-teal-700"
                 data-testid="button-send-code"
               >
-                {isLoadingForgotPassword
-                  ? "Sending..."
-                  : "Send Verification Code"}
+                {isLoadingForgotPassword ? "Sending..." : "Send Verification Code"}
               </Button>
-            </div>
+            </>
           )}
 
-          {/* Step 2: Verification Code */}
           {forgotPasswordStep === 2 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                We sent a verification code to{" "}
-                <span className="font-semibold">
+            <>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Code sent to{" "}
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {forgotPasswordData.email}
                 </span>
               </p>
-
               {timeRemaining > 0 && (
-                <div className="text-xs text-gray-500 dark:text-gray-400 bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                   Code expires in {Math.floor(timeRemaining / 60)}:
                   {String(timeRemaining % 60).padStart(2, "0")}
                 </div>
               )}
-
-              <div className="space-y-2">
-                <Label htmlFor="reset-code" className="text-sm font-medium">
+              <div className="space-y-1.5">
+                <Label htmlFor="reset-code" className={fieldLabelClass}>
                   Verification Code
                 </Label>
                 <div className="relative">
-                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <Input
                     id="reset-code"
                     type="text"
@@ -356,136 +316,100 @@ export default function ForgotPasswordModal({
                         ...prev,
                         resetCode: e.target.value.replace(/\D/g, ""),
                       }));
-                      setErrorsForgotPassword({
-                        ...errorsForgotPassword,
-                        resetCode: "",
-                      });
+                      setErrorsForgotPassword({ ...errorsForgotPassword, resetCode: "" });
                     }}
-                    className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
+                    className={fieldInputClass}
                     placeholder="Enter 4-digit code"
                     maxLength={4}
                     data-testid="input-reset-code"
                   />
                 </div>
                 {errorsForgotPassword.resetCode && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errorsForgotPassword.resetCode}
-                  </p>
+                  <p className="text-xs text-red-500">{errorsForgotPassword.resetCode}</p>
                 )}
               </div>
-
               <div className="flex gap-2">
                 <Button
                   onClick={handleForgotPasswordStep2}
                   disabled={isLoadingForgotPassword}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                  className="h-11 flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white"
                   data-testid="button-verify-code"
                 >
                   {isLoadingForgotPassword ? "Verifying..." : "Verify Code"}
                 </Button>
                 <Button
-                  onClick={handleResendCode}
-                  disabled={
-                    isLoadingForgotPasswordResend || timeRemaining > 540
-                  }
+                  onClick={() => handleForgotPasswordStep1({ resend: true })}
+                  disabled={isLoadingForgotPasswordResend || timeRemaining > 540}
                   variant="outline"
-                  className="flex-1"
+                  className="h-11 flex-1 rounded-xl border-gray-200 dark:border-gray-700"
                   data-testid="button-resend-code"
                 >
-                  Resend Code
+                  Resend
                 </Button>
               </div>
-            </div>
+            </>
           )}
 
-          {/* Step 3: New Password */}
           {forgotPasswordStep === 3 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Create a new password for your account.
-              </p>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="new-password" className="text-sm font-medium">
+            <>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="new-password" className={fieldLabelClass}>
                     New Password
                   </Label>
                   <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="inline-flex mb-1 w-3 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        className="rounded-full p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700"
                         aria-label="Password requirements"
-                        onMouseEnter={() => setIsInfoOpen(true)}
-                        onMouseLeave={() => setIsInfoOpen(false)}
                       >
-                        <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <Info className="h-3.5 w-3.5 text-gray-500" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent
-                      className="w-64 p-3 text-sm"
-                      side="top"
-                      sideOffset={8}
-                      onMouseEnter={() => setIsInfoOpen(true)}
-                      onMouseLeave={() => setIsInfoOpen(false)}
-                    >
+                    <PopoverContent className="w-64 p-3 text-sm" side="top">
                       <p className="text-gray-700 dark:text-gray-300">
-                        At least 8 characters. (Use Uppercase & Lowercase
-                        letters, Numbers and Special characters)
+                        At least 8 characters with uppercase, lowercase, numbers and special
+                        characters.
                       </p>
                     </PopoverContent>
                   </Popover>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <Input
                     id="new-password"
                     type={showNewPassword ? "text" : "password"}
                     value={forgotPasswordData.newPassword}
                     onChange={(e) => {
-                      setForgotPasswordData((prev) => ({
-                        ...prev,
-                        newPassword: e.target.value,
-                      }));
-                      setErrorsForgotPassword({
-                        ...errorsForgotPassword,
-                        newPassword: "",
-                      });
+                      setForgotPasswordData((prev) => ({ ...prev, newPassword: e.target.value }));
+                      setErrorsForgotPassword({ ...errorsForgotPassword, newPassword: "" });
                     }}
-                    className="pl-10 pr-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
+                    className={fieldInputClass}
                     placeholder="Enter new password"
                     data-testid="input-new-password"
                   />
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                    size="icon"
+                    className={toggleClass}
                     onClick={() => setShowNewPassword(!showNewPassword)}
                   >
-                    {showNewPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
                 {errorsForgotPassword.newPassword && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errorsForgotPassword.newPassword}
-                  </p>
+                  <p className="text-xs text-red-500">{errorsForgotPassword.newPassword}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="confirm-new-password"
-                  className="text-sm font-medium"
-                >
+              <div className="space-y-1.5">
+                <Label htmlFor="confirm-new-password" className={fieldLabelClass}>
                   Confirm New Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <Input
                     id="confirm-new-password"
                     type={showConfirmPassword ? "text" : "password"}
@@ -495,20 +419,17 @@ export default function ForgotPasswordModal({
                         ...prev,
                         confirmPassword: e.target.value,
                       }));
-                      setErrorsForgotPassword({
-                        ...errorsForgotPassword,
-                        confirmPassword: "",
-                      });
+                      setErrorsForgotPassword({ ...errorsForgotPassword, confirmPassword: "" });
                     }}
-                    className="pl-10 bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700"
+                    className={fieldInputClass}
                     placeholder="Confirm new password"
                     data-testid="input-confirm-password"
                   />
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                    size="icon"
+                    className={toggleClass}
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
@@ -519,24 +440,22 @@ export default function ForgotPasswordModal({
                   </Button>
                 </div>
                 {errorsForgotPassword.confirmPassword && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errorsForgotPassword.confirmPassword}
-                  </p>
+                  <p className="text-xs text-red-500">{errorsForgotPassword.confirmPassword}</p>
                 )}
               </div>
 
               <Button
                 onClick={handleForgotPasswordStep3}
                 disabled={isLoadingForgotPassword}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                className="h-11 w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white hover:from-emerald-700 hover:to-teal-700"
                 data-testid="button-reset-password"
               >
                 {isLoadingForgotPassword ? "Resetting..." : "Reset Password"}
               </Button>
-            </div>
+            </>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

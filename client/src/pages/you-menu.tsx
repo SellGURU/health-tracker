@@ -618,7 +618,7 @@ export default function YouMenu() {
   };
 
   const renderMainView = () => (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {showHtmlReport && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
           <div className="bg-white dark:bg-neutral-900 w-[100%] h-[100%] overflow-hidden relative">
@@ -643,17 +643,15 @@ export default function YouMenu() {
           </div>
         </div>
       )}
-      {/* Age Cards - Prominent Display */}
+      {/* Age stats */}
       <div
         className={`grid gap-3 ${
-          clientInformation?.show_phenoage == true
-            ? "grid-cols-2"
-            : "grid-cols-1"
+          clientInformation?.show_phenoage === true ? "grid-cols-2" : "grid-cols-1"
         }`}
       >
-        {clientInformation?.show_phenoage == true && (
-          <Card
-            className="cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-emerald-50/80 via-white/90 to-teal-50/80 dark:from-emerald-900/30 dark:via-gray-800/70 dark:to-teal-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+        {clientInformation?.show_phenoage === true && (
+          <button
+            type="button"
             onClick={() =>
               toast({
                 title: "Phenotypic Age",
@@ -661,111 +659,60 @@ export default function YouMenu() {
                   "Phenotypic Age (PhenoAge) is an estimate of how old your body seems based on health markers—rather than just your chronological age.",
               })
             }
+            className="flex items-center gap-3 rounded-2xl border border-gray-200/60 bg-white/90 p-4 text-left shadow-sm transition-all active:scale-[0.99] dark:border-gray-700/50 dark:bg-gray-900/90"
           >
-            <CardContent className="p-4 text-center relative z-10 h-full">
-              {/* Animated background glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-teal-400/5 to-cyan-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-300/20 to-transparent rounded-full blur-2xl"></div>
-
-              <div className="relative">
-                {/* Simple icon */}
-                <div className="relative mx-auto flex justify-center mb-4">
-                  <div
-                    className="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
-                    style={{
-                      background: `${
-                        brandInfo ? brandInfo?.primary_color : undefined
-                      }`,
-                    }}
-                  >
-                    <Activity className="w-8 h-8 text-white" />
-                  </div>
-                </div>
-
-                {/* Age display */}
-
-                <div className="mb-2">
-                  <div
-                    className="text-4xl font-extralight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-sm"
-                    style={{
-                      color: `${
-                        brandInfo ? brandInfo?.primary_color : undefined
-                      }`,
-                    }}
-                  >
-                    {clientInformation?.pheno_age}
-                  </div>
-                  <div
-                    className="text-sm font-thin text-emerald-700 dark:text-emerald-300 tracking-wide"
-                    style={{
-                      color: `${
-                        brandInfo ? brandInfo?.primary_color : undefined
-                      }`,
-                    }}
-                  >
-                    Phenotypic Age
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <span
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
+              style={{
+                background: brandInfo?.primary_color ?? "#10b981",
+              }}
+            >
+              <Activity className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p
+                className="text-2xl font-semibold leading-none text-gray-900 dark:text-gray-100"
+                style={{ color: brandInfo?.primary_color }}
+              >
+                {clientInformation?.pheno_age}
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Phenotypic Age
+              </p>
+            </div>
+          </button>
         )}
 
-        <Card
-          className="cursor-pointer  hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-purple-50/80 via-white/90 to-pink-50/80 dark:from-purple-900/30 dark:via-gray-800/70 dark:to-pink-900/30 border-0 shadow-xl backdrop-blur-lg relative overflow-hidden group"
+        <button
+          type="button"
           onClick={() =>
             toast({
               title: "Chronological Age",
               description: "Based on your date of birth",
             })
           }
+          className="flex items-center gap-3 rounded-2xl border border-gray-200/60 bg-white/90 p-4 text-left shadow-sm transition-all active:scale-[0.99] dark:border-gray-700/50 dark:bg-gray-900/90"
         >
-          <CardContent className="p-4 text-center relative z-10 h-full">
-            {/* Animated background elements */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-pink-400/5 to-rose-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-purple-300/20 to-transparent rounded-full blur-xl animate-pulse"></div>
-
-            <div className="relative">
-              {/* Age icon */}
-              <div className="relative flex justify-center mx-auto mb-4">
-                <div
-                  className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300"
-                  style={{
-                    background: `${
-                      brandInfo ? brandInfo?.secondary_color : undefined
-                    }`,
-                  }}
-                >
-                  <span className="text-2xl">🎂</span>
-                </div>
-              </div>
-
-              {/* Age display */}
-              <div className="mb-2">
-                <div
-                  className="text-4xl font-extralight bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent drop-shadow-sm"
-                  style={{
-                    color: `${
-                      brandInfo ? brandInfo?.secondary_color : undefined
-                    }`,
-                  }}
-                >
-                  {clientInformation?.age}
-                </div>
-                <div
-                  className="text-sm font-thin text-purple-700 dark:text-purple-300 tracking-wide"
-                  style={{
-                    color: `${
-                      brandInfo ? brandInfo?.secondary_color : undefined
-                    }`,
-                  }}
-                >
-                  Chronological Age
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <span
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl text-lg shadow-sm"
+            style={{
+              background: brandInfo?.secondary_color ?? "#a855f7",
+            }}
+          >
+            🎂
+          </span>
+          <div className="min-w-0">
+            <p
+              className="text-2xl font-semibold leading-none text-gray-900 dark:text-gray-100"
+              style={{ color: brandInfo?.secondary_color }}
+            >
+              {clientInformation?.age}
+            </p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Chronological Age
+            </p>
+          </div>
+        </button>
       </div>
 
       {/* Complete Profile CTA if data missing */}
@@ -790,418 +737,327 @@ export default function YouMenu() {
       )}
 
       {brandInfo?.name === "Default Clinic" && (
-        <Card className="bg-gradient-to-br from-red-50/50 via-white/50 to-red-50/50 dark:from-red-900/20 dark:via-gray-800/50 dark:to-red-900/20 border-0 shadow-xl backdrop-blur-lg">
-          <CardContent className="p-4 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-500/5 rounded-lg"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Contact2 className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex flex-col w-[70%]">
-                  <h3 className="font-thin text-base text-gray-900 dark:text-gray-100 mb-1">
+        <Card className="overflow-hidden border border-red-200/60 bg-white/90 shadow-sm dark:border-red-900/40 dark:bg-gray-900/90">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-rose-500 shadow-sm">
+                  <Contact2 className="h-5 w-5 text-white" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                     Contact Us
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
-                    Since you are not a clinical member, please contact us.
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Not a clinical member? Get in touch with our team.
                   </p>
                 </div>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="rounded-full bg-red-500 hover:bg-red-600"
-                  onClick={() => {
-                    window.open(`https://holisticare.io/#form`, "_blank");
-                  }}
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
               </div>
+              <Button
+                size="icon"
+                className="h-9 w-9 flex-shrink-0 rounded-full bg-red-500 hover:bg-red-600"
+                onClick={() => window.open("https://holisticare.io/#form", "_blank")}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Your Plan Card */}
+      {/* Your Plan */}
       <Card
-        className={`hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-teal-50/50 via-white/50 to-cyan-50/50 dark:from-teal-900/20 dark:via-gray-800/50 dark:to-cyan-900/20 border-0 shadow-xl backdrop-blur-lg ${hasHealthData ? "cursor-pointer" : ""}`}
+        className={`overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm dark:border-gray-700/50 dark:bg-gray-900/90 ${
+          hasHealthData ? "cursor-pointer transition-all active:scale-[0.99]" : ""
+        }`}
         onClick={hasHealthData ? () => setLocation("/plan") : undefined}
       >
-        <CardContent className="p-4 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-lg"></div>
+        <CardContent className="p-4">
           {!hasHealthData ? (
-            <div className="relative flex flex-col items-center text-center px-4 py-4">
-              <div className="w-20 h-20 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-4">
-                <Target className="w-8 h-8 text-teal-500" />
-              </div>
-              <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <div className="flex flex-col items-center px-2 py-4 text-center">
+              <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 dark:bg-teal-950/40">
+                <Target className="h-7 w-7 text-teal-600 dark:text-teal-400" />
+              </span>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 No Action Plan Yet
               </h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                Complete your health profile and add health data to get
-                personalized goals, challenges and action plans.
+              <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                Complete your health profile to get personalized goals and action
+                plans.
               </p>
             </div>
           ) : (
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Target className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-thin text-base text-gray-900 dark:text-gray-100 mb-1">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 shadow-sm">
+                  <Target className="h-5 w-5 text-white" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                     Your Plan
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Goals, challenges & action plans
                   </p>
                 </div>
               </div>
-              <div className="relative">
-                <div className="w-16 h-16 relative">
-                  <svg
-                    className="w-16 h-16 transform -rotate-90"
-                    viewBox="0 0 64 64"
-                  >
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      className="text-gray-200/30 dark:text-gray-700/30"
-                    />
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      fill="none"
-                      stroke="url(#progressGradient)"
-                      strokeWidth="3"
-                      strokeDasharray={`${
-                        2 *
-                        Math.PI *
-                        28 *
-                        (holisticPlanActionPlan.progress / 100)
-                      } ${2 * Math.PI * 28}`}
-                      strokeLinecap="round"
-                      className="drop-shadow-sm"
-                    />
-                    <defs>
-                      <linearGradient
-                        id="progressGradient"
-                        x1="0%"
-                        y1="0%"
-                        x2="100%"
-                        y2="100%"
-                      >
-                        <stop offset="0%" stopColor="#14b8a6" />
-                        <stop offset="100%" stopColor="#06b6d4" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-thin bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                      {holisticPlanActionPlan.progress}%
-                    </span>
-                  </div>
-                </div>
+              <div className="relative h-14 w-14 flex-shrink-0">
+                <svg
+                  className="h-14 w-14 -rotate-90 transform"
+                  viewBox="0 0 64 64"
+                >
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    className="text-gray-200 dark:text-gray-700"
+                  />
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="none"
+                    stroke="url(#planProgress)"
+                    strokeWidth="3"
+                    strokeDasharray={`${
+                      2 * Math.PI * 28 * (holisticPlanActionPlan.progress / 100)
+                    } ${2 * Math.PI * 28}`}
+                    strokeLinecap="round"
+                  />
+                  <defs>
+                    <linearGradient id="planProgress" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#14b8a6" />
+                      <stop offset="100%" stopColor="#06b6d4" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-teal-600 dark:text-teal-400">
+                  {holisticPlanActionPlan.progress}%
+                </span>
               </div>
             </div>
           )}
         </CardContent>
       </Card>
-      {/* wellneess */}
-      <Card
-        className="w-full  mx-auto rounded-2xl
-             bg-white dark:bg-gray-900
-             shadow-xl border border-gray-100 dark:border-gray-800"
-      >
-        <CardContent className="p-5">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+
+      {/* Wellness Dashboard */}
+      <Card className="overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm dark:border-gray-700/50 dark:bg-gray-900/90">
+        <CardContent className="p-4">
+          <div className="mb-4 flex items-start justify-between gap-2">
             <div>
-              <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Wellness Dashboard
               </h3>
-              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                {wellnessScore.latest_date ? (
-                  <>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    Last synced {formatDate(wellnessScore.latest_date)}
-                  </>
-                ) : (
-                  <>
-                    <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-                    waiting for connection
-                  </>
-                )}
+              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    wellnessScore.latest_date ? "bg-emerald-500" : "bg-gray-300"
+                  }`}
+                />
+                {wellnessScore.latest_date
+                  ? `Synced ${formatDate(wellnessScore.latest_date)}`
+                  : "Waiting for connection"}
               </p>
             </div>
           </div>
           {wellnessScore.latest_date && (
             <>
-              {/* Metrics */}
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Moon className="w-4 h-4 text-indigo-500" />
-                    <span className="text-xs tracking-wide text-gray-500">
-                      SLEEP
-                    </span>
+              <div className="mb-4 grid grid-cols-2 gap-2">
+                {[
+                  {
+                    label: "Sleep",
+                    icon: Moon,
+                    color: "text-indigo-600 dark:text-indigo-400",
+                    bg: "bg-indigo-50 dark:bg-indigo-950/40",
+                    score:
+                      wellnessScore.scores.filter((el: any) =>
+                        el.name.toLowerCase().includes("sleep"),
+                      )[0]?.score || 0,
+                  },
+                  {
+                    label: "Activity",
+                    icon: Activity,
+                    color: "text-emerald-600 dark:text-emerald-400",
+                    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+                    score:
+                      wellnessScore.scores.filter((el: any) =>
+                        el.name.toLowerCase().includes("activity score"),
+                      )[0]?.score || 0,
+                  },
+                  {
+                    label: "Stress",
+                    icon: Zap,
+                    color: "text-amber-600 dark:text-amber-400",
+                    bg: "bg-amber-50 dark:bg-amber-950/40",
+                    score:
+                      wellnessScore.scores.filter((el: any) =>
+                        el.name.toLowerCase().includes("stress score"),
+                      )[0]?.score || 0,
+                  },
+                  {
+                    label: "Heart",
+                    icon: Heart,
+                    color: "text-rose-600 dark:text-rose-400",
+                    bg: "bg-rose-50 dark:bg-rose-950/40",
+                    score:
+                      wellnessScore.scores.filter((el: any) =>
+                        el.name.toLowerCase().includes("heart health score"),
+                      )[0]?.score || 0,
+                  },
+                ].map((metric) => (
+                  <div
+                    key={metric.label}
+                    className={`rounded-xl p-3 ${metric.bg}`}
+                  >
+                    <div className="mb-1.5 flex items-center gap-1.5">
+                      <metric.icon className={`h-3.5 w-3.5 ${metric.color}`} />
+                      <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                        {metric.label}
+                      </span>
+                    </div>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {metric.score}
+                    </p>
                   </div>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {wellnessScore.scores.filter((el: any) => {
-                      return el.name.toLowerCase().includes("sleep");
-                    })[0]?.score || 0}{" "}
-                    <span className="text-xs font-normal text-gray-500"></span>
-                  </p>
-                </div>
-
-                <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Activity className="w-4 h-4 text-emerald-500" />
-                    <span className="text-xs tracking-wide text-gray-500">
-                      Activity
-                    </span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {wellnessScore.scores.filter((el: any) => {
-                      return el.name.toLowerCase().includes("activity score");
-                    })[0]?.score || 0}
-                  </p>
-                </div>
-
-                <div className="rounded-xl bg-yellow-50 dark:bg-yellow-900/20 p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                    <span className="text-xs tracking-wide text-gray-500">
-                      STRESS
-                    </span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {wellnessScore.scores.filter((el: any) => {
-                      return el.name.toLowerCase().includes("stress score");
-                    })[0]?.score || 0}
-                  </p>
-                </div>
-
-                <div className="rounded-xl bg-rose-50 dark:bg-rose-900/20 p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Heart className="w-4 h-4 text-rose-500" />
-                    <span className="text-xs tracking-wide text-gray-500">
-                      HEART
-                    </span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {wellnessScore.scores.filter((el: any) => {
-                      return el.name
-                        .toLowerCase()
-                        .includes("heart health score");
-                    })[0]?.score || 0}
-                  </p>
-                </div>
+                ))}
               </div>
 
-              {/* Description */}
-              <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
-                Monitor your daily habits to optimize your recovery and
-                longevity.
-              </p>
-
-              {/* CTA */}
-              <button
+              <Button
                 onClick={() => setLocation("/wearable")}
-                className="w-full flex items-center justify-center gap-2
-                    text-sm font-medium
-                      py-3 rounded-xl transition-colors"
+                className="h-11 w-full rounded-xl font-medium text-white shadow-sm"
                 style={{
-                  background: `${
-                    brandInfo ? brandInfo?.primary_color : undefined
-                  }`,
-                  color: `${
-                    brandInfo
-                      ? isColorDark(brandInfo?.primary_color || "#000000")
-                        ? "white"
-                        : "black"
-                      : undefined
-                  }`,
+                  background: brandInfo?.primary_color ?? "#10b981",
+                  color: brandInfo
+                    ? isColorDark(brandInfo.primary_color || "#000000")
+                      ? "white"
+                      : "black"
+                    : "white",
                 }}
               >
                 Go to Dashboard
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </>
           )}
-          {wellnessScore.latest_date == null && (
-            <>
-              <div className="flex flex-col items-center text-center px-4">
-                <div className="relative mb-6">
-                  <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <Activity className="w-8 h-8 text-emerald-500" />
-                  </div>
-
-                  <div
-                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
-                        bg-white border border-gray-200
-                        flex items-center justify-center shadow-sm"
-                  >
-                    <Smartphone className="w-4 h-4 text-indigo-500" />
-                  </div>
-                </div>
-
-                {/* Empty text */}
-                <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  No Wellness Data
-                </h4>
-
-                <p className="text-sm text-gray-500 leading-relaxed mb-6">
-                  Connect your wearable or health app to start tracking your
-                  daily recovery and longevity.
-                </p>
-
-                {/* CTA */}
-                <button
-                  onClick={() => setLocation("/devices")}
-                  style={{
-                    background: `${
-                      brandInfo ? brandInfo?.primary_color : undefined
-                    }`,
-                    color: `${
-                      brandInfo
-                        ? isColorDark(brandInfo?.primary_color || "#000000")
-                          ? "white"
-                          : "black"
-                        : undefined
-                    }`,
-                  }}
-                  className="w-full flex items-center justify-center gap-2
-                   text-sm font-medium
-                   py-3 rounded-xl transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Connect Device
-                </button>
+          {!wellnessScore.latest_date && (
+            <div className="flex flex-col items-center px-2 py-2 text-center">
+              <div className="relative mb-4">
+                <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/40">
+                  <Activity className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+                </span>
+                <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm ring-2 ring-white dark:bg-gray-900 dark:ring-gray-900">
+                  <Smartphone className="h-3.5 w-3.5 text-indigo-500" />
+                </span>
               </div>
-            </>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                No Wellness Data
+              </h4>
+              <p className="mt-1 mb-4 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                Connect your wearable to track recovery and longevity metrics.
+              </p>
+              <Button
+                onClick={() => setLocation("/devices")}
+                className="h-11 w-full rounded-xl font-medium text-white shadow-sm"
+                style={{
+                  background: brandInfo?.primary_color ?? "#10b981",
+                  color: brandInfo
+                    ? isColorDark(brandInfo.primary_color || "#000000")
+                      ? "white"
+                      : "black"
+                    : "white",
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Connect Device
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Assigned Questionnaires Section */}
-      <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-thin flex items-center gap-2">
-            <div
-              className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center"
+      {/* Assigned Questionnaires */}
+      <Card className="overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm dark:border-gray-700/50 dark:bg-gray-900/90">
+        <CardHeader className="pb-2 pt-4">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-lg shadow-sm"
               style={{
-                background: `${
-                  brandInfo ? brandInfo?.secondary_color : undefined
-                }`,
+                background: brandInfo?.secondary_color ?? "#8b5cf6",
               }}
             >
-              <BookOpen className="w-3 h-3 text-white" />
-            </div>
+              <BookOpen className="h-3.5 w-3.5 text-white" />
+            </span>
             Assigned Questionnaires
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           {questionnaires.length === 0 ? (
-            <div className="flex flex-col items-center text-center px-4 py-6">
-              <div className="w-20 h-20 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mb-4">
-                <BookOpen className="w-8 h-8 text-violet-500" />
-              </div>
-              <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <div className="flex flex-col items-center px-4 py-6 text-center">
+              <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-950/40">
+                <BookOpen className="h-7 w-7 text-violet-600 dark:text-violet-400" />
+              </span>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 No Questionnaires Assigned
               </h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                Complete your health profile and your coach may assign you
-                questionnaires to better understand your health.
+              <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                Your coach may assign questionnaires to better understand your
+                health.
               </p>
             </div>
           ) : (
-          <div className="space-y-1">
-            {questionnaires.map((questionnaire) => (
-              <div
-                key={questionnaire.unique_id}
-                className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 shadow-sm"
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      questionnaire.status === "Done"
-                        ? "bg-gradient-to-br from-emerald-500 to-teal-500"
-                        : "bg-gradient-to-br from-orange-500 to-amber-500"
-                    }`}
-                  >
-                    {questionnaire.status === "Done" ? (
-                      <CheckCircle className="w-3 h-3 text-white" />
-                    ) : (
-                      <Calendar className="w-3 h-3 text-white" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0 pr-1">
-                    <div className="font-medium text-gray-900 dark:text-gray-100 text-xs truncate">
-                      {questionnaire.title}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatTime(questionnaire.Estimated_time || "")}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-shrink-0 ml-auto">
-                  {questionnaire.status === "Done" ? (
-                    <Badge
-                      variant="secondary"
-                      className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 whitespace-nowrap"
+            <div className="space-y-2">
+              {questionnaires.map((questionnaire) => (
+                <div
+                  key={questionnaire.unique_id}
+                  className="flex items-center justify-between gap-2 rounded-2xl bg-gray-50/80 px-3 py-2.5 dark:bg-gray-800/50"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                    <span
+                      className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
+                        questionnaire.status === "Done"
+                          ? "bg-emerald-500"
+                          : "bg-amber-500"
+                      }`}
                     >
-                      Completed
+                      {questionnaire.status === "Done" ? (
+                        <CheckCircle className="h-3.5 w-3.5 text-white" />
+                      ) : (
+                        <Calendar className="h-3.5 w-3.5 text-white" />
+                      )}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium text-gray-900 dark:text-gray-100">
+                        {questionnaire.title}
+                      </p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                        {formatTime(questionnaire.Estimated_time || "")}
+                      </p>
+                    </div>
+                  </div>
+                  {questionnaire.status === "Done" ? (
+                    <Badge className="flex-shrink-0 border-0 bg-emerald-100 text-[10px] text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                      Done
                     </Badge>
                   ) : (
-                    // <Button
-                    //   size="sm"
-                    //   variant="outline"
-                    //   onClick={() => {
-                    //     questionnaire.status = "Done";
-                    //     setQuestionnaires([...questionnaires]);
-                    //     window.open(
-                    //       `https://holisticare.vercel.app/questionary/${encodedMi}/${questionnaire.unique_id}/${questionnaire.forms_unique_id}`
-                    //     );
-                    //   }}
-                    //   className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
-                    // >
-                    //   Start
-                    // </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => {
                         const url = resolveQuestionaryUrl(questionnaire);
-                        // setIframeUrl(url);
-                        // setOpenIframe(true);
                         const newWindow = window.open(url, "_blank");
-                        if (newWindow) {
-                          setOpenedWindow(newWindow);
-                        }
+                        if (newWindow) setOpenedWindow(newWindow);
                       }}
-                      className="text-xs h-6 px-2 border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20 whitespace-nowrap"
+                      className="h-7 flex-shrink-0 rounded-lg border-violet-200 px-2.5 text-[11px] text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-950/30"
                     >
                       Start
                     </Button>
                   )}
                 </div>
-              </div>
-            ))}
-            {questionnaires.length === 0 && (
-              <div className="flex flex-col items-center justify-center gap-2 mt-2">
-                <img src="icons/direct.svg" className="w-14 h-14" />
-                <p className="text-sm text-gray-700 dark:text-gray-400">
-                  No assigned questionnaires
-                </p>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -1223,35 +1079,32 @@ export default function YouMenu() {
         </div>
       )}
 
-      {/* Health Summary Card */}
-      <Card className="bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/50 dark:to-gray-900/50 border-0 shadow-xl backdrop-blur-lg">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-thin flex items-center gap-2">
-            <div
-              className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center"
+      {/* Health Summary */}
+      <Card className="overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm dark:border-gray-700/50 dark:bg-gray-900/90">
+        <CardHeader className="pb-2 pt-4">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 shadow-sm"
               style={{
-                background: `${
-                  brandInfo ? brandInfo?.primary_color : undefined
-                }`,
+                background: brandInfo?.primary_color ?? undefined,
               }}
             >
-              <Heart className="w-3 h-3 text-white" />
-            </div>
+              <Heart className="h-3.5 w-3.5 text-white" />
+            </span>
             Health Summary
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           {!hasHealthData || biomarkersData.length === 0 ? (
-            <div className="flex flex-col items-center text-center px-4 py-6">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-                <Heart className="w-8 h-8 text-emerald-500" />
-              </div>
-              <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <div className="flex flex-col items-center px-4 py-6 text-center">
+              <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/40">
+                <Heart className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+              </span>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 No Health Summary
               </h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                Complete your health profile and connect lab data to see your
-                biomarkers summary.
+              <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                Connect lab data to see your biomarkers summary.
               </p>
             </div>
           ) : (
@@ -1260,116 +1113,85 @@ export default function YouMenu() {
         </CardContent>
       </Card>
 
-      {/* Latest Deep Analysis Card */}
-      <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-purple-50/50 via-white/50 to-indigo-50/50 dark:from-purple-900/20 dark:via-gray-800/50 dark:to-indigo-900/20 border-0 shadow-xl backdrop-blur-lg">
-        <CardContent className="p-4 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-lg"></div>
+      {/* Deep Analysis */}
+      <Card className="overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm dark:border-gray-700/50 dark:bg-gray-900/90">
+        <CardContent className="p-4">
           {!hasHealthData || !holisticPlanActionPlan.latest_deep_analysis ? (
-            <div className="relative flex flex-col items-center text-center px-4 py-6">
-              <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                <Brain className="w-8 h-8 text-purple-500" />
-              </div>
-              <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <div className="flex flex-col items-center px-2 py-4 text-center">
+              <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 dark:bg-purple-950/40">
+                <Brain className="h-7 w-7 text-purple-600 dark:text-purple-400" />
+              </span>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 No Deep Analysis Yet
               </h4>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                Complete your health profile and add health data to generate
-                your first Deep Analysis with personalized interventions.
+              <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                Add health data to generate your first personalized deep analysis.
               </p>
             </div>
           ) : (
-            <div className="relative">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  {holisticPlanActionPlan.latest_deep_analysis && (
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-thin text-base text-gray-900 dark:text-gray-100">
-                        Latest Deep Analysis
-                      </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
-                        Generated{" "}
-                        {
-                          holisticPlanActionPlan.latest_deep_analysis.split(
-                            "T",
-                          )[0]
-                        }
-                      </p>
-                    </div>
-                  )}
+            <div>
+              <div className="mb-3 flex items-start gap-3">
+                <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 shadow-sm">
+                  <Brain className="h-5 w-5 text-white" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Latest Deep Analysis
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Generated{" "}
+                    {holisticPlanActionPlan.latest_deep_analysis.split("T")[0]}
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-500/10 backdrop-blur-sm">
-                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-3 h-3 text-white" />
-                  </div>
-                  {!hasHtmlReport ? (
-                    <>
-                      <span className="text-xs font-medium">
-                        You’ll be able to download the report once it’s ready.
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-xs font-medium">
-                        {holisticPlanActionPlan.num_of_interventions}{" "}
-                        personalized interventions
-                      </span>
-                    </>
-                  )}
-                </div>
+              <div className="mb-4 flex items-center gap-2 rounded-xl bg-blue-50/80 px-3 py-2 dark:bg-blue-950/30">
+                <CheckCircle className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs text-gray-700 dark:text-gray-300">
+                  {hasHtmlReport
+                    ? `${holisticPlanActionPlan.num_of_interventions} personalized interventions`
+                    : "You'll be able to download the report once it's ready."}
+                </span>
               </div>
+
               {hasHtmlReport && (
-                <div className="flex items-center gap-1 ">
+                <div className="flex gap-2">
                   <Button
                     id="download-pdf-report-Box"
-                    className={`w-full   text-white font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]`}
+                    className="h-10 flex-1 rounded-xl text-sm font-medium text-white shadow-sm"
                     style={{
-                      background: `${
-                        brandInfo ? brandInfo?.primary_color : undefined
-                      }`,
-                      color: `${
-                        brandInfo
-                          ? isColorDark(brandInfo?.primary_color || "#000000")
-                            ? "white"
-                            : "black"
-                          : undefined
-                      }`,
+                      background: brandInfo?.primary_color ?? "#10b981",
+                      color: brandInfo
+                        ? isColorDark(brandInfo.primary_color || "#000000")
+                          ? "white"
+                          : "black"
+                        : "white",
                     }}
                     onClick={handleGetHtmlReport}
                   >
                     {loadingHtmlReport ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      "Download Report"
+                      "Download"
                     )}
                   </Button>
-
                   <Button
                     id="view-pdf-report-Box"
-                    className="w-full    font-medium py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-sm min-h-[44px]"
+                    className="h-10 flex-1 rounded-xl text-sm font-medium text-white shadow-sm"
                     style={{
-                      background: `${
-                        brandInfo ? brandInfo?.secondary_color : undefined
-                      }`,
-                      color: `${
-                        brandInfo
-                          ? isColorDark(brandInfo?.secondary_color || "#000000")
-                            ? "white"
-                            : "black"
-                          : undefined
-                      }`,
+                      background: brandInfo?.secondary_color ?? "#8b5cf6",
+                      color: brandInfo
+                        ? isColorDark(brandInfo.secondary_color || "#000000")
+                          ? "white"
+                          : "black"
+                        : "white",
                     }}
                     onClick={handleViewHtmlReport}
                   >
                     {loadingViewHtmlReport ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      "View Report"
+                      "View"
                     )}
                   </Button>
                 </div>
@@ -2253,8 +2075,20 @@ export default function YouMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 pb-10">
-      <div className="max-w-sm mx-auto">{renderCurrentView()}</div>
+    <div className="min-h-screen bg-gray-50/90 pb-[calc(var(--nav-height)+1rem)] dark:bg-gray-950">
+      <div className="mx-auto max-w-md px-4 py-5">
+        {currentView === "main" && (
+          <div className="mb-5">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Hello, {clientInformation?.name?.split(" ")[0] || "there"}
+            </h1>
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+              Here&apos;s your health overview
+            </p>
+          </div>
+        )}
+        {renderCurrentView()}
+      </div>
     </div>
   );
 }

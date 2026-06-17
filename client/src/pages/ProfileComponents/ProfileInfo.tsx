@@ -1,130 +1,156 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Activity, Crown } from "lucide-react";
+import {
+  Activity,
+  Calendar,
+  CheckCircle2,
+  ClipboardList,
+  Crown,
+  FlaskConical,
+  User,
+} from "lucide-react";
 
 interface ProfileInfoProps {
-    clientInformation:any
-    brandInfo:any
-    getMembershipDuration:() => string
-    getSubscriptionBadge:(plan:string) => React.ReactNode
+  clientInformation: any;
+  brandInfo: any;
+  getMembershipDuration: () => string;
+  getSubscriptionBadge: (plan: string) => React.ReactNode;
 }
 
-const ProfileInfo = ({ clientInformation, brandInfo, getMembershipDuration, getSubscriptionBadge }: ProfileInfoProps) => {
-    return (
-        <>
-        <Card className="bg-gradient-to-br from-white/90 via-white/80 to-emerald-50/60 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-emerald-900/20 border-0 shadow-xl backdrop-blur-lg">
-          <CardContent className="p-4">
-            <div className="flex-1 min-w-0">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                      {clientInformation?.name || "User"}
-                    </h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {clientInformation?.email}
-                    </p>
-                  </div>
-                  <div className="relative flex-shrink-0">
-                    <Avatar className="w-12 h-12 ring-2 ring-emerald-200/50 dark:ring-emerald-800/30 shadow-lg">
-                      <AvatarFallback
-                        className="text-white text-[10px] font-medium"
-                        style={{
-                          background: `linear-gradient(to right, ${
-                            brandInfo ? brandInfo?.primary_color : `#3b82f6`
-                          }, ${
-                            brandInfo
-                              ? brandInfo?.secondary_color
-                              : `#a855f7`
-                          })`,
-                        }}
-                      >
-                        {(
-                          clientInformation?.name?.split(" ")[0] || ""
-                        ).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                      <Crown className="w-2 h-2 text-white" />
-                    </div>
-                  </div>
-                </div>
+const ProfileInfo = ({
+  clientInformation,
+  brandInfo,
+  getMembershipDuration,
+  getSubscriptionBadge,
+}: ProfileInfoProps) => {
+  const initials =
+  (clientInformation?.name?.split(" ")[0] || "U").charAt(0).toUpperCase() +
+  (clientInformation?.name?.split(" ")[1]?.charAt(0).toUpperCase() || "");
 
-                {/* Better spaced info display */}
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Age:
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {clientInformation?.age || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Gender:
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100 capitalize">
-                      {clientInformation?.sex || "Not specified"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Member Since:
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {getMembershipDuration()}
-                    </span>
-                  </div>
-                </div>
+  const stats = [
+    {
+      label: "Lab Tests",
+      value: clientInformation?.lab_test ?? "—",
+      icon: FlaskConical,
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/40",
+    },
+    {
+      label: "Action Plans",
+      value: clientInformation?.action_plan ?? "—",
+      icon: ClipboardList,
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    },
+    {
+      label: "Age",
+      value: clientInformation?.age ?? "—",
+      icon: User,
+      color: "text-purple-600 dark:text-purple-400",
+      bg: "bg-purple-50 dark:bg-purple-950/40",
+    },
+  ];
 
-                {/* Health stats */}
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Lab Tests:
-                    </span>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">
-                      {clientInformation?.lab_test}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Action Plan:
-                    </span>
-                    <span className="font-semibold text-green-600 dark:text-green-400">
-                      {clientInformation?.action_plan}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Account:
-                    </span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      {clientInformation?.verified_account
-                        ? "Verified"
-                        : "Unverified"}
-                    </span>
-                  </div>
-                </div>
+  return (
+    <Card className="overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-900/90">
+      <div className="h-20 bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10" />
+      <CardContent className="relative px-5 pb-5 pt-0">
+        <div className="-mt-10 flex flex-col items-center text-center">
+          <div className="relative">
+            <Avatar className="h-20 w-20 border-4 border-white shadow-lg dark:border-gray-900">
+              <AvatarFallback
+                className="text-lg font-semibold text-white"
+                style={{
+                  background: `linear-gradient(135deg, ${
+                    brandInfo?.primary_color ?? "#10b981"
+                  }, ${brandInfo?.secondary_color ?? "#14b8a6"})`,
+                }}
+              >
+                {initials || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 shadow-md ring-2 ring-white dark:ring-gray-900">
+              <Crown className="h-3.5 w-3.5 text-white" />
+            </span>
+          </div>
 
-                <div className="flex items-center gap-1 pt-1">
-                  {getSubscriptionBadge(clientInformation?.plan || "free")}
-                  <Badge
-                    variant="outline"
-                    className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-700 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/30 backdrop-blur-sm text-xs"
-                  >
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active User
-                  </Badge>
-                </div>
-              </div>
+          <h2 className="mt-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {clientInformation?.name || "User"}
+          </h2>
+          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            {clientInformation?.email}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            {getSubscriptionBadge(clientInformation?.plan || "free")}
+            {clientInformation?.verified_account ? (
+              <Badge
+                variant="outline"
+                className="border-emerald-200/60 bg-emerald-50/80 text-emerald-700 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300"
+              >
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                Verified
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className="border-amber-200/60 bg-amber-50/80 text-amber-700 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-300"
+              >
+                Unverified
+              </Badge>
+            )}
+            <Badge
+              variant="outline"
+              className="border-blue-200/60 bg-blue-50/80 text-blue-700 dark:border-blue-800/40 dark:bg-blue-950/40 dark:text-blue-300"
+            >
+              <Activity className="mr-1 h-3 w-3" />
+              Active
+            </Badge>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className={`flex flex-col items-center rounded-2xl px-2 py-3 ${stat.bg}`}
+            >
+              <stat.icon className={`mb-1.5 h-4 w-4 ${stat.color}`} />
+              <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {stat.value}
+              </span>
+              <span className="text-center text-[10px] leading-tight text-gray-500 dark:text-gray-400">
+                {stat.label}
+              </span>
             </div>
-          </CardContent>
-        </Card>        
-        </>
-    )
-}
+          ))}
+        </div>
+
+        <div className="mt-4 space-y-2 rounded-2xl bg-gray-50/80 px-4 py-3 dark:bg-gray-800/50">
+          <div className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+              <User className="h-3.5 w-3.5" />
+              Gender
+            </span>
+            <span className="font-medium capitalize text-gray-900 dark:text-gray-100">
+              {clientInformation?.sex || "Not specified"}
+            </span>
+          </div>
+          <div className="h-px bg-gray-200/80 dark:bg-gray-700/80" />
+          <div className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+              <Calendar className="h-3.5 w-3.5" />
+              Member for
+            </span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {getMembershipDuration()}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default ProfileInfo;

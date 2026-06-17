@@ -5,13 +5,12 @@ import SimpleDatePicker from "@/components/SimpleDatePicker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -297,46 +296,57 @@ export default function AuthPage() {
 
   const BiometricModal = () => {
     return (
-      <Dialog
+      <Sheet
         open={showBiometricModal}
         onOpenChange={() => {
           setShowBiometricModal(false);
           navigate("/");
         }}
       >
-        <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-green-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-green-900/20 backdrop-blur-xl border-0 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-green-800 dark:from-white dark:to-green-200 bg-clip-text text-transparent flex items-center gap-2">
-              {biometryType === BiometryType.faceId ||
-              biometryType === BiometryType.faceAuthentication ? (
-                <ScanFace className="w-5 h-5 text-green-600" />
-              ) : (
-                <Fingerprint className="w-5 h-5 text-green-600" />
-              )}
-              Biometric Login
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-              Do you allow us to use biometric authentication for future logins?
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter className="flex gap-2 w-full justify-end flex-nowrap mt-4 sm:flex-row">
+        <SheetContent
+          side="bottom"
+          className="mx-auto w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+        >
+          <div className="flex justify-center pb-1 pt-3">
+            <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+          </div>
+          <SheetHeader className="space-y-0 px-5 pb-2 pt-1 text-left">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15">
+                {biometryType === BiometryType.faceId ||
+                biometryType === BiometryType.faceAuthentication ? (
+                  <ScanFace className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <Fingerprint className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                )}
+              </span>
+              <div>
+                <SheetTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                  Biometric Login
+                </SheetTitle>
+                <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                  Allow biometric authentication for faster future logins?
+                </SheetDescription>
+              </div>
+            </div>
+          </SheetHeader>
+          <div className="flex gap-2 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3">
             <Button
               variant="outline"
               onClick={handleDisableBiometric}
-              className="flex-shrink-0 min-w-fit"
+              className="h-11 flex-1 rounded-xl border-gray-200 dark:border-gray-700"
             >
               Not now
             </Button>
             <Button
               onClick={handleEnableBiometric}
-              className="flex-shrink-0 min-w-fit bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+              className="h-11 flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white hover:from-emerald-700 hover:to-teal-700"
             >
               Enable
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </SheetContent>
+      </Sheet>
     );
   };
 
@@ -710,132 +720,118 @@ export default function AuthPage() {
     return !isNaN(date.getTime());
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-green-300 to-green-400 relative overflow-hidden">
-      {/* Curved bottom decoration */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 400 120"
-          className="w-full h-24 pointer-events-none -z-10"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,60 Q100,20 200,60 T400,60 L400,120 L0,120 Z"
-            fill="rgba(255,255,255,0.1)"
-          />
-          <path
-            d="M0,80 Q150,40 300,80 T400,80 L400,120 L0,120 Z"
-            fill="rgba(255,255,255,0.05)"
-          />
-        </svg>
-      </div>
+  const primaryColor = brandInfo?.primary_color ?? "#10b981";
+  const fieldInputClass =
+    "h-11 rounded-xl border-gray-200 bg-gray-50/80 shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500/40 dark:border-gray-700 dark:bg-gray-800/60";
+  const fieldLabelClass = "text-sm font-medium text-gray-700 dark:text-gray-300";
+  const toggleEyeClass =
+    "absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 rounded-lg p-0 text-gray-500 hover:bg-gray-200/70 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700/70";
+  const primaryBtnStyle = {
+    background: primaryColor,
+    color: "#ffffff",
+  };
 
-      {/* Content */}
+  return (
+    <div
+      className="relative min-h-screen overflow-hidden bg-gray-50 dark:bg-gray-950"
+      style={{
+        background: `linear-gradient(180deg, ${primaryColor}22 0%, ${primaryColor}08 28%, rgb(249 250 251) 45%)`,
+      }}
+    >
       <div
-        className={`flex flex-col items-center justify-center min-h-screen px-4 sm:px-8 pt-16 pb-8 transition-opacity duration-500 relative z-10 ${fadeClass}`}
+        className={`relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] transition-opacity duration-500 ${fadeClass}`}
       >
-        {/* Stage 1: Loading with HolistiCare.io */}
         {stage === 1 && (
           <div className="text-center">
-            {/* Logo circle */}
-            <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-lg ring-1 ring-black/5">
               <img
-                src={brandInfo ? brandInfo?.logo : logoImage}
+                src={brandInfo?.logo ?? logoImage}
                 alt="HolistiCare Logo"
-                className="w-12 h-12"
+                className="h-12 w-12 object-contain"
               />
             </div>
-
-            <h1 className="text-white text-2xl font-bold mb-2">
-              {brandInfo
-                ? brandInfo?.name || "HolistiCare.io"
-                : "HolistiCare.io"}
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              {brandInfo?.name ?? "HolistiCare"}
             </h1>
-            <p className="text-white/90 text-sm">
-              {brandInfo
-                ? brandInfo?.headline || "Empower Health with Intelligence"
-                : "Empower Health with Intelligence"}
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              {brandInfo?.headline ?? "Empower Health with Intelligence"}
             </p>
           </div>
         )}
 
-        {/* Stage 2: Welcome screen */}
         {stage === 2 && (
-          <div className="text-center w-full">
-            {/* Logo circle */}
-            <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
+          <div className="w-full max-w-sm text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-lg ring-1 ring-black/5">
               <img
-                src={brandInfo ? brandInfo?.logo : logoImage}
+                src={brandInfo?.logo ?? logoImage}
                 alt="HolistiCare Logo"
-                className="w-12 h-12"
+                className="h-12 w-12 object-contain"
               />
             </div>
-
-            <h1 className="text-white text-xl font-bold mb-2">
-              {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Welcome back
             </h1>
-            <p className="text-white/90 text-sm mb-8 sm:mb-12">
-              Welcome back to your health journey
+            <p className="mt-2 mb-8 text-sm text-gray-500 dark:text-gray-400">
+              Continue your personalized health journey
             </p>
-
             <Button
               onClick={handleContinue}
-              className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full max-w-xs mx-auto"
+              className="h-11 w-full rounded-xl font-medium text-white shadow-sm"
+              style={primaryBtnStyle}
             >
               Continue
             </Button>
           </div>
         )}
 
-        {/* Stage 3: Auth forms */}
         {stage === 3 && (
-          <div className="text-center w-full">
-            {/* Logo circle */}
-            <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center">
-              <img
-                src={brandInfo ? brandInfo?.logo : logoImage}
-                alt="HolistiCare Logo"
-                className="w-12 h-12"
-              />
-            </div>
+          <div className="w-full max-w-md">
+            <div className="overflow-hidden rounded-3xl border border-gray-200/60 bg-white/95 shadow-xl backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-900/95">
+              <div className="px-6 pb-2 pt-6 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 shadow-sm ring-1 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700">
+                  <img
+                    src={brandInfo?.logo ?? logoImage}
+                    alt="HolistiCare Logo"
+                    className="h-9 w-9 object-contain"
+                  />
+                </div>
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {brandInfo?.name ?? "HolistiCare"}
+                </h1>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Sign in or create your account
+                </p>
+              </div>
 
-            <h1 className="text-white text-xl font-bold mb-6">
-              {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
-            </h1>
-
-            <div className="w-full max-w-xs mx-auto">
-              <Tabs
-                value={currentTab}
-                onValueChange={setCurrentTab}
-                className="w-full"
-              >
-                <TabsList className="grid w-full grid-cols-2 bg-white/20 mb-6">
-                  <TabsTrigger
-                    value="login"
-                    className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600"
-                  >
-                    Sign In
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="register"
-                    className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600"
-                  >
-                    Create Account
-                  </TabsTrigger>
-                </TabsList>
+              <div className="px-5 pb-6">
+                <Tabs
+                  value={currentTab}
+                  onValueChange={setCurrentTab}
+                  className="w-full"
+                >
+                  <TabsList className="mb-5 grid h-11 w-full grid-cols-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+                    <TabsTrigger
+                      value="login"
+                      className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-gray-100"
+                    >
+                      Sign In
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="register"
+                      className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-gray-100"
+                    >
+                      Create Account
+                    </TabsTrigger>
+                  </TabsList>
 
                 <TabsContent value="login" className="space-y-4">
-                  <p className="text-white/90 text-sm mb-6 sm:mb-8 px-2 sm:px-4 text-center">
-                    Welcome back! Enter your email and password to continue your
-                    health journey.
+                  <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                    Welcome back! Sign in to continue your health journey.
                   </p>
 
                   <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="text-left">
-                      <Label
-                        htmlFor="login-email"
-                        className="text-white text-sm"
-                      >
+                    <div className="space-y-1.5 text-left">
+                      <Label htmlFor="login-email" className={fieldLabelClass}>
                         Email
                       </Label>
                       <Input
@@ -847,29 +843,21 @@ export default function AuthPage() {
                             ...prev,
                             email: e.target.value,
                           }));
-                          setErrorsLogin({
-                            ...errorsLogin,
-                            email: "",
-                          });
+                          setErrorsLogin({ ...errorsLogin, email: "" });
                         }}
-                        className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
+                        className={fieldInputClass}
                         placeholder="Enter your email"
                       />
                       {errorsLogin.email && (
-                        <p className="text-red-500 text-[11px] mt-1">
-                          {errorsLogin.email}
-                        </p>
+                        <p className="text-xs text-red-500">{errorsLogin.email}</p>
                       )}
                     </div>
 
-                    <div className="text-left">
-                      <Label
-                        htmlFor="login-password"
-                        className="text-white text-sm"
-                      >
+                    <div className="space-y-1.5 text-left">
+                      <Label htmlFor="login-password" className={fieldLabelClass}>
                         Password
                       </Label>
-                      <div className="relative mt-1">
+                      <div className="relative">
                         <Input
                           id="login-password"
                           type={showPassword ? "text" : "password"}
@@ -879,19 +867,16 @@ export default function AuthPage() {
                               ...prev,
                               password: e.target.value,
                             }));
-                            setErrorsLogin({
-                              ...errorsLogin,
-                              password: "",
-                            });
+                            setErrorsLogin({ ...errorsLogin, password: "" });
                           }}
-                          className="bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg pr-10"
+                          className={`${fieldInputClass} pr-11`}
                           placeholder="Enter your password"
                         />
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                          size="icon"
+                          className={toggleEyeClass}
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
@@ -902,9 +887,7 @@ export default function AuthPage() {
                         </Button>
                       </div>
                       {errorsLogin.password && (
-                        <p className="text-red-500 text-[11px] mt-1">
-                          {errorsLogin.password}
-                        </p>
+                        <p className="text-xs text-red-500">{errorsLogin.password}</p>
                       )}
                     </div>
 
@@ -912,7 +895,7 @@ export default function AuthPage() {
                       <button
                         type="button"
                         onClick={() => setShowForgotPassword(true)}
-                        className="text-white text-sm hover:underline"
+                        className="text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400"
                         data-testid="link-forgot-password"
                       >
                         Forgot Password?
@@ -921,63 +904,59 @@ export default function AuthPage() {
 
                     <Button
                       type="submit"
-                      className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-6 cursor-pointer"
+                      className="h-11 w-full rounded-xl font-medium text-white shadow-sm"
+                      style={primaryBtnStyle}
                       disabled={isLoadingLogin}
                       data-testid="button-login"
                     >
-                      <LogIn className="w-4 h-4 mr-2" />
+                      <LogIn className="mr-2 h-4 w-4" />
                       {isLoadingLogin ? "Logging in..." : "Log in"}
                     </Button>
-                    <div className="flex flex-col items-center">
-                      {biometryType && biometricEnabled && (
-                        <div className="flex justify-center">
-                          <Button
-                            onClick={handleBiometricLogin}
-                            variant="outline"
-                            className="rounded-full p-4 h-16 w-16 border-2 border-primary/50 hover:bg-primary/10 transition-all"
-                            title="Login with Biometrics"
-                          >
-                            {biometryType === BiometryType.faceId ||
-                            biometryType === BiometryType.faceAuthentication ? (
-                              <ScanFace
-                                className="h-8 w-8 text-primary"
-                                strokeWidth={1.5}
-                              />
-                            ) : (
-                              <Fingerprint
-                                className="h-8 w-8 text-primary"
-                                strokeWidth={1.5}
-                              />
-                            )}
-                          </Button>
-                        </div>
-                      )}
-                      {biometryType && biometricEnabled && (
-                        <p className="text-center text-sm text-muted-foreground mt-2">
+
+                    {biometryType && biometricEnabled && (
+                      <div className="flex flex-col items-center pt-2">
+                        <Button
+                          onClick={handleBiometricLogin}
+                          type="button"
+                          variant="outline"
+                          className="h-14 w-14 rounded-2xl border-gray-200 dark:border-gray-700"
+                          title="Login with Biometrics"
+                        >
+                          {biometryType === BiometryType.faceId ||
+                          biometryType === BiometryType.faceAuthentication ? (
+                            <ScanFace className="h-7 w-7 text-emerald-600" strokeWidth={1.5} />
+                          ) : (
+                            <Fingerprint className="h-7 w-7 text-emerald-600" strokeWidth={1.5} />
+                          )}
+                        </Button>
+                        <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
                           {biometryType === BiometryType.faceId ||
                           biometryType === BiometryType.faceAuthentication
-                            ? "Login with Face Recognition"
+                            ? "Login with Face ID"
                             : "Login with Fingerprint"}
                         </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </form>
-
-                  {/* Test credentials button */}
-                  {/* <Button
-                    type="button"
-                    onClick={fillTestCredentials}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-full mt-4"
-                  >
-                    Fill Test Credentials
-                  </Button> */}
                 </TabsContent>
 
                 <TabsContent value="register" className="space-y-4">
-                  <p className="text-white/90 text-sm mb-6 sm:mb-8 px-2 sm:px-4 text-center">
-                    Join HolistiCare and start your personalized health journey
-                    today.
+                  <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                    Join HolistiCare and start your personalized health journey.
                   </p>
+
+                  <div className="flex justify-center gap-1.5">
+                    {[1, 2, 3].map((step) => (
+                      <span
+                        key={step}
+                        className={`h-1.5 rounded-full transition-all ${
+                          registerStep === step
+                            ? "w-6 bg-emerald-500"
+                            : "w-1.5 bg-gray-200 dark:bg-gray-700"
+                        }`}
+                      />
+                    ))}
+                  </div>
 
                   <div>
                     {registerStep === 1 ? (
@@ -985,7 +964,7 @@ export default function AuthPage() {
                         <div className="text-left">
                           <Label
                             htmlFor="register-first-name"
-                            className="text-white text-sm"
+                            className={fieldLabelClass}
                           >
                             First Name
                           </Label>
@@ -1003,11 +982,11 @@ export default function AuthPage() {
                                 firstName: "",
                               });
                             }}
-                            className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
+                            className={fieldInputClass}
                             placeholder="Enter your first name"
                           />
                           {errorsRegister.firstName && (
-                            <p className="text-red-500 text-[11px] mt-1">
+                            <p className="text-red-500 text-xs mt-1">
                               {errorsRegister.firstName}
                             </p>
                           )}
@@ -1015,7 +994,7 @@ export default function AuthPage() {
                         <div className="text-left mt-2">
                           <Label
                             htmlFor="register-last-name"
-                            className="text-white text-sm"
+                            className={fieldLabelClass}
                           >
                             Last Name
                           </Label>
@@ -1033,17 +1012,17 @@ export default function AuthPage() {
                                 lastName: "",
                               });
                             }}
-                            className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
+                            className={fieldInputClass}
                             placeholder="Enter your last name"
                           />
                           {errorsRegister.lastName && (
-                            <p className="text-red-500 text-[11px] mt-1">
+                            <p className="text-red-500 text-xs mt-1">
                               {errorsRegister.lastName}
                             </p>
                           )}
                         </div>
                         <div className="text-left mt-2">
-                          <Label className="text-white text-sm">Gender</Label>
+                          <Label className={fieldLabelClass}>Gender</Label>
                           <Select
                             value={registerData.gender}
                             onValueChange={(value) => {
@@ -1057,7 +1036,7 @@ export default function AuthPage() {
                               });
                             }}
                           >
-                            <SelectTrigger className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg">
+                            <SelectTrigger className={fieldInputClass}>
                               <SelectValue placeholder="Select your gender" />
                             </SelectTrigger>
                             <SelectContent>
@@ -1066,7 +1045,7 @@ export default function AuthPage() {
                             </SelectContent>
                           </Select>
                           {errorsRegister.gender && (
-                            <p className="text-red-500 text-[11px] mt-1">
+                            <p className="text-red-500 text-xs mt-1">
                               {errorsRegister.gender}
                             </p>
                           )}
@@ -1074,7 +1053,7 @@ export default function AuthPage() {
                         <div className="text-left mt-2">
                           <Label
                             htmlFor="register-date-of-birth"
-                            className="text-white text-sm"
+                            className={fieldLabelClass}
                           >
                             Date of Birth
                           </Label>
@@ -1102,16 +1081,17 @@ export default function AuthPage() {
                         <Button
                           type="button"
                           onClick={handleRegisterStepOne}
-                          className="w-full bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full mt-5 cursor-pointer"
+                          className="mt-5 h-11 w-full rounded-xl font-medium text-white shadow-sm"
+                          style={primaryBtnStyle}
                         >
                           Continue
-                          <ArrowRight className="w-4 h-4 mr-2" />
+                          <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </>
                     ) : registerStep === 2 ? (
                       <>
                         <div className="w-full text-left">
-                          <label className="text-sm text-white">
+                          <label className={fieldLabelClass}>
                             Phone Number (Optional)
                           </label>
                           <div className="mt-1">
@@ -1140,7 +1120,7 @@ export default function AuthPage() {
                             />
                           </div>
                           {errorsRegister.phone && (
-                            <p className="text-red-500 text-[11px] mt-1">
+                            <p className="text-red-500 text-xs mt-1">
                               {errorsRegister.phone}
                             </p>
                           )}
@@ -1148,7 +1128,7 @@ export default function AuthPage() {
 
                         {/* Time Zone */}
                         <div className="w-full text-left mt-2">
-                          <label className="text-sm text-white">
+                          <label className={fieldLabelClass}>
                             Time Zone (Optional)
                           </label>
                           <div className="mt-[3px]">
@@ -1166,7 +1146,7 @@ export default function AuthPage() {
                         <div className="text-left mt-2">
                           <Label
                             htmlFor="register-address"
-                            className="text-white text-sm"
+                            className={fieldLabelClass}
                           >
                             Address (Optional)
                           </Label>
@@ -1180,7 +1160,7 @@ export default function AuthPage() {
                                 address: e.target.value,
                               }));
                             }}
-                            className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
+                            className={fieldInputClass}
                             placeholder="Enter your address"
                           />
                         </div>
@@ -1188,7 +1168,7 @@ export default function AuthPage() {
                         <div className="text-left mt-2">
                           <Label
                             htmlFor="register-photo"
-                            className="text-white text-sm"
+                            className={fieldLabelClass}
                           >
                             Client’s Photo (Optional)
                           </Label>
@@ -1196,7 +1176,7 @@ export default function AuthPage() {
                             onClick={() =>
                               document.getElementById("uploadFile")?.click()
                             }
-                            className="w-full relative bg-green-200 mt-1 shadow-300 rounded-[8px] h-[126px]"
+                            className="relative mt-1 h-[126px] w-full rounded-xl border border-dashed border-gray-200 bg-gray-50/80 dark:border-gray-700 dark:bg-gray-800/60"
                           >
                             <div className="w-full h-full flex justify-center items-center">
                               <div className="text-center">
@@ -1276,25 +1256,25 @@ export default function AuthPage() {
                             </div>
                           )}
                         </div>
-                        <div className="flex items-center justify-between mt-5">
+                        <div className="mt-5 flex items-center gap-2">
                           <Button
                             type="button"
                             onClick={() => setRegisterStep(1)}
-                            className="w-[13%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                            variant="outline"
+                            className="h-11 w-11 flex-shrink-0 rounded-xl border-gray-200 p-0 dark:border-gray-700"
                           >
-                            <ArrowLeft className="w-4 h-4" />
+                            <ArrowLeft className="h-4 w-4" />
                           </Button>
                           <Button
                             type="button"
                             onClick={() => {
-                              if (!photoError) {
-                                setRegisterStep(3);
-                              }
+                              if (!photoError) setRegisterStep(3);
                             }}
-                            className="w-[85%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                            className="h-11 flex-1 rounded-xl font-medium text-white shadow-sm"
+                            style={primaryBtnStyle}
                           >
                             Continue
-                            <ArrowRight className="w-4 h-4 mr-2" />
+                            <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                         </div>
                       </>
@@ -1307,7 +1287,7 @@ export default function AuthPage() {
                           <div className="text-left">
                             <Label
                               htmlFor="register-email"
-                              className="text-white text-sm"
+                              className={fieldLabelClass}
                             >
                               Email
                             </Label>
@@ -1325,11 +1305,11 @@ export default function AuthPage() {
                                   email: "",
                                 });
                               }}
-                              className="mt-1 bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg"
+                              className={fieldInputClass}
                               placeholder="Enter your email"
                             />
                             {errorsRegister.email && (
-                              <p className="text-red-500 text-[11px] mt-1">
+                              <p className="text-red-500 text-xs mt-1">
                                 {errorsRegister.email}
                               </p>
                             )}
@@ -1338,7 +1318,7 @@ export default function AuthPage() {
                           <div className="text-left">
                             <Label
                               htmlFor="register-password"
-                              className="text-white text-sm"
+                              className={fieldLabelClass}
                             >
                               Password
                             </Label>
@@ -1357,14 +1337,14 @@ export default function AuthPage() {
                                     password: "",
                                   });
                                 }}
-                                className="bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg pr-10"
+                                className={`${fieldInputClass} pr-11`}
                                 placeholder="Create a secure password"
                               />
                               <Button
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                                size="icon"
+                                className={toggleEyeClass}
                                 onClick={() => setShowPassword(!showPassword)}
                               >
                                 {showPassword ? (
@@ -1375,7 +1355,7 @@ export default function AuthPage() {
                               </Button>
                             </div>
                             {errorsRegister.password && (
-                              <p className="text-red-500 text-[11px] mt-1">
+                              <p className="text-red-500 text-xs mt-1">
                                 {errorsRegister.password}
                               </p>
                             )}
@@ -1384,7 +1364,7 @@ export default function AuthPage() {
                           <div className="text-left">
                             <Label
                               htmlFor="confirm-password"
-                              className="text-white text-sm"
+                              className={fieldLabelClass}
                             >
                               Confirm Password
                             </Label>
@@ -1403,14 +1383,14 @@ export default function AuthPage() {
                                     confirmPassword: "",
                                   });
                                 }}
-                                className="bg-green-200 border-0 text-gray-700 placeholder-gray-500 rounded-lg pr-10"
+                                className={`${fieldInputClass} pr-11`}
                                 placeholder="Confirm your password"
                               />
                               <Button
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 text-gray-600 hover:bg-transparent"
+                                size="icon"
+                                className={toggleEyeClass}
                                 onClick={() =>
                                   setShowConfirmPassword(!showConfirmPassword)
                                 }
@@ -1423,7 +1403,7 @@ export default function AuthPage() {
                               </Button>
                             </div>
                             {errorsRegister.confirmPassword && (
-                              <p className="text-red-500 text-[11px] mt-1">
+                              <p className="text-red-500 text-xs mt-1">
                                 {errorsRegister.confirmPassword}
                               </p>
                             )}
@@ -1444,11 +1424,11 @@ export default function AuthPage() {
                                     terms: "",
                                   });
                                 }}
-                                className="data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
+                                className="data-[state=checked]:bg-emerald-600 data-[state=checked]:text-white"
                               />
                               <Label
                                 htmlFor="register-terms"
-                                className="text-white text-xs flex items-center gap-1 text-nowrap"
+                                className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400"
                               >
                                 I accept the{" "}
                                 <div
@@ -1485,26 +1465,28 @@ export default function AuthPage() {
                               </Label>
                             </div>
                             {errorsRegister.terms && (
-                              <p className="text-red-500 text-[11px] mt-1">
+                              <p className="text-red-500 text-xs mt-1">
                                 {errorsRegister.terms}
                               </p>
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between mt-6">
+                          <div className="mt-6 flex items-center gap-2">
                             <Button
                               type="button"
                               onClick={() => setRegisterStep(2)}
-                              className="w-[13%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                              variant="outline"
+                              className="h-11 w-11 flex-shrink-0 rounded-xl border-gray-200 p-0 dark:border-gray-700"
                             >
-                              <ArrowLeft className="w-4 h-4" />
+                              <ArrowLeft className="h-4 w-4" />
                             </Button>
                             <Button
                               type="submit"
-                              className="w-[85%] bg-white text-green-600 hover:bg-white/90 font-semibold py-4 rounded-full cursor-pointer"
+                              className="h-11 flex-1 rounded-xl font-medium text-white shadow-sm"
+                              style={primaryBtnStyle}
                               disabled={isLoadingRegister}
                             >
-                              <UserPlus className="w-4 h-4 mr-2" />
+                              <UserPlus className="mr-2 h-4 w-4" />
                               {isLoadingRegister
                                 ? "Creating account..."
                                 : "Create Account"}
@@ -1516,6 +1498,7 @@ export default function AuthPage() {
                   </div>
                 </TabsContent>
               </Tabs>
+            </div>
             </div>
           </div>
         )}

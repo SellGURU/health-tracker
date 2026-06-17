@@ -2,22 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Bell,
   User,
-  Settings,
   LogOut,
-  Crown,
-  Heart,
   Check,
   X,
   Activity,
@@ -25,21 +14,13 @@ import {
   Brain,
   Calendar,
   TrendingUp,
-  AlertCircle,
-  Info,
   CheckCircle,
+  ChevronRight,
 } from "lucide-react";
 import Auth from "@/api/auth";
 import Application from "@/api/app";
 import { toast } from "@/hooks/use-toast";
 import NotificationApi from "@/api/notification";
-import {
-  Dialog,
-  DialogHeader,
-  DialogTitle,
-  DialogContent,
-  DialogFooter,
-} from "../ui/dialog";
 import {
   Sheet,
   SheetContent,
@@ -100,6 +81,7 @@ export default function ProfileHeader() {
   const [hadNotifications, setHadNotifications] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [clientInformation, setClientInformation] = useState<
     ClientInformation | undefined
@@ -362,37 +344,57 @@ export default function ProfileHeader() {
     return () => unsubscribe("brand_info", handler);
   }, []);
 
-  return (
-    <div className="flex relative items-center justify-between p-3 sm:p-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:pt-[calc(env(safe-area-inset-top)+1rem)] bg-gradient-to-r from-gray-50/90 via-white/90 to-gray-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-lg border-b border-gray-200/30 dark:border-gray-700/30 shadow-lg">
-      <div className="flex items-center gap-2 ">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
-          <img
-            src={brandInfo ? brandInfo?.logo : "./logo.png"}
-            alt="HolistiCare Logo"
-            className="w-8 h-8 rounded-full object-cover"
-          />
-        </div>
-        <h1 className="text-lg sm:text-xl font-thin bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {brandInfo ? brandInfo?.name || "HolistiCare" : "HolistiCare"}
-        </h1>
-      </div>
+  const avatarGradient = `linear-gradient(135deg, ${
+    brandInfo?.primary_color ?? "#10b981"
+  }, ${brandInfo?.secondary_color ?? "#14b8a6"})`;
 
-      <div className="flex items-center gap-1 sm:gap-2 ">
+  const userInitials =
+    (clientInformation?.name?.split(" ")[0]?.charAt(0) || "U").toUpperCase() +
+    (clientInformation?.name?.split(" ")[1]?.charAt(0).toUpperCase() || "");
+
+  const formatMemberSince = (date?: string) => {
+    if (!date) return "Member";
+    try {
+      return `Member since ${new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        year: "numeric",
+      }).format(new Date(date))}`;
+    } catch {
+      return "Member";
+    }
+  };
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-gray-200/70 bg-white/90 pt-[calc(env(safe-area-inset-top)+0.5rem)] backdrop-blur-xl dark:border-gray-800/70 dark:bg-gray-950/90">
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full ring-2 ring-gray-100 dark:ring-gray-800">
+            <img
+              src={brandInfo ? brandInfo.logo : "./logo.png"}
+              alt="HolistiCare Logo"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <h1 className="truncate text-base font-semibold text-gray-900 dark:text-gray-100">
+            {brandInfo?.name || "HolistiCare"}
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-1.5">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => {
-              setShowNotifications(!showNotifications);
-            }}
-            className="relative w-10 h-10 rounded-full bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:shadow-lg transition-all duration-300"
+            onClick={() => setShowNotifications(!showNotifications)}
+            aria-label="Notifications"
+            className="relative h-9 w-9 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="h-[18px] w-[18px]" />
             {(notificationCount > 0 || isUnReadNotif) && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-medium text-white shadow-lg animate-pulse">
-                {notificationCount || 1}
-              </div>
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white ring-2 ring-white dark:ring-gray-950">
+                {notificationCount > 9 ? "9+" : notificationCount || 1}
+              </span>
             )}
           </Button>
         </div>
@@ -578,98 +580,144 @@ export default function ProfileHeader() {
           </SheetContent>
         </Sheet>
 
-        {/* Profile Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="relative h-10 w-10 rounded-full p-0 hover:shadow-lg transition-all duration-300"
+        {/* Profile menu */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowProfileMenu(true)}
+          aria-label="Open profile menu"
+          className="h-9 w-9 rounded-full p-0 hover:bg-transparent"
+        >
+          <Avatar className="h-9 w-9 ring-2 ring-gray-200 dark:ring-gray-700">
+            <AvatarFallback
+              className="text-[11px] font-semibold text-white"
+              style={{ background: avatarGradient }}
             >
-              <Avatar className="h-10 w-10 shadow-lg">
-                <AvatarImage src="/placeholder-avatar.jpg" />
-                <AvatarFallback
-                  className="text-white font-medium text-[10px]"
-                  style={{
-                    background: `linear-gradient(to right, ${
-                      brandInfo ? brandInfo?.primary_color : `#3b82f6`
-                    }, ${brandInfo ? brandInfo?.secondary_color : `#a855f7`})`,
-                  }}
-                >
-                  {(
-                    clientInformation?.name?.split(" ")[0] || ""
-                  ).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
 
-          <DropdownMenuContent
-            className="w-64 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-0 shadow-2xl rounded-2xl"
-            align="end"
-            forceMount
+        <Sheet open={showProfileMenu} onOpenChange={setShowProfileMenu}>
+          <SheetContent
+            side="bottom"
+            className="mx-auto flex max-h-[70dvh] w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
           >
-            <div className="flex items-center justify-start gap-2 p-2">
-              <div className="flex flex-col space-y-1 leading-none">
-                <p className="font-medium text-gray-900 dark:text-gray-100">
-                  {clientInformation?.name}
-                </p>
-                <p className="w-[200px] truncate text-sm text-gray-600 dark:text-gray-400">
-                  {clientInformation?.email}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  Member since Jan 2025
-                </p>
-              </div>
+            <div className="flex flex-shrink-0 justify-center pb-1 pt-3">
+              <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
             </div>
 
-            <DropdownMenuSeparator />
+            <div className="flex flex-col items-center px-5 pb-4 pt-1 text-center">
+              <Avatar className="h-16 w-16 ring-4 ring-white dark:ring-gray-900">
+                <AvatarFallback
+                  className="text-lg font-semibold text-white"
+                  style={{ background: avatarGradient }}
+                >
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+              <h3 className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">
+                {clientInformation?.name || "User"}
+              </h3>
+              <p className="mt-0.5 max-w-[240px] truncate text-sm text-gray-500 dark:text-gray-400">
+                {clientInformation?.email}
+              </p>
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                {formatMemberSince(clientInformation?.member_since)}
+              </p>
+            </div>
 
-            <DropdownMenuItem asChild>
-              <Link href="/profile" className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                Profile & Settings
+            <div className="space-y-2 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+              <Link
+                href="/profile"
+                onClick={() => setShowProfileMenu(false)}
+                className="group flex min-h-[52px] w-full items-center justify-between rounded-2xl bg-gray-50/80 px-3.5 py-3 transition-all active:scale-[0.99] hover:bg-gray-100/80 dark:bg-gray-800/50 dark:hover:bg-gray-800/70"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-sm">
+                    <User className="h-4 w-4 text-white" />
+                  </span>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Profile & Settings
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Manage your account
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-400 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
               </Link>
-            </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
-            {/* <DropdownMenuItem asChild>
-              <Link href="/monitor" className="cursor-pointer">
-                <Activity className="mr-2 h-4 w-4" />
-                Results
-              </Link>
-            </DropdownMenuItem>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  setShowLogoutDialog(true);
+                }}
+                className="group flex min-h-[52px] w-full items-center justify-between rounded-2xl bg-red-50/60 px-3.5 py-3 transition-all active:scale-[0.99] hover:bg-red-100/70 dark:bg-red-950/20 dark:hover:bg-red-950/35"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-rose-500 shadow-sm">
+                    <LogOut className="h-4 w-4 text-white" />
+                  </span>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-red-700 dark:text-red-400">
+                      Sign out
+                    </div>
+                    <div className="text-xs text-red-600/70 dark:text-red-400/70">
+                      Log out of your account
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-red-400 transition-colors group-hover:text-red-600" />
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
 
-            <DropdownMenuSeparator />             */}
-
-            <DropdownMenuItem
-              onTouchEnd={() => setShowLogoutDialog(true)}
-              onClick={() => setShowLogoutDialog(true)}
-              className="cursor-pointer"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-          <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-red-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-red-900/20 backdrop-blur-xl border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle>Are you sure you want to sign out?</DialogTitle>
-            </DialogHeader>
-            <DialogFooter className="flex items-center justify-center gap-2">
-              <Button onClick={handleLogout} className="bg-red-500 text-white">
-                Sign out
-              </Button>
+        <Sheet open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <SheetContent
+            side="bottom"
+            className="mx-auto w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+          >
+            <div className="flex justify-center pb-1 pt-3">
+              <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+            </div>
+            <SheetHeader className="space-y-0 px-5 pb-2 pt-1 text-left">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-red-500/15">
+                  <LogOut className="h-5 w-5 text-red-600 dark:text-red-400" />
+                </span>
+                <div>
+                  <SheetTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    Sign out?
+                  </SheetTitle>
+                  <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                    You will need to sign in again to access your account.
+                  </SheetDescription>
+                </div>
+              </div>
+            </SheetHeader>
+            <div className="flex gap-2 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-3">
               <Button
+                variant="outline"
                 onClick={() => setShowLogoutDialog(false)}
-                className="bg-gray-500 text-white"
+                className="h-11 flex-1 rounded-xl border-gray-200 dark:border-gray-700"
               >
                 Cancel
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <Button
+                onClick={handleLogout}
+                className="h-11 flex-1 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 font-medium text-white hover:from-red-700 hover:to-rose-700"
+              >
+                Sign out
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-    </div>
+      </div>
+    </header>
   );
 }

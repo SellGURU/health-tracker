@@ -567,6 +567,7 @@ export default function Profile() {
       description: "Permanently delete your account and data",
       action: () => setShowDeleteAccountDialog(true),
       badge: null,
+      variant: "danger" as const,
     },
   ];
 
@@ -620,23 +621,17 @@ export default function Profile() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
-      {/* Header */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 shadow-2xl">
-        <div className="max-w-4xl mx-auto px-3 py-4">
-          <div>
-            <h1 className="text-xl font-medium bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
-              Profile Settings
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Manage your account and preferences
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-50/90 pb-[calc(var(--nav-height)+1rem)] dark:bg-gray-950">
+      <div className="mx-auto max-w-md space-y-5 px-4 py-5">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Profile
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            Manage your account and preferences
+          </p>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-3 py-4 space-y-4">
-        {/* Profile Overview Card */}
         <ProfileInfo
           clientInformation={clientInformation}
           brandInfo={brandInfo}
@@ -644,7 +639,6 @@ export default function Profile() {
           getSubscriptionBadge={getSubscriptionBadge}
         />
 
-        {/* Settings Sections */}
         <AccountSetting settingsItems={settingsItems} />
 
         {/* Edit Profile Dialog */}
