@@ -1,4 +1,5 @@
 import Application from "@/api/app";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,12 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft,
   BookOpen,
+  ChevronRight,
+  ExternalLink,
   FileText,
   Headphones,
   Search,
-  Video
+  Video,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface EducationalProps {
   content: string;
@@ -19,17 +22,34 @@ interface EducationalProps {
   title: string;
 }
 
+const CONTENT_ICONS = [Video, Headphones, BookOpen, FileText] as const;
+
+const CONTENT_ICON_BG = [
+  "bg-gradient-to-br from-red-500 to-pink-500",
+  "bg-gradient-to-br from-purple-500 to-indigo-500",
+  "bg-gradient-to-br from-blue-500 to-cyan-500",
+  "bg-gradient-to-br from-emerald-500 to-teal-500",
+] as const;
+
+function getPreview(text: string, max = 100) {
+  const trimmed = text.replace(/\s+/g, " ").trim();
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max).trim()}…`;
+}
+
 export default function EducationalPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentView, setCurrentView] = useState<"list" | "content">("list");
   const [selectedContent, setSelectedContent] =
     useState<EducationalProps | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const [educationalContent, setEducationalContent] = useState<
     EducationalProps[]
   >([]);
 
   const handleGetEducationalContent = () => {
+    setIsLoading(true);
     Application.getEducationalContent()
       .then((res) => {
         setEducationalContent(res.data);
@@ -40,23 +60,23 @@ export default function EducationalPage() {
           description: res.response.data.detail,
           variant: "destructive",
         });
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
+
   useEffect(() => {
     handleGetEducationalContent();
   }, []);
 
-  const getFilteredContent = () => {
+  const filteredContent = useMemo(() => {
     if (!searchQuery) return educationalContent;
-
+    const q = searchQuery.toLowerCase();
     return educationalContent.filter(
-      (content) =>
-        content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        content.content.toLowerCase().includes(searchQuery.toLowerCase())
+      (item) =>
+        item.title.toLowerCase().includes(q) ||
+        item.content.toLowerCase().includes(q)
     );
-  };
-
-  const filteredContent = getFilteredContent();
+  }, [searchQuery, educationalContent]);
 
   const startReading = (contentId: string) => {
     const content = educationalContent.find((c) => c.title === contentId);
@@ -65,9 +85,8 @@ export default function EducationalPage() {
       setCurrentView("content");
     } else {
       toast({
-        title: "Content Coming Soon",
-        description:
-          "This content is being prepared and will be available soon.",
+        title: "Content coming soon",
+        description: "This article is being prepared.",
       });
     }
   };
@@ -77,267 +96,272 @@ export default function EducationalPage() {
     setSelectedContent(null);
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "video":
-        return Video;
-      case "podcast":
-        return Headphones;
-      case "guide":
-        return BookOpen;
-      default:
-        return FileText;
-    }
-  };
-
-  const icons = [Video, Headphones, BookOpen, FileText];
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "video":
-        return "from-red-500 to-pink-500";
-      case "podcast":
-        return "from-purple-500 to-indigo-500";
-      case "guide":
-        return "from-blue-500 to-cyan-500";
-      default:
-        return "from-green-500 to-emerald-500";
-    }
-  };
-
-  const colors = [
-    "from-red-500 to-pink-500",
-    "from-purple-500 to-indigo-500",
-    "from-blue-500 to-cyan-500",
-    "from-green-500 to-emerald-500",
-  ];
-
-  const renderContentView = () => {
-    if (!selectedContent) return null;
-
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={goBackToList}
-          className="mb-6 flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+  const renderMarkdownLine = (line: string, index: number) => {
+    if (line.startsWith("# ")) {
+      return (
+        <h1
+          key={index}
+          className="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Content
-        </Button>
+          {line.slice(2)}
+        </h1>
+      );
+    }
+    if (line.startsWith("## ")) {
+      return (
+        <h2
+          key={index}
+          className="mb-3 mt-6 text-lg font-semibold text-gray-800 dark:text-gray-200"
+        >
+          {line.slice(3)}
+        </h2>
+      );
+    }
+    if (line.startsWith("### ")) {
+      return (
+        <h3
+          key={index}
+          className="mb-2 mt-4 text-base font-medium text-gray-700 dark:text-gray-300"
+        >
+          {line.slice(4)}
+        </h3>
+      );
+    }
+    if (line.startsWith("**") && line.endsWith("**") && line.length > 4) {
+      return (
+        <p
+          key={index}
+          className="mb-2 font-semibold text-gray-800 dark:text-gray-200"
+        >
+          {line.slice(2, -2)}
+        </p>
+      );
+    }
+    if (line.startsWith("- ")) {
+      return (
+        <li
+          key={index}
+          className="mb-1 ml-4 list-disc text-sm text-gray-600 dark:text-gray-400"
+        >
+          {line.slice(2)}
+        </li>
+      );
+    }
+    if (line.match(/^\d+\. /)) {
+      return (
+        <li
+          key={index}
+          className="mb-1 ml-4 list-decimal text-sm text-gray-600 dark:text-gray-400"
+        >
+          {line.slice(line.indexOf(" ") + 1)}
+        </li>
+      );
+    }
+    if (line.trim() === "") {
+      return <div key={index} className="mb-3" />;
+    }
+    return (
+      <p
+        key={index}
+        className="mb-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400"
+      >
+        {line}
+      </p>
+    );
+  };
 
-        {/* Content Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div
-              className={`w-12 h-12 bg-gradient-to-br ${colors[2]} rounded-2xl flex items-center justify-center shadow-lg`}
+  const pageShell = "min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 pb-8 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20";
+
+  if (currentView === "content" && selectedContent) {
+    return (
+      <div className={pageShell}>
+        <div className="sticky top-0 z-20 border-b border-gray-200/50 bg-white/90 backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-900/90">
+          <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goBackToList}
+              aria-label="Back to library"
+              className="h-10 w-10 flex-shrink-0 rounded-xl"
             >
-              {(() => {
-                const TypeIcon = icons[3];
-                return <TypeIcon className="w-6 h-6 text-white" />;
-              })()}
-            </div>
-            <div>
-              <h1 className="text-lg font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-base font-semibold text-gray-900 dark:text-gray-100">
                 {selectedContent.title}
               </h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Educational article
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Content Body */}
-        <Card className="bg-white/90 dark:bg-gray-800/90 border shadow-lg backdrop-blur-sm">
-          <CardContent className="p-8">
-            {selectedContent.content ? (
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                {selectedContent.content.split("\n").map((line, index) => {
-                  if (line.startsWith("# ")) {
-                    return (
-                      <h1
-                        key={index}
-                        className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100"
-                      >
-                        {line.slice(2)}
-                      </h1>
-                    );
-                  }
-                  if (line.startsWith("## ")) {
-                    return (
-                      <h2
-                        key={index}
-                        className="text-2xl font-semibold mb-4 mt-8 text-gray-800 dark:text-gray-200"
-                      >
-                        {line.slice(3)}
-                      </h2>
-                    );
-                  }
-                  if (line.startsWith("### ")) {
-                    return (
-                      <h3
-                        key={index}
-                        className="text-xl font-medium mb-3 mt-6 text-gray-700 dark:text-gray-300"
-                      >
-                        {line.slice(4)}
-                      </h3>
-                    );
-                  }
-                  if (
-                    line.startsWith("**") &&
-                    line.endsWith("**") &&
-                    line.length > 4
-                  ) {
-                    return (
-                      <p
-                        key={index}
-                        className="font-semibold mb-2 text-gray-800 dark:text-gray-200"
-                      >
-                        {line.slice(2, -2)}
-                      </p>
-                    );
-                  }
-                  if (line.startsWith("- ")) {
-                    return (
-                      <li
-                        key={index}
-                        className="mb-1 ml-4 text-gray-600 dark:text-gray-400 list-disc"
-                      >
-                        {line.slice(2)}
-                      </li>
-                    );
-                  }
-                  if (line.match(/^\d+\. /)) {
-                    return (
-                      <li
-                        key={index}
-                        className="mb-1 ml-4 text-gray-600 dark:text-gray-400 list-decimal"
-                      >
-                        {line.slice(line.indexOf(" ") + 1)}
-                      </li>
-                    );
-                  }
-                  if (line.trim() === "") {
-                    return <div key={index} className="mb-4"></div>;
-                  }
-                  return (
-                    <p
-                      key={index}
-                      className="mb-4 text-gray-600 dark:text-gray-400 leading-relaxed text-justify"
-                    >
-                      {line}
-                    </p>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  Content Coming Soon
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  This content is being prepared and will be available soon.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
+        <div className="mx-auto max-w-md space-y-4 px-4 py-4">
+          {selectedContent["reference link"] && (
+            <Button
+              variant="outline"
+              className="h-11 w-full rounded-xl text-sm font-medium"
+              onClick={() =>
+                window.open(selectedContent["reference link"], "_blank")
+              }
+            >
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Open source link
+            </Button>
+          )}
 
-  if (currentView === "content") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
-        {renderContentView()}
+          <Card className="rounded-2xl border-0 bg-white/95 shadow-md dark:bg-gray-800/95">
+            <CardContent className="p-5">
+              {selectedContent.content ? (
+                <div className="max-w-none">
+                  {selectedContent.content
+                    .split("\n")
+                    .map((line, index) => renderMarkdownLine(line, index))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-10 text-center">
+                  <FileText className="mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Content coming soon
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    This article is being prepared.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        {/* Page Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            Educational Content
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light">
-            Browse health and wellness content
-          </p>
-        </div>
-
-        {/* Search */}
-        <div className="mb-8">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search content..."
-              className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-            />
+    <div className={pageShell}>
+      <div className="mx-auto w-full max-w-md px-4 py-4">
+        {/* Header */}
+        <div className="mb-5 flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+            <BookOpen className="h-5 w-5 text-white" />
+          </span>
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Learn
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Health & wellness articles
+            </p>
           </div>
         </div>
 
-        {/* Content List */}
-        <div className="space-y-4">
-          {filteredContent.map((content) => {
-            const TypeIcon = icons[3];
-            return (
-              <Card
-                key={content.title}
-                className="bg-gradient-to-br from-white/90 to-gray-50/60 dark:from-gray-800/90 dark:to-gray-700/60 border shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
-                onClick={() => startReading(content.title)}
+        {/* Summary */}
+        {!isLoading && educationalContent.length > 0 && (
+          <Card className="mb-4 rounded-2xl border-0 bg-white/80 shadow-md dark:bg-gray-800/80">
+            <CardContent className="flex items-center justify-between p-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Library
+                </p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {educationalContent.length} article
+                  {educationalContent.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                className="border-0 bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-br ${colors[2]} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}
-                    >
-                      <TypeIcon className="w-6 h-6 text-white" />
-                    </div>
+                Free to read
+              </Badge>
+            </CardContent>
+          </Card>
+        )}
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                        {content.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-4 text-justify">
-                        {content.content.slice(0, 200)}...
-                      </p>
-
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // startReading(content.title);
-                          window.open(content["reference link"]);
-                        }}
-                        className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium transition-all duration-300"
-                      >
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        {/* {content.title === "video"
-                          ? "Watch"
-                          : content.title === "podcast"
-                          ? "Listen"
-                          : "Read"} */}
-                        Read more
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        {/* Search */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3.5 top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search articles..."
+            className="h-11 rounded-xl border-gray-200/80 bg-white/90 pl-10 pr-4 text-sm shadow-sm backdrop-blur-sm dark:border-gray-700/80 dark:bg-gray-800/90"
+          />
         </div>
 
-        {filteredContent.length === 0 && (
-          <div className="text-center py-12">
-            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              No content found
+        {/* List */}
+        {isLoading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-28 animate-pulse rounded-2xl bg-white/60 dark:bg-gray-800/40"
+              />
+            ))}
+          </div>
+        ) : filteredContent.length > 0 ? (
+          <div className="space-y-3">
+            {filteredContent.map((content, index) => {
+              const TypeIcon = CONTENT_ICONS[index % CONTENT_ICONS.length];
+              const iconBg = CONTENT_ICON_BG[index % CONTENT_ICON_BG.length];
+              const hasLink = Boolean(content["reference link"]);
+
+              return (
+                <Card
+                  key={content.title}
+                  className="cursor-pointer overflow-hidden rounded-2xl border-0 bg-white/90 shadow-md transition-all duration-200 hover:shadow-lg active:scale-[0.99] dark:bg-gray-800/90"
+                  onClick={() => startReading(content.title)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl shadow-sm ${iconBg}`}
+                      >
+                        <TypeIcon className="h-5 w-5 text-white" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">
+                            {content.title}
+                          </h3>
+                          <ChevronRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-300 dark:text-gray-600" />
+                        </div>
+                        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                          {getPreview(content.content)}
+                        </p>
+                        {hasLink && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="mt-3 h-9 rounded-lg px-0 text-xs font-medium text-blue-600 hover:bg-transparent hover:text-blue-700 dark:text-blue-400"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(content["reference link"], "_blank");
+                            }}
+                          >
+                            <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                            Open link
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center rounded-2xl bg-white/60 px-6 py-12 text-center dark:bg-gray-800/40">
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+              <BookOpen className="h-8 w-8 text-blue-500/70 dark:text-blue-400/70" />
+            </span>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              {searchQuery ? "No matching articles" : "No content yet"}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Try adjusting your search terms
+            <p className="mt-1 max-w-[16rem] text-sm text-gray-500 dark:text-gray-400">
+              {searchQuery
+                ? "Try a different search term."
+                : "Educational articles will appear here when available."}
             </p>
           </div>
         )}

@@ -1,19 +1,31 @@
 import Application from "@/api/app";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { RookHealthConnect, RookPermissions, RookSamsungHealth } from "capacitor-rook-sdk";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
-import { Watch, ArrowLeft } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  RefreshCw,
+  Shield,
+  Smartphone,
+  Watch,
+  X,
+} from "lucide-react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import {
   enablePlatformBackgroundSync,
   getPlatformHealthSourceName,
@@ -23,6 +35,161 @@ import {
   requestPlatformHealthPermissions,
   syncRookSummaries,
 } from "@/lib/rook";
+
+const DEVICE_IMAGE_FALLBACK =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+
+type ConnectionStatus = "disconnected" | "connecting" | "connected";
+
+function DeviceCard({
+  name,
+  image,
+  description,
+  status,
+  onPrimaryAction,
+  primaryLabel,
+  onSync,
+  isSyncing,
+  showSync,
+}: {
+  name: string;
+  image: string;
+  description: string;
+  status: ConnectionStatus | boolean;
+  onPrimaryAction: () => void;
+  primaryLabel?: string;
+  onSync?: () => void;
+  isSyncing?: boolean;
+  showSync?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isConnected =
+    typeof status === "boolean" ? status : status === "connected";
+  const isConnecting =
+    typeof status === "boolean" ? false : status === "connecting";
+  const statusLabel = isConnecting
+    ? "Connecting…"
+    : isConnected
+      ? "Connected"
+      : "Not connected";
+  const shortDescription =
+    description.length > 120 && !expanded
+      ? `${description.slice(0, 120).trim()}…`
+      : description;
+
+  return (
+    <Card className="overflow-hidden rounded-2xl border-0 bg-white/90 shadow-md dark:bg-gray-800/90">
+      <CardContent className="p-4">
+        <div className="mb-3 flex items-start gap-3">
+          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-50 shadow-sm dark:bg-gray-700/80">
+            <img
+              src={image}
+              alt={name}
+              className="h-10 w-10 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEVICE_IMAGE_FALLBACK;
+              }}
+            />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {name}
+              </h3>
+              <Badge
+                variant="outline"
+                className={`flex-shrink-0 border-0 px-2 py-0.5 text-[10px] font-medium ${
+                  isConnected
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                    : isConnecting
+                      ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                      : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                }`}
+              >
+                <span
+                  className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${
+                    isConnected
+                      ? "bg-emerald-500"
+                      : isConnecting
+                        ? "animate-pulse bg-amber-500"
+                        : "bg-gray-400"
+                  }`}
+                />
+                {statusLabel}
+              </Badge>
+            </div>
+            {description ? (
+              <div className="mt-2">
+                <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                  {shortDescription}
+                </p>
+                {description.length > 120 && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    className="mt-1 flex items-center gap-0.5 text-xs font-medium text-blue-600 dark:text-blue-400"
+                  >
+                    {expanded ? (
+                      <>
+                        Show less <ChevronUp className="h-3 w-3" />
+                      </>
+                    ) : (
+                      <>
+                        Show more <ChevronDown className="h-3 w-3" />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            disabled={isConnecting}
+            variant={isConnected ? "outline" : "default"}
+            className={`h-11 flex-1 rounded-xl text-sm font-medium ${
+              isConnected
+                ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                : "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm hover:from-emerald-700 hover:to-teal-700"
+            }`}
+            onClick={onPrimaryAction}
+          >
+            {isConnecting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Connecting…
+              </>
+            ) : (
+              primaryLabel ?? (isConnected ? "Disconnect" : "Connect")
+            )}
+          </Button>
+          {showSync && isConnected && onSync && (
+            <Button
+              variant="secondary"
+              className="h-11 flex-1 rounded-xl text-sm font-medium"
+              disabled={isSyncing}
+              onClick={onSync}
+            >
+              {isSyncing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Syncing…
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Sync now
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Devices() {
   const { toast } = useToast();
@@ -193,11 +360,6 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
         })),
       };
       setDevicesData(mapped);
-
-      toast({
-        title: "Success",
-        description: "Devices data loaded successfully",
-      });
     } catch (error) {
       console.error("Error fetching devices data:", error);
       toast({
@@ -538,368 +700,335 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     }
   }, [devicesData?.data_sources, isConnecting, isConnectingSamsungHealth]);
 
+  const platformInfo = getPlatformInfo();
+  const connectedCount = useMemo(() => {
+    let count = 0;
+    if (isConnecting === "connected") count++;
+    if (isConnectingSamsungHealth === "connected") count++;
+    devicesData?.data_sources?.forEach((s: { connected: boolean }) => {
+      if (s.connected) count++;
+    });
+    return count;
+  }, [devicesData, isConnecting, isConnectingSamsungHealth]);
+
+  const totalSources = useMemo(() => {
+    const thirdParty = devicesData?.data_sources?.length ?? 0;
+    const nativeCount = Capacitor.isNativePlatform() ? 2 : 0;
+    return thirdParty + nativeCount;
+  }, [devicesData]);
+
+  const handleThirdPartyConnect = (source: {
+    name: string;
+    connected: boolean;
+  }) => {
+    if (source.connected) {
+      revokeRookDataSource(source.name).then(() => {
+        toast({
+          title: "Disconnected",
+          description: `${source.name} has been disconnected.`,
+        });
+      });
+      return;
+    }
+
+    Application.rookAuthorizedDataSource({
+      data_source: source.name,
+      user_id: clientInformation?.id! as string,
+    })
+      .then((res) => {
+        const newWindow = window.open(res.data.authorization_url, "_blank");
+        if (newWindow) setOpenedWindow(newWindow);
+        toast({
+          title: "Continue in browser",
+          description: `Complete ${source.name} authorization, then return here.`,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: "Connection failed",
+          description: err.message ?? `Could not connect to ${source.name}.`,
+          variant: "destructive",
+        });
+      });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
-      {/* Header */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/30 ">
-        <div className="max-w-4xl mx-auto px-3 py-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => window.history.back()}
-              className="p-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-medium bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
-                Wearable Devices
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Connect and manage your health devices
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 pb-8 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/10">
+      {/* Sticky mobile header */}
+      <div className="sticky top-0 z-20 border-b border-gray-200/50 bg-white/90 backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-900/90">
+        <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.history.back()}
+            aria-label="Go back"
+            className="h-10 w-10 flex-shrink-0 rounded-xl"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Devices
+            </h1>
+            <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+              Connect wearables & health apps
+            </p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Refresh devices"
+            disabled={isLoadingDevices}
+            onClick={() => void fetchDevicesData()}
+            className="h-10 w-10 flex-shrink-0 rounded-xl"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isLoadingDevices ? "animate-spin" : ""}`}
+            />
+          </Button>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 py-4 space-y-4">
-        {isLoadingDevices ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-              <Watch className="w-8 h-8 text-blue-600" />
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Loading devices data...
+      <div className="mx-auto max-w-md space-y-5 px-4 py-4">
+        {/* Hero + summary */}
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20">
+            <Watch className="h-5 w-5 text-white" />
+          </span>
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Sync steps, heart rate, sleep & more into your wellness profile.
             </p>
+          </div>
+        </div>
+
+        {!isLoadingDevices && devicesData && (
+          <Card className="rounded-2xl border-0 bg-white/80 shadow-md dark:bg-gray-800/80">
+            <CardContent className="grid grid-cols-2 gap-3 p-4">
+              <div className="rounded-xl bg-emerald-50/80 px-3 py-2.5 text-center dark:bg-emerald-900/20">
+                <p className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">
+                  {connectedCount}
+                </p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  Connected
+                </p>
+              </div>
+              <div className="rounded-xl bg-gray-50/80 px-3 py-2.5 text-center dark:bg-gray-700/40">
+                <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                  {Math.max(totalSources - connectedCount, 0)}
+                </p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  Available
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Privacy note */}
+        <div className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 px-3 py-2.5 dark:bg-blue-900/15">
+          <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+          <p className="text-xs leading-relaxed text-blue-800/80 dark:text-blue-200/80">
+            Your health data is encrypted and only used to personalize your
+            plan. You can disconnect anytime.
+          </p>
+        </div>
+
+        {isLoadingDevices ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-36 animate-pulse rounded-2xl bg-white/60 dark:bg-gray-800/40"
+              />
+            ))}
           </div>
         ) : devicesData ? (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              {
-                Capacitor.isNativePlatform() &&
-                <>
-                  <div
-                    key={'-1'}
-                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0">
-                        <img
-                          src={getPlatformInfo().icon}
-                          alt={getPlatformInfo().name}
-                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src =
-                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                            {getPlatformInfo().name}
-                          </h4>
-                          <Badge
-                            variant={
-                              isConnecting === 'connected' ? "default" : "outline"
-                            }
-                            className={`text-xs ${
-                              isConnecting === 'connected'
-                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                            }`}
-                          >
-                            {isConnecting === 'connected'
-                              ? "Connected"
-                              :
-                                isConnecting === 'connecting' ? "Connecting" : "Not Connected"}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                          {getPlatformInfo().isAndroid ? getPlatformInfo().googleDescription : getPlatformInfo().appleDescription}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant={
-                              isConnecting === 'connected' ? "outline" : "default"
-                            }
-                            className={`text-xs h-7 ${
-                              isConnecting === 'connected'
-                                ? "border-red-200 text-red-600 md:hover:bg-red-50  dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                                : "bg-blue-600 md:hover:bg-blue-700 text-white"
-                            }`}
-                            onClick={() => {
-                              if (isConnecting === 'connected') {
-                                void handlePlatformDisconnect();
-                              } else {
-                                connectSdk();
-                              }
-                            }}
-                          >
-                            {isConnecting === 'connected' ? "Disconnect" : "Connect"}
-                          </Button>
-                          {isConnecting === "connected" && (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="text-xs h-7"
-                              disabled={isSyncingPlatformData}
-                              onClick={() => void handleManualSync("platform")}
-                            >
-                              {isSyncingPlatformData ? "Syncing..." : "Sync Now"}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Samsung Health - Only show if Samsung device */}
-                  
-                  <div
-                    key={'-2'}
-                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0">
-                        <img
-                          src={'./Samsung_Health_2025_logo.png'}
-                          alt={'Samsung Health'}
-                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src =
-                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                            Samsung Health
-                          </h4>
-                          <Badge
-                            variant={
-                              isConnectingSamsungHealth === 'connected' ? "default" : "outline"
-                            }
-                            className={`text-xs ${
-                              isConnectingSamsungHealth === 'connected'
-                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                            }`}
-                          >
-                            {isConnectingSamsungHealth === 'connected'
-                              ? "Connected"
-                              :
-                                isConnectingSamsungHealth === 'connecting' ? "Connecting" : "Not Connected"}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                          Samsung Health helps you stay on top of your wellness by tracking your daily activities and fitness data with ease. It connects smoothly with compatible devices like smartwatches and fitness bands, giving you real-time insights into your workouts, steps, heart rate, and more. You can view detailed trends, monitor your progress over time, and stay motivated with personalized stats. All your information syncs wirelessly across devices, so your health data is always accessible whenever and wherever you need it.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant={
-                              isConnectingSamsungHealth === 'connected' ? "outline" : "default"
-                            }
-                            className={`text-xs h-7 ${
-                              isConnectingSamsungHealth === 'connected'
-                                ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
-                            }`}
-                            onClick={() => {
-                              if (isConnectingSamsungHealth === 'connected') {
-                                RookSamsungHealth.disableBackGroundUpdates();
-                                setIsConnectingSamsungHealth('disconnected');
-                                localStorage.removeItem('samsung_health_device_connection_state');
-                              } else if (isSamsungDevice()) {
-                                void executeSamsungHealthConnection();
-                              } else {
-                                toast({
-                                  title: "Error",
-                                  description: "Samsung Health is not installed on this device.",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                          >
-                            {isConnectingSamsungHealth === 'connected' ? "Disconnect" : "Connect"}
-                          </Button>
-                          {isConnectingSamsungHealth === "connected" && (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="text-xs h-7"
-                              disabled={isSyncingSamsungData}
-                              onClick={() => void handleManualSync("samsung")}
-                            >
-                              {isSyncingSamsungData ? "Syncing..." : "Sync Now"}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              }
-              {/* Platform Health (Apple Health / Health Connect) - Only show if NOT Samsung */}       
-              
+          <div className="space-y-6">
+            {Capacitor.isNativePlatform() && (
+              <section>
+                <div className="mb-3 flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    On this device
+                  </h2>
+                </div>
+                <div className="space-y-3">
+                  <DeviceCard
+                    name={platformInfo.name}
+                    image={platformInfo.icon}
+                    description={
+                      platformInfo.isAndroid
+                        ? platformInfo.googleDescription.trim()
+                        : platformInfo.appleDescription.trim()
+                    }
+                    status={isConnecting}
+                    onPrimaryAction={() => {
+                      if (isConnecting === "connected") {
+                        void handlePlatformDisconnect();
+                      } else {
+                        connectSdk();
+                      }
+                    }}
+                    showSync
+                    isSyncing={isSyncingPlatformData}
+                    onSync={() => void handleManualSync("platform")}
+                  />
+                  <DeviceCard
+                    name="Samsung Health"
+                    image="./Samsung_Health_2025_logo.png"
+                    description="Track workouts, steps, heart rate, and sleep. Syncs with Galaxy Watch and compatible fitness bands."
+                    status={isConnectingSamsungHealth}
+                    onPrimaryAction={() => {
+                      if (isConnectingSamsungHealth === "connected") {
+                        RookSamsungHealth.disableBackGroundUpdates();
+                        setIsConnectingSamsungHealth("disconnected");
+                        localStorage.removeItem(
+                          "samsung_health_device_connection_state"
+                        );
+                      } else if (isSamsungDevice()) {
+                        void executeSamsungHealthConnection();
+                      } else {
+                        toast({
+                          title: "Samsung device required",
+                          description:
+                            "Samsung Health is only available on Samsung Android devices.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    showSync
+                    isSyncing={isSyncingSamsungData}
+                    onSync={() => void handleManualSync("samsung")}
+                  />
+                </div>
+              </section>
+            )}
 
-              {/* Other Devices */}
-              {devicesData.data_sources?.map(
-                (source: any, index: number) => (
-                  <div
-                    key={index}
-                    className="bg-gradient-to-r from-white/80 to-gray-50/60 dark:from-gray-700/80 dark:to-gray-800/60 rounded-lg p-3 border border-gray-200/50 dark:border-gray-600/50"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0">
-                        <img
-                          src={source.image}
-                          alt={source.name}
-                          className="w-10 h-10 rounded-lg object-cover border border-gray-200/50 dark:border-gray-600/50"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src =
-                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                            {source.name}
-                          </h4>
-                          <Badge
-                            variant={
-                              source.connected ? "default" : "outline"
-                            }
-                            className={`text-xs ${
-                              source.connected
-                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                                : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
-                            }`}
-                          >
-                            {source.connected
-                              ? "Connected"
-                              : "Not Connected"}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2 text-justify">
-                          {source.description}
-                        </p>
-                        <Button
-                          size="sm"
-                          variant={
-                            source.connected ? "outline" : "default"
-                          }
-                          className={`text-xs h-7 ${
-                            source.connected
-                              ? "border-red-200 text-red-600 md:hover:bg-red-50  dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-                              : "bg-blue-600 md:hover:bg-blue-700 text-white"
-                          }`}
-                          onClick={() => {
-                            if (source.connected) {
-                              revokeRookDataSource(source.name).then(() => {
-                                toast({
-                                  title: "Disconnect",
-                                  description: `Disconnected from ${source.name}`,
-                                });
-                              });
-                            } else {
-                              Application.rookAuthorizedDataSource({
-                                data_source:source.name,
-                                user_id:clientInformation?.id! as string
-                              }).then((res) => {
-                                  const newWindow = window.open(
-                                    res.data.authorization_url,
-                                    "_blank"
-                                  );
-                                  if (newWindow) {
-                                    setOpenedWindow(newWindow);
-                                  }
-                                toast({
-                                  title: "Connecting",
-                                  description: `Opening ${source.name} authorization...`,
-                                });
-                              }).catch((err) => {
-                                toast({
-                                  title: "Error",
-                                  description: `Failed to connect to ${source.name}: ${err.message}`,
-                                  variant: "destructive",
-                                });
-                              });
-                            }
-                          }}
-                        >
-                          {source.connected ? "Disconnect" : "Connect"}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )
+            <section>
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Watch className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Apps & wearables
+                  </h2>
+                </div>
+                <span className="text-xs text-gray-400">
+                  {devicesData.data_sources?.length ?? 0} sources
+                </span>
+              </div>
+
+              {devicesData.data_sources?.length ? (
+                <div className="space-y-3">
+                  {devicesData.data_sources.map((source: any) => (
+                    <DeviceCard
+                      key={source.name}
+                      name={source.name}
+                      image={source.image}
+                      description={source.description}
+                      status={source.connected}
+                      onPrimaryAction={() => handleThirdPartyConnect(source)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl bg-white/60 px-4 py-8 text-center dark:bg-gray-800/40">
+                  <Watch className="mx-auto mb-2 h-8 w-8 text-gray-300 dark:text-gray-600" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    No third-party sources available right now.
+                  </p>
+                </div>
               )}
-            </div>
+            </section>
           </div>
         ) : (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Watch className="w-8 h-8 text-blue-600" />
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              No devices data available
+          <div className="flex flex-col items-center rounded-2xl bg-white/60 px-6 py-12 text-center dark:bg-gray-800/40">
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30">
+              <Watch className="h-8 w-8 text-emerald-600/70 dark:text-emerald-400/70" />
+            </span>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              Couldn&apos;t load devices
+            </h3>
+            <p className="mt-1 max-w-[16rem] text-sm text-gray-500 dark:text-gray-400">
+              Check your connection and try again.
             </p>
+            <Button
+              className="mt-4 h-11 rounded-xl"
+              onClick={() => void fetchDevicesData()}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Permission Modal */}
-      <Dialog open={showPermissionModal} onOpenChange={setShowPermissionModal}>
-        <DialogContent className="max-w-sm bg-gradient-to-br from-white/95 via-white/90 to-blue-50/60 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-blue-900/20 backdrop-blur-xl border-0 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-medium bg-gradient-to-r from-gray-900 to-blue-800 dark:from-white dark:to-blue-200 bg-clip-text text-transparent flex items-center gap-2">
-              <Watch className="w-4 h-4 text-blue-600" />
-              Allow Health Access
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
-              {getPlatformInfo().isIOS 
-                ? "This app uses Apple Health (HealthKit) to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
-                : "This app uses Health Connect to read your health and fitness data. Your data will be shared with ROOK to provide personalized wellness insights. Do you want to allow access?"
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6">
-            <div className="text-center py-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Watch className="w-8 h-8 text-blue-600" />
+      {/* Health permission sheet */}
+      <Sheet open={showPermissionModal} onOpenChange={setShowPermissionModal}>
+        <SheetContent
+          side="bottom"
+          className="mx-auto flex w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t border-gray-200/50 bg-white/95 p-0 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/95 [&>button]:hidden"
+        >
+          <div className="flex flex-shrink-0 justify-center pb-1 pt-3">
+            <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+          </div>
+
+          <SheetHeader className="flex-shrink-0 space-y-0 px-5 pb-3 pt-1 text-left">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/15">
+                  <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </span>
+                <div className="min-w-0">
+                  <SheetTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    Allow health access
+                  </SheetTitle>
+                  <SheetDescription className="text-xs text-gray-500 dark:text-gray-400">
+                    {platformInfo.name}
+                  </SheetDescription>
+                </div>
               </div>
+              <SheetClose asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Close"
+                  className="h-8 w-8 flex-shrink-0 rounded-full"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </SheetClose>
             </div>
-            
-            <div className="flex gap-3 pt-4">
+          </SheetHeader>
+
+          <div className="space-y-4 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
+            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+              {platformInfo.isIOS
+                ? "This app reads your Apple Health data to power personalized wellness insights. Data is shared securely via ROOK."
+                : "This app reads your Health Connect data to power personalized wellness insights. Data is shared securely via ROOK."}
+            </p>
+
+            <div className="flex flex-col gap-2">
               <Button
+                className="h-11 w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm hover:from-emerald-700 hover:to-teal-700"
                 onClick={() => {
-                  executeConnection();
+                  void executeConnection();
                   setShowPermissionModal(false);
                 }}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg"
               >
-                Allow Access
+                Allow access
               </Button>
               <Button
                 variant="outline"
+                className="h-11 w-full rounded-xl"
                 onClick={() => setShowPermissionModal(false)}
-                className="flex-1 bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm border-gray-200/50 dark:border-gray-600/50"
               >
-                Cancel
+                Not now
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
