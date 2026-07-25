@@ -593,7 +593,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const handlePlatformDisconnect = async () => {
     try {
       if (Capacitor.getPlatform() === "android") {
-        await RookHealthConnect.cancelHealthConnectBackGround();
+        await RookHealthConnect.disableHealthConnectBackGround();
       }
     } catch (error) {
       console.warn("Failed to stop platform background sync:", error);

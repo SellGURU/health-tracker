@@ -76,7 +76,7 @@ export async function initializeRookForUser({
     await RookConfig.initRook({
       environment: ROOK_ENVIRONMENT,
       clientUUID: ROOK_CLIENT_UUID,
-      password: ROOK_PASSWORD,
+      secret: ROOK_PASSWORD,
       bundleId: ROOK_IOS_BUNDLE_ID,
       packageName: ROOK_ANDROID_PACKAGE_NAME,
       enableBackgroundSync,
@@ -97,22 +97,30 @@ export async function initializeRookForUser({
 export async function requestPlatformHealthPermissions(): Promise<void> {
   if (isAndroidRookPlatform()) {
     await RookPermissions.requestAndroidPermissions();
-    await RookPermissions.requestAllHealthConnectPermissions();
+    await RookPermissions.requestHealthConnectPermissions();
     return;
   }
 
   if (isIOSRookPlatform()) {
-    await RookPermissions.requestAllAppleHealthPermissions();
+    await RookPermissions.requestAppleHealthPermissions({
+      types: [
+        "stepCount",
+        "height",
+        "bodyMass",
+        "heartRate",
+        "heartRateVariabilitySDNN",
+        "workout",
+        "sleepAnalysis",
+        "oxygenSaturation",
+      ],
+    });
   }
 }
 
 export async function enablePlatformBackgroundSync(): Promise<void> {
   if (isAndroidRookPlatform()) {
-    await RookPermissions.requestAndroidBackgroundPermissions();
-    await RookHealthConnect.scheduleHealthConnectBackGround();
-    await RookHealthConnect.scheduleYesterdaySync({
-      doOnEnd: "oldest",
-    });
+    await RookPermissions.requestAndroidPermissions();
+    await RookHealthConnect.enableHealthConnectBackGround();
     return;
   }
 
