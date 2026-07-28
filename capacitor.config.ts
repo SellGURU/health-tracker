@@ -20,9 +20,13 @@ const config: CapacitorConfig = {
       presentationOptions: ["badge", "sound", "alert"],
     },
     SplashScreen: {
-      launchShowDuration: 0
-    }    
-  },  
+      // Keep native splash until BootGate hides it after network check
+      launchAutoHide: false,
+      launchShowDuration: 10000,
+      backgroundColor: "#ffffff",
+      showSpinner: false,
+    },
+  },
 };
 
 

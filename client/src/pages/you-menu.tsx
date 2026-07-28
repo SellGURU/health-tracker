@@ -12,6 +12,7 @@ import CategoryCards, { Biomarker } from "@/components/youMenu/healthSummary";
 import { bodySystemSurveys } from "@/data/body-system-surveys";
 import { formatDate, isColorDark } from "@/help";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/error-message";
 import { AppContext } from "@/store/app";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
@@ -276,7 +277,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: getErrorMessage(res),
           variant: "destructive",
         });
       });
@@ -289,7 +290,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: getErrorMessage(res),
           variant: "destructive",
         });
       });
@@ -308,7 +309,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: getErrorMessage(res),
           variant: "destructive",
         });
       });
@@ -415,7 +416,7 @@ export default function YouMenu() {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res.response.data.detail,
+          description: getErrorMessage(res),
           variant: "destructive",
         });
       });

@@ -32,7 +32,7 @@ class Api {
         }
       },
       signal: config?.signal,
-      // timeout:15000
+      timeout: config?.timeout ?? 15000,
     });
     return response;
   }
@@ -42,6 +42,7 @@ class Api {
         Authorization: "Bearer " + getTokenFromLocalStorage(),
         "Content-Type": config?.headers?.["Content-Type"] || "application/json",
       },
+      timeout: config?.timeout ?? 15000,
     });
     return response;
   }
@@ -51,6 +52,7 @@ class Api {
         Authorization: "Bearer " + getTokenFromLocalStorage(),
         "Content-Type": config?.headers?.["Content-Type"] || "application/json",
       },
+      timeout: config?.timeout ?? 15000,
     });
     return response;
   }

@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/error-message";
 import { Bell, Moon, Search, Sun } from "lucide-react";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import BottomNavigation from "./bottom-navigation";
 import ProfileHeader from "./profile-header";
+import OfflineBanner from "@/components/OfflineBanner";
 import { usePushNotifications } from "@/hooks/use-pushNotification";
 import NotificationApi from "@/api/notification";
 import { publish } from "@/lib/event";
@@ -49,7 +51,7 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
       .catch((res) => {
         toast({
           title: "Error",
-          description: res?.response?.data?.detail,
+          description: getErrorMessage(res, "Could not load brand information."),
           variant: "destructive",
         });
       });
@@ -93,6 +95,7 @@ export default function MobileLayout({ children }:MobileLayoutProps ) {
 
   return (
     <div className="h-dvh overflow-hidden flex flex-col bg-gray-50 w-full relative dark:bg-gray-900">
+      <OfflineBanner />
       {useProfileHeader ? (
         <ProfileHeader />
       ) : (

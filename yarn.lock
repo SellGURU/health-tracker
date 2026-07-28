@@ -944,10 +944,20 @@
   resolved "https://registry.npmjs.org/@capacitor/keyboard/-/keyboard-8.0.5.tgz"
   integrity sha512-oFXygC4eKYA5l2MdpTR06L2M/4x6e2SLD5yS1T9+UBDKTkzyvhWKEhbYLUaTIBPpLKqlfGudJw1X73S1H9eUzQ==
 
+"@capacitor/network@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.npmjs.org/@capacitor/network/-/network-8.0.1.tgz"
+  integrity sha512-9xK/FHFmzKGanB6BdoSZOzXk8vF0OFVQSQ4PAsIrzAzLuXHryO317qy8dcHVpgxYeuZq2noI0My9z1DvVDi/9w==
+
 "@capacitor/push-notifications@^8.1.2":
   version "8.1.2"
   resolved "https://registry.npmjs.org/@capacitor/push-notifications/-/push-notifications-8.1.2.tgz"
   integrity sha512-TQl4XxqJfNF+KbSYBFMXYYT5WXUaleVKXlByhh/8+KySMVNjp+l5OqAUoGe/sY1IAnGXEuUeCjA/WLZEVvGwrA==
+
+"@capacitor/splash-screen@^8.0.2":
+  version "8.0.2"
+  resolved "https://registry.npmjs.org/@capacitor/splash-screen/-/splash-screen-8.0.2.tgz"
+  integrity sha512-0C6rYScr13WfAE9nPl4ScOQynmjFv9NT3Th+RZkD4ezYHmER6mcl1/lDYsv7jg3Rj3FOvLrlTlmNkUrr83kZzQ==
 
 "@capacitor/status-bar@^8.0.3":
   version "8.0.3"
