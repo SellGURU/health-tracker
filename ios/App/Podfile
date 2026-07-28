@@ -22,8 +22,7 @@ end
 
 target 'App' do
   capacitor_pods
-  # Must match capacitor-rook-sdk@4.x podspec (fixes Apple Health init 401 from stale RookSDK 1.7.8)
-  pod 'RookSDK', '4.1.0'
+  # capacitor-rook-sdk@0.5.1 pins RookSDK 1.7.8 (working Apple Health auth on ios branch)
 end
 
 post_install do |installer|
