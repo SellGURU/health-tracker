@@ -15,6 +15,7 @@ import {
   Video,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { openExternalUrl } from "@/lib/open-external-url";
 
 interface EducationalProps {
   content: string;
@@ -203,7 +204,7 @@ export default function EducationalPage() {
               variant="outline"
               className="h-11 w-full rounded-xl text-sm font-medium"
               onClick={() =>
-                window.open(selectedContent["reference link"], "_blank")
+                void openExternalUrl(selectedContent["reference link"])
               }
             >
               <ExternalLink className="mr-2 h-4 w-4" />
@@ -336,7 +337,7 @@ export default function EducationalPage() {
                             className="mt-3 h-9 rounded-lg px-0 text-xs font-medium text-blue-600 hover:bg-transparent hover:text-blue-700 dark:text-blue-400"
                             onClick={(e) => {
                               e.stopPropagation();
-                              window.open(content["reference link"], "_blank");
+                              void openExternalUrl(content["reference link"]);
                             }}
                           >
                             <ExternalLink className="mr-1.5 h-3.5 w-3.5" />

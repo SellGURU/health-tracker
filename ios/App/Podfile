@@ -16,12 +16,14 @@ def capacitor_pods
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
+  pod 'CapacitorBrowser', :path => '../../node_modules/@capacitor/browser'
   pod 'CapacitorRookSdk', :path => '../../node_modules/capacitor-rook-sdk'
 end
 
 target 'App' do
   capacitor_pods
-  # Add your Pods here
+  # Must match capacitor-rook-sdk@4.x podspec (fixes Apple Health init 401 from stale RookSDK 1.7.8)
+  pod 'RookSDK', '4.1.0'
 end
 
 post_install do |installer|

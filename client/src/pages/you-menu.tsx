@@ -47,6 +47,7 @@ import {
 } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
+import { openExternalUrl } from "@/lib/open-external-url";
 
 const healthModules = [
   {
@@ -159,16 +160,45 @@ export default function YouMenu() {
     verified_account: boolean;
   }>();
   const [hasHtmlReport, setHasHtmlReport] = useState(false);
+  const [htmlReportUrls, setHtmlReportUrls] = useState<{
+    html: string;
+    pdf: string;
+  } | null>(null);
+  const [checkingHtmlReport, setCheckingHtmlReport] = useState(true);
+
+  const isValidReportUrl = (url: unknown): url is string =>
+    typeof url === "string" && url.trim().length > 0;
+
   useEffect(() => {
+    let cancelled = false;
+    setCheckingHtmlReport(true);
+
     Application.getHtmlReport()
-      .then(() => {
-        setHasHtmlReport(true);
-      })
-      .catch((err) => {
-        if (err.response.status === 404) {
+      .then((res) => {
+        if (cancelled) return;
+        const html = res?.data?.html;
+        const pdf = res?.data?.pdf;
+        // Only treat as available when both usable URLs exist (API can 200 with empty links)
+        if (isValidReportUrl(html) && isValidReportUrl(pdf)) {
+          setHasHtmlReport(true);
+          setHtmlReportUrls({ html: html.trim(), pdf: pdf.trim() });
+        } else {
           setHasHtmlReport(false);
+          setHtmlReportUrls(null);
         }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setHasHtmlReport(false);
+        setHtmlReportUrls(null);
+      })
+      .finally(() => {
+        if (!cancelled) setCheckingHtmlReport(false);
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
   // const { token, notifications } = usePushNotifications();
   // useEffect(() => {
@@ -517,103 +547,175 @@ export default function YouMenu() {
   // For showing health-related cards - using hasRequiredData as indicator
   const hasHealthData = hasRequiredData;
   const [loadingHtmlReport, setLoadingHtmlReport] = useState(false);
-  const [htmlReport, setHtmlReport] = useState<string>("");
+  const [htmlReportDoc, setHtmlReportDoc] = useState("");
   const [showHtmlReport, setShowHtmlReport] = useState(false);
-  const handleGetHtmlReport = () => {
-    if (!holisticPlanActionPlan.latest_deep_analysis) return;
+
+  const withBaseHref = (html: string, resourceUrl: string) => {
+    try {
+      const baseHref = new URL(".", resourceUrl).toString();
+      if (/<\s*base\s/i.test(html)) return html;
+      if (/<\s*head[^>]*>/i.test(html)) {
+        return html.replace(/<\s*head([^>]*)>/i, `<head$1><base href="${baseHref}">`);
+      }
+      return `<base href="${baseHref}">${html}`;
+    } catch {
+      return html;
+    }
+  };
+
+  const handleGetHtmlReport = async () => {
+    if (!holisticPlanActionPlan.latest_deep_analysis || !hasHtmlReport) return;
 
     setLoadingHtmlReport(true);
+    try {
+      const res = await Application.getHtmlReport();
+      const pdfUrl =
+        (isValidReportUrl(res?.data?.pdf) && res.data.pdf.trim()) ||
+        htmlReportUrls?.pdf;
+      if (!pdfUrl) {
+        setHasHtmlReport(false);
+        setHtmlReportUrls(null);
+        throw new Error("PDF report is not available yet.");
+      }
 
-    Application.getHtmlReport()
-      .then((res) => {
+      const response = await fetch(pdfUrl);
+      if (!response.ok) {
+        throw new Error("Failed to fetch the PDF report.");
+      }
+
+      const blob = await response.blob();
+      const pdfBlob =
+        blob.type && blob.type !== "application/octet-stream"
+          ? blob
+          : new Blob([blob], { type: "application/pdf" });
+      const fileName = "HolisticPlanReport.pdf";
+
+      // Best path on many phones: system share sheet (Save to Files / Drive / etc.)
+      const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+      if (
+        typeof navigator !== "undefined" &&
+        typeof navigator.share === "function" &&
+        (!navigator.canShare || navigator.canShare({ files: [file] }))
+      ) {
         try {
-          const blobUrl = res.data.pdf;
-
-          const link = document.createElement("a");
-          link.href = blobUrl;
-          link.download = "HolisticPlanReport";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } catch (error: any) {
-          console.error("Error downloading file:", error);
+          await navigator.share({
+            files: [file],
+            title: "Holistic Plan Report",
+          });
+          return;
+        } catch (shareError: any) {
+          // User cancelled share — don't treat as hard failure.
+          if (shareError?.name === "AbortError") return;
         }
-      })
-      .catch((err) => {
+      }
+
+      // Native WebViews often ignore <a download>; open the PDF so the user can save/share it.
+      if (Capacitor.isNativePlatform()) {
+        const opened = window.open(pdfUrl, "_blank");
+        if (!opened) {
+          throw new Error("Popup blocked while opening the PDF.");
+        }
         toast({
-          title: "Error",
-          description: err?.response?.data?.detail,
-          variant: "destructive",
+          title: "PDF opened",
+          description: "Use the browser/share menu to save the report to your device.",
         });
-      })
-      .finally(() => {
-        setLoadingHtmlReport(false);
+        return;
+      }
+
+      // Desktop / mobile browsers: blob + <a download>
+      const objectUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
+    } catch (error: any) {
+      console.error("Error downloading file:", error);
+      toast({
+        title: "Download failed",
+        description:
+          error?.response?.data?.detail ||
+          error?.message ||
+          "Could not download the report on this device.",
+        variant: "destructive",
       });
+    } finally {
+      setLoadingHtmlReport(false);
+    }
   };
+
   const [loadingViewHtmlReport, setLoadingViewHtmlReport] = useState(false);
-  
+
   // Handle browser back button to close modal
   useEffect(() => {
     const handlePopState = () => {
       if (showHtmlReport) {
         setShowHtmlReport(false);
-        // Clean up blob URL when closing
-        if (htmlReport) {
-          URL.revokeObjectURL(htmlReport);
-          setHtmlReport("");
-        }
+        setHtmlReportDoc("");
       }
     };
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [showHtmlReport, htmlReport]);
+  }, [showHtmlReport]);
 
-  const handleViewHtmlReport = () => {
-    if (!holisticPlanActionPlan.latest_deep_analysis) return;
+  const handleViewHtmlReport = async () => {
+    if (!holisticPlanActionPlan.latest_deep_analysis || !hasHtmlReport) return;
 
     setLoadingViewHtmlReport(true);
+    try {
+      const res = await Application.getHtmlReport();
+      const htmlUrl =
+        (isValidReportUrl(res?.data?.html) && res.data.html.trim()) ||
+        htmlReportUrls?.html;
+      if (!htmlUrl) {
+        setHasHtmlReport(false);
+        setHtmlReportUrls(null);
+        throw new Error("HTML report is not available yet.");
+      }
 
-    Application.getHtmlReport()
-      .then((res) => {
-        try {
-          fetch(res.data.html)
-            .then((response) => response.blob())
-            .then((res) => res.text())
-            .then((html) => {
-              const blob = new Blob([html], { type: "text/html" });
-              const blobUrl = URL.createObjectURL(blob);
-              setHtmlReport(blobUrl);
-              setShowHtmlReport(true);
-              window.history.pushState({ viewReport: true }, "", "#viewReport");
-            });
-        } catch (error: any) {
-          console.error("Error downloading file:", error);
-        }
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err?.response?.data?.detail,
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setLoadingViewHtmlReport(false);
-        setLoadingHtmlReport(false);
+      const response = await fetch(htmlUrl);
+      if (!response.ok) {
+        throw new Error("Failed to load the HTML report.");
+      }
+
+      const rawHtml = await response.text();
+      if (!rawHtml.trim()) {
+        throw new Error("Report content is empty.");
+      }
+
+      // Inject <base href> so relative CSS/images resolve (prevents white screen)
+      setHtmlReportDoc(withBaseHref(rawHtml, htmlUrl));
+      setShowHtmlReport(true);
+      window.history.pushState({ viewReport: true }, "", "#viewReport");
+    } catch (error: any) {
+      console.error("Error viewing report:", error);
+      toast({
+        title: "Unable to open report",
+        description:
+          error?.response?.data?.detail ||
+          error?.message ||
+          "Could not open the report on this device.",
+        variant: "destructive",
       });
+    } finally {
+      setLoadingViewHtmlReport(false);
+    }
   };
 
   const handleCloseHtmlReport = () => {
-    // Clean up blob URL first
-    if (htmlReport) {
-      URL.revokeObjectURL(htmlReport);
-      setHtmlReport("");
-    }
+    setHtmlReportDoc("");
     setShowHtmlReport(false);
     // Remove hash from URL without navigating
     if (window.location.hash === "#viewReport") {
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
     }
   };
 
@@ -633,11 +735,15 @@ export default function YouMenu() {
               </Button>
             </div>
             <iframe
-              src={htmlReport}
+              srcDoc={htmlReportDoc}
+              title="Holistic Plan Report"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
               style={{
                 width: "100%",
                 height: "calc(100vh - 40px)",
                 marginTop: "40px",
+                border: "none",
+                background: "white",
               }}
             />
           </div>
@@ -756,7 +862,7 @@ export default function YouMenu() {
               <Button
                 size="icon"
                 className="h-9 w-9 flex-shrink-0 rounded-full bg-red-500 hover:bg-red-600"
-                onClick={() => window.open("https://holisticare.io/#form", "_blank")}
+                onClick={() => void openExternalUrl("https://holisticare.io/#form")}
               >
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -1047,8 +1153,10 @@ export default function YouMenu() {
                       variant="outline"
                       onClick={() => {
                         const url = resolveQuestionaryUrl(questionnaire);
-                        const newWindow = window.open(url, "_blank");
-                        if (newWindow) setOpenedWindow(newWindow);
+                        void openExternalUrl(url).then(() => {
+                          // Track return-to-app refresh for native Browser sessions
+                          setOpenedWindow({ closed: false } as Window);
+                        });
                       }}
                       className="h-7 flex-shrink-0 rounded-lg border-violet-200 px-2.5 text-[11px] text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-950/30"
                     >
@@ -1116,16 +1224,26 @@ export default function YouMenu() {
       {/* Deep Analysis */}
       <Card className="overflow-hidden border border-gray-200/60 bg-white/90 shadow-sm dark:border-gray-700/50 dark:bg-gray-900/90">
         <CardContent className="p-4">
-          {!hasHealthData || !holisticPlanActionPlan.latest_deep_analysis ? (
+          {checkingHtmlReport ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+            </div>
+          ) : !hasHealthData ||
+            !holisticPlanActionPlan.latest_deep_analysis ||
+            !hasHtmlReport ? (
             <div className="flex flex-col items-center px-2 py-4 text-center">
               <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 dark:bg-purple-950/40">
                 <Brain className="h-7 w-7 text-purple-600 dark:text-purple-400" />
               </span>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                No Deep Analysis Yet
+                {!hasHealthData || !holisticPlanActionPlan.latest_deep_analysis
+                  ? "No Deep Analysis Yet"
+                  : "Report Not Ready Yet"}
               </h4>
               <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                Add health data to generate your first personalized deep analysis.
+                {!hasHealthData || !holisticPlanActionPlan.latest_deep_analysis
+                  ? "Add health data to generate your first personalized deep analysis."
+                  : "Your deep analysis exists, but the downloadable report is not available yet."}
               </p>
             </div>
           ) : (
@@ -1148,14 +1266,11 @@ export default function YouMenu() {
               <div className="mb-4 flex items-center gap-2 rounded-xl bg-blue-50/80 px-3 py-2 dark:bg-blue-950/30">
                 <CheckCircle className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
                 <span className="text-xs text-gray-700 dark:text-gray-300">
-                  {hasHtmlReport
-                    ? `${holisticPlanActionPlan.num_of_interventions} personalized interventions`
-                    : "You'll be able to download the report once it's ready."}
+                  {`${holisticPlanActionPlan.num_of_interventions} personalized interventions`}
                 </span>
               </div>
 
-              {hasHtmlReport && (
-                <div className="flex gap-2">
+              <div className="flex gap-2">
                   <Button
                     id="download-pdf-report-Box"
                     className="h-10 flex-1 rounded-xl text-sm font-medium text-white shadow-sm"
@@ -1194,8 +1309,7 @@ export default function YouMenu() {
                       "View"
                     )}
                   </Button>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </CardContent>

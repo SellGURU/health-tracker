@@ -35,6 +35,7 @@ import {
   requestPlatformHealthPermissions,
   syncRookSummaries,
 } from "@/lib/rook";
+import { openExternalUrl } from "@/lib/open-external-url";
 
 const DEVICE_IMAGE_FALLBACK =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
@@ -281,6 +282,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   const [isSyncingPlatformData, setIsSyncingPlatformData] = useState(false);
   const [isSyncingSamsungData, setIsSyncingSamsungData] = useState(false);
   const [openedWindow, setOpenedWindow] = useState<Window | null>(null);
+  const [awaitingExternalAuth, setAwaitingExternalAuth] = useState(false);
   const wasHiddenRef = useRef(false);
 
   // Restore connection state from localStorage on component mount
@@ -383,7 +385,7 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
   // Check if opened window is closed and refetch devices data (only for web)
   useEffect(() => {
     if (!openedWindow) return;
-    
+
     // Skip window.closed check on native platforms
     if (Capacitor.isNativePlatform()) {
       return;
@@ -400,44 +402,65 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     return () => clearInterval(checkWindowClosed);
   }, [openedWindow, fetchDevicesData]);
 
-  // Listen for app state changes and page visibility changes to refresh devices data
-  // This works even if the window is still open - refreshes when user returns to app
+  // Refresh after returning from OAuth (native Browser / visibility)
   useEffect(() => {
-    if (!openedWindow) return;
+    if (!openedWindow && !awaitingExternalAuth) return;
 
-    // Handle app state changes for native platforms
-    let appStateListener: any = null;
+    let appStateListener: { remove: () => Promise<void> | void } | null = null;
+    let browserFinishedListener: { remove: () => Promise<void> | void } | null =
+      null;
+
+    const refreshAfterAuth = () => {
+      void fetchDevicesData();
+      setAwaitingExternalAuth(false);
+    };
+
     if (Capacitor.isNativePlatform()) {
-      appStateListener = CapacitorApp.addListener('appStateChange', (state) => {
-        // When app comes to foreground and we have an opened window, refresh devices data
-        // This works even if the window is still open
-        if (state.isActive && openedWindow) {
-          fetchDevicesData();
+      appStateListener = CapacitorApp.addListener("appStateChange", (state) => {
+        if (state.isActive && (openedWindow || awaitingExternalAuth)) {
+          refreshAfterAuth();
         }
       });
+
+      void import("@capacitor/browser")
+        .then(({ Browser }) =>
+          Browser.addListener("browserFinished", () => {
+            refreshAfterAuth();
+          }),
+        )
+        .then((handle) => {
+          browserFinishedListener = handle;
+        })
+        .catch(() => {
+          // Browser plugin optional at runtime
+        });
     }
 
-    // Handle page visibility changes (works for both web and native)
-    // This refreshes data when user switches back to the app tab, even if window is still open
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         wasHiddenRef.current = true;
-      } else if (document.visibilityState === 'visible' && wasHiddenRef.current && openedWindow) {
-        // User returned to the app - refresh data even if window is still open
-        fetchDevicesData();
+      } else if (
+        document.visibilityState === "visible" &&
+        wasHiddenRef.current &&
+        (openedWindow || awaitingExternalAuth)
+      ) {
+        refreshAfterAuth();
         wasHiddenRef.current = false;
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       if (appStateListener) {
-        appStateListener.remove();
+        void appStateListener.remove();
       }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (browserFinishedListener) {
+        void browserFinishedListener.remove();
+      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [openedWindow, fetchDevicesData]);
+  }, [openedWindow, awaitingExternalAuth, fetchDevicesData]);
 
   async function revokeRookDataSource(sourceOrId: string) {
     if (!clientInformation?.id) return;
@@ -735,9 +758,22 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       data_source: source.name,
       user_id: clientInformation?.id! as string,
     })
-      .then((res) => {
-        const newWindow = window.open(res.data.authorization_url, "_blank");
-        if (newWindow) setOpenedWindow(newWindow);
+      .then(async (res) => {
+        const authorizationUrl = res?.data?.authorization_url;
+        if (!authorizationUrl) {
+          throw new Error("Authorization URL was not returned.");
+        }
+
+        if (Capacitor.isNativePlatform()) {
+          // iOS/Android: open outside WebView (SFSafariViewController / Custom Tabs)
+          await openExternalUrl(authorizationUrl);
+          setAwaitingExternalAuth(true);
+        } else {
+          const newWindow = window.open(authorizationUrl, "_blank");
+          if (newWindow) setOpenedWindow(newWindow);
+          else await openExternalUrl(authorizationUrl);
+        }
+
         toast({
           title: "Continue in browser",
           description: `Complete ${source.name} authorization, then return here.`,

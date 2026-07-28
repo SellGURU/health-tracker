@@ -1,5 +1,23 @@
 # ROOK iOS Sync Checklist
 
+## Fix Apple Health connect 401 (SDK 4.x)
+
+`capacitor-rook-sdk@4.1.1` requires native `RookSDK 4.1.0`. A stale `Podfile.lock` on `RookSDK 1.7.8` causes `initRook` auth **401**.
+
+On a Mac, from the repo root:
+
+```bash
+npm install
+npm run sync:ios
+cd ios/App
+rm -rf Pods Podfile.lock
+pod install --repo-update
+```
+
+Confirm `Podfile.lock` shows `CapacitorRookSdk (4.1.1)` and `RookSDK (4.1.0)`, then Xcode → Product → Clean Build Folder → archive/upload a new build.
+
+Also confirm in ROOK Portal (production): secret + bundle id `com.innovatifyltd.holisticare`.
+
 ## What Changed
 
 - ROOK now initializes at app startup for authenticated native sessions.

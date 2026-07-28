@@ -9,10 +9,12 @@ import {
 
 export const ROOK_ENVIRONMENT = "production";
 export const ROOK_CLIENT_UUID = "c2f4961b-9d3c-4ff0-915e-f70655892b89";
+/** Secret key from ROOK Portal (same value as legacy "password" on SDK 0.5.x). */
 export const ROOK_PASSWORD = "QH8u18OjLofsSRvmEDmGBgjv1frp3fapdbDA";
+export const ROOK_SECRET = ROOK_PASSWORD;
 export const ROOK_IOS_BUNDLE_ID = "com.innovatifyltd.holisticare";
 export const ROOK_ANDROID_PACKAGE_NAME = "com.innovatifyltd";
-export const ROOK_BASIC_AUTH = `Basic ${btoa(`${ROOK_CLIENT_UUID}:${ROOK_PASSWORD}`)}`;
+export const ROOK_BASIC_AUTH = `Basic ${btoa(`${ROOK_CLIENT_UUID}:${ROOK_SECRET}`)}`;
 
 type InitializeRookOptions = {
   userId: string;
@@ -22,6 +24,12 @@ type InitializeRookOptions = {
 
 let initializedConfigKey: string | null = null;
 let initializingPromise: Promise<void> | null = null;
+
+/** Clear cached init so a failed/401 attempt can be retried after native/pods fix. */
+export function resetRookInitialization(): void {
+  initializedConfigKey = null;
+  initializingPromise = null;
+}
 
 export function isNativeRookPlatform(): boolean {
   return Capacitor.isNativePlatform();
@@ -76,7 +84,7 @@ export async function initializeRookForUser({
     await RookConfig.initRook({
       environment: ROOK_ENVIRONMENT,
       clientUUID: ROOK_CLIENT_UUID,
-      secret: ROOK_PASSWORD,
+      secret: ROOK_SECRET,
       bundleId: ROOK_IOS_BUNDLE_ID,
       packageName: ROOK_ANDROID_PACKAGE_NAME,
       enableBackgroundSync,
@@ -89,6 +97,15 @@ export async function initializeRookForUser({
 
   try {
     await initializingPromise;
+  } catch (error) {
+    resetRookInitialization();
+    const message = error instanceof Error ? error.message : String(error);
+    if (/401|unauthorized|invalidCredentials|not.?authorized/i.test(message)) {
+      throw new Error(
+        `ROOK auth failed (401). Confirm native RookSDK is 4.1.0 (pod install) and that bundleId ${ROOK_IOS_BUNDLE_ID} + secret are registered in ROOK Portal for production. Original: ${message}`,
+      );
+    }
+    throw error;
   } finally {
     initializingPromise = null;
   }

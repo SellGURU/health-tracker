@@ -876,6 +876,11 @@
     tslib "2.6.2"
     yargs "17.7.2"
 
+"@capacitor/browser@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.npmjs.org/@capacitor/browser/-/browser-8.0.1.tgz"
+  integrity sha512-cCEYK9DGJvamfCKOh95QP+VafApblySDR/eodOcl1Qt+d/Y+NNPzc8NYm/dztQlRf3aMLJ7ne1HrRCfu2UOMnw==
+
 "@capacitor/cli@^5.3.0":
   version "5.7.8"
   resolved "https://registry.npmjs.org/@capacitor/cli/-/cli-5.7.8.tgz"
@@ -3100,7 +3105,7 @@ caniuse-lite@^1.0.30001646, caniuse-lite@^1.0.30001741:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001743.tgz"
   integrity sha512-e6Ojr7RV14Un7dz6ASD0aZDmQPT/A+eZU+nuTNfjqmRrmkmQlnTNWH0SKmqagx9PeW87UVqapSurtAXifmtdmw==
 
-capacitor-rook-sdk@^4.1.1:
+capacitor-rook-sdk@4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/capacitor-rook-sdk/-/capacitor-rook-sdk-4.1.1.tgz"
   integrity sha512-08MhclFe9EmPz3sAeJKpNHTSDq5qtQK8aD4uSF5QtWok+xkEj4IzsrfTBqx3+aPPOrMO3xANEoRnoZiX9r97Ig==

@@ -7,11 +7,25 @@ class Api {
   protected static post(url: string, data?: any, config?: any) {
     if (!config?.noPending) {
     }
+    const token = getTokenFromLocalStorage();
+    const isLoginOrRegister =
+      url.includes("/auth/mobile_token") ||
+      url.includes("/auth/mobile_register");
+
+    const headers: Record<string, string> = {
+      "Content-Type": config?.headers?.["Content-Type"] || "application/json",
+      ...(config?.headers || {}),
+    };
+
+    // Avoid sending stale "Bearer null"/old session tokens on login & register.
+    if (token && !isLoginOrRegister) {
+      headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete headers.Authorization;
+    }
+
     const response = axios.post(this.base_url + url, data, {
-      headers: {
-        Authorization: "Bearer " + getTokenFromLocalStorage(),
-        "Content-Type": config?.headers?.["Content-Type"] || "application/json",
-      },
+      headers,
       onUploadProgress: (progressEvent: any) => {
         if (config?.onUploadProgress) {
           config.onUploadProgress(progressEvent);
