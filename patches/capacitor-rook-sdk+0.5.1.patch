@@ -1,0 +1,37 @@
+diff --git a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
+index efa7284..bf2554d 100644
+--- a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
++++ b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
+@@ -145,8 +145,12 @@ public class RookImplementation() {
+             ret.put("result", true)
+             call.resolve(ret)
+         } else if (rookResult.isSuccess && samsungResult.isFailure) {
+-            val error = samsungResult.exceptionOrNull()?.message
+-            call.reject(error)
++            // Health Connect init succeeded; Samsung is optional for HC-only flows.
++            validateUser()
++            val ret: JSObject = JSObject()
++            ret.put("result", true)
++            ret.put("samsungInitFailed", true)
++            call.resolve(ret)
+         } else if (rookResult.isFailure && samsungResult.isSuccess) {
+             val error = rookResult.exceptionOrNull()?.message
+             call.reject(error)
+@@ -176,12 +180,15 @@ public class RookImplementation() {
+             }
+             val samsungResult: Result<Unit> = updateUserIdSamsung(userId)
+             val rookResult: Result<Unit> = rookConfigurationManager!!.updateUserID(userId)
+-            if (samsungResult.isSuccess && rookResult.isSuccess) {
++            if (rookResult.isSuccess) {
+                 val ret = JSObject()
+                 ret.put("result", true)
++                if (samsungResult.isFailure) {
++                    ret.put("samsungUpdateFailed", true)
++                }
+                 call.resolve(ret)
+             } else {
+-                call.reject(samsungResult.exceptionOrNull()?.message + rookResult.exceptionOrNull()?.message)
++                call.reject(rookResult.exceptionOrNull()?.message ?: samsungResult.exceptionOrNull()?.message)
+             }
+         }
+     }
