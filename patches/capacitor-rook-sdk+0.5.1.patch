@@ -1,8 +1,8 @@
 diff --git a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-index efa7284..b1c2f3a 100644
+index efa7284..f50ed30 100644
 --- a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
 +++ b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-@@ -136,13 +136,20 @@ public class RookImplementation() {
+@@ -137,7 +137,11 @@ public class RookImplementation() {
              }
          }
          if (samsungResult.isSuccess) {
@@ -15,7 +15,7 @@ index efa7284..b1c2f3a 100644
          }
          if (rookResult.isSuccess && samsungResult.isSuccess) {
              validateUser()
-             val ret: JSObject = JSObject()
+@@ -145,8 +149,11 @@ public class RookImplementation() {
              ret.put("result", true)
              call.resolve(ret)
          } else if (rookResult.isSuccess && samsungResult.isFailure) {
@@ -47,10 +47,7 @@ index efa7284..b1c2f3a 100644
              }
          }
      }
-@@ -585,25 +595,33 @@ public class RookImplementation() {
-     fun scheduleBackground(call: PluginCall) {
-         scope.launch {
-             if (rookConfigurationManager == null || backgroundManager == null) {
+@@ -582,10 +592,14 @@ public class RookImplementation() {
                  call.reject(INIT_ERROR_MESSAGE);
                  return@launch
              }
@@ -69,9 +66,7 @@ index efa7284..b1c2f3a 100644
          }
      }
  
-     fun scheduleSamsungHealthBackGround(call: PluginCall) {
-         scope.launch {
-             if (rookConfigurationManager == null || samsungManager == null) {
+@@ -595,10 +609,14 @@ public class RookImplementation() {
                  call.reject(INIT_ERROR_MESSAGE);
                  return@launch
              }
@@ -89,9 +84,8 @@ index efa7284..b1c2f3a 100644
 +            }
          }
      }
-@@ -649,17 +667,23 @@ public class RookImplementation() {
-     @SuppressLint("MissingPermission")
-     private suspend fun attemptToEnableBackgroundSync(enableBackgroundSync: Boolean, enableLogs: Boolean) {
+ 
+@@ -636,18 +654,26 @@ public class RookImplementation() {
          if (!enableBackgroundSync || rookPermissionsManager == null || backgroundManager == null || samsungManager == null)  {
              return
          }
@@ -103,11 +97,6 @@ index efa7284..b1c2f3a 100644
 -            samsungManager!!.schedule(enableLogs)
 -        } else {
 -            continuousUpload!!.launchInForegroundService(enableLogs)
--        }
--        val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
--        if (!isStepsEnable) {
--            stepsManager!!.enableBackgroundAndroidSteps()
--        }
 +        try {
 +            val hasBackground = rookPermissionsManager!!.checkBackgroundReadStatus().getOrDefault(
 +                defaultValue = BackgroundReadStatus.UNAVAILABLE,
@@ -120,7 +109,10 @@ index efa7284..b1c2f3a 100644
 +            }
 +        } catch (e: Exception) {
 +            // Non-fatal: never let background-scheduling failures hang/crash initRook().
-+        }
+         }
+-        val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
+-        if (!isStepsEnable) {
+-            stepsManager!!.enableBackgroundAndroidSteps()
 +        try {
 +            val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
 +            if (!isStepsEnable) {
@@ -128,5 +120,6 @@ index efa7284..b1c2f3a 100644
 +            }
 +        } catch (e: Exception) {
 +            // Non-fatal.
-+        }
+         }
      }
+ 
