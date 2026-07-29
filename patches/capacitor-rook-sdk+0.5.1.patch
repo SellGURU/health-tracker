@@ -1,15 +1,27 @@
 diff --git a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-index efa7284..bf2554d 100644
+index efa7284..b1c2f3a 100644
 --- a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
 +++ b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-@@ -145,8 +145,12 @@ public class RookImplementation() {
+@@ -136,13 +136,20 @@ public class RookImplementation() {
+             }
+         }
+         if (samsungResult.isSuccess) {
+-            samsungManager!!.schedule(areLogsEnable)
++            try {
++                samsungManager!!.schedule(areLogsEnable)
++            } catch (e: Exception) {
++                // Non-fatal: a scheduling failure here must never hang/crash initRook().
++            }
+         }
+         if (rookResult.isSuccess && samsungResult.isSuccess) {
+             validateUser()
+             val ret: JSObject = JSObject()
              ret.put("result", true)
              call.resolve(ret)
          } else if (rookResult.isSuccess && samsungResult.isFailure) {
 -            val error = samsungResult.exceptionOrNull()?.message
 -            call.reject(error)
 +            // Health Connect init succeeded; Samsung is optional for HC-only flows.
-+            validateUser()
 +            val ret: JSObject = JSObject()
 +            ret.put("result", true)
 +            ret.put("samsungInitFailed", true)
@@ -17,7 +29,7 @@ index efa7284..bf2554d 100644
          } else if (rookResult.isFailure && samsungResult.isSuccess) {
              val error = rookResult.exceptionOrNull()?.message
              call.reject(error)
-@@ -176,12 +180,15 @@ public class RookImplementation() {
+@@ -176,12 +183,15 @@ public class RookImplementation() {
              }
              val samsungResult: Result<Unit> = updateUserIdSamsung(userId)
              val rookResult: Result<Unit> = rookConfigurationManager!!.updateUserID(userId)
@@ -34,4 +46,87 @@ index efa7284..bf2554d 100644
 +                call.reject(rookResult.exceptionOrNull()?.message ?: samsungResult.exceptionOrNull()?.message)
              }
          }
+     }
+@@ -585,25 +595,33 @@ public class RookImplementation() {
+     fun scheduleBackground(call: PluginCall) {
+         scope.launch {
+             if (rookConfigurationManager == null || backgroundManager == null) {
+                 call.reject(INIT_ERROR_MESSAGE);
+                 return@launch
+             }
+-            val result: Unit = backgroundManager!!.schedule(areLogsEnable)
+-            val ret = JSObject()
+-            ret.put("result", result);
+-            call.resolve(ret)
++            try {
++                backgroundManager!!.schedule(areLogsEnable)
++                val ret = JSObject()
++                ret.put("result", true);
++                call.resolve(ret)
++            } catch (e: Exception) {
++                call.reject("We couldn't schedule Health Connect background sync: " + (e.message ?: e.javaClass.simpleName), e)
++            }
+         }
+     }
+ 
+     fun scheduleSamsungHealthBackGround(call: PluginCall) {
+         scope.launch {
+             if (rookConfigurationManager == null || samsungManager == null) {
+                 call.reject(INIT_ERROR_MESSAGE);
+                 return@launch
+             }
+-            val result: Unit = samsungManager!!.schedule(areLogsEnable)
+-            val ret = JSObject()
+-            ret.put("result", result);
+-            call.resolve(ret)
++            try {
++                samsungManager!!.schedule(areLogsEnable)
++                val ret = JSObject()
++                ret.put("result", true);
++                call.resolve(ret)
++            } catch (e: Exception) {
++                call.reject("We couldn't schedule Samsung Health background sync: " + (e.message ?: e.javaClass.simpleName), e)
++            }
+         }
+     }
+@@ -649,17 +667,23 @@ public class RookImplementation() {
+     @SuppressLint("MissingPermission")
+     private suspend fun attemptToEnableBackgroundSync(enableBackgroundSync: Boolean, enableLogs: Boolean) {
+         if (!enableBackgroundSync || rookPermissionsManager == null || backgroundManager == null || samsungManager == null)  {
+             return
+         }
+-        val hasBackground = rookPermissionsManager!!.checkBackgroundReadStatus().getOrDefault(
+-            defaultValue = BackgroundReadStatus.UNAVAILABLE,
+-        ) == BackgroundReadStatus.PERMISSION_GRANTED
+-        if (hasBackground) {
+-            backgroundManager!!.schedule(enableLogs)
+-            samsungManager!!.schedule(enableLogs)
+-        } else {
+-            continuousUpload!!.launchInForegroundService(enableLogs)
+-        }
+-        val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
+-        if (!isStepsEnable) {
+-            stepsManager!!.enableBackgroundAndroidSteps()
+-        }
++        try {
++            val hasBackground = rookPermissionsManager!!.checkBackgroundReadStatus().getOrDefault(
++                defaultValue = BackgroundReadStatus.UNAVAILABLE,
++            ) == BackgroundReadStatus.PERMISSION_GRANTED
++            if (hasBackground) {
++                backgroundManager!!.schedule(enableLogs)
++                samsungManager!!.schedule(enableLogs)
++            } else {
++                continuousUpload!!.launchInForegroundService(enableLogs)
++            }
++        } catch (e: Exception) {
++            // Non-fatal: never let background-scheduling failures hang/crash initRook().
++        }
++        try {
++            val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
++            if (!isStepsEnable) {
++                stepsManager!!.enableBackgroundAndroidSteps()
++            }
++        } catch (e: Exception) {
++            // Non-fatal.
++        }
      }

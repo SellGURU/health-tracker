@@ -51,6 +51,21 @@ export function getPlatformHealthSourceName(): string {
   return isIOSRookPlatform() ? "Apple Health" : "Health Connect";
 }
 
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`${label} timed out after ${Math.round(ms / 1000)}s. Please try again.`));
+      }, ms);
+    }),
+  ]);
+}
+
 export async function initializeRookForUser({
   userId,
   enableBackgroundSync = true,
@@ -116,20 +131,63 @@ export async function requestPlatformHealthPermissions(): Promise<void> {
   }
 }
 
-export async function enablePlatformBackgroundSync(): Promise<void> {
+export type BackgroundSyncResult = {
+  backgroundSyncEnabled: boolean;
+  /** Raw Health Connect "read data in background" status, when available. */
+  backgroundReadStatus?: string;
+  /** Present when scheduling failed; the flow is still allowed to continue. */
+  error?: string;
+};
+
+export async function enablePlatformBackgroundSync(options?: {
+  scheduleYesterday?: boolean;
+}): Promise<BackgroundSyncResult> {
   if (isAndroidRookPlatform()) {
-    await RookPermissions.requestAndroidBackgroundPermissions();
-    await RookHealthConnect.scheduleHealthConnectBackGround();
-    await RookHealthConnect.scheduleYesterdaySync({
-      doOnEnd: "oldest",
-    });
-    return;
+    // NOTE: `requestAndroidBackgroundPermissions` is a deprecated alias for
+    // `requestAndroidPermissions` in capacitor-rook-sdk@0.5.1 - it does NOT
+    // request/grant Health Connect's special "read data in background"
+    // permission. We call it anyway (harmless) but rely on
+    // `checkBackgroundReadStatus` for the real signal.
+    await RookPermissions.requestAndroidBackgroundPermissions().catch(() => undefined);
+
+    let backgroundReadStatus: string | undefined;
+    try {
+      const statusResult = await RookHealthConnect.checkBackgroundReadStatus();
+      backgroundReadStatus = (statusResult as any)?.result;
+      console.log("[Rook] Health Connect background read status:", backgroundReadStatus);
+    } catch (error) {
+      console.warn("[Rook] Could not read Health Connect background status:", error);
+    }
+
+    let backgroundSyncEnabled = false;
+    let error: string | undefined;
+    try {
+      await RookHealthConnect.scheduleHealthConnectBackGround();
+      backgroundSyncEnabled = true;
+    } catch (e: any) {
+      error = e?.message || String(e);
+      console.error("[Rook] scheduleHealthConnectBackGround failed (non-blocking):", e);
+    }
+
+    if (options?.scheduleYesterday !== false) {
+      try {
+        await RookHealthConnect.scheduleYesterdaySync({
+          doOnEnd: "oldest",
+        });
+      } catch (e) {
+        console.warn("[Rook] scheduleYesterdaySync failed (non-blocking):", e);
+      }
+    }
+
+    return { backgroundSyncEnabled, backgroundReadStatus, error };
   }
 
   if (isIOSRookPlatform()) {
     await RookAppleHealth.enableBackGroundUpdates();
     await RookAppleHealth.enableBackGroundEventsUpdates();
   }
+
+  return { backgroundSyncEnabled: true };
 }
 
 export async function syncRookSummaries(): Promise<void> {

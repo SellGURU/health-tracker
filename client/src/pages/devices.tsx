@@ -34,6 +34,7 @@ import {
   isRookSummarySyncSupported,
   requestPlatformHealthPermissions,
   syncRookSummaries,
+  withTimeout,
 } from "@/lib/rook";
 import { openExternalUrl } from "@/lib/open-external-url";
 
@@ -497,16 +498,21 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
     }
 
     try {
-      await initializeRookForUser({ userId: clientInformation.id });
-      await requestPlatformHealthPermissions();
-      await enablePlatformBackgroundSync();
-
-      if (isRookSummarySyncSupported()) {
-        await syncRookSummaries();
-        console.log("✅ Summaries synced");
-      } else if (isIOSRookPlatform()) {
-        console.log("ℹ️ iOS summary sync is handled by ROOK background delivery in this SDK version");
-      }
+      await withTimeout(
+        initializeRookForUser({ userId: clientInformation.id }),
+        45_000,
+        "Rook initialization",
+      );
+      await withTimeout(
+        requestPlatformHealthPermissions(),
+        120_000,
+        "Health permissions",
+      );
+      const backgroundSyncResult = await withTimeout(
+        enablePlatformBackgroundSync({ scheduleYesterday: false }),
+        20_000,
+        "Background sync setup",
+      );
 
       setIsConnecting("connected");
       toast({
@@ -515,6 +521,31 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
           ? `${getPlatformHealthSourceName()} connected successfully. Background sync is enabled and your data will upload automatically.`
           : `${getPlatformHealthSourceName()} connected successfully. Background sync is enabled and Sync Now is available as a fallback.`,
       });
+
+      if (
+        !isIOSRookPlatform() &&
+        backgroundSyncResult &&
+        !backgroundSyncResult.backgroundSyncEnabled
+      ) {
+        console.warn(
+          "⚠️ Health Connect background sync not enabled:",
+          backgroundSyncResult.backgroundReadStatus,
+          backgroundSyncResult.error,
+        );
+        toast({
+          title: "Background Sync Limited",
+          description:
+            'Automatic background sync could not be scheduled. Open Health Connect settings and allow "Access data in the background" for this app, then use Sync Now to update your data manually in the meantime.',
+        });
+      }
+
+      if (isRookSummarySyncSupported()) {
+        void syncRookSummaries()
+          .then(() => console.log("✅ Summaries synced"))
+          .catch((syncError) => console.warn("⚠️ Initial sync skipped:", syncError));
+      } else if (isIOSRookPlatform()) {
+        console.log("ℹ️ iOS summary sync is handled by ROOK background delivery in this SDK version");
+      }
     } catch (e: any) {
       console.error("❌ Error initializing Rook:", e);
       setIsConnecting("disconnected");

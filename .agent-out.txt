@@ -1,0 +1,20 @@
+﻿67c99ec Restore ios Rook stack (Cap 7 + SDK 0.5.1) and fix Android Health Connect init.
+2d76b88 update stable
+d8ca4c8 update
+commit 67c99ecdb98e94e44f71e331d0cfbb406d75d17e
+Author: MloDehghani <amir.dehghani.official@gmail.com>
+Date:   Tue Jul 28 22:41:55 2026 +0000
+
+    Restore ios Rook stack (Cap 7 + SDK 0.5.1) and fix Android Health Connect init.
+    
+    Co-authored-by: Cursor <cursoragent@cursor.com>
+
+ android/app/capacitor.build.gradle       |   4 +-
+ android/app/src/main/AndroidManifest.xml |  81 +++---
+ android/capacitor.settings.gradle        |  12 +-
+ client/src/lib/rook.ts                   |  12 +-
+ ios/App/Podfile.lock                     |  47 ++++
+ package-lock.json                        | 464 +++++++++++++++++++------------
+ package.json                             |  34 +--
+ patches/capacitor-rook-sdk+0.5.1.patch   |  37 +++
+ 8 files changed, 448 insertions(+), 243 deletions(-)

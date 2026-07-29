@@ -1,0 +1,8 @@
+﻿android/app/capacitor.build.gradle
+android/app/src/main/AndroidManifest.xml
+android/capacitor.settings.gradle
+client/src/lib/rook.ts
+ios/App/Podfile.lock
+package-lock.json
+package.json
+patches/capacitor-rook-sdk+0.5.1.patch

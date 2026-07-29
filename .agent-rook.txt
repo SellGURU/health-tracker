@@ -1,0 +1,44 @@
+﻿diff --git a/client/src/lib/rook.ts b/client/src/lib/rook.ts
+index 0321755..fbf7d13 100644
+--- a/client/src/lib/rook.ts
++++ b/client/src/lib/rook.ts
+@@ -23,12 +23,6 @@ type InitializeRookOptions = {
+ let initializedConfigKey: string | null = null;
+ let initializingPromise: Promise<void> | null = null;
+ 
+-/** Clear cached init so a failed attempt can be retried. */
+-export function resetRookInitialization(): void {
+-  initializedConfigKey = null;
+-  initializingPromise = null;
+-}
+-
+ export function isNativeRookPlatform(): boolean {
+   return Capacitor.isNativePlatform();
+ }
+@@ -78,7 +72,6 @@ export async function initializeRookForUser({
+     }
+   }
+ 
+-  // capacitor-rook-sdk@0.5.1 (working iOS build) uses `password`, not `secret`.
+   initializingPromise = (async () => {
+     await RookConfig.initRook({
+       environment: ROOK_ENVIRONMENT,
+@@ -88,7 +81,7 @@ export async function initializeRookForUser({
+       packageName: ROOK_ANDROID_PACKAGE_NAME,
+       enableBackgroundSync,
+       enableEventsBackgroundSync,
+-    } as any);
++    });
+ 
+     await RookConfig.updateUserId({ userId });
+     initializedConfigKey = configKey;
+@@ -96,9 +89,6 @@ export async function initializeRookForUser({
+ 
+   try {
+     await initializingPromise;
+-  } catch (error) {
+-    resetRookInitialization();
+-    throw error;
+   } finally {
+     initializingPromise = null;
+   }
