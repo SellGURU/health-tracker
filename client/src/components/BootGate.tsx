@@ -1,7 +1,6 @@
 import OfflineScreen from "@/components/OfflineScreen";
 import { useNetworkStatus } from "@/hooks/use-network-status";
-import { Capacitor } from "@capacitor/core";
-import { SplashScreen } from "@capacitor/splash-screen";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Loader2 } from "lucide-react";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
@@ -10,6 +9,12 @@ type BootPhase = "booting" | "offline" | "ready";
 type BootGateProps = {
   children: ReactNode;
 };
+
+interface SplashScreenPlugin {
+  hide(): Promise<void>;
+}
+
+const SplashScreen = registerPlugin<SplashScreenPlugin>("SplashScreen");
 
 export default function BootGate({ children }: BootGateProps) {
   const { isOnline, checking, refresh } = useNetworkStatus();
