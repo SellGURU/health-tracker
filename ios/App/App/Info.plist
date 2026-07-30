@@ -22,6 +22,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access so you can take a profile photo during registration.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photo library access so you can choose a profile photo during registration.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>This app requires access to your health and fitness data in order to track your workouts and activity levels.</string>
 	<key>NSHealthUpdateUsageDescription</key>

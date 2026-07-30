@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { openExternalUrl } from "@/lib/open-external-url";
 
 interface UpdateAvailableModalProps {
   open: boolean;
@@ -23,16 +24,16 @@ export function UpdateAvailableModal({
 }: UpdateAvailableModalProps) {
   const handleDownload = () => {
     if (downloadLink) {
-      window.open(downloadLink, "_blank");
+      void openExternalUrl(downloadLink);
     }
   };
 
   const handlePlayStore = () => {
     if (playStoreLink) {
-      window.open(playStoreLink, "_blank");
+      void openExternalUrl(playStoreLink);
     } else {
       // Fallback to generic Play Store search if no link provided
-      window.open("https://play.google.com/store/apps", "_blank");
+      void openExternalUrl("https://play.google.com/store/apps");
     }
   };
 

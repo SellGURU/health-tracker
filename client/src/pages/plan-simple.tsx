@@ -14,9 +14,10 @@ import {
   ClipboardList,
   Dumbbell,
   Pill,
+  Target,
   Users,
 } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 
 interface Filters {
   Type: string[];
@@ -447,7 +448,7 @@ export default function Plan() {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Diet":
-        return "bg-green-500";
+        return "bg-emerald-500";
       case "Supplement":
         return "bg-blue-500";
       case "Lifestyle":
@@ -458,6 +459,23 @@ export default function Plan() {
         return "bg-pink-500";
       default:
         return "bg-gray-500";
+    }
+  };
+
+  const getCategoryBadgeClass = (category: string) => {
+    switch (category) {
+      case "Diet":
+        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
+      case "Supplement":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+      case "Lifestyle":
+        return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300";
+      case "Activity":
+        return "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300";
+      case "Test":
+        return "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300";
+      default:
+        return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400";
     }
   };
 
@@ -486,7 +504,7 @@ export default function Plan() {
             </p>
             {task.Total_macros && (
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-orange-100 dark:bg-orange-900/20 p-2 rounded flex items-start justify-between">
+                <div className="bg-orange-100 dark:bg-orange-900/20 p-2.5 rounded-xl flex items-start justify-between">
                   <div>
                     <div className="font-medium text-orange-800 dark:text-orange-300">
                       Carbs
@@ -501,7 +519,7 @@ export default function Plan() {
                     className="w-6 h-6"
                   />
                 </div>
-                <div className="bg-blue-100 dark:bg-blue-900/20 p-2 rounded flex items-start justify-between">
+                <div className="bg-blue-100 dark:bg-blue-900/20 p-2.5 rounded-xl flex items-start justify-between">
                   <div>
                     <div className="font-medium text-blue-800 dark:text-blue-300">
                       Protein
@@ -516,7 +534,7 @@ export default function Plan() {
                     className="w-6 h-6"
                   />
                 </div>
-                <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded flex items-start justify-between">
+                <div className="bg-green-100 dark:bg-green-900/20 p-2.5 rounded-xl flex items-start justify-between">
                   <div>
                     <div className="font-medium text-green-800 dark:text-green-300">
                       Fats
@@ -584,7 +602,7 @@ export default function Plan() {
                           : parseInt(e.target.value)
                       )
                     }
-                    className="flex-1 h-9 text-xs placeholder:text-xs  placeholder:font-normal"
+                    className="h-11 flex-1 rounded-xl text-sm placeholder:text-sm"
                     disabled={task.Status}
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
@@ -617,7 +635,7 @@ export default function Plan() {
               ? task.Sections.map((section: Section, index: number) => (
                   <div
                     key={index}
-                    className="border border-orange-200 dark:border-orange-700/30 rounded-lg p-3"
+                    className="border border-orange-200/60 dark:border-orange-700/30 rounded-xl p-3 bg-orange-50/30 dark:bg-orange-900/10"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h5 className="font-medium text-orange-800 dark:text-orange-300">
@@ -770,10 +788,10 @@ export default function Plan() {
                                   }
                                 }
                               }}
-                              className={`w-full ${
+                              className={`h-11 w-full rounded-xl text-sm font-medium ${
                                 completed
-                                  ? "bg-emerald-500 hover:bg-emerald-600 text-white opacity-50 cursor-not-allowed"
-                                  : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                                  ? "bg-emerald-500 text-white opacity-50"
+                                  : "hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                               }`}
                               style={{ marginBottom: "5px" }}
                             >
@@ -852,10 +870,10 @@ export default function Plan() {
                   setOpenedWindow(newWindow);
                 }
               }}
-              className={`w-full !mt-4 !-mb-6 ${
+              className={`h-11 w-full rounded-xl text-sm font-medium !mt-4 !-mb-6 ${
                 task.Status
-                  ? "bg-emerald-500 hover:bg-emerald-600 text-white opacity-50 cursor-not-allowed"
-                  : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                  ? "bg-emerald-500 text-white opacity-50"
+                  : "hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
               }`}
             >
               {task.Status ? (
@@ -873,467 +891,356 @@ export default function Plan() {
     }
   };
 
+  const todayProgress = useMemo(() => {
+    const total = todaysTasks.length;
+    const completed = todaysTasks.filter((t) => t.Status).length;
+    return {
+      total,
+      completed,
+      percent: total ? Math.round((completed / total) * 100) : 0,
+    };
+  }, [todaysTasks]);
+
+  const handleTaskAction = (task: Task, completed: boolean, isCurrentDay: boolean) => {
+    if (!isCurrentDay) return;
+
+    const currentValue = taskValues[task.task_id] ?? 0;
+    const isLifestyle = task.Category === "Lifestyle";
+    const valueMatchesTarget = currentValue === (task.Value ?? 0);
+
+    const updateStatus = (id: string, status: boolean, value?: number) => {
+      handleUpdateTaskStatus(id, status, value);
+      if (activeTab === "calendar") {
+        handleUpdateWeeklyTaskStatus(id, status);
+      }
+    };
+
+    if (!isLifestyle) {
+      updateStatus(task.task_id, !task.Status, currentValue);
+      if (completed) handleUncheckTask(task.task_id);
+      else handleCheckTask(task.task_id);
+    } else {
+      handleUpdateValue(task.task_id, currentValue);
+      if (valueMatchesTarget) {
+        const newCompleted = !completed;
+        updateStatus(task.task_id, newCompleted, currentValue);
+        if (newCompleted) handleCheckTask(task.task_id);
+        else handleUncheckTask(task.task_id);
+      } else {
+        updateStatus(task.task_id, false, currentValue);
+        if (completed) handleUncheckTask(task.task_id);
+      }
+    }
+  };
+
+  const renderTaskCard = (task: Task, isCurrentDay: boolean) => {
+    const TaskIcon = getTaskIcon(task);
+    const completed = task.Status;
+
+    return (
+      <Card
+        key={task.task_id}
+        className={`overflow-hidden rounded-2xl border-0 shadow-md transition-all ${
+          completed
+            ? "bg-white/70 dark:bg-gray-800/60"
+            : "bg-white/95 dark:bg-gray-800/95"
+        }`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <span
+              className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl shadow-sm ${
+                completed ? "bg-emerald-500" : getCategoryColor(task.Category)
+              }`}
+            >
+              <TaskIcon className="h-5 w-5 text-white" />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <div className="mb-3 flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <h4
+                    className={`text-sm font-semibold leading-snug ${
+                      completed
+                        ? "text-gray-400 line-through"
+                        : "text-gray-900 dark:text-gray-100"
+                    }`}
+                  >
+                    {task.Title}
+                  </h4>
+                  <Badge
+                    variant="outline"
+                    className={`mt-1.5 border-0 px-2 py-0.5 text-[10px] font-medium ${getCategoryBadgeClass(task.Category)}`}
+                  >
+                    {task.Category || task.Task_Type}
+                  </Badge>
+                </div>
+                {completed && (
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-emerald-500" />
+                )}
+              </div>
+
+              <div className="mb-4">{renderTaskDetails(task, isCurrentDay)}</div>
+
+              {task.Category !== "Activity" && task.Task_Type !== "Checkin" && (
+                <Button
+                  variant={completed ? "default" : "outline"}
+                  disabled={!isCurrentDay}
+                  onClick={() => handleTaskAction(task, completed, isCurrentDay)}
+                  className={`h-11 w-full rounded-xl text-sm font-medium ${
+                    completed
+                      ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                      : "border-gray-200 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700/50"
+                  } ${!isCurrentDay ? "opacity-50" : ""}`}
+                >
+                  {completed ? (
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Circle className="mr-2 h-4 w-4" />
+                  )}
+                  {completed
+                    ? "Completed"
+                    : task.Category === "Lifestyle"
+                      ? "Save value"
+                      : "Mark complete"}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderEmptyState = (message: string) => (
+    <div className="flex flex-col items-center rounded-2xl bg-white/60 px-6 py-12 text-center dark:bg-gray-800/40">
+      <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+        <Calendar className="h-8 w-8 text-blue-500/70 dark:text-blue-400/70" />
+      </span>
+      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        {message}
+      </p>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        {/* Page Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-thin bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            Action Plans
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light">
-            Complete daily tasks and track your calendar
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 pb-8 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900/20">
+      <div className="mx-auto w-full max-w-md px-4 py-4">
+        {/* Header */}
+        <div className="mb-5 flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+            <Target className="h-5 w-5 text-white" />
+          </span>
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Your Plan
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Daily tasks & weekly calendar
+            </p>
+          </div>
         </div>
 
-        {/* Tabs for Today vs Calendar */}
+        {/* Today progress summary */}
+        {activeTab === "today" && !isLoading && todaysTasks.length > 0 && (
+          <Card className="mb-5 rounded-2xl border-0 bg-white/80 shadow-md dark:bg-gray-800/80">
+            <CardContent className="p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Today&apos;s progress
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {todayProgress.completed} of {todayProgress.total} done
+                  </p>
+                </div>
+                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {todayProgress.percent}%
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                  style={{ width: `${todayProgress.percent}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="today" className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Today's Tasks
+          <TabsList className="mb-5 grid h-11 w-full grid-cols-2 rounded-xl bg-gray-100/80 p-1 dark:bg-gray-800/80">
+            <TabsTrigger
+              value="today"
+              className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+            >
+              <CheckCircle className="mr-1.5 h-4 w-4" />
+              Today
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Calendar View
+            <TabsTrigger
+              value="calendar"
+              className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+            >
+              <Calendar className="mr-1.5 h-4 w-4" />
+              Calendar
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="today" className="space-y-6">
-            {/* Today's Tasks Content */}
-            <div className="space-y-4">
-              {todaysTasks.map((task) => {
-                const TaskIcon = getTaskIcon(task);
-                const completed = task.Status;
-
-                return (
-                  <Card
-                    key={task.task_id}
-                    className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border border-green-200/30 dark:border-green-700/20 shadow-lg backdrop-blur-sm"
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            completed
-                              ? "bg-emerald-500"
-                              : getCategoryColor(task.Category)
-                          }`}
-                        >
-                          <TaskIcon className="w-5 h-5 text-white" />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="mb-3">
-                            <h4
-                              className={`text-sm font-medium ${
-                                completed
-                                  ? "text-gray-500 line-through"
-                                  : "text-gray-800 dark:text-gray-200"
-                              }`}
-                            >
-                              {task.Title}
-                            </h4>
-                            <Badge variant="outline" className="text-xs mt-1">
-                              {task.Category || task.Task_Type}
-                            </Badge>
-                          </div>
-
-                          {/* Task Details */}
-                          <div className="mb-4">
-                            {renderTaskDetails(task, true)}
-                          </div>
-
-                          {/* Task Action Button */}
-                          {task.Category !== "Activity" &&
-                            task.Task_Type !== "Checkin" && (
-                              <Button
-                                variant={completed ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => {
-                                  const currentValue =
-                                    taskValues[task.task_id] ?? 0;
-                                  const isLifestyle =
-                                    task.Category === "Lifestyle";
-                                  const valueMatchesTarget =
-                                    currentValue === (task.Value ?? 0);
-
-                                  if (!isLifestyle) {
-                                    handleUpdateTaskStatus(
-                                      task.task_id,
-                                      !task.Status,
-                                      currentValue
-                                    );
-                                    if (completed) {
-                                      handleUncheckTask(task.task_id);
-                                    } else {
-                                      handleCheckTask(task.task_id);
-                                    }
-                                  } else {
-                                    handleUpdateValue(
-                                      task.task_id,
-                                      currentValue
-                                    );
-                                    if (valueMatchesTarget) {
-                                      const newCompleted = !completed;
-                                      handleUpdateTaskStatus(
-                                        task.task_id,
-                                        newCompleted,
-                                        currentValue
-                                      );
-                                      if (newCompleted) {
-                                        handleCheckTask(task.task_id);
-                                      } else {
-                                        handleUncheckTask(task.task_id);
-                                      }
-                                    } else {
-                                      handleUpdateTaskStatus(
-                                        task.task_id,
-                                        false,
-                                        currentValue
-                                      );
-                                      if (completed) {
-                                        handleUncheckTask(task.task_id);
-                                      }
-                                    }
-                                  }
-                                }}
-                                className={`w-full ${
-                                  completed
-                                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                    : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                                }`}
-                              >
-                                {completed ? (
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                ) : (
-                                  <Circle className="w-4 h-4 mr-2" />
-                                )}
-                                {completed
-                                  ? "Completed"
-                                  : task.Category === "Lifestyle"
-                                  ? "Save Value"
-                                  : "Mark Complete"}
-                              </Button>
-                            )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-              {todaysTasks.length === 0 && (
-                <div className="flex flex-col items-center gap-2">
-                  <img
-                    src="/icons/calendar-2.svg"
-                    alt="No tasks"
-                    className="w-[80px] mx-auto"
+          <TabsContent value="today" className="mt-0 space-y-3">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="h-32 animate-pulse rounded-2xl bg-white/60 dark:bg-gray-800/40"
                   />
-                  <div className="text-center text-gray-700 dark:text-gray-400">
-                    No tasks for today yet
-                  </div>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : todaysTasks.length > 0 ? (
+              todaysTasks.map((task) => renderTaskCard(task, true))
+            ) : (
+              renderEmptyState("No tasks for today yet")
+            )}
           </TabsContent>
 
-          <TabsContent value="calendar" className="space-y-6">
-            {/* Date Picker - Horizontal Row */}
-            <div className="mb-8">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 text-center">
-                Select a Date
-              </h3>
-              <div
-                ref={dateScrollRef}
-                className="flex gap-2 overflow-x-auto overflow-y-hidden pb-2 justify-start touch-pan-x cursor-grab select-none"
-                style={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#E5E5E5 transparent",
-                }}
-              >
-                {getDateRange().map((dateInfo) => {
-                  const isCurrentDay = isToday(dateInfo.key);
-                  const isSelected = selectedDate === dateInfo.key;
-                  const dayTasks =
-                    weeklyTasks.find((task) => task.date === dateInfo.key)
-                      ?.tasks || [];
-                  const completionRate = getTaskCompletionRate(dayTasks);
+          <TabsContent value="calendar" className="mt-0 space-y-4">
+            {isLoading ? (
+              <div className="space-y-3">
+                <div className="h-20 animate-pulse rounded-2xl bg-white/60 dark:bg-gray-800/40" />
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="h-32 animate-pulse rounded-2xl bg-white/60 dark:bg-gray-800/40"
+                  />
+                ))}
+              </div>
+            ) : (
+              <>
+                <div>
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Select a day
+                  </p>
+                  <div
+                    ref={dateScrollRef}
+                    className="flex gap-2 overflow-x-auto pb-1 touch-pan-x"
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    {getDateRange().map((dateInfo) => {
+                      const isCurrentDay = isToday(dateInfo.key);
+                      const isSelected = selectedDate === dateInfo.key;
+                      const dayTasks =
+                        weeklyTasks.find((t) => t.date === dateInfo.key)
+                          ?.tasks || [];
+                      const completionRate = getTaskCompletionRate(dayTasks);
+
+                      return (
+                        <button
+                          key={dateInfo.key}
+                          type="button"
+                          onClick={() => setSelectedDate(dateInfo.key)}
+                          className={`flex-shrink-0 rounded-2xl px-3 py-2.5 transition-all ${
+                            isSelected
+                              ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md"
+                              : isCurrentDay
+                                ? "bg-emerald-50 ring-2 ring-emerald-400/50 dark:bg-emerald-900/20"
+                                : "bg-white/90 dark:bg-gray-800/90"
+                          } min-w-[4.5rem]`}
+                        >
+                          <div className="text-center">
+                            <div
+                              className={`text-lg font-bold ${
+                                isSelected
+                                  ? "text-white"
+                                  : "text-gray-900 dark:text-gray-100"
+                              }`}
+                            >
+                              {dateInfo.date}
+                            </div>
+                            <div
+                              className={`text-[10px] font-medium ${
+                                isSelected
+                                  ? "text-blue-100"
+                                  : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              {dateInfo.weekday}
+                            </div>
+                            {isCurrentDay && !isSelected && (
+                              <div className="mt-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                Today
+                              </div>
+                            )}
+                            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
+                              <div
+                                className={`h-full rounded-full ${
+                                  isSelected ? "bg-white/80" : "bg-emerald-500"
+                                }`}
+                                style={{ width: `${completionRate}%` }}
+                              />
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {(() => {
+                  const selectedDayTasks =
+                    weeklyTasks.find((t) => t.date === selectedDate)?.tasks ||
+                    [];
+                  const completionRate =
+                    getTaskCompletionRate(selectedDayTasks);
+                  const isCurrentDay = isToday(selectedDate);
+                  const selectedDateObj = new Date(selectedDate + "T00:00:00");
 
                   return (
-                    <button
-                      key={dateInfo.key}
-                      onClick={() => setSelectedDate(dateInfo.key)}
-                      className={`flex-shrink-0 p-3 rounded-2xl border-2 transition-all duration-200 min-w-[80px] ${
-                        isSelected
-                          ? isCurrentDay
-                            ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                            : "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                          : isCurrentDay
-                          ? "border-green-300 bg-green-50/50 dark:bg-green-900/10 hover:border-green-400"
-                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600"
-                      }`}
-                    >
-                      <div className="text-center">
-                        <div
-                          className={`text-2xl font-bold ${
-                            isSelected
-                              ? isCurrentDay
-                                ? "text-green-700 dark:text-green-300"
-                                : "text-blue-700 dark:text-blue-300"
-                              : isCurrentDay
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-gray-800 dark:text-gray-200"
-                          }`}
-                        >
-                          {dateInfo.date}
-                        </div>
-                        <div
-                          className={`text-xs font-medium ${
-                            isSelected
-                              ? isCurrentDay
-                                ? "text-green-600 dark:text-green-400"
-                                : "text-blue-600 dark:text-blue-400"
-                              : isCurrentDay
-                              ? "text-green-500 dark:text-green-500"
-                              : "text-gray-500 dark:text-gray-400"
-                          }`}
-                        >
-                          {dateInfo.weekday}
-                        </div>
-                        {isCurrentDay && (
-                          <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-1">
-                            Today
+                    <>
+                      <div className="rounded-2xl bg-white/80 p-4 shadow-sm dark:bg-gray-800/80">
+                        <div className="mb-2 flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {selectedDateObj.toLocaleDateString("en-US", {
+                                weekday: "long",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
+                            {isCurrentDay && (
+                              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                Today — you can complete tasks
+                              </span>
+                            )}
+                            {!isCurrentDay && (
+                              <span className="text-xs text-gray-400">
+                                View only
+                              </span>
+                            )}
                           </div>
-                        )}
-                        {/* Progress indicator */}
-                        <div className="mt-2">
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
-                            <div
-                              className={`h-1 rounded-full transition-all duration-300 ${
-                                completionRate === 100
-                                  ? "bg-green-500"
-                                  : completionRate > 50
-                                  ? "bg-yellow-500"
-                                  : "bg-gray-400"
-                              }`}
-                              style={{ width: `${completionRate}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Selected Date Tasks */}
-            <div className="space-y-4">
-              {(() => {
-                const selectedDayTasks =
-                  weeklyTasks.find((task) => task.date === selectedDate)
-                    ?.tasks || [];
-                const completionRate = getTaskCompletionRate(selectedDayTasks);
-                const isCurrentDay = isToday(selectedDate);
-                const selectedDateObj = new Date(selectedDate + "T00:00:00");
-
-                return (
-                  <>
-                    {/* Selected Day Header */}
-                    <div className="mb-6">
-                      <h4
-                        className={`text-xl font-medium text-center mb-4 ${
-                          isCurrentDay
-                            ? "text-green-700 dark:text-green-300"
-                            : "text-gray-800 dark:text-gray-200"
-                        }`}
-                      >
-                        {selectedDateObj.toLocaleDateString("en-US", {
-                          weekday: "long",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                        {isCurrentDay && (
-                          <span className="ml-2 text-sm bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded">
-                            Today
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {completionRate}%
                           </span>
-                        )}
-                      </h4>
-
-                      {/* Progress Bar */}
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            completionRate === 100
-                              ? "bg-green-500"
-                              : completionRate > 50
-                              ? "bg-yellow-500"
-                              : "bg-gray-400"
-                          }`}
-                          style={{ width: `${completionRate}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Tasks for selected day */}
-                    <div className="space-y-4">
-                      {weeklyTasks
-                        .find((task) => task.date === selectedDate)
-                        ?.tasks.map((task) => {
-                          const TaskIcon = getTaskIcon(task);
-                          const completed = task.Status;
-
-                          return (
-                            <Card
-                              key={task.task_id}
-                              className="bg-gradient-to-br from-white/90 to-green-50/60 dark:from-gray-800/90 dark:to-green-900/20 border border-green-200/30 dark:border-green-700/20 shadow-lg backdrop-blur-sm"
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-start gap-3">
-                                  <div
-                                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                      completed
-                                        ? "bg-emerald-500"
-                                        : getCategoryColor(task.Category)
-                                    }`}
-                                  >
-                                    <TaskIcon className="w-5 h-5 text-white" />
-                                  </div>
-
-                                  <div className="flex-1 min-w-0">
-                                    <div className="mb-3">
-                                      <h4
-                                        className={`text-sm font-medium ${
-                                          completed
-                                            ? "text-gray-500 line-through"
-                                            : "text-gray-800 dark:text-gray-200"
-                                        }`}
-                                      >
-                                        {task.Title}
-                                      </h4>
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs mt-1"
-                                      >
-                                        {task.Category || task.Task_Type}
-                                      </Badge>
-                                    </div>
-
-                                    {/* Task Details */}
-                                    <div className="mb-4">
-                                      {renderTaskDetails(task, isCurrentDay)}
-                                    </div>
-
-                                    {/* Task Action Button */}
-                                    {task.Category !== "Activity" &&
-                                      task.Task_Type !== "Checkin" && (
-                                        <Button
-                                          variant={
-                                            completed ? "default" : "outline"
-                                          }
-                                          size="sm"
-                                          disabled={!isCurrentDay}
-                                          onClick={() => {
-                                            const currentValue =
-                                              taskValues[task.task_id] ?? 0;
-                                            const isLifestyle =
-                                              task.Category === "Lifestyle";
-                                            const valueMatchesTarget =
-                                              currentValue ===
-                                              (task.Value ?? 0);
-
-                                            if (!isLifestyle) {
-                                              handleUpdateTaskStatus(
-                                                task.task_id,
-                                                !task.Status,
-                                                currentValue
-                                              );
-                                              if (completed) {
-                                                handleUncheckTask(
-                                                  task.task_id
-                                                );
-                                              } else {
-                                                handleCheckTask(
-                                                  task.task_id
-                                                );
-                                              }
-                                            } else {
-                                              handleUpdateValue(
-                                                task.task_id,
-                                                currentValue
-                                              );
-                                              if (valueMatchesTarget) {
-                                                const newCompleted =
-                                                  !completed;
-                                                handleUpdateTaskStatus(
-                                                  task.task_id,
-                                                  newCompleted,
-                                                  currentValue
-                                                );
-                                                if (newCompleted) {
-                                                  handleCheckTask(
-                                                    task.task_id
-                                                  );
-                                                } else {
-                                                  handleUncheckTask(
-                                                    task.task_id
-                                                  );
-                                                }
-                                              } else {
-                                                handleUpdateTaskStatus(
-                                                  task.task_id,
-                                                  false,
-                                                  currentValue
-                                                );
-                                                if (completed) {
-                                                  handleUncheckTask(
-                                                    task.task_id
-                                                  );
-                                                }
-                                              }
-                                            }
-                                          }}
-                                          className={`w-full ${
-                                            completed
-                                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                              : "hover:bg-green-50 dark:hover:bg-green-900/20"
-                                          }`}
-                                        >
-                                          {completed ? (
-                                            <CheckCircle className="w-4 h-4 mr-2" />
-                                          ) : (
-                                            <Circle className="w-4 h-4 mr-2" />
-                                          )}
-                                          {completed
-                                            ? "Completed"
-                                            : task.Category === "Lifestyle"
-                                            ? "Save Value"
-                                            : "Mark Complete"}
-                                        </Button>
-                                      )}
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      {selectedDayTasks.length === 0 && (
-                        <div className="flex flex-col items-center gap-2">
-                          <img
-                            src="/icons/calendar-2.svg"
-                            alt="No tasks"
-                            className="w-[80px] mx-auto"
-                          />
-                          <div className="text-center text-gray-700 dark:text-gray-400">
-                            No tasks for this date yet
-                          </div>
                         </div>
-                      )}
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                            style={{ width: `${completionRate}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {selectedDayTasks.length > 0
+                          ? selectedDayTasks.map((task) =>
+                              renderTaskCard(task, isCurrentDay)
+                            )
+                          : renderEmptyState("No tasks for this date")}
+                      </div>
+                    </>
+                  );
+                })()}
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </div>

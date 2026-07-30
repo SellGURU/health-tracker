@@ -20,15 +20,12 @@ export default function SimpleModeSelect({
   const optionsRef = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
-    if (disabled) {
-      setOpen(false);
-    }
+    if (disabled) setOpen(false);
   }, [disabled]);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
-      if (!rootRef.current) return;
-      if (!rootRef.current.contains(e.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
@@ -44,18 +41,13 @@ export default function SimpleModeSelect({
         triggerRef.current?.focus();
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        const next = Math.min(idx + 1, optionsRef.current.length - 1);
-        optionsRef.current[next]?.focus();
+        optionsRef.current[Math.min(idx + 1, optionsRef.current.length - 1)]?.focus();
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        const prev = Math.max(idx - 1, 0);
-        optionsRef.current[prev]?.focus();
-      } else if (e.key === "Tab") {
-        // let default tab behavior
+        optionsRef.current[Math.max(idx - 1, 0)]?.focus();
       } else if (e.key === "Enter" && idx >= 0) {
         e.preventDefault();
-        const el = optionsRef.current[idx];
-        el?.click();
+        optionsRef.current[idx]?.click();
       }
     }
     document.addEventListener("keydown", onKey);
@@ -63,128 +55,124 @@ export default function SimpleModeSelect({
   }, [open]);
 
   const allItems: { value: ChatMode; title: string; desc: string }[] = [
-    {
-      value: "ai",
-      title: "AI Copilot",
-      desc: "Instant responses",
-    },
-    {
-      value: "coach",
-      title: "Coach",
-      desc: "Expert guidance",
-    },
+    { value: "coach", title: "Health Coach", desc: "Expert guidance from your clinic" },
+    { value: "ai", title: "AI Copilot", desc: "Instant wellness answers" },
   ];
 
-  const items = hideAi
-    ? allItems.filter((it) => it.value !== "ai")
-    : allItems;
+  const items = hideAi ? allItems.filter((it) => it.value !== "ai") : allItems;
+  const activeItem = items.find((it) => it.value === activeMode) ?? items[0];
+
+  const iconFor = (mode: ChatMode) =>
+    mode === "ai" ? (
+      <Bot className="h-4 w-4 text-white" />
+    ) : (
+      <User className="h-4 w-4 text-white" />
+    );
+
+  const iconBgFor = (mode: ChatMode) =>
+    mode === "ai"
+      ? "bg-gradient-to-br from-blue-500 to-indigo-600"
+      : "bg-gradient-to-br from-emerald-500 to-teal-600";
+
+  if (hideAi || disabled || items.length === 1) {
+    return (
+      <div className="mb-3 flex items-center gap-2.5 rounded-2xl bg-white/90 px-3 py-2.5 shadow-sm dark:bg-gray-800/90">
+        <span
+          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${iconBgFor("coach")}`}
+        >
+          {iconFor("coach")}
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            {activeItem.title}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {activeItem.desc}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div ref={rootRef} className="mb-2 w-full relative">
-      {/* Trigger */}
+    <div ref={rootRef} className="relative mb-3 w-full">
       <button
         ref={triggerRef}
+        type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => {
-          if (!disabled) {
-            setOpen((v) => !v);
-          }
-        }}
-        disabled={disabled}
-        className={`w-full group relative min-h-[56px] px-3 py-2 flex items-center gap-3 bg-gradient-to-r from-gray-100/80 to-blue-100/50 dark:from-gray-800/80 dark:to-blue-900/30 border border-gray-200/30 dark:border-gray-700/20 shadow-inner rounded-xl ${
-          disabled ? "opacity-60 cursor-not-allowed" : ""
-        }`}
+        onClick={() => setOpen((v) => !v)}
+        className="flex min-h-[52px] w-full items-center gap-3 rounded-2xl border border-gray-200/60 bg-white/90 px-3 py-2.5 shadow-sm transition-colors hover:bg-gray-50/80 dark:border-gray-700/60 dark:bg-gray-800/90 dark:hover:bg-gray-800"
       >
-        <div
-          className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
-            activeMode === "ai"
-              ? "bg-gradient-to-br from-blue-500 to-cyan-500"
-              : "bg-gradient-to-br from-emerald-500 to-teal-500"
-          }`}
+        <span
+          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${iconBgFor(activeMode)}`}
         >
-          {activeMode === "ai" ? (
-            <Bot className="w-4 h-4 text-white" />
-          ) : (
-            <User className="w-4 h-4 text-white" />
-          )}
+          {iconFor(activeMode)}
+        </span>
+        <div className="min-w-0 flex-1 text-left">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            {activeItem.title}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {activeItem.desc}
+          </p>
         </div>
-
-        <div className="flex-1 text-left">
-          <div className="font-medium text-sm whitespace-normal break-words">
-            {activeMode === "ai" ? "AI Copilot" : "Coach"}
-          </div>
-          <div className="text-xs text-gray-500 whitespace-normal break-words">
-            {activeMode === "ai" ? "Instant responses" : "Expert guidance"}
-          </div>
-        </div>
-
-        {!disabled && (
-          <div className="flex items-center ml-3">
-            <ChevronDown
-              className={`w-4 h-4 transition-transform ${
-                open ? "rotate-180" : ""
-              }`}
-            />
-          </div>
-        )}
+        <ChevronDown
+          className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
-      {/* Dropdown */}
-      {open && !disabled && (
+      {open && (
         <div
           role="listbox"
-          aria-label="Select mode"
-          className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+          aria-label="Select chat mode"
+          className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-lg dark:border-gray-700/60 dark:bg-gray-800"
         >
-          <div className="flex flex-col">
-            {items.map((it, i) => (
-              <div
-                key={it.value}
-                role="option"
-                tabIndex={0}
-                ref={(el) => (optionsRef.current[i] = el)}
-                onClick={() => {
-                  if (!disabled) {
-                    setActiveMode(it.value);
-                    setOpen(false);
-                    triggerRef.current?.focus();
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !disabled) {
-                    setActiveMode(it.value);
-                    setOpen(false);
-                    triggerRef.current?.focus();
-                  }
-                }}
-                className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-200 cursor-pointer ${
-                  activeMode === it.value ? "bg-orange-300" : ""
-                }`}
+          {items.map((it, i) => (
+            <div
+              key={it.value}
+              role="option"
+              aria-selected={activeMode === it.value}
+              tabIndex={0}
+              ref={(el) => {
+                optionsRef.current[i] = el;
+              }}
+              onClick={() => {
+                setActiveMode(it.value);
+                setOpen(false);
+                triggerRef.current?.focus();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setActiveMode(it.value);
+                  setOpen(false);
+                  triggerRef.current?.focus();
+                }
+              }}
+              className={`flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                activeMode === it.value
+                  ? "bg-blue-50/80 dark:bg-blue-900/20"
+                  : ""
+              } ${i > 0 ? "border-t border-gray-100 dark:border-gray-700/50" : ""}`}
+            >
+              <span
+                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl ${iconBgFor(it.value)}`}
               >
-                <div
-                  className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
-                    it.value === "ai"
-                      ? "bg-gradient-to-br from-blue-500 to-cyan-500"
-                      : "bg-gradient-to-br from-emerald-500 to-teal-500"
-                  }`}
-                >
-                  {it.value === "ai" ? (
-                    <Bot className="w-4 h-4 text-white" />
-                  ) : (
-                    <User className="w-4 h-4 text-white" />
-                  )}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium">{it.title}</div>
-                  <div className="text-xs text-gray-500">{it.desc}</div>
-                </div>
-                {activeMode === it.value && (
-                  <Check className="w-4 h-4 text-black" />
-                )}
+                {iconFor(it.value)}
+              </span>
+              <div className="min-w-0 flex-1 text-left">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {it.title}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {it.desc}
+                </p>
               </div>
-            ))}
-          </div>
+              {activeMode === it.value && (
+                <Check className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

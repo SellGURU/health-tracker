@@ -4,6 +4,31 @@ import Auth from "./auth";
 // Guard so multiple simultaneous 401s only trigger one refresh/redirect.
 let isHandlingAuthError = false;
 
+const REFRESH_TIMEOUT_MS = 10000;
+
+function clearSessionKeepPrefs() {
+  const brandInfo = localStorage.getItem("brand_info");
+  const biometricEnabled = localStorage.getItem("biometric_enabled");
+  localStorage.clear();
+  if (brandInfo) {
+    localStorage.setItem("brand_info", brandInfo);
+  }
+  if (biometricEnabled) {
+    localStorage.setItem("biometric_enabled", biometricEnabled);
+  }
+}
+
+function refreshWithTimeout() {
+  return Promise.race([
+    Auth.refreshToken(),
+    new Promise<never>((_, reject) => {
+      window.setTimeout(() => {
+        reject(new Error("Session refresh timed out"));
+      }, REFRESH_TIMEOUT_MS);
+    }),
+  ]);
+}
+
 axios.interceptors.response.use(
   (response) => {
     return response;
@@ -22,8 +47,7 @@ axios.interceptors.response.use(
       if (!isAuthEndpoint) {
         if (!isHandlingAuthError) {
           isHandlingAuthError = true;
-          // Try to silently refresh the session.
-          Auth.refreshToken()
+          refreshWithTimeout()
             .then((res) => {
               localStorage.setItem("health_session", res.data.access_token);
               localStorage.setItem("token", res.data.access_token);
@@ -32,26 +56,16 @@ axios.interceptors.response.use(
               window.location.reload();
             })
             .catch(() => {
-              const brandInfo = localStorage.getItem("brand_info");
-              const biometricEnabled =
-                localStorage.getItem("biometric_enabled");
-              localStorage.clear();
-              // Restore brand_info if it existed
-              if (brandInfo) {
-                localStorage.setItem("brand_info", brandInfo);
-              }
-              if (biometricEnabled) {
-                localStorage.setItem("biometric_enabled", biometricEnabled);
-              }
+              clearSessionKeepPrefs();
               window.location.href = "/auth";
+            })
+            .finally(() => {
+              isHandlingAuthError = false;
             });
         }
 
-        // Swallow the rejection: return a promise that never settles so the
-        // per-request `.catch()` handlers don't surface technical toasts like
-        // "token expired". The page reloads or redirects to /auth once the
-        // refresh attempt finishes.
-        return new Promise(() => {});
+        // Reject so callers can clear loaders. Refresh/redirect still runs above.
+        return Promise.reject(error);
       }
     }
 

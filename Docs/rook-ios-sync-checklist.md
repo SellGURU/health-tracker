@@ -1,5 +1,22 @@
 # ROOK iOS Sync Checklist
 
+## Apple Health 401 fix (current)
+
+Use **`capacitor-rook-sdk@0.5.1`** with `password:` in `initRook` (same as the working `ios` branch). Do **not** use SDK 4.x/`secret` until Rook Portal + native RookSDK 4.1.0 are fully aligned.
+
+On a Mac:
+
+```bash
+npm install --legacy-peer-deps
+npm run build
+npx cap sync ios
+cd ios/App
+rm -rf Pods Podfile.lock
+pod install --repo-update
+```
+
+Confirm `Podfile.lock` shows `CapacitorRookSdk (0.5.1)` and `RookSDK (1.7.8)`, then Xcode → Clean Build Folder → new archive.
+
 ## What Changed
 
 - ROOK now initializes at app startup for authenticated native sessions.

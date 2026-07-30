@@ -1,5 +1,8 @@
-// import { useState } from 'react';
-// import { sortKeysWithValues } from './Boxs/Help';
+import {
+  findSegmentIndexForValue,
+  isMarkerOnSegment,
+  sortChartBounds,
+} from './chartMarkerUtils';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface HistoricalChartProps {
@@ -12,7 +15,6 @@ interface HistoricalChartProps {
 const HistoricalChart = ({
   statusBar,
   dataPoints,
-  dataStatus,
   labels,
 }: HistoricalChartProps) => {
   const resolveColor = (key: string, color?: string) => {
@@ -36,111 +38,22 @@ const HistoricalChart = ({
     }
     return '#FBAD37';
   };
-  // console.log(dataPoints,dataStatus);
-  // const [dataPoints,] = useState<any[]>(['Moderately compromised outcome','Moderately compromised outcome','Moderately Enhanced Outcome','Enhanced Outcome','Excellent Outcome','Excellent Outcome']);
-  // const [dataStatus,] = useState<any[]>(['ok','ok','good','excellent','good','needs focus']);
-  // Calculate the vertical position for each status
-  const getStatusVerticalPosition = (status: string, value?: number) => {
-    const sortedStatuses = sortByRange().reverse();
-    console.log(sortedStatuses);
 
-    // If value is provided, find the status that contains this value in its range
-    if (value !== undefined) {
-      const matchingStatus = sortedStatuses.find((el: any) => {
-        const low = parseFloat(el.low ?? '');
-        const high = parseFloat(el.high ?? '');
-        const numValue = Number(value);
+  const sortedStatusBars = sortChartBounds(statusBar).reverse();
 
-        const isInRange =
-          (el.low === null || numValue >= low) &&
-          (el.high === null || numValue <= high);
+  const getStatusVerticalPosition = (value?: number) => {
+    if (value === undefined) return 0;
 
-        return el.status.toLowerCase() === status.toLowerCase() && isInRange;
-      });
+    const segmentIndex = findSegmentIndexForValue(statusBar, value, true);
+    if (segmentIndex === null) return 0;
 
-      if (matchingStatus) {
-        const index = sortedStatuses.findIndex(
-          (el: any) => el === matchingStatus,
-        );
-        const rowHeight = 70 / sortedStatuses.length;
-        return index * rowHeight + rowHeight / 2; // Center in the row
-      }
-    }
-
-    // Fallback to original logic if no value provided or no matching range found
-    const index = sortedStatuses.findIndex(
-      (el: any) => el.status.toLowerCase() === status.toLowerCase(),
-    );
-    if (index === -1) return 0;
-
-    const rowHeight = 70 / sortedStatuses.length;
-    return index * rowHeight + rowHeight / 2; // Center in the row
-  };
-  // const convertToArray = (data: any) => {
-  //   return Object.entries(data).map(([key, { condition, threshold }]: any) => ({
-  //     key,
-  //     condition,
-  //     threshold,
-  //   }));
-  // };
-  // const sortThreshold = () => {
-  //   return convertToArray(statusBar).sort((a, b) => {
-  //     if (a.threshold[0] > b.threshold[0]) {
-  //       return 1;
-  //     } else {
-  //       return -1;
-  //     }
-  //   });
-  // };
-  const sortByRange = () => {
-    // console.log(data);
-    return statusBar.sort((a: any, b: any) => {
-      const lowA = parseFloat(a.low ?? '');
-      const lowB = parseFloat(b.low ?? '');
-
-      const aLow = isNaN(lowA) ? -Infinity : lowA;
-      const bLow = isNaN(lowB) ? -Infinity : lowB;
-
-      if (aLow !== bLow) return aLow - bLow;
-
-      const highA = parseFloat(a.high ?? '');
-      const highB = parseFloat(b.high ?? '');
-
-      const aHigh = isNaN(highA) ? Infinity : highA;
-      const bHigh = isNaN(highB) ? Infinity : highB;
-
-      return aHigh - bHigh;
-    });
-  };
-  const sortedStatusBars = sortByRange().reverse();
-
-  // Helper function to determine marker mode
-  const getStatusMarkerMode = (
-    el: any,
-    status: any,
-    value: any,
-    data: any,
-  ): 'unique' | 'inRange' | 'none' => {
-    if (!status || !data) return 'none';
-    const sameStatusRanges = data.filter((item: any) => item.status === status);
-    if (sameStatusRanges.length === 1) {
-      if (status === el.status) return 'unique';
-      return 'none';
-    }
-    if (
-      status === el.status &&
-      (el.low === null || Number(value) >= Number(el.low)) &&
-      (el.high === null || Number(value) <= Number(el.high))
-    ) {
-      return 'inRange';
-    }
-    return 'none';
+    const rowHeight = 70 / sortedStatusBars.length;
+    return segmentIndex * rowHeight + rowHeight / 2;
   };
 
   return (
     <>
       <div className="w-full h-full relative pr-4">
-        {/* SVG for connecting points across different status categories */}
         <svg
           className="absolute w-full h-full top-0 left-3"
           style={{ zIndex: 0, overflow: 'visible' }}
@@ -160,15 +73,13 @@ const HistoricalChart = ({
           {dataPoints.map((_point, index) => {
             if (index === dataPoints.length - 1) return null;
 
-            const currentStatus = dataStatus[index];
-            const nextStatus = dataStatus[index + 1];
             const currentValue = dataPoints[index];
             const nextValue = dataPoints[index + 1];
 
             const x1 = index * 43 + 10;
             const x2 = (index + 1) * 43 + 10;
-            const y1 = getStatusVerticalPosition(currentStatus, currentValue);
-            const y2 = getStatusVerticalPosition(nextStatus, nextValue);
+            const y1 = getStatusVerticalPosition(currentValue);
+            const y2 = getStatusVerticalPosition(nextValue);
 
             return (
               <line
@@ -204,11 +115,11 @@ const HistoricalChart = ({
                 style={{ borderColor: resolveColor(el.status, el.color) }}
               >
                 {dataPoints.map((point, index) => {
-                  const markerMode = getStatusMarkerMode(
-                    el,
-                    dataStatus[index],
-                    point,
+                  const showMarker = isMarkerOnSegment(
                     statusBar,
+                    inde,
+                    point,
+                    true,
                   );
                   return (
                     <div
@@ -218,14 +129,8 @@ const HistoricalChart = ({
                       <div
                         style={{
                           backgroundColor: resolveColor(el.status, el.color),
-                          opacity:
-                            markerMode === 'unique' || markerMode === 'inRange'
-                              ? 1
-                              : 0,
-                          visibility:
-                            markerMode === 'unique' || markerMode === 'inRange'
-                              ? 'visible'
-                              : 'hidden',
+                          opacity: showMarker ? 1 : 0,
+                          visibility: showMarker ? 'visible' : 'hidden',
                         }}
                         className="w-2 h-2 border border-gray-50 rounded-full relative"
                       >
@@ -247,11 +152,6 @@ const HistoricalChart = ({
                   {el.low + '<'}
                 </div>
               )}
-              {/* {inde == 0 && (
-                <div className="absolute min-w-[16px] right-[-20px] text-[6px] top-[-4px] text-left">
-                  {el.high}
-                </div>
-              )} */}
             </div>
           );
         })}

@@ -24,6 +24,7 @@ import WearableDashboard from "@/pages/wearable-dashboard";
 import Devices from "@/pages/devices";
 import MobileLayout from "@/components/layout/mobile-layout";
 import NotFound from "@/pages/not-found";
+import BootGate from "@/components/BootGate";
 // import { usePushNotifications } from "./hooks/use-pushNotification";
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
@@ -36,6 +37,7 @@ import {
   UnsupportedVersionModal,
 } from "@/components/version";
 import AppProvider from "./components/layout/AppProvider";
+import { getErrorMessage } from "./lib/error-message";
 
 function Router() {
   const { isAuthenticated, fetchClientInformation, needsPasswordChange } = useAuth();
@@ -60,26 +62,25 @@ function Router() {
   useEffect(() => {
     if (isAuthenticated) {
       console.log('🔍 Checking password change requirement...');
-      fetchClientInformation().then(() => {
-        const needsChange = needsPasswordChange();
-        console.log('🔍 Needs password change:', needsChange);
-        
-        if (needsChange) {
-          console.log('🔍 Redirecting to profile page...');
-          // Store flag to open password dialog
-          localStorage.setItem("requirePasswordChange", "true");
-          
-          // Redirect to profile page
-          setLocation("/profile");
-          
-          // Show toast notification
-          toast({
-            title: "Password Change Required",
-            description: "Please change your password for account security.",
-            variant: "destructive",
-          });
-        }
-      });
+      fetchClientInformation()
+        .then(() => {
+          const needsChange = needsPasswordChange();
+          console.log('🔍 Needs password change:', needsChange);
+
+          if (needsChange) {
+            console.log('🔍 Redirecting to profile page...');
+            localStorage.setItem("requirePasswordChange", "true");
+            setLocation("/profile");
+            toast({
+              title: "Password Change Required",
+              description: "Please change your password for account security.",
+              variant: "destructive",
+            });
+          }
+        })
+        .catch((error) => {
+          console.warn("Password-change check skipped:", getErrorMessage(error));
+        });
     }
   }, [isAuthenticated, fetchClientInformation, needsPasswordChange, setLocation, toast]);
 
@@ -109,7 +110,7 @@ function Router() {
           }
         }
       } catch (error) {
-        console.error("Failed to bootstrap ROOK:", error);
+        console.error("Failed to bootstrap ROOK:", getErrorMessage(error));
       }
     };
 
@@ -214,7 +215,9 @@ function App() {
       <TooltipProvider>
         <div className="mobile-container">
           <Toaster />
-          <Router />
+          <BootGate>
+            <Router />
+          </BootGate>
         </div>
       </TooltipProvider>
     </QueryClientProvider>

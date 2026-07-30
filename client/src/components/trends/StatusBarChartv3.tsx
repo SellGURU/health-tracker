@@ -1,4 +1,9 @@
 import TooltipText from "../TooltipText";
+import {
+  findSegmentIndexForValue,
+  resolveMarkerPosition,
+  sortChartBounds,
+} from "./chartMarkerUtils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface StatusBarChartv3Props {
@@ -14,9 +19,14 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
   isCustom,
   values,
   unit,
-  status,
 }) => {
-  // console.log(data);
+  const sortedBounds = sortChartBounds(data);
+  const markerPosition = values?.[0] != null
+    ? resolveMarkerPosition(data, values[0])
+    : null;
+  const markerSegmentIndex =
+    values?.[0] != null ? findSegmentIndexForValue(data, values[0]) : null;
+
   const resolveColor = (key: string) => {
     if (key == 'Needs Focus' || key == 'CriticalRange') {
       return '#B2302E';
@@ -63,24 +73,21 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
     return resolveColor(status);
   };
 
-  const createGradient = (data: any[], index: number) => {
-    const sortedData = sortByRange(data);
-    const currentItem = sortedData[index];
-    const nextItem = sortedData[index + 1];
+  const createGradient = (bounds: any[], index: number) => {
+    const currentItem = bounds[index];
+    const nextItem = bounds[index + 1];
 
     const currentColor = resolveSegmentColor(
       currentItem.status,
       currentItem.color,
     );
 
-    // If this is the last item or there's no next item, return solid color
     if (!nextItem) {
       return currentColor;
     }
 
     const nextColor = resolveSegmentColor(nextItem.status, nextItem.color);
 
-    // Create gradient only at the boundary (last 20% of current segment)
     return `linear-gradient(to right, ${currentColor} 80%, ${nextColor} 100%)`;
   };
 
@@ -100,13 +107,12 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
 
     const formatNumber = (val: string | number): string => {
       const num = Number(val);
-      return Number.isNaN(num) ? String(val) : String(num); // removes .000
+      return Number.isNaN(num) ? String(val) : String(num);
     };
 
     const low = normalize(el.low);
     const high = normalize(el.high);
 
-    // Equality check
     if (low && high) {
       if (isNumeric(low) && isNumeric(high)) {
         if (Number(low) === Number(high)) {
@@ -117,161 +123,70 @@ const StatusBarChartv3: React.FC<StatusBarChartv3Props> = ({
       }
     }
 
-    // Open-ended ranges
     if (!low && high) return `< ${high}`;
     if (!high && low) return `> ${low}`;
-
-    // Normal range
     if (low && high) return `${low} - ${high}`;
 
     return '';
   };
 
-  const sortByRange = (data: any) => {
-    // console.log(data);
-    return [...data].sort((a: any, b: any) => {
-      const lowA = parseFloat(a.low ?? '');
-      const lowB = parseFloat(b.low ?? '');
-
-      const aLow = isNaN(lowA) ? -Infinity : lowA;
-      const bLow = isNaN(lowB) ? -Infinity : lowB;
-
-      if (aLow !== bLow) return aLow - bLow;
-
-      const highA = parseFloat(a.high ?? '');
-      const highB = parseFloat(b.high ?? '');
-
-      const aHigh = isNaN(highA) ? Infinity : highA;
-      const bHigh = isNaN(highB) ? Infinity : highB;
-
-      return aHigh - bHigh;
-    });
-  };
-  const resolvePercentLeft = (el: any) => {
-    if (!values) return;
-    const value = values[0];
-    // اگر low مقدار null بود، یعنی بازه از منفی بی‌نهایت شروع می‌شود
-    if (el.low == null && el.high != null) {
-      // اگر مقدار کاربر کمتر از high باشد، درصد را نزدیک 0 قرار بده
-      if (value <= el.high) return 5;
-      // اگر بیشتر بود، درصد را نزدیک 100 قرار بده
-      return 95;
-    }
-    // اگر high مقدار null بود، یعنی بازه تا مثبت بی‌نهایت ادامه دارد
-    if (el.high == null && el.low != null) {
-      // اگر مقدار کاربر بیشتر از low باشد، درصد را نزدیک 100 قرار بده
-      if (value >= el.low) return 90;
-      // اگر کمتر بود، درصد را نزدیک 0 قرار بده
-      return 5;
-    }
-    // اگر هر دو مقدار داشتند
-    if (el.low != null && el.high != null) {
-      const percent = ((value - el.low) / (el.high - el.low)) * 100 - 3;
-      if (percent <= 10) return 10;
-      if (percent > 90) return 90;
-      return percent;
-    }
-    // اگر هر دو null بودند، مقدار وسط را برگردان
-    return 50;
-  };
-
-  // Helper function to determine marker mode
-  const getStatusMarkerMode = (
-    el: any,
-    status: any,
-    values: any,
-    data: any,
-  ): 'unique' | 'inRange' | 'none' => {
-    if (!status || !data) return 'none';
-    // status is oldest-first, so the latest status is the last element
-    const latestStatus = status[status.length - 1];
-    const sameStatusRanges = sortByRange(data).filter(
-      (item: any) => item.status === latestStatus,
-    );
-    if (sameStatusRanges.length === 1) {
-      if (latestStatus == el.status) return 'unique';
-      return 'none';
-    }
-    if (
-      latestStatus == el.status &&
-      values &&
-      (el.low === null || Number(values[0]) > Number(el.low)) &&
-      (el.high === null || Number(values[0]) <= Number(el.high))
-    ) {
-      return 'inRange';
-    }
-    return 'none';
-  };
-
   return (
     <div className="w-full relative flex select-none">
-      {sortByRange(data).map((el: any, index: number) => {
+      {sortedBounds.map((el: any, index: number) => {
         return (
-          <>
+          <div
+            key={`segment-${index}-${el.status}-${el.low}-${el.high}`}
+            className={` relative  h-[8px] ${index == sortedBounds.length - 1 && 'rounded-r-[8px] '} ${index == 0 && 'rounded-l-[8px]'}`}
+            style={{
+              width: 100 / sortedBounds.length + '%',
+              background: createGradient(sortedBounds, index),
+            }}
+          >
             <div
-              className={` relative  h-[8px] ${index == data.length - 1 && 'rounded-r-[8px] '} ${index == 0 && 'rounded-l-[8px]'}`}
-              style={{
-                width: 100 / data.length + '%',
-                background: createGradient(data, index),
-              }}
+              className={`absolute w-full px-[1px] ${isCustom ? 'text-[#888888]' : 'text-[#005f73]'}  flex justify-center left-[-4px] top-[-35px] opacity-90 leading-tight text-[8px] min-[360px]:text-[9px] sm:text-[10px]`}
             >
-              <div
-                className={`absolute w-full px-[1px] ${isCustom ? 'text-[#888888]' : 'text-[#005f73]'}  flex justify-center left-[-4px] top-[-35px] opacity-90 leading-tight text-[8px] min-[360px]:text-[9px] sm:text-[10px]`}
-              >
-                <TooltipText tooltipValue={el.label}>{el.label}</TooltipText>
-              </div>
-              <div
-                className={`absolute w-full px-[1px] ${isCustom ? 'text-[#B0B0B0]' : 'text-[#005f73]'}  flex justify-center items-center flex-nowrap left-[-4px] top-[-20px] opacity-90 leading-tight text-[8px] min-[360px]:text-[9px] sm:text-[10px]`}
-              >
-                {el.label != '' && <span className="shrink-0">(</span>}
-                <TooltipText tooltipValue={getRangeString(el)}>
-                  <>{getRangeString(el)}</>
-                </TooltipText>
-                {el.label != '' && <span className="shrink-0">)</span>}
-              </div>
-              {(() => {
-                const markerMode = getStatusMarkerMode(
-                  el,
-                  status,
-                  values,
-                  data,
-                );
-                if (markerMode === 'unique' || markerMode === 'inRange') {
-                  return (
-                    <div
-                      className={`absolute  top-[2px]  z-[8]`}
-                      style={{
-                        left: resolvePercentLeft(el) + '%' || '50%',
-                      }}
-                    >
-                      <div className="w-1 h-1  rotate-45 bg-[#005f73]"></div>
-                      <div className="w-[2px] h-[9px] ml-[1.3px] bg-[#005f73]"></div>
-                      <div
-                        className="text-[10px] w-max flex justify-center ml-[0px] items-center gap-[2px] text-[#005f73]"
-                        style={{
-                          marginLeft:
-                            index == 0
-                              ? '0px'
-                              : '-' +
-                                ((values?.[0]?.length || 0) +
-                                  (unit?.length || 0)) *
-                                  6.3 +
-                                'px',
-                        }}
-                      >
-                        <span className="opacity-40">You: </span>
-                        {values && values[0]}{' '}
-                        <span className="opacity-70">{unit}</span>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
+              <TooltipText tooltipValue={el.label}>{el.label}</TooltipText>
             </div>
-          </>
+            <div
+              className={`absolute w-full px-[1px] ${isCustom ? 'text-[#B0B0B0]' : 'text-[#005f73]'}  flex justify-center items-center flex-nowrap left-[-4px] top-[-20px] opacity-90 leading-tight text-[8px] min-[360px]:text-[9px] sm:text-[10px]`}
+            >
+              {el.label != '' && <span className="shrink-0">(</span>}
+              <TooltipText tooltipValue={getRangeString(el)}>
+                <>{getRangeString(el)}</>
+              </TooltipText>
+              {el.label != '' && <span className="shrink-0">)</span>}
+            </div>
+          </div>
         );
       })}
+      {markerPosition != null && (
+        <div
+          className="absolute top-[2px] z-[8]"
+          style={{
+            left: `${markerPosition}%`,
+          }}
+        >
+          <div className="w-1 h-1 rotate-45 bg-[#005f73]"></div>
+          <div className="w-[2px] h-[9px] ml-[1.3px] bg-[#005f73]"></div>
+          <div
+            className="text-[10px] w-max flex justify-center ml-[0px] items-center gap-[2px] text-[#005f73]"
+            style={{
+              marginLeft:
+                markerSegmentIndex === 0
+                  ? '0px'
+                  : '-' +
+                    ((String(values?.[0] ?? '').length || 0) +
+                      (unit?.length || 0)) *
+                      6.3 +
+                    'px',
+            }}
+          >
+            <span className="opacity-40">You: </span>
+            {values && values[0]}{' '}
+            <span className="opacity-70">{unit}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

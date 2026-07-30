@@ -36,10 +36,11 @@ import {
   ScanFace,
   UserPlus,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useLocation } from "wouter";
+import { openExternalUrl } from "@/lib/open-external-url";
 // import logoImage from "@assets/logo.png";
 
 interface RegisterData {
@@ -110,7 +111,14 @@ export default function AuthPage() {
   });
   const [photoError, setPhotoError] = useState("");
   const [photo, setPhoto] = useState("");
-  const convertToBase64 = (file: File): Promise<any> => {
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const convertToBase64 = (file: File): Promise<{
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -127,6 +135,49 @@ export default function AuthPage() {
         reject(error);
       };
     });
+  };
+
+  const isAllowedPhotoFile = (file: File): boolean => {
+    const allowedTypes = new Set([
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/pjpeg",
+    ]);
+    if (file.type && allowedTypes.has(file.type.toLowerCase())) {
+      return true;
+    }
+    // iOS / some WebViews report an empty MIME type — fall back to extension
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    return extension === "jpg" || extension === "jpeg" || extension === "png";
+  };
+
+  const applySelectedPhoto = async (file: File | undefined | null) => {
+    if (!file) return;
+
+    const maxSizeInBytes = 3 * 1024 * 1024;
+    if (!isAllowedPhotoFile(file) || file.size > maxSizeInBytes) {
+      setPhotoError("File exceeds 3 MB or has an unsupported format.");
+      return;
+    }
+
+    try {
+      setPhotoError("");
+      const res = await convertToBase64(file);
+      setPhoto(res.url);
+      setRegisterData((prev) => ({ ...prev, photo: res.url }));
+    } catch {
+      setPhotoError("Could not read this image. Please try another photo.");
+    }
+  };
+
+  const clearSelectedPhoto = () => {
+    setPhoto("");
+    setPhotoError("");
+    setRegisterData((prev) => ({ ...prev, photo: "" }));
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
+    }
   };
 
   const [biometricEnabled, setBiometricEnabled] = useState(false);
@@ -355,14 +406,12 @@ export default function AuthPage() {
     credentials?: { email: string; password: string },
   ) => {
     setIsLoadingLogin(true);
+    // Prefer explicitly passed credentials (critical after register so we don't
+    // depend on possibly stale React state).
     const data = {
-      email: credentials?.email || loginData.email,
-      password: credentials?.password || loginData.password,
+      email: (credentials?.email || (isRegister ? registerData.email : loginData.email) || "").trim(),
+      password: credentials?.password || (isRegister ? registerData.password : loginData.password) || "",
     };
-    if (isRegister) {
-      data.email = registerData.email;
-      data.password = registerData.password;
-    }
 
     Auth.login(data.email, data.password)
       .then(async (res) => {
@@ -396,6 +445,21 @@ export default function AuthPage() {
         }
       })
       .catch((res) => {
+        if (isRegister) {
+          // Account was created; let the user sign in manually with the same email.
+          setLoginData({
+            email: data.email,
+            password: data.password,
+          });
+          setCurrentTab("login");
+          setRegisterStep(1);
+          toast({
+            title: "Account created",
+            description:
+              "Please sign in with the email and password you just registered.",
+          });
+        }
+
         if (res.response?.data?.detail) {
           if (
             res.response.data.detail.includes("email") ||
@@ -422,7 +486,7 @@ export default function AuthPage() {
   const CallRegisterAuthApi = async () => {
     setIsLoadingRegister(true);
     const signupData = {
-      email: registerData.email,
+      email: registerData.email.trim(),
       password: registerData.password,
       firstName: registerData.firstName,
       lastName: registerData.lastName,
@@ -436,7 +500,11 @@ export default function AuthPage() {
     Auth.signup(signupData)
       .then(() => {
         localStorage.setItem("registerpasswordchange", "true");
-        CallLoginAuthApi(true);
+        // Pass the same credentials used for register — do not re-read React state.
+        CallLoginAuthApi(true, {
+          email: signupData.email,
+          password: signupData.password,
+        });
         toast({
           title: "Account created!",
           description:
@@ -1167,91 +1235,81 @@ export default function AuthPage() {
 
                         <div className="text-left mt-2">
                           <Label
-                            htmlFor="register-photo"
+                            htmlFor="uploadFile"
                             className={fieldLabelClass}
                           >
                             Client’s Photo (Optional)
                           </Label>
                           <div
-                            onClick={() =>
-                              document.getElementById("uploadFile")?.click()
-                            }
-                            className="relative mt-1 h-[126px] w-full rounded-xl border border-dashed border-gray-200 bg-gray-50/80 dark:border-gray-700 dark:bg-gray-800/60"
+                            className="relative mt-1 h-[126px] w-full overflow-hidden rounded-xl border border-dashed border-gray-200 bg-gray-50/80 dark:border-gray-700 dark:bg-gray-800/60"
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              void applySelectedPhoto(e.dataTransfer.files?.[0]);
+                            }}
                           >
-                            <div className="w-full h-full flex justify-center items-center">
+                            <div className="flex h-full w-full items-center justify-center">
                               <div className="text-center">
-                                <div className="justify-center flex mb-2">
+                                <div className="mb-2 flex justify-center">
                                   {photo === "" ? (
                                     <img src="icons/upload-test.svg" alt="" />
                                   ) : (
-                                    <div className="relative">
+                                    <div className="relative z-20">
                                       <img
-                                        className="w-[60px] object-contain h-[60px] rounded-full"
+                                        className="h-[60px] w-[60px] rounded-full object-cover"
                                         src={photo}
-                                        alt=""
+                                        alt="Selected profile"
                                       />
-                                      <div
+                                      <button
+                                        type="button"
+                                        aria-label="Remove photo"
                                         onClick={(event) => {
+                                          event.preventDefault();
                                           event.stopPropagation();
-                                          setPhoto("");
+                                          clearSelectedPhoto();
                                         }}
-                                        className="bg-white border border-gray-50 absolute top-[-6px] cursor-pointer right-[-6px] rounded-full shadow-200"
+                                        className="absolute right-[-6px] top-[-6px] cursor-pointer rounded-full border border-gray-50 bg-white shadow-200"
                                       >
                                         <img
-                                          className=""
                                           src="./icons/close.svg"
                                           alt=""
                                         />
-                                      </div>
+                                      </button>
                                     </div>
                                   )}
                                 </div>
                                 <div className="text-[12px] text-Text-Primary">
-                                  Drag and drop or click to upload.
+                                  {photo
+                                    ? "Photo selected. Tap × to remove."
+                                    : "Drag and drop or click to upload."}
                                 </div>
-                                <div className="text-Text-Secondary text-[10px] mt-2">
+                                <div className="mt-2 text-[10px] text-Text-Secondary">
                                   Accepted formats: .png, .jpg. Up to 3 MB.
                                 </div>
                               </div>
                             </div>
-                            <input
-                              type="file"
-                              accept=".jpeg, .jpg, .png"
-                              onChange={(e: any) => {
-                                const file = e.target.files[0];
-                                if (!file) return;
-
-                                const maxSizeInBytes = 3 * 1024 * 1024;
-                                const allowedTypes = [
-                                  "image/jpeg",
-                                  "image/jpg",
-                                  "image/png",
-                                ];
-                                if (!allowedTypes.includes(file.type)) {
-                                  setPhotoError(
-                                    "File exceeds 3 MB or has an unsupported format.",
-                                  );
-                                  return;
-                                }
-
-                                if (file.size > maxSizeInBytes) {
-                                  setPhotoError(
-                                    "File exceeds 3 MB or has an unsupported format.",
-                                  );
-                                  return;
-                                }
-
-                                setPhotoError("");
-                                convertToBase64(file).then((res) => {
-                                  setPhoto(res.url);
-                                });
-                              }}
-                              id="uploadFile"
-                              className="w-full absolute invisible h-full left-0 top-0"
-                            />
+                            {photo === "" && (
+                              <input
+                                ref={photoInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  void applySelectedPhoto(file);
+                                  // Allow selecting the same file again
+                                  e.target.value = "";
+                                }}
+                                id="uploadFile"
+                                className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                              />
+                            )}
                           </div>
                           {photoError && (
-                            <div className="text-[10px] font-medium mt-1 text-Red">
+                            <div className="mt-1 text-[10px] font-medium text-Red">
                               {photoError}
                             </div>
                           )}
@@ -1433,9 +1491,8 @@ export default function AuthPage() {
                                 I accept the{" "}
                                 <div
                                   onClick={() => {
-                                    window.open(
+                                    void openExternalUrl(
                                       "https://holisticare.io/legal/patients-privacy-policy/",
-                                      "_blank",
                                     );
                                   }}
                                   // href="https://holisticare.io/legal/patients-privacy-policy/"
@@ -1449,9 +1506,8 @@ export default function AuthPage() {
                                 and{" "}
                                 <div
                                   onClick={() => {
-                                    window.open(
+                                    void openExternalUrl(
                                       "https://holisticare.io/legal/patients-terms-of-service/",
-                                      "_blank",
                                     );
                                   }}
                                   // href="https://holisticare.io/legal/patients-terms-of-service/"

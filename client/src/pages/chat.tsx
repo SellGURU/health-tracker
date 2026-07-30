@@ -3,12 +3,13 @@ import SimpleModeSelect from "@/components/chat/simple-mode-select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,14 +26,18 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
+  BookOpen,
+  Check,
   Flag,
+  Loader2,
+  MessageCircle,
   MoreVertical,
   RotateCcw,
   Send,
+  Shield,
   ThumbsDown,
   ThumbsUp,
-  BookOpen,
-  Check,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
@@ -256,10 +261,13 @@ export default function ChatPage() {
   const sendMessage = () => {
     if (!message.trim()) return;
 
+    const text = message;
+    setIsLoading(true);
+
     const newMessage: Message = {
       conversation_id: 0,
       date: new Date().toISOString(),
-      message_text: message,
+      message_text: text,
       sender_type: "patient",
       time: new Date().toLocaleTimeString(),
       reported: false,
@@ -274,7 +282,7 @@ export default function ChatPage() {
           )
           .pop()?.conversation_id || 1,
       message_to: activeMode,
-      text: message,
+      text,
     })
       .then((res) => {
         if (res.data?.answer) {
@@ -578,44 +586,49 @@ export default function ChatPage() {
       {/* Disclaimer Toast */}
       {showDisclaimer && (
         <div
-          className="fixed max-w-md mx-auto left-0 right-0 z-50 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-b border-amber-200 dark:border-amber-800 shadow-lg"
-          style={{
-            top: "env(safe-area-inset-top)",
-          }}
+          className="fixed inset-x-0 z-50 mx-auto max-w-md border-b border-amber-200/80 bg-amber-50/95 shadow-md backdrop-blur-md dark:border-amber-800/50 dark:bg-amber-950/90"
+          style={{ top: "env(safe-area-inset-top)" }}
         >
-          <div className="px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">
-                      !
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                    For wellness purposes only — not medical advice.
-                  </p>
-                </div>
-              </div>
+          <div className="flex items-start gap-3 px-4 py-3">
+            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
+              <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                Wellness only — not medical advice
+              </p>
+              <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-200/70">
+                Chat responses are for general wellness support.
+              </p>
             </div>
-            <div className="flex items-center justify-end mt-2 w-full">
-              <Button
-                onClick={handleDismissDisclaimer}
-                size="sm"
-                className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                OK, I Understand
-              </Button>
-            </div>
+            <Button
+              onClick={handleDismissDisclaimer}
+              size="sm"
+              className="h-8 flex-shrink-0 rounded-lg bg-amber-600 px-3 text-xs text-white hover:bg-amber-700"
+            >
+              Got it
+            </Button>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 py-2">
-        {/* Mode Toggle */}
-        <div className="shrink-0 z-10 bg-white rounded-xl">
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-md flex-col px-3 py-2">
+        {/* Header */}
+        <div className="mb-2 flex shrink-0 items-center gap-2.5">
+          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
+            <MessageCircle className="h-4 w-4 text-white" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              Chat
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {activeMode === "coach" ? "Message your coach" : "Ask AI Copilot"}
+            </p>
+          </div>
+        </div>
+
+        <div className="shrink-0">
           <SimpleModeSelect
             disabled={isIOS}
             hideAi={isIOS}
@@ -624,362 +637,388 @@ export default function ChatPage() {
           />
         </div>
 
-        {/* Chat Messages */}
-        <Card
-          className={`flex-1 min-h-0 ${
-            activeMode === "coach" ? "lg:col-span-3" : "lg:col-span-3"
-          } !bg-transparent !border-none !shadow-none`}
-        >
-          <CardContent className="flex flex-col h-full min-h-0 p-0">
+        {/* Messages */}
+        <Card className="min-h-0 flex-1 !border-none !bg-transparent !shadow-none">
+          <CardContent className="flex h-full min-h-0 flex-col p-0">
             <div
               ref={messagesContainerRef}
-              className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-4"
+              className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pb-2"
               style={{ scrollbarWidth: "thin" }}
             >
-                {messages.map((msg) => {
-                  // Use unique key for reported messages
-                  const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
-                  const isReported = reportedMessages.has(messageKey);
-                  return (
+              {messages.length === 0 && !isLoading && (
+                <div className="flex flex-col items-center px-4 py-16 text-center">
+                  <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+                    <MessageCircle className="h-8 w-8 text-blue-500/70 dark:text-blue-400/70" />
+                  </span>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Start a conversation
+                  </p>
+                  <p className="mt-1 max-w-[14rem] text-xs text-gray-500 dark:text-gray-400">
+                    {activeMode === "coach"
+                      ? "Send a message to your health coach."
+                      : "Ask anything about your wellness plan."}
+                  </p>
+                </div>
+              )}
+
+              {messages.map((msg, msgIndex) => {
+                const messageKey = `${msg.conversation_id}-${msg.date}-${msg.time}`;
+                const isReported = reportedMessages.has(messageKey);
+                const isPatient = msg.sender_type === "patient";
+                const isAI = msg.sender_type === "ai";
+
+                return (
+                  <div
+                    key={`${messageKey}-${msgIndex}`}
+                    className={`flex items-end gap-1.5 ${
+                      isPatient ? "justify-end" : "justify-start"
+                    } ${isReported ? "opacity-50" : ""}`}
+                  >
+                    {activeMode === "coach" &&
+                      isPatient &&
+                      msg.recipient && (
+                        <Check className="order-1 mb-2 h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+                      )}
+
                     <div
-                      key={msg.conversation_id}
-                      className={`flex items-end gap-2 ${
-                        msg.sender_type === "patient"
-                          ? "justify-end"
-                          : "justify-start"
-                      } ${isReported ? "opacity-50" : ""}`}
+                      className={`max-w-[85%] group ${
+                        isPatient ? "order-2" : "order-1"
+                      }`}
                     >
-                      {/* Blue checkmark for sent messages in coach mode - outside the message box */}
-                      {activeMode === "coach" &&
-                        msg.sender_type === "patient" &&
-                        msg.recipient && (
-                          <Check className="h-4 w-4 text-blue-500 mb-1 flex-shrink-0 order-1" />
-                        )}
                       <div
-                        className={`max-w-[80%] group ${
-                          msg.sender_type === "patient" ? "order-2" : "order-1"
+                        className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${
+                          isPatient
+                            ? "rounded-br-md bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
+                            : activeMode === "coach"
+                              ? "rounded-bl-md border border-emerald-200/50 bg-white dark:border-emerald-800/30 dark:bg-gray-800"
+                              : "rounded-bl-md border border-blue-200/50 bg-white dark:border-blue-800/30 dark:bg-gray-800"
                         }`}
                       >
                         <div
-                          className={`p-4 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl ${
-                            msg.sender_type === "patient"
-                              ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white ml-auto"
-                              : activeMode === "coach"
-                              ? "bg-gradient-to-br from-white via-emerald-50/50 to-teal-50/30 dark:from-gray-700 dark:via-emerald-900/20 dark:to-teal-900/10 border border-emerald-200/30 dark:border-emerald-800/20"
-                              : "bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/30 dark:from-gray-700 dark:via-blue-900/20 dark:to-cyan-900/10 border border-blue-200/30 dark:border-blue-800/20"
+                          className={`text-sm leading-relaxed break-words ${
+                            isPatient
+                              ? "text-white"
+                              : "text-gray-800 dark:text-gray-200"
                           }`}
                         >
+                          {isAI
+                            ? displayedMessages[msg.conversation_id] || ""
+                            : formatText(msg.message_text)}
+                        </div>
+
+                        <div className="mt-2 flex items-center justify-between gap-2">
                           <p
-                            className={`text-sm break-words text-justify ${
-                              msg.sender_type === "patient"
-                                ? "text-white"
-                                : "text-gray-800 dark:text-gray-200"
+                            className={`text-[10px] ${
+                              isPatient
+                                ? "text-blue-100"
+                                : "text-gray-400 dark:text-gray-500"
                             }`}
                           >
-
-                            {msg.sender_type === "ai"
-                              ?  displayedMessages[msg.conversation_id] || ""
-                              : formatText(msg.message_text)}
+                            {msg.time}
                           </p>
-                          <div className="flex items-center justify-between mt-2">
-                            <p
-                              className={`text-xs ${
-                                msg.sender_type === "patient"
-                                  ? "text-blue-100"
-                                  : "text-gray-500 dark:text-gray-400"
-                              }`}
-                            >
-                              {msg.time}
-                            </p>
 
-                            {/* Action buttons for AI messages */}
-                            {msg.sender_type === "ai" && !isReported && (
-                              <div className="flex items-center gap-1">
-                                {/* References button - only show if references exist */}
-                                {msg.references &&
-                                  msg.references.length > 0 && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-                                      onClick={() =>
-                                        handleShowReferences(msg.references!)
-                                      }
-                                      title="View References"
-                                    >
-                                      <BookOpen className="h-3 w-3" />
-                                    </Button>
-                                  )}
+                          {isAI && !isReported && (
+                            <div className="flex items-center gap-0.5">
+                              {msg.references && msg.references.length > 0 && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className={`h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 ${
-                                    messageReactions[msg.conversation_id] ===
+                                  className="h-8 w-8 rounded-lg p-0 text-gray-400 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30"
+                                  onClick={() =>
+                                    handleShowReferences(msg.references!)
+                                  }
+                                  title="View references"
+                                >
+                                  <BookOpen className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`h-8 w-8 rounded-lg p-0 ${
+                                  messageReactions[msg.conversation_id] ===
+                                  "liked"
+                                    ? "text-emerald-600"
+                                    : "text-gray-400 hover:text-emerald-600"
+                                }`}
+                                onClick={() =>
+                                  handleMessageReaction(
+                                    msg.conversation_id,
                                     "liked"
-                                      ? "text-green-600 dark:text-green-400"
-                                      : "text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-                                  }`}
-                                  onClick={() =>
-                                    handleMessageReaction(
-                                      msg.conversation_id,
-                                      "liked"
-                                    )
-                                  }
-                                >
-                                  <ThumbsUp className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 ${
-                                    messageReactions[msg.conversation_id] ===
+                                  )
+                                }
+                              >
+                                <ThumbsUp className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`h-8 w-8 rounded-lg p-0 ${
+                                  messageReactions[msg.conversation_id] ===
+                                  "disliked"
+                                    ? "text-red-600"
+                                    : "text-gray-400 hover:text-red-600"
+                                }`}
+                                onClick={() =>
+                                  handleMessageReaction(
+                                    msg.conversation_id,
                                     "disliked"
-                                      ? "text-red-600 dark:text-red-400"
-                                      : "text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                                  }`}
-                                  onClick={() =>
-                                    handleMessageReaction(
-                                      msg.conversation_id,
-                                      "disliked"
-                                    )
-                                  }
-                                >
-                                  <ThumbsDown className="h-3 w-3" />
-                                </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50"
-                                    >
-                                      <MoreVertical className="h-3 w-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent
-                                    align="end"
-                                    className="w-48"
+                                  )
+                                }
+                              >
+                                <ThumbsDown className="h-3.5 w-3.5" />
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 rounded-lg p-0 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                                   >
-                                    {/* Show regenerate only for the last AI message */}
-                                    {(() => {
-                                      const lastAIMessage = messages
-                                        .filter((m) => m.sender_type === "ai")
-                                        .pop();
-                                      const isLastAIMessage =
-                                        lastAIMessage?.conversation_id ===
-                                        msg.conversation_id;
+                                    <MoreVertical className="h-3.5 w-3.5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="w-44 rounded-xl"
+                                >
+                                  {(() => {
+                                    const lastAIMessage = messages
+                                      .filter((m) => m.sender_type === "ai")
+                                      .pop();
+                                    const isLastAIMessage =
+                                      lastAIMessage?.conversation_id ===
+                                      msg.conversation_id;
 
-                                      return isLastAIMessage ? (
-                                        <DropdownMenuItem
-                                          onClick={() =>
-                                            handleRegenerateMessage(
-                                              msg.conversation_id
-                                            )
-                                          }
-                                          className="text-blue-600 dark:text-blue-400 focus:text-blue-600 dark:focus:text-blue-400"
-                                        >
-                                          <RotateCcw className="h-4 w-4 mr-2" />
-                                          Regenerate
-                                        </DropdownMenuItem>
-                                      ) : null;
-                                    })()}
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleReportMessage(msg.conversation_id)
-                                      }
-                                      className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
-                                    >
-                                      <Flag className="h-4 w-4 mr-2" />
-                                      Report
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            )}
+                                    return isLastAIMessage ? (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          handleRegenerateMessage(
+                                            msg.conversation_id
+                                          )
+                                        }
+                                        className="text-blue-600 dark:text-blue-400"
+                                      >
+                                        <RotateCcw className="mr-2 h-4 w-4" />
+                                        Regenerate
+                                      </DropdownMenuItem>
+                                    ) : null;
+                                  })()}
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleReportMessage(msg.conversation_id)
+                                    }
+                                    className="text-red-600 dark:text-red-400"
+                                  >
+                                    <Flag className="mr-2 h-4 w-4" />
+                                    Report
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          )}
 
-                            {/* Show reported indicator for reported messages */}
-                            {msg.sender_type === "ai" && isReported && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
-                                  <Flag className="h-3 w-3" />
-                                  Reported
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                          {isAI && isReported && (
+                            <span className="flex items-center gap-1 text-[10px] text-red-500">
+                              <Flag className="h-3 w-3" />
+                              Reported
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-                {messages.length === 0 && (
-                  <img
-                    src="/icons/empty.svg"
-                    alt="No messages"
-                    className="w-[190px] mx-auto"
-                  />
-                )}
-                <div className="mt-3" ref={messagesEndRef} />
+                  </div>
+                );
+              })}
+
+              {isLoading && messages.length > 0 && (
+                <div className="flex justify-start">
+                  <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-gray-200/50 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Thinking…
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} className="h-1" />
             </div>
           </CardContent>
         </Card>
 
-        {/* Input - pinned to the bottom of the visible viewport */}
+        {/* Input */}
         <div
-          className="shrink-0 px-0 pt-2 bg-white dark:bg-gray-900 border-t border-gray-200/50 dark:border-gray-700/50 z-20 w-full"
+          className="z-20 w-full shrink-0 border-t border-gray-200/60 bg-white/95 pt-2 backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-900/95"
           style={{
             paddingBottom: keyboardOpen
               ? "0.5rem"
               : "max(0.5rem, env(safe-area-inset-bottom))",
           }}
         >
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <Textarea
-                ref={textareaRef}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={
-                  activeMode === "coach"
-                    ? "Ask your health coach anything..."
-                    : "Ask your AI copilot anything..."
+          <div className="flex items-end gap-2">
+            <Textarea
+              ref={textareaRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={
+                activeMode === "coach"
+                  ? "Message your coach…"
+                  : "Ask AI Copilot…"
+              }
+              rows={1}
+              className="min-h-[44px] max-h-28 flex-1 resize-none rounded-xl border-gray-200/80 bg-gray-50/80 px-3.5 py-3 text-sm placeholder:text-gray-400 focus-visible:ring-blue-500/30 dark:border-gray-600/80 dark:bg-gray-800/80"
+              onFocus={handleInputFocus}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
                 }
-                className="!min-h-[40px] !h-[40px] placeholder:font-light resize-none placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm bg-white/80 dark:bg-gray-700/80 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm shadow-inner focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-400/30"
-                onFocus={handleInputFocus}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-              />
-            </div>
+              }}
+            />
             <Button
               onMouseDown={(e) => e.preventDefault()}
               onClick={sendMessage}
               disabled={!message.trim()}
-              className={`h-[40px] w-[40px] rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+              size="icon"
+              className={`h-11 w-11 flex-shrink-0 rounded-xl shadow-sm transition-all ${
                 activeMode === "coach"
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
-                  : "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-              }`}
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              } text-white disabled:opacity-40`}
             >
-              <Send className="w-4 h-4" />
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Report Modal */}
-      <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Report AI Response</DialogTitle>
-            <DialogDescription>
-              Tell us what was wrong with this response.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
+      {/* Report sheet */}
+      <Sheet open={showReportModal} onOpenChange={setShowReportModal}>
+        <SheetContent
+          side="bottom"
+          className="mx-auto flex w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t p-0 [&>button]:hidden"
+        >
+          <div className="flex justify-center pb-1 pt-3">
+            <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+          </div>
+          <SheetHeader className="space-y-0 px-5 pb-3 pt-1 text-left">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <SheetTitle className="text-base font-semibold">
+                  Report response
+                </SheetTitle>
+                <SheetDescription className="text-xs">
+                  Help us improve AI answers
+                </SheetDescription>
+              </div>
+              <SheetClose asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                  <X className="h-4 w-4" />
+                </Button>
+              </SheetClose>
+            </div>
+          </SheetHeader>
+          <div className="space-y-4 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Reason for Reporting
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Reason
               </label>
               <Select value={reportReason} onValueChange={setReportReason}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl">
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="inaccurate">
-                    Inaccurate or misleading information
+                    Inaccurate or misleading
                   </SelectItem>
                   <SelectItem value="inappropriate">
-                    Offensive, harmful, or inappropriate content
+                    Inappropriate content
                   </SelectItem>
                   <SelectItem value="irrelevant">
-                    Irrelevant or nonsensical response
+                    Irrelevant response
                   </SelectItem>
                   <SelectItem value="harassment">Harassment</SelectItem>
-                  <SelectItem value="other">Other (please specify)</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Additional Details (optional)
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Details (optional)
               </label>
               <Textarea
                 value={reportDetails}
                 onChange={(e) => setReportDetails(e.target.value)}
-                placeholder="Describe the issue in more detail"
-                className="resize-none"
+                placeholder="Describe the issue…"
+                className="min-h-[80px] resize-none rounded-xl"
                 rows={3}
               />
             </div>
-
             <Button
               onClick={handleSubmitReport}
-              className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white"
+              className="h-11 w-full rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white"
             >
-              Submit Report
+              Submit report
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
-      {/* References Modal */}
-      <Dialog open={showReferencesModal} onOpenChange={setShowReferencesModal}>
-        <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto sm:w-full">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 flex-wrap">
-              <BookOpen className="h-5 w-5 text-blue-600 flex-shrink-0" />
-              References
-            </DialogTitle>
-            <DialogDescription>
-              Sources and references used in this response
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+      {/* References sheet */}
+      <Sheet
+        open={showReferencesModal}
+        onOpenChange={setShowReferencesModal}
+      >
+        <SheetContent
+          side="bottom"
+          className="mx-auto flex max-h-[85dvh] w-full max-w-md flex-col gap-0 rounded-t-3xl border-x-0 border-t p-0 [&>button]:hidden"
+        >
+          <div className="flex justify-center pb-1 pt-3">
+            <span className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+          </div>
+          <SheetHeader className="flex-shrink-0 space-y-0 px-5 pb-3 pt-1 text-left">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                <div>
+                  <SheetTitle className="text-base font-semibold">
+                    References
+                  </SheetTitle>
+                  <SheetDescription className="text-xs">
+                    Sources for this response
+                  </SheetDescription>
+                </div>
+              </div>
+              <SheetClose asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                  <X className="h-4 w-4" />
+                </Button>
+              </SheetClose>
+            </div>
+          </SheetHeader>
+          <div className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
             {selectedReferences.map((reference, index) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+                className="rounded-xl border border-gray-200/60 bg-gray-50/80 p-3 dark:border-gray-700 dark:bg-gray-800/50"
               >
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
-                      Source {index + 1}:
-                    </span>
-                    <span
-                      className="text-sm font-semibold text-blue-600 dark:text-blue-400 break-words text-justify min-w-0 flex-1"
-                      style={{
-                        wordBreak: "break-word",
-                        overflowWrap: "anywhere",
-                      }}
-                    >
-                      {reference.filename}
-                    </span>
-                  </div>
-                  <p
-                    className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words text-justify"
-                    style={{
-                      wordBreak: "break-word",
-                      overflowWrap: "anywhere",
-                    }}
-                  >
-                    {reference.text}
-                  </p>
-                </div>
+                <p className="mb-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
+                  {reference.filename}
+                </p>
+                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                  {reference.text}
+                </p>
               </div>
             ))}
             {selectedReferences.length === 0 && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <p className="py-8 text-center text-sm text-gray-500">
                 No references available
-              </div>
+              </p>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
