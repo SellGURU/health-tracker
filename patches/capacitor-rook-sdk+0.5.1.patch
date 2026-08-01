@@ -1,8 +1,159 @@
 diff --git a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-index efa7284..f50ed30 100644
+index efa7284..458c367 100644
 --- a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
 +++ b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-@@ -137,7 +137,11 @@ public class RookImplementation() {
+@@ -50,6 +50,7 @@ import kotlin.collections.Set
+ private const val INIT_ERROR_MESSAGE = "Please first init Rook"
+ 
+ public class RookImplementation() {
++    private var appContext: Context? = null
+     private var rookConfigurationManager: RookConfigurationManager? = null
+     private var rookPermissionsManager: RookPermissionsManager? = null
+     private var scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+@@ -64,8 +65,10 @@ public class RookImplementation() {
+     private var isBackgroundEnable: Boolean = false
+     private var backgroundManager: RookBackgroundSyncManager? = null
+     private var samsungManager: RookSamsung? = null
++    private var roomMigrationRetryDone: Boolean = false
+ 
+     fun initRookConfigurationManager(context: Context) {
++        appContext = context.applicationContext
+         rookConfigurationManager = RookConfigurationManager(context)
+         uploadManager = RookSyncManager(context)
+         stepsManager = RookStepsManager(context)
+@@ -77,6 +80,80 @@ public class RookImplementation() {
+     }
+     // MARK: - Configuration
+ 
++    private fun isRoomMigrationError(vararg results: Result<*>): Boolean {
++        return results.any { result ->
++            val msg = result.exceptionOrNull()?.message
++                ?: result.exceptionOrNull()?.toString()
++                ?: ""
++            msg.contains("migration from", ignoreCase = true) &&
++                msg.contains("was required but not found", ignoreCase = true)
++        }
++    }
++
++    private fun combineInitErrors(rookResult: Result<Unit>, samsungResult: Result<Unit>): String {
++        val msgs = listOfNotNull(
++            rookResult.exceptionOrNull()?.message,
++            samsungResult.exceptionOrNull()?.message,
++        )
++            .map { it.trim() }
++            .filter { it.isNotEmpty() }
++            .distinct()
++        return if (msgs.isEmpty()) "Rook initialization failed" else msgs.joinToString(" | ")
++    }
++
++    /**
++     * Wipe local ROOK Room/SQLCipher files so a schema downgrade (e.g. 2→1) can recover.
++     * Secrets DBs live under no_backup; registry DBs under the normal databases dir.
++     */
++    private fun clearRookLocalDatabases(context: Context) {
++        try {
++            for (name in context.databaseList()) {
++                val lower = name.lowercase()
++                if (
++                    lower.contains("rook") ||
++                    lower.contains("naruto") ||
++                    lower.contains("onepiece") ||
++                    lower.contains("one_piece")
++                ) {
++                    context.deleteDatabase(name)
++                }
++            }
++        } catch (_: Exception) {
++        }
++
++        try {
++            val dbDir = context.getDatabasePath("rook_dummy").parentFile
++            dbDir?.listFiles()?.forEach { file ->
++                val lower = file.name.lowercase()
++                if (
++                    lower.contains("rook") ||
++                    lower.contains("naruto") ||
++                    lower.contains("onepiece") ||
++                    lower.contains("one_piece")
++                ) {
++                    file.delete()
++                }
++            }
++        } catch (_: Exception) {
++        }
++
++        try {
++            // RookSecretsDatabase uses getNoBackupFilesDir() + "<name>.db"
++            context.noBackupFilesDir?.listFiles()?.forEach { file ->
++                val lower = file.name.lowercase()
++                if (
++                    lower.endsWith(".db") ||
++                    lower.endsWith(".db-shm") ||
++                    lower.endsWith(".db-wal") ||
++                    lower.endsWith(".db-journal")
++                ) {
++                    file.delete()
++                }
++            }
++        } catch (_: Exception) {
++        }
++    }
++
+     @SuppressLint("MissingPermission")
+     fun initRook(environment: String, clientUUID: String, password: String, call: PluginCall) {
+         scope.launch {
+@@ -106,11 +183,35 @@ public class RookImplementation() {
+             rookConfigurationManager!!.setConfiguration(rookConfiguration);
+             if (enableLogs) rookConfigurationManager!!.enableLocalLogs()
+             HCRookAnalytics.setFramework(HCRookFramework.IONIC)
+-            val initRookResult: Result<Unit> = rookConfigurationManager!!.initRook()
+-            val initSamsungResult: Result<Unit> = initRookSamsungHealth(
++            var initRookResult: Result<Unit> = rookConfigurationManager!!.initRook()
++            var initSamsungResult: Result<Unit> = initRookSamsungHealth(
+                 clientUUID,
+                 password,
+                 samsungEnvironment)
++
++            // Stale Room schema (often Secrets DB at v2 while SDK expects v1) blocks init.
++            // Clear local ROOK DBs once and retry.
++            if (
++                !roomMigrationRetryDone &&
++                initRookResult.isFailure &&
++                isRoomMigrationError(initRookResult, initSamsungResult)
++            ) {
++                roomMigrationRetryDone = true
++                val ctx = appContext
++                if (ctx != null) {
++                    clearRookLocalDatabases(ctx)
++                    initRookConfigurationManager(ctx)
++                    rookConfigurationManager!!.setConfiguration(rookConfiguration)
++                    if (enableLogs) rookConfigurationManager!!.enableLocalLogs()
++                    HCRookAnalytics.setFramework(HCRookFramework.IONIC)
++                    initRookResult = rookConfigurationManager!!.initRook()
++                    initSamsungResult = initRookSamsungHealth(
++                        clientUUID,
++                        password,
++                        samsungEnvironment)
++                }
++            }
++
+             handelInitResult(initRookResult, initSamsungResult, call)
+         }
+     }
+@@ -131,13 +232,21 @@ public class RookImplementation() {
+         if (rookResult.isSuccess) {
+             continuousUpload!!.launchInForegroundService(areLogsEnable).fold({ },{ })
+             attemptToEnableBackgroundSync(isBackgroundEnable, areLogsEnable)
+-            val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
+-            if (!isStepsEnable) {
+-                stepsManager!!.enableBackgroundAndroidSteps()
++            try {
++                val isStepsEnable: Boolean = stepsManager!!.isBackgroundAndroidStepsActive()
++                if (!isStepsEnable) {
++                    stepsManager!!.enableBackgroundAndroidSteps()
++                }
++            } catch (e: Exception) {
++                // Non-fatal: steps background must never fail Health Connect init.
              }
          }
          if (samsungResult.isSuccess) {
@@ -15,7 +166,7 @@ index efa7284..f50ed30 100644
          }
          if (rookResult.isSuccess && samsungResult.isSuccess) {
              validateUser()
-@@ -145,8 +149,11 @@ public class RookImplementation() {
+@@ -145,14 +254,16 @@ public class RookImplementation() {
              ret.put("result", true)
              call.resolve(ret)
          } else if (rookResult.isSuccess && samsungResult.isFailure) {
@@ -29,7 +180,14 @@ index efa7284..f50ed30 100644
          } else if (rookResult.isFailure && samsungResult.isSuccess) {
              val error = rookResult.exceptionOrNull()?.message
              call.reject(error)
-@@ -176,12 +183,15 @@ public class RookImplementation() {
+         } else {
+-            val error = rookResult.exceptionOrNull()?.message + samsungResult.exceptionOrNull()?.message
+-            call.reject(error)
++            call.reject(combineInitErrors(rookResult, samsungResult))
+         }
+     }
+ 
+@@ -176,12 +287,15 @@ public class RookImplementation() {
              }
              val samsungResult: Result<Unit> = updateUserIdSamsung(userId)
              val rookResult: Result<Unit> = rookConfigurationManager!!.updateUserID(userId)
@@ -47,7 +205,7 @@ index efa7284..f50ed30 100644
              }
          }
      }
-@@ -582,10 +592,14 @@ public class RookImplementation() {
+@@ -582,10 +696,14 @@ public class RookImplementation() {
                  call.reject(INIT_ERROR_MESSAGE);
                  return@launch
              }
@@ -66,7 +224,7 @@ index efa7284..f50ed30 100644
          }
      }
  
-@@ -595,10 +609,14 @@ public class RookImplementation() {
+@@ -595,10 +713,14 @@ public class RookImplementation() {
                  call.reject(INIT_ERROR_MESSAGE);
                  return@launch
              }
@@ -85,7 +243,7 @@ index efa7284..f50ed30 100644
          }
      }
  
-@@ -636,18 +654,26 @@ public class RookImplementation() {
+@@ -636,18 +758,26 @@ public class RookImplementation() {
          if (!enableBackgroundSync || rookPermissionsManager == null || backgroundManager == null || samsungManager == null)  {
              return
          }

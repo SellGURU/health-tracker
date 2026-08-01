@@ -31,12 +31,15 @@ import {
   getPlatformHealthSourceName,
   initializeRookForUser,
   isIOSRookPlatform,
+  isRookRoomMigrationError,
   isRookSummarySyncSupported,
+  openNativeAppSettings,
   requestPlatformHealthPermissions,
   syncRookSummaries,
   withTimeout,
 } from "@/lib/rook";
 import { openExternalUrl } from "@/lib/open-external-url";
+import { ToastAction } from "@/components/ui/toast";
 
 const DEVICE_IMAGE_FALLBACK =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0YzRjRGNiIvPgo8cGF0aCBkPSJNMjQgMTJMMjggMjBIMjBMMjQgMTJaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCAzNkwyMCAyOEgyOEwyNCAzNloiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
@@ -551,6 +554,27 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       setIsConnecting("disconnected");
 
       const errorMessage = e?.message || e?.toString() || "Unknown error occurred";
+
+      if (isRookRoomMigrationError(e) || isRookRoomMigrationError(errorMessage)) {
+        toast({
+          title: "Connection Failed",
+          description:
+            "Local health cache is out of date for this app version. Open App Settings → Storage → Clear storage, then try Connect again. (Or uninstall and reinstall without restoring backup.)",
+          variant: "destructive",
+          action: (
+            <ToastAction
+              altText="Open app settings"
+              onClick={() => {
+                void openNativeAppSettings();
+              }}
+            >
+              App Settings
+            </ToastAction>
+          ),
+        });
+        return;
+      }
+
       toast({
         title: "Connection Failed",
         description: `Failed to connect to ${getPlatformHealthSourceName()}: ${errorMessage}`,
@@ -635,6 +659,26 @@ This app uses Apple Health (HealthKit) to read and write your health data secure
       console.error("❌ Samsung Health connection failed:", error);
 
       setIsConnectingSamsungHealth("disconnected");
+
+      if (isRookRoomMigrationError(error)) {
+        toast({
+          title: "Connection Failed",
+          description:
+            "Local health cache is out of date for this app version. Open App Settings → Storage → Clear storage, then try Connect again.",
+          variant: "destructive",
+          action: (
+            <ToastAction
+              altText="Open app settings"
+              onClick={() => {
+                void openNativeAppSettings();
+              }}
+            >
+              App Settings
+            </ToastAction>
+          ),
+        });
+        return;
+      }
 
       toast({
         title: "Connection Failed",

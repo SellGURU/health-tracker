@@ -197,3 +197,52 @@ export async function syncRookSummaries(): Promise<void> {
 
   await RookSummaries.sync({});
 }
+
+/** True when native ROOK Room schema is incompatible (e.g. migration 2→1). */
+export function isRookRoomMigrationError(error: unknown): boolean {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : error && typeof error === "object" && "message" in error
+          ? String((error as { message?: unknown }).message ?? error)
+          : String(error ?? "");
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("migration from") &&
+    (lower.includes("was required but not found") ||
+      lower.includes("roomdatabase") ||
+      lower.includes("addmigrations"))
+  );
+}
+
+/**
+ * Open the OS app-info screen so the user can Clear storage.
+ * Android: APPLICATION_DETAILS_SETTINGS for this package.
+ */
+export async function openNativeAppSettings(): Promise<void> {
+  if (!isNativeRookPlatform()) {
+    return;
+  }
+
+  if (isAndroidRookPlatform()) {
+    const packageName = ROOK_ANDROID_PACKAGE_NAME;
+    const intentUrl =
+      `intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;` +
+      `data=package:${packageName};end`;
+    try {
+      window.location.href = intentUrl;
+      return;
+    } catch (error) {
+      console.warn("[Rook] Failed to open Android app settings via intent:", error);
+    }
+  }
+
+  // iOS: open the app's settings page when available
+  try {
+    window.location.href = "app-settings:";
+  } catch (error) {
+    console.warn("[Rook] Failed to open app settings:", error);
+  }
+}
