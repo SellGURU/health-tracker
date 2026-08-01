@@ -6,6 +6,12 @@ vite.config.ts.*
 *.tar.gz
 attached_assets
 
+# Playwright cleanup E2E artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # لاگ و کلیدها - هیچوقت کامیت نکن
 .env
 .env.local
