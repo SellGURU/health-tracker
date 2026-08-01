@@ -1,5 +1,5 @@
 diff --git a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
-index efa7284..458c367 100644
+index efa7284..da491dd 100644
 --- a/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
 +++ b/node_modules/capacitor-rook-sdk/android/src/main/java/io/tryrook/rook/sdk/RookImplementation.kt
 @@ -50,6 +50,7 @@ import kotlin.collections.Set
@@ -21,19 +21,23 @@ index efa7284..458c367 100644
          rookConfigurationManager = RookConfigurationManager(context)
          uploadManager = RookSyncManager(context)
          stepsManager = RookStepsManager(context)
-@@ -77,6 +80,80 @@ public class RookImplementation() {
+@@ -77,6 +80,84 @@ public class RookImplementation() {
      }
      // MARK: - Configuration
  
-+    private fun isRoomMigrationError(vararg results: Result<*>): Boolean {
-+        return results.any { result ->
-+            val msg = result.exceptionOrNull()?.message
-+                ?: result.exceptionOrNull()?.toString()
-+                ?: ""
-+            msg.contains("migration from", ignoreCase = true) &&
-+                msg.contains("was required but not found", ignoreCase = true)
-+        }
++    private fun isResultRoomMigrationError(result: Result<Unit>): Boolean {
++        val msg = result.exceptionOrNull()?.message
++            ?: result.exceptionOrNull()?.toString()
++            ?: ""
++        return msg.contains("migration from", ignoreCase = true) &&
++            msg.contains("was required but not found", ignoreCase = true)
 +    }
++
++    private fun isRoomMigrationError(
++        rookResult: Result<Unit>,
++        samsungResult: Result<Unit>,
++    ): Boolean =
++        isResultRoomMigrationError(rookResult) || isResultRoomMigrationError(samsungResult)
 +
 +    private fun combineInitErrors(rookResult: Result<Unit>, samsungResult: Result<Unit>): String {
 +        val msgs = listOfNotNull(
@@ -102,7 +106,7 @@ index efa7284..458c367 100644
      @SuppressLint("MissingPermission")
      fun initRook(environment: String, clientUUID: String, password: String, call: PluginCall) {
          scope.launch {
-@@ -106,11 +183,35 @@ public class RookImplementation() {
+@@ -106,11 +187,35 @@ public class RookImplementation() {
              rookConfigurationManager!!.setConfiguration(rookConfiguration);
              if (enableLogs) rookConfigurationManager!!.enableLocalLogs()
              HCRookAnalytics.setFramework(HCRookFramework.IONIC)
@@ -140,7 +144,7 @@ index efa7284..458c367 100644
              handelInitResult(initRookResult, initSamsungResult, call)
          }
      }
-@@ -131,13 +232,21 @@ public class RookImplementation() {
+@@ -131,13 +236,21 @@ public class RookImplementation() {
          if (rookResult.isSuccess) {
              continuousUpload!!.launchInForegroundService(areLogsEnable).fold({ },{ })
              attemptToEnableBackgroundSync(isBackgroundEnable, areLogsEnable)
@@ -166,7 +170,7 @@ index efa7284..458c367 100644
          }
          if (rookResult.isSuccess && samsungResult.isSuccess) {
              validateUser()
-@@ -145,14 +254,16 @@ public class RookImplementation() {
+@@ -145,14 +258,16 @@ public class RookImplementation() {
              ret.put("result", true)
              call.resolve(ret)
          } else if (rookResult.isSuccess && samsungResult.isFailure) {
@@ -187,7 +191,7 @@ index efa7284..458c367 100644
          }
      }
  
-@@ -176,12 +287,15 @@ public class RookImplementation() {
+@@ -176,12 +291,15 @@ public class RookImplementation() {
              }
              val samsungResult: Result<Unit> = updateUserIdSamsung(userId)
              val rookResult: Result<Unit> = rookConfigurationManager!!.updateUserID(userId)
@@ -205,7 +209,7 @@ index efa7284..458c367 100644
              }
          }
      }
-@@ -582,10 +696,14 @@ public class RookImplementation() {
+@@ -582,10 +700,14 @@ public class RookImplementation() {
                  call.reject(INIT_ERROR_MESSAGE);
                  return@launch
              }
@@ -224,7 +228,7 @@ index efa7284..458c367 100644
          }
      }
  
-@@ -595,10 +713,14 @@ public class RookImplementation() {
+@@ -595,10 +717,14 @@ public class RookImplementation() {
                  call.reject(INIT_ERROR_MESSAGE);
                  return@launch
              }
@@ -243,7 +247,7 @@ index efa7284..458c367 100644
          }
      }
  
-@@ -636,18 +758,26 @@ public class RookImplementation() {
+@@ -636,18 +762,26 @@ public class RookImplementation() {
          if (!enableBackgroundSync || rookPermissionsManager == null || backgroundManager == null || samsungManager == null)  {
              return
          }
