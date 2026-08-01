@@ -139,6 +139,10 @@ async function handleApi(route: Route) {
     return json(route, { status: 'OK' });
   }
 
+  if (path.includes('notification') || path.includes('Notification')) {
+    return json(route, { new_notifications: false, notifications: [] });
+  }
+
   if (path.includes('/mobile/') || path.includes('_mobile')) {
     return json(route, {});
   }

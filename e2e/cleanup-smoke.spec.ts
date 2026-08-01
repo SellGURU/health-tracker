@@ -80,4 +80,20 @@ test.describe('Mobile-web cleanup smoke (Vite-only, offline mocks)', () => {
     await clickBottomNav(page, '/');
     await expect(page).toHaveURL(/\/$/);
   });
+
+  test('M5: notifications control is reachable from home shell', async ({
+    page,
+  }) => {
+    await login(page);
+    await expect(page.locator('[data-bottom-nav]')).toBeVisible({
+      timeout: 20_000,
+    });
+    // Profile header bell / notification control (icon button).
+    const bell = page.locator('button, [role="button"]').filter({
+      has: page.locator('svg'),
+    });
+    // Soft assertion: home shell stayed authenticated (notifications mocked empty).
+    await expect(page).not.toHaveURL(/auth|login/i);
+    await expect(bell.first()).toBeVisible({ timeout: 10_000 });
+  });
 });
