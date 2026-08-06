@@ -14,36 +14,46 @@ function AppProvider({ children }: { children: React.ReactNode }) {
     focus_area: string;
   }>();
   const [wellnessScore, setWellnessScore] = useState({
-    scores:[],
-    latest_date:null as string | null,
-  })
+    scores: [] as Array<{ name?: string; score?: number | string | null }>,
+    latest_date: null as string | null,
+  });
+
   useEffect(() => {
     Application.getBrandInfo()
       .then((res: any) => {
         setBrandInfo(res.data.brand_elements);
-      });
+      })
+      .catch(() => {});
+
     Application.getWellnessScores()
       .then((res: any) => {
+        const scores = Array.isArray(res?.data?.scores) ? res.data.scores : [];
         setWellnessScore({
-          scores: res.data.scores,
-          latest_date: res.data.latest_date,
+          scores,
+          latest_date: res?.data?.latest_date ?? null,
         });
+      })
+      .catch(() => {
+        setWellnessScore({ scores: [], latest_date: null });
       });
   }, []);
+
   return (
-    <AppContext.Provider value={{
+    <AppContext.Provider
+      value={{
         brandInfo: brandInfo || {
-            last_update: '',
-            logo: '',
-            name: '',
-            headline: '',
-            primary_color: '',
-            secondary_color: '',
-            tone: '',
-            focus_area: '',
+          last_update: "",
+          logo: "",
+          name: "",
+          headline: "",
+          primary_color: "",
+          secondary_color: "",
+          tone: "",
+          focus_area: "",
         },
-        wellnessScore: wellnessScore
-    }}>
+        wellnessScore: wellnessScore,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
