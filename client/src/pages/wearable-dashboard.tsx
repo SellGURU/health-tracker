@@ -54,6 +54,14 @@ interface WellnessApiResponse {
   last_sync?: string;
   history?: WellnessHistoryItem[];
 }
+
+interface ScoreMetadata {
+  key: string;
+  name: string;
+  description: string;
+  factors: string[];
+  score: number | null;
+}
 import {
   LineChart,
   Line,
@@ -260,6 +268,84 @@ const currentScores = {
   },
   archetype: "Sedentary Worker",
   lastSync: new Date('2024-12-04T14:32:00')
+};
+
+const emptyWellnessScores = (): WellnessScores => ({
+  sleep: null,
+  activity: null,
+  heart: null,
+  stress: null,
+  calories: null,
+  body: null,
+  readiness: null,
+  global: null,
+});
+
+/** Map API score name (e.g. "Heart Score") to wearable dashboard key. */
+const normalizeScoreNameToKey = (name: string): keyof WellnessScores | null => {
+  const nameLower = (name || "").toLowerCase();
+  if (nameLower.includes("archetype")) return null;
+  if (nameLower.includes("sleep")) return "sleep";
+  if (nameLower.includes("activity")) return "activity";
+  if (nameLower.includes("heart") || nameLower.includes("cardio")) return "heart";
+  if (nameLower.includes("stress")) return "stress";
+  if (nameLower.includes("calor") || nameLower.includes("metabolic")) return "calories";
+  if (nameLower.includes("body") || nameLower.includes("composition")) return "body";
+  if (nameLower.includes("readiness")) return "readiness";
+  if (nameLower.includes("global") || nameLower.includes("wellness") || nameLower.includes("overall")) {
+    return "global";
+  }
+  return null;
+};
+
+const parseScoreNumber = (raw: unknown): number | null => {
+  if (raw === undefined || raw === null || raw === "") return null;
+  const n = typeof raw === "number" ? raw : parseFloat(String(raw));
+  return Number.isFinite(n) ? n : null;
+};
+
+/** Build scores object + metadata from /mobile/wellness_scores array. */
+const parseWellnessScoreItems = (
+  scoresArray: Array<{ name?: string; score?: unknown; description?: string; factors?: string[] }>
+) => {
+  const normalizedScores = emptyWellnessScores();
+  const newScoreDetails: Record<string, ScoreMetadata> = {};
+  let archetypeValue: string | null = null;
+
+  for (const item of scoresArray || []) {
+    const name = String(item?.name || "").trim();
+    if (!name) continue;
+    const nameLower = name.toLowerCase();
+    if (nameLower.includes("archetype")) {
+      archetypeValue = item?.score != null ? String(item.score) : null;
+      newScoreDetails.archetype = {
+        key: "archetype",
+        name: item.name || "Archetype",
+        description: item.description || "",
+        factors: item.factors || [],
+        score: null,
+      };
+      continue;
+    }
+    const key = normalizeScoreNameToKey(name);
+    if (!key) continue;
+    // Prefer first non-null; do not overwrite a filled domain with null
+    const scoreValue = parseScoreNumber(item.score);
+    if (normalizedScores[key] == null && scoreValue != null) {
+      normalizedScores[key] = scoreValue;
+    }
+    if (!newScoreDetails[key] || (newScoreDetails[key].score == null && scoreValue != null)) {
+      newScoreDetails[key] = {
+        key,
+        name: item.name || key,
+        description: item.description || "",
+        factors: item.factors || [],
+        score: scoreValue,
+      };
+    }
+  }
+
+  return { normalizedScores, newScoreDetails, archetypeValue };
 };
 
 const seededRandom = (seed: number) => {
@@ -534,15 +620,6 @@ function EmptyState() {
   );
 }
 
-// Type for score metadata from API
-interface ScoreMetadata {
-  key: string;
-  name: string;
-  description: string;
-  factors: string[];
-  score: number | null;
-}
-
 // Custom X axis tick to align first/last/middle labels differently
 const CustomizedXAxisTick = (props: any) => {
   const { x, y, payload, index, dataLength } = props;
@@ -576,8 +653,10 @@ export default function WearableDashboard() {
   const [presentScores, setPresentScores] = useState<string[]>([]);
   const [visibleScores, setVisibleScores] = useState<string[]>([]);
   const isInitialLoadRef = useRef(true);
+  // Default 90 days so ROOK history (often weeks old) still fills charts + cards
+  // like portal Progress when the patient has not synced this week.
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
-    from: startOfDay(subDays(new Date(), 6)),
+    from: startOfDay(subDays(new Date(), 89)),
     to: startOfDay(new Date())
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -623,114 +702,29 @@ export default function WearableDashboard() {
       
       console.log('🔍 Fetching wellness scores with:', requestData);
       const response = await Application.getWellnessScores(requestData);
-      const data = response.data;
+      // Support both { scores: [...] } and accidental array wrap
+      const raw = response.data;
+      const data = Array.isArray(raw) ? raw[0] : raw;
       console.log('🔍 Wellness API response:', data);
       
-      // API returns scores as an array with dynamic names like:
-      // [{name: "Activity Score", score: "82", description: "...", factors: [...]}, ...]
-      // We need to match flexibly using keywords and store metadata
       const scoresArray = data?.scores;
       
       if (scoresArray && Array.isArray(scoresArray) && scoresArray.length > 0) {
-        // Map of keywords to internal keys
-        const keywordToKey: Record<string, string> = {
-          'sleep': 'sleep',
-          'activity': 'activity',
-          'heart': 'heart',
-          'stress': 'stress',
-          'calor': 'calories',
-          'metabolic': 'calories',
-          'body': 'body',
-          'global': 'global',
-        };
-        
-        // Helper to find score item by keyword (flexible matching)
-        const findItemByKeyword = (keyword: string): any | null => {
-          const normalizedKeyword = keyword.toLowerCase();
-          return scoresArray.find((s: any) => {
-            const name = (s.name || '').toLowerCase().replace(/[_\s\/]+/g, ' ').trim();
-            return name.includes(normalizedKeyword);
-          }) || null;
-        };
-        
-        // Build score details map with full metadata from API
-        const newScoreDetails: Record<string, ScoreMetadata> = {};
-        const normalizedScores: WellnessScores = {
-          sleep: null, activity: null, heart: null, stress: null,
-          calories: null, body: null, readiness: null, global: null,
-        };
-        
-        // Process each score type
-        const scoreTypes = [
-          { keyword: 'sleep', key: 'sleep' },
-          { keyword: 'activity', key: 'activity' },
-          { keyword: 'heart', key: 'heart' },
-          { keyword: 'stress', key: 'stress' },
-          { keyword: 'calor', key: 'calories', altKeyword: 'metabolic' },
-          { keyword: 'body', key: 'body' },
-          { keyword: 'readiness', key: 'readiness' },
-          { keyword: 'global', key: 'global' },
-        ];
-        
-        for (const { keyword, key, altKeyword } of scoreTypes) {
-          let item = findItemByKeyword(keyword);
-          if (!item && altKeyword) {
-            item = findItemByKeyword(altKeyword);
-          }
-          
-          if (item) {
-            const scoreValue = item.score !== undefined && item.score !== null && item.score !== ''
-              ? parseFloat(item.score)
-              : null;
-            
-            normalizedScores[key as keyof WellnessScores] = isNaN(scoreValue as number) ? null : scoreValue;
-            
-            newScoreDetails[key] = {
-              key,
-              name: item.name || key,
-              description: item.description || '',
-              factors: item.factors || [],
-              score: normalizedScores[key as keyof WellnessScores],
-            };
-          }
-        }
-        
-        // Get archetype from array (flexible matching)
-        const archetypeItem = scoresArray.find((s: any) => {
-          const name = (s.name || '').toLowerCase();
-          return name.includes('archetype');
-        });
-        const archetypeValue = archetypeItem?.score || null;
-        
-        // Also store archetype details
-        if (archetypeItem) {
-          newScoreDetails['archetype'] = {
-            key: 'archetype',
-            name: archetypeItem.name || 'Archetype',
-            description: archetypeItem.description || '',
-            factors: archetypeItem.factors || [],
-            score: null,
-          };
-        }
+        const { normalizedScores, newScoreDetails, archetypeValue } =
+          parseWellnessScoreItems(scoresArray);
         
         console.log('🔍 Parsed scores:', normalizedScores, 'archetype:', archetypeValue);
         console.log('🔍 Score details:', newScoreDetails);
         
-        // Detect which scores are present (have non-null values)
-        const detectedPresentScores = Object.keys(newScoreDetails).filter(
-          key => key !== 'archetype' && newScoreDetails[key].score !== null
-        );
+        const detectedPresentScores = (Object.keys(normalizedScores) as (keyof WellnessScores)[])
+          .filter((key) => normalizedScores[key] !== null);
         
         console.log('🔍 Present scores:', detectedPresentScores);
         
-        // Check if we have at least one valid score
-        const hasAnyScore = detectedPresentScores.length > 0;
-        
-        if (hasAnyScore) {
+        if (detectedPresentScores.length > 0) {
           setScoreDetails(newScoreDetails);
           setPresentScores(detectedPresentScores);
           
-          // Only set visible scores on initial load, don't reset user's filter choices
           if (isInitialLoadRef.current) {
             setVisibleScores(detectedPresentScores);
             isInitialLoadRef.current = false;
@@ -746,17 +740,14 @@ export default function WearableDashboard() {
           setWellnessData(normalizedData);
           setHasWearableData(true);
           
-          // Fetch historical data from dedicated endpoint
           fetchHistoricalScores(fromDate, toDate);
         } else {
-          // No valid scores data, show empty state
           console.log('🔍 No valid scores found, showing empty state');
           setWellnessData(null);
           setHasWearableData(false);
           setPresentScores([]);
         }
       } else {
-        // No scores array, show empty state
         console.log('🔍 No scores array in response, showing empty state');
         setWellnessData(null);
         setHasWearableData(false);
@@ -766,7 +757,6 @@ export default function WearableDashboard() {
       console.error('❌ Failed to fetch wellness scores:', error);
       setWellnessData(null);
       setHasWearableData(false);
-      // Set error message unless it's a 401 (handled by axios interceptor)
       if (error?.response?.status !== 401) {
         setApiError('Unable to load wellness data');
       }
@@ -781,13 +771,10 @@ export default function WearableDashboard() {
       const effectiveFrom = fromDate || dateRange.from;
       const effectiveTo = toDate || dateRange.to;
       
-      const requestData: { from_date?: string; to_date?: string } = {};
-      if (fromDate) {
-        requestData.from_date = format(fromDate, 'yyyy-MM-dd');
-      }
-      if (toDate) {
-        requestData.to_date = format(toDate, 'yyyy-MM-dd');
-      }
+      const requestData = {
+        from_date: format(effectiveFrom, 'yyyy-MM-dd'),
+        to_date: format(effectiveTo, 'yyyy-MM-dd'),
+      };
       
       console.log('🔍 Fetching historical scores with:', requestData);
       const response = await Application.getWellnessScoresHistorical(requestData);
@@ -803,59 +790,48 @@ export default function WearableDashboard() {
         currentDate.setDate(currentDate.getDate() + i);
         const dateKey = format(currentDate, 'yyyy-MM-dd');
         
-        // Initialize with just date info, score keys will be added dynamically
         allDatesInRange[dateKey] = {
           date: format(currentDate, 'MMM d'),
           fullDate: new Date(currentDate),
         };
       }
       
-      // API returns: { historical: [...], date_range: {...} }
-      // May also be wrapped in array for backward compatibility
       const unwrappedData = Array.isArray(responseData) ? responseData[0] : responseData;
       const historicalArray = unwrappedData?.historical;
       console.log('🔍 Historical array:', historicalArray);
-      
-      // Helper function to normalize API name to consistent key
-      const normalizeToKey = (name: string): string | null => {
-        const nameLower = (name || '').toLowerCase();
-        
-        // Skip archetype
-        if (nameLower === 'archetype' || nameLower.includes('archetype')) return null;
-        
-        // Map to consistent keys used by wellness API
-        if (nameLower.includes('sleep')) return 'sleep';
-        if (nameLower.includes('activity')) return 'activity';
-        if (nameLower.includes('heart')) return 'heart';
-        if (nameLower.includes('stress')) return 'stress';
-        if (nameLower.includes('calor') || nameLower.includes('metabolic')) return 'calories';
-        if (nameLower.includes('body') || nameLower.includes('composition')) return 'body';
-        if (nameLower.includes('readiness')) return 'readiness';
-        if (nameLower.includes('global') || nameLower.includes('wellness')) return 'global';
-        
-        return null;
-      };
+
+      // Track latest non-null per metric to backfill summary cards
+      const latestByKey: Partial<Record<keyof WellnessScores, { score: number; ts: number }>> = {};
       
       if (historicalArray && Array.isArray(historicalArray) && historicalArray.length > 0) {
-        // Fill in actual data from API using normalized keys matching wellness API
         for (const item of historicalArray) {
           if (!item.date || !item.name) continue;
           
-          const scoreKey = normalizeToKey(item.name);
+          const scoreKey = normalizeScoreNameToKey(item.name);
           if (!scoreKey) continue;
           
           const itemDate = new Date(item.date);
           const dateKey = format(itemDate, 'yyyy-MM-dd');
-          const scoreValue = parseFloat(item.score);
-          
-          // Only update if this date is in our range
+          const scoreValue = parseScoreNumber(item.score);
+          if (scoreValue == null) continue;
+
+          // Last write wins within a day. ROOK often has an incomplete row and a
+          // richer sibling for the same date; DESC order usually puts incomplete
+          // first, so the richer row that follows fills Heart/Calories and corrects Global.
           if (allDatesInRange[dateKey]) {
-            allDatesInRange[dateKey][scoreKey] = isNaN(scoreValue) ? null : scoreValue;
+            allDatesInRange[dateKey][scoreKey] = scoreValue;
+          }
+
+          const ts = itemDate.getTime();
+          // Prefer later timestamps; on ties keep last seen (richer sibling).
+          if (!latestByKey[scoreKey] || ts >= latestByKey[scoreKey]!.ts) {
+            latestByKey[scoreKey] = { score: scoreValue, ts };
           }
         }
         
-        // Initialize 0 values for all standard score keys across all dates (shows flat line at bottom)
-        const standardKeys = ['sleep', 'activity', 'heart', 'stress', 'calories', 'body', 'readiness', 'global'];
+        const standardKeys: (keyof WellnessScores)[] = [
+          'sleep', 'activity', 'heart', 'stress', 'calories', 'body', 'readiness', 'global',
+        ];
         Object.keys(allDatesInRange).forEach(dateKey => {
           standardKeys.forEach(key => {
             if (allDatesInRange[dateKey][key] === undefined) {
@@ -863,9 +839,49 @@ export default function WearableDashboard() {
             }
           });
         });
+
+        // Fill any summary domains still missing (e.g. old cached snapshot)
+        // from the latest non-null value inside the selected range.
+        setWellnessData((prev) => {
+          if (!prev?.scores) return prev;
+          const merged = { ...prev.scores };
+          let changed = false;
+          (Object.keys(merged) as (keyof WellnessScores)[]).forEach((key) => {
+            if (merged[key] != null) return;
+            const latestVal = latestByKey[key]?.score ?? null;
+            if (latestVal != null) {
+              merged[key] = latestVal;
+              changed = true;
+            }
+          });
+          if (!changed) return prev;
+
+          const present = (Object.keys(merged) as (keyof WellnessScores)[])
+            .filter((k) => merged[k] != null);
+          setPresentScores(present);
+          if (isInitialLoadRef.current) {
+            setVisibleScores(present);
+            isInitialLoadRef.current = false;
+          }
+          setScoreDetails((prevDetails) => {
+            const nextDetails = { ...prevDetails };
+            present.forEach((key) => {
+              nextDetails[key] = {
+                ...(nextDetails[key] || {
+                  key,
+                  name: key,
+                  description: '',
+                  factors: [],
+                }),
+                score: merged[key],
+              };
+            });
+            return nextDetails;
+          });
+          return { ...prev, scores: merged };
+        });
       }
       
-      // Convert to array and sort by date
       const formattedHistory = Object.values(allDatesInRange).sort(
         (a: any, b: any) => a.fullDate.getTime() - b.fullDate.getTime()
       );
@@ -875,7 +891,6 @@ export default function WearableDashboard() {
       
     } catch (error: any) {
       console.error('❌ Failed to fetch historical scores:', error);
-      // Fallback to generated history with all dates
       setScoreHistory(generateScoreHistory(dateRange.from, dateRange.to));
     }
   };
@@ -946,6 +961,7 @@ export default function WearableDashboard() {
     if (diffDays === 7) return "Last 7 days";
     if (diffDays === 14) return "Last 14 days";
     if (diffDays === 30) return "Last 30 days";
+    if (diffDays === 90) return "Last 90 days";
     return `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}`;
   };
 
@@ -1238,6 +1254,13 @@ export default function WearableDashboard() {
                       data-testid="preset-30-days"
                     >
                       30 days
+                    </button>
+                    <button
+                      onClick={() => setPresetRange(90)}
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-700 dark:text-cyan-300 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
+                      data-testid="preset-90-days"
+                    >
+                      90 days
                     </button>
                   </div>
                   <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2">
